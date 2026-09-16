@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOROF — Искусственный интеллект нового поколения</title>
+    <!-- Шрифты Inter и Marked для Markdown -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #08090D;
+            --bg-panel: #0d0f17;
+            --bg-card: rgba(25, 28, 38, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-glow: rgba(139, 92, 246, 0.25);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow-x: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* --- КОЛХОЗНЫЙ/КРАСИВЫЙ КАНВАС ДЛЯ ПАДАЮЩИХ БУКВ --- */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        /* --- ЭКРАНЫ ПРИЛОЖЕНИЯ --- */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+            z-index: 10;
+            background: rgba(8, 9, 13, 0.92);
+            backdrop-filter: blur(10px);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- ЭКРАН 1: ПРИВЕТСТВИЕ --- */
+        .welcome-content {
+            text-align: center;
+            max-width: 700px;
+            padding: 0 20px;
+        }
+
+        .welcome-title {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 1s ease;
+        }
+
+        .welcome-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: #fff;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 0 30px var(--accent-glow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 45px var(--accent-glow);
+        }
+
+        /* --- ЭКРАН 2 и 3: АНКЕТА И ГОТОВНОСТЬ --- */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .checkbox-label:hover {
+            border-color: var(--accent-purple);
+        }
+
+        .checkbox-label input {
+            accent-color: var(--accent-purple);
+        }
+
+        .error-text {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .skip-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .skip-link:hover { color: #fff; }
+
+        /* --- ОСНОВНОЙ ИНТЕРФЕЙС ИИ --- */
+        #app-screen {
+            display: flex;
+            flex-direction: row;
+            background: var(--bg-main);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff, var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .new-chat-btn {
+            margin: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-purple);
+        }
+
+        .sidebar-search {
+            padding: 0 16px 12px 16px;
+        }
+
+        .chat-history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px;
+        }
+
+        .history-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 10px 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .history-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover, .history-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-profile-snippet {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .avatar-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* --- ЦЕНТРАЛЬНАЯ ОБЛАСТЬ ЧАТА --- */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-main);
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-content-inner {
+            width: 100%;
+            max-width: 800px;
+            margin: auto 0;
+        }
+
+        .empty-chat-greet {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .empty-chat-greet h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .empty-chat-greet p {
+            color: var(--text-muted);
+        }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .suggestion-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .suggestion-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        /* --- СООБЩЕНИЯ --- */
+        .messages-list {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-bottom: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: var(--accent-purple);
+            color: #fff;
+            border-top-right-radius: 4px;
+        }
+
+        .message.ai .message-bubble {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-top-left-radius: 4px;
+        }
+
+        /* Стили Markdown внутри ответа */
+        .message-bubble pre {
+            background: #000;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .message-bubble code { font-family: monospace; }
+        .message-bubble p { margin-bottom: 8px; }
+        .message-bubble p:last-child { margin-bottom: 0; }
+
+        /* --- ОБЛАСТЬ ВВОДА --- */
+        .chat-input-area {
+            padding: 20px 24px;
+            background: var(--bg-main);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: border-color 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-purple);
+        }
+
+        .chat-textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 0.95rem;
+            resize: none;
+            max-height: 150px;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        .send-btn {
+            background: var(--accent-purple);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            background: #7c3aed;
+        }
+
+        /* --- МОДАЛЬНОЕ ОКНО НАСТРОЕК --- */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .close-modal:hover { color: #fff; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .thinking-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            align-items: center;
+        }
+        .thinking-dot {
+            width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+        .thinking-dot:nth-child(3) { animation-delay: -0.32s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Канвас падающих букв -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- ЭКРАН 1: Приветствие -->
+    <div id="screen-welcome" class="screen active">
+        <div class="welcome-content">
+            <h1 class="welcome-title">Добро пожаловать в MOROF</h1>
+            <p class="welcome-subtitle">«Твоя новая точка взаимодействия с искусственным интеллектом»</p>
+            <button class="btn-primary" onclick="goToScreen('screen-profile')">Начать</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 2: Настройка профиля -->
+    <div id="screen-profile" class="screen">
+        <div class="card">
+            <h2>Давай познакомимся</h2>
+            <p>«Настрой MOROF под себя».</p>
+            <form id="profile-form" onsubmit="handleProfileSubmit(event)">
+                <div class="form-group">
+                    <label>Как тебя называть?</label>
+                    <input type="text" id="p-name" class="form-input" placeholder="Введи своё имя" required>
+                </div>
+                <div class="form-group">
+                    <label>Сколько тебе лет?</label>
+                    <input type="number" id="p-age" class="form-input" placeholder="Укажи возраст" min="5" max="120" required>
+                    <div class="error-text" id="age-error">Пожалуйста, введи корректный возраст.</div>
+                </div>
+                <div class="form-group">
+                    <label>Стиль общения</label>
+                    <select id="p-style" class="form-select">
+                        <option value="friendly">Дружелюбный</option>
+                        <option value="calm">Спокойный</option>
+                        <option value="concise">Краткий и по делу</option>
+                        <option value="detailed">Подробный и объясняющий</option>
+                        <option value="humor">С юмором</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Цели использования (можно выбрать несколько)</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Учёба"> Учёба</label>
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Работа"> Работа</label>
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Программирование"> Программирование</label>
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Творчество"> Творчество</label>
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Общение"> Общение</label>
+                        <label class="checkbox-label"><input type="checkbox" name="goal" value="Разные задачи"> Разные задачи</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Продолжить</button>
+                <a href="#" class="skip-link" onclick="skipProfile(event)">Пропустить настройку</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3: Создание профиля / Готовность -->
+    <div id="screen-ready" class="screen">
+        <div class="card" style="text-align: center;">
+            <h2 id="ready-title">MOROF готов к работе</h2>
+            <p id="ready-subtitle" style="margin-bottom: 30px;">Привет! Теперь ты можешь начать общение с MOROF.</p>
+            <button class="btn-primary" onclick="enterApp()">Перейти к MOROF</button>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС ИИ -->
+    <div id="app-screen" class="screen">
+        <!-- Боковая панель -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="logo-text">MOROF</span>
+                <button class="menu-toggle" onclick="toggleSidebar()">✕</button>
+            </div>
+            <button class="new-chat-btn" onclick="createNewChat()">
+                <span>+ Новый чат</span>
+            </button>
+            <div class="sidebar-search">
+                <input type="text" id="chat-search" class="form-input" placeholder="Поиск по чатам..." oninput="filterChats(this.value)" style="padding: 8px 12px; font-size: 0.85rem;">
+            </div>
+            <div class="chat-history-list" id="history-list">
+                <!-- Динамическая история чатов -->
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-profile-snippet">
+                    <div class="avatar-circle" id="user-avatar-initial">U</div>
+                    <span id="user-display-name">Пользователь</span>
+                </div>
+                <button onclick="openSettings()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size: 1.1rem;">⚙️</button>
+            </div>
+        </aside>
+
+        <!-- Главная зона чата -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="menu-toggle" onclick="toggleSidebar()" style="display: block;">☰</button>
+                    <span id="current-chat-title" style="font-weight: 500;">Новый диалог</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px;">
+                    Демо-режим ИИ
+                </div>
+            </header>
+
+            <div class="chat-container" id="chat-container">
+                <div class="chat-content-inner" id="chat-welcome-box">
+                    <div class="empty-chat-greet">
+                        <h1>Чем займёмся сегодня?</h1>
+                        <p>Задай вопрос, придумай что-нибудь новое или начни с идеи.</p>
+                    </div>
+                    <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="sendSuggestion('Объясни сложную тему простыми словами')">«Объясни сложную тему простыми словами»</div>
+                        <div class="suggestion-card" onclick="sendSuggestion('Помоги написать текст для статьи')">«Помоги написать текст»</div>
+                        <div class="suggestion-card" onclick="sendSuggestion('Придумай интересную идею для проекта')">«Придумай интересную идею»</div>
+                        <div class="suggestion-card" onclick="sendSuggestion('Напиши простой скрипт на Python')">«Помоги с программированием»</div>
+                    </div>
+                </div>
+                <div class="messages-list" id="messages-list" style="display: none;">
+                    <!-- Сообщения чата -->
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea id="user-input" class="chat-textarea" placeholder="Напиши сообщение MOROF…" rows="1" onkeydown="handleKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+    <div class="modal-backdrop" id="settings-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Настройки</h2>
+                <button class="close-modal" onclick="closeSettings()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <input type="text" id="set-name" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Стиль общения MOROF</label>
+                <select id="set-style" class="form-select">
+                    <option value="friendly">Дружелюбный</option>
+                    <option value="calm">Спокойный</option>
+                    <option value="concise">Краткий и по делу</option>
+                    <option value="detailed">Подробный и объясняющий</option>
+                    <option value="humor">С юмором</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn-primary" onclick="saveSettings()" style="flex: 1;">Сохранить</button>
+                <button class="btn-primary" onclick="resetProfile()" style="background: #ef4444; flex: 1;">Сбросить профиль</button>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+                <button onclick="exportChatsJSON()" style="background:none; border:none; color: var(--accent-blue); cursor:pointer; font-size: 0.9rem;">Экспортировать историю чатов (JSON)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- СКРИПТЫ ПРИЛОЖЕНИЯ -->
+    <script>
+        /* --- АНИМАЦИЯ ПАДАЮЩИХ БУКВ (КАНВАС) --- */
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const chars = 'MOROF0123456789ABCDEFÎÑTPXY<>[]{}#@$*';
+        const fontSize = 14;
+        let columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(8, 9, 13, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#8b5cf6';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillStyle = Math.random() > 0.85 ? '#ffffff' : '#8b5cf6';
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        /* --- СОСТОЯНИЕ И ЛОКАЛЬНОЕ ХРАНИЛИЩЕ --- */
+        let userProfile = JSON.parse(localStorage.getItem('morof_profile')) || null;
+        let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
+        let currentChatId = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (userProfile && userProfile.name) {
+                // Если профиль уже есть, пропускаем приветствия
+                enterApp(true);
+            }
+        });
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function handleProfileSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value.trim();
+            const age = document.getElementById('p-age').value.trim();
+            const style = document.getElementById('p-style').value;
+            const goals = Array.from(document.querySelectorAll('input[name="goal"]:checked')).map(cb => cb.value);
+
+            if (!name || isNaN(age) || age < 5 || age > 120) {
+                document.getElementById('age-error').style.display = 'block';
+                return;
+            }
+
+            userProfile = { name, age, style, goals };
+            localStorage.setItem('morof_profile', JSON.stringify(userProfile));
+
+            document.getElementById('ready-title').innerText = `MOROF готов к работе`;
+            document.getElementById('ready-subtitle').innerText = `Привет, ${name}! Теперь ты можешь начать общение с MOROF.`;
+            goToScreen('screen-ready');
+        }
+
+        function skipProfile(e) {
+            e.preventDefault();
+            userProfile = { name: 'Гость', age: 18, style: 'friendly', goals: [] };
+            localStorage.setItem('morof_profile', JSON.stringify(userProfile));
+            goToScreen('screen-ready');
+        }
+
+        function enterApp(skipAnimation = false) {
+            if (!userProfile) userProfile = { name: 'Пользователь' };
+            document.getElementById('user-display-name').innerText = userProfile.name;
+            document.getElementById('user-avatar-initial').innerText = userProfile.name.charAt(0).toUpperCase();
+            
+            goToScreen('app-screen');
+            renderChatHistory();
+            if (chats.length === 0) {
+                createNewChat(false);
+            } else {
+                loadChat(chats[0].id);
+            }
+        }
+
+        /* --- УПРАВЛЕНИЕ ЧАТАМИ И ИСТОРИЕЙ --- */
+        function createNewChat(switchView = true) {
+            const newChat = {
+                id: 'chat_' + Date.now(),
+                title: 'Новый диалог',
+                createdAt: Date.now(),
+                messages: []
+            };
+            chats.unshift(newChat);
+            saveChats();
+            renderChatHistory();
+            loadChat(newChat.id);
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+
+        function saveChats() {
+            localStorage.setItem('morof_chats', JSON.stringify(chats));
+        }
+
+        function renderChatHistory() {
+            const listEl = document.getElementById('history-list');
+            listEl.innerHTML = '';
+
+            if (chats.length === 0) {
+                listEl.innerHTML = '<div style="padding: 10px; color: var(--text-muted); font-size: 0.85rem;">Нет сохраненных чатов</div>';
+                return;
+            }
+
+            chats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+                item.innerHTML = `
+                    <span onclick="loadChat('${chat.id}')" style="flex:1; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(chat.title)}</span>
+                    <span onclick="deleteChat(event, '${chat.id}')" style="opacity:0.5; padding-left: 8px;">×</span>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            const chat = chats.find(c => c.id === chatId);
+            if (!chat) return;
+
+            document.getElementById('current-chat-title').innerText = chat.title;
+            renderMessages();
+            renderChatHistory();
+        }
+
+        function deleteChat(e, chatId) {
+            e.stopPropagation();
+            if (!confirm('Удалить этот чат?')) return;
+            chats = chats.filter(c => c.id !== chatId);
+            saveChats();
+            renderChatHistory();
+            if (currentChatId === chatId) {
+                if (chats.length > 0) loadChat(chats[0].id);
+                else createNewChat();
+            }
+        }
+
+        function filterChats(query) {
+            const q = query.toLowerCase();
+            const items = document.querySelectorAll('.history-item');
+            chats.forEach((chat, index) => {
+                const match = chat.title.toLowerCase().includes(q);
+                items[index].style.display = match ? 'flex' : 'none';
+            });
+        }
+
+        /* --- ОТПРАВКА СООБЩЕНИЙ И ИИ МОДУЛЬ --- */
+        function sendSuggestion(text) {
+            document.getElementById('user-input').value = text;
+            sendMessage();
+        }
+
+        function handleKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
+        async function sendMessage() {
+            const inputEl = document.getElementById('user-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+
+            const chat = chats.find(c => c.id === currentChatId);
+            if (!chat) return;
+
+            // Если это первое сообщение, генерируем название чата
+            if (chat.messages.length === 0) {
+                chat.title = text.length > 30 ? text.substring(0, 30) + '...' : text;
+                document.getElementById('current-chat-title').innerText = chat.title;
+            }
+
+            chat.messages.push({ role: 'user', content: text });
+            saveChats();
+            renderMessages();
+
+            // Показываем индикатор «думает»
+            appendThinkingIndicator();
+
+            // Имитация ответа ИИ (Демо-режим с архитектурой под реальный API)
+            setTimeout(async () => {
+                removeThinkingIndicator();
+                const aiReply = await getAIResponse(text);
+                chat.messages.push({ role: 'ai', content: aiReply });
+                saveChats();
+                renderMessages();
+            }, 1000);
+        }
+
+        async function getAIResponse(userText) {
+            // Место для подключения реального серверного эндпоинта через fetch:
+            /*
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userText, profile: userProfile })
+                });
+                const data = await response.json();
+                return data.reply;
+            } catch (err) {
+                return "Ошибка подключения к серверу ИИ.";
+            }
+            */
+
+            // Ответ демонстрационного режима
+            const lower = userText.toLowerCase();
+            if (lower.includes('привет') || lower.includes('здравствуй')) {
+                return `Привет, **${userProfile.name}**! Рад общению с тобой. Чем могу помочь тебе сегодня?`;
+            } else if (lower.includes('python') || lower.includes('код')) {
+                return `Конечно! Вот пример простого скрипта на Python:\n\`\`\`python\ndef greet(name):\n    print(f"Привет, {name}!")\n\ngreet("${userProfile.name}")\n\`\`\``;
+            } else {
+                return `Это демонстрационный ответ ИИ MOROF на твой запрос: *«${userText}»*. Архитектура полностью подготовлена для подключения реального API (например, через защищенный серверный эндпоинт).`;
+            }
+        }
+
+        function renderMessages() {
+            const chat = chats.find(c => c.id === currentChatId);
+            const welcomeBox = document.getElementById('chat-welcome-box');
+            const messagesList = document.getElementById('messages-list');
+
+            if (!chat || chat.messages.length === 0) {
+                welcomeBox.style.display = 'block';
+                messagesList.style.display = 'none';
+                return;
+            }
+
+            welcomeBox.style.display = 'none';
+            messagesList.style.display = 'flex';
+            messagesList.innerHTML = '';
+
+            chat.messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${msg.role === 'user' ? 'user' : 'ai'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+
+                if (msg.role === 'ai') {
+                    bubble.innerHTML = marked.parse(msg.content);
+                } else {
+                    bubble.innerText = msg.content;
+                }
+
+                msgDiv.appendChild(bubble);
+                messagesList.appendChild(msgDiv);
+            });
+
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendThinkingIndicator() {
+            const messagesList = document.getElementById('messages-list');
+            messagesList.style.display = 'flex';
+            document.getElementById('chat-welcome-box').style.display = 'none';
+
+            const indDiv = document.createElement('div');
+            indDiv.className = 'message ai';
+            indDiv.id = 'thinking-indicator-msg';
+            indDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="thinking-indicator">
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesList.appendChild(indDiv);
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeThinkingIndicator() {
+            const ind = document.getElementById('thinking-indicator-msg');
+            if (ind) ind.remove();
+        }
+
+        /* --- НАСТРОЙКИ И МОДАЛЬНЫЕ ОКНА --- */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function openSettings() {
+            document.getElementById('set-name').value = userProfile.name || '';
+            document.getElementById('set-style').value = userProfile.style || 'friendly';
+            document.getElementById('settings-modal').classList.add('open');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.remove('open');
+        }
+
+        function saveSettings() {
+            userProfile.name = document.getElementById('set-name').value.trim() || 'Пользователь';
+            userProfile.style = document.getElementById('set-style').value;
+            localStorage.setItem('morof_profile', JSON.stringify(userProfile));
+            document.getElementById('user-display-name').innerText = userProfile.name;
+            document.getElementById('user-avatar-initial').innerText = userProfile.name.charAt(0).toUpperCase();
+            closeSettings();
+        }
+
+        function resetProfile() {
+            if (!confirm('Сбросить профиль и удалить все чаты?')) return;
+            localStorage.clear();
+            location.reload();
+        }
+
+        function exportChatsJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(chats, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "morof_chats_backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
