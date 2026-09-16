@@ -908,9 +908,6 @@
         let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
         let currentChatId = null;
 
-        // API ключ Gemini
-        const GEMINI_API_KEY = "AQ.Ab8RN6LhcjndaWE07xMrFjoikDunXtCsooTp0bcMwkXsh5hxQg";
-
         let currentTheme = localStorage.getItem('morof_theme') || 'dark';
         function updateThemeUI() {
             const iconEl = document.getElementById('theme-icon');
@@ -1113,51 +1110,37 @@
                 renderMessages();
             } catch (error) {
                 removeThinkingIndicator();
-                chat.messages.push({ role: 'ai', content: 'Произошла ошибка при обращении к Gemini API: ' + error.message });
+                chat.messages.push({ role: 'ai', content: 'Произошла ошибка при обращении к серверу: ' + error.message });
                 saveChats();
                 renderMessages();
             }
         }
 
         async function getAIResponse(userText, messageHistory) {
-            // Системный промпт с учетом профиля пользователя
+            // Формируем единый промпт с учетом системной инструкции профиля и истории сообщений
             const systemInstruction = `Ты — MOROF, искусственный интеллект. Пользователя зовут ${userProfile.name}, его возраст: ${userProfile.age}. Стиль общения: ${userProfile.style}.`;
+            
+            // Собираем всю историю в читаемый вид для бэкенда или отправляем последний текст с контекстом
+            const fullPrompt = `${systemInstruction}\n\nИстория диалога:\n` + messageHistory.map(m => `${m.role === 'user' ? 'Пользователь' : 'MOROF'}: ${m.content}`).join('\n');
 
-            // Преобразование истории сообщений в формат Gemini API (contents)
-            const contents = messageHistory.map(msg => ({
-                role: msg.role === 'ai' ? 'model' : 'user',
-                parts: [{ text: msg.content }]
-            }));
-
-            const payload = {
-                system_instruction: {
-                    parts: [{ text: systemInstruction }]
-                },
-                contents: contents
-            };
-
-            // Использование CORS-прокси и официального эндпоинта Gemini API
-            const proxyUrl = "https://corsproxy.io/?";
-            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ prompt: fullPrompt })
             });
 
             if (!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.error?.message || 'Ошибка сети');
+                throw new Error(errData.detail || 'Ошибка сервера');
             }
 
             const data = await response.json();
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                return data.candidates[0].content.parts[0].text;
+            if (data.response) {
+                return data.response;
             } else {
-                throw new Error('Неверный формат ответа от API');
+                throw new Error('Неверный формат ответа от сервера');
             }
         }
 
@@ -1293,7 +1276,6 @@
         }
 
         function closeSettings() {
-            document.getElementById('settings-modal').classList.remove('con');
             document.getElementById('settings-modal').classList.remove('open');
         }
 
@@ -1318,8 +1300,6 @@
             dlAnchor.setAttribute("href", dataStr);
             dlAnchor.setAttribute("download", "morof_chats_backup.json");
             document.documentElement.appendChild(dlAnchor);
-            dlAnchor.removeChild(dlAnchor); // безопасное удаление
-            // исправление ссылки экспорта
             dlAnchor.remove();
         }
 
