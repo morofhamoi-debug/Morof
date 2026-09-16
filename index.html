@@ -908,8 +908,8 @@
         let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
         let currentChatId = null;
 
-        // API токен Groq
-        const GROQ_API_KEY = "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";
+        // API ключ Gemini
+        const GEMINI_API_KEY = "AQ.Ab8RN6LhcjndaWE07xMrFjoikDunXtCsooTp0bcMwkXsh5hxQg";
 
         let currentTheme = localStorage.getItem('morof_theme') || 'dark';
         function updateThemeUI() {
@@ -1113,7 +1113,7 @@
                 renderMessages();
             } catch (error) {
                 removeThinkingIndicator();
-                chat.messages.push({ role: 'ai', content: 'Произошла ошибка при обращении к Groq API: ' + error.message });
+                chat.messages.push({ role: 'ai', content: 'Произошла ошибка при обращении к Gemini API: ' + error.message });
                 saveChats();
                 renderMessages();
             }
@@ -1123,30 +1123,27 @@
             // Системный промпт с учетом профиля пользователя
             const systemInstruction = `Ты — MOROF, искусственный интеллект. Пользователя зовут ${userProfile.name}, его возраст: ${userProfile.age}. Стиль общения: ${userProfile.style}.`;
 
-            // Подготовка истории сообщений для Groq API в OpenAI-совместимом формате
-            const messages = [
-                { role: 'system', content: systemInstruction },
-                ...messageHistory.map(msg => ({
-                    role: msg.role === 'ai' ? 'assistant' : msg.role,
-                    content: msg.content
-                }))
-            ];
+            // Преобразование истории сообщений в формат Gemini API (contents)
+            const contents = messageHistory.map(msg => ({
+                role: msg.role === 'ai' ? 'model' : 'user',
+                parts: [{ text: msg.content }]
+            }));
 
             const payload = {
-                model: "llama-3.3-70b-versatile",
-                messages: messages
+                system_instruction: {
+                    parts: [{ text: systemInstruction }]
+                },
+                contents: contents
             };
 
-            // Добавлен CORS-прокси перед URL запроса к Groq API
+            // Использование CORS-прокси и официального эндпоинта Gemini API
             const proxyUrl = "https://corsproxy.io/?";
-            const targetUrl = "https://api.groq.com/openai/v1/chat/completions";
+            const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-            // Отправка запроса на Groq API через CORS-прокси
             const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_API_KEY}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
@@ -1157,8 +1154,8 @@
             }
 
             const data = await response.json();
-            if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-                return data.choices[0].message.content;
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
             } else {
                 throw new Error('Неверный формат ответа от API');
             }
