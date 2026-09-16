@@ -7,7 +7,7 @@ from google import genai
 
 app = FastAPI()
 
-# Инициализация клиента Gemini (автоматически берет GEMINI_API_KEY из переменных окружения Railway)
+# Инициализация клиента Gemini
 try:
     client = genai.Client()
 except Exception as e:
@@ -19,16 +19,17 @@ class ChatRequest(BaseModel):
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
     try:
-        # Отправка запроса к модели (используем быструю модель gemini-2.5-flash)
+        # Используем современную и быструю gemini-3.5-flash
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.5-flash",
             contents=request.prompt,
         )
         return {"response": response.text}
     except Exception as e:
+        print(f"Ошибка при генерации контента: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Раздаем статические файлы фронтенда (index.html, картинки и т.д.)
+# Раздаем статические файлы фронтенда
 app.mount("/static", StaticFiles(directory="."), name="static")
 
 @app.get("/")
