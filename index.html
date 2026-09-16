@@ -20,6 +20,16 @@
             --text-muted: #9ca3af;
         }
 
+        [data-theme="light"] {
+            --bg-main: #f3f4f6;
+            --bg-panel: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --accent-glow: rgba(139, 92, 246, 0.15);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -62,7 +72,7 @@
             pointer-events: none;
             transition: opacity 0.6s ease;
             z-index: 10;
-            background: rgba(8, 9, 13, 0.92);
+            background: var(--bg-main);
             backdrop-filter: blur(10px);
         }
 
@@ -82,7 +92,7 @@
             font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 700;
             margin-bottom: 16px;
-            background: linear-gradient(135deg, #fff 30%, var(--accent-purple));
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: fadeInDown 1s ease;
@@ -120,13 +130,14 @@
             padding: 40px;
             width: 100%;
             max-width: 500px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             backdrop-filter: blur(20px);
         }
 
         .card h2 {
             font-size: 1.8rem;
             margin-bottom: 8px;
+            color: var(--text-main);
         }
 
         .card p {
@@ -149,11 +160,11 @@
 
         .form-input, .form-select {
             width: 100%;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 12px 16px;
-            color: #fff;
+            color: var(--text-main);
             font-size: 1rem;
             outline: none;
             transition: border-color 0.3s;
@@ -175,11 +186,12 @@
             gap: 8px;
             font-size: 0.9rem;
             cursor: pointer;
-            background: rgba(255,255,255,0.02);
+            background: var(--bg-card);
             padding: 10px 12px;
             border-radius: 10px;
             border: 1px solid var(--border-color);
             transition: all 0.2s;
+            color: var(--text-main);
         }
 
         .checkbox-label:hover {
@@ -205,7 +217,7 @@
             font-size: 0.85rem;
             text-decoration: none;
         }
-        .skip-link:hover { color: #fff; }
+        .skip-link:hover { color: var(--text-main); }
 
         /* --- ОСНОВНОЙ ИНТЕРФЕЙС ИИ --- */
         #app-screen {
@@ -224,6 +236,7 @@
             z-index: 100;
         }
 
+        /* На мобильных сайдбар скрыт по умолчанию и открывается по классу open */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -247,16 +260,16 @@
             font-weight: 700;
             font-size: 1.25rem;
             letter-spacing: 1px;
-            background: linear-gradient(135deg, #fff, var(--accent-purple));
+            background: linear-gradient(135deg, var(--text-main), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .new-chat-btn {
             margin: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
-            color: #fff;
+            color: var(--text-main);
             padding: 12px;
             border-radius: 12px;
             cursor: pointer;
@@ -269,7 +282,7 @@
         }
 
         .new-chat-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--border-color);
             border-color: var(--accent-purple);
         }
 
@@ -308,16 +321,19 @@
         }
 
         .history-item:hover, .history-item.active {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: var(--border-color);
+            color: var(--text-main);
         }
 
+        /* Футер сайдбара (аккаунт в самом низу) */
         .sidebar-footer {
+            margin-top: auto;
             padding: 16px;
             border-top: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: var(--bg-panel);
         }
 
         .user-profile-snippet {
@@ -326,6 +342,7 @@
             gap: 10px;
             font-size: 0.9rem;
             font-weight: 500;
+            color: var(--text-main);
         }
 
         .avatar-circle {
@@ -362,14 +379,10 @@
         .menu-toggle {
             background: none;
             border: none;
-            color: #fff;
+            color: var(--text-main);
             cursor: pointer;
             font-size: 1.25rem;
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .menu-toggle { display: block; }
+            display: block; /* Всегда доступна для открытия сайдбара */
         }
 
         .chat-container {
@@ -395,6 +408,7 @@
         .empty-chat-greet h1 {
             font-size: 2.5rem;
             margin-bottom: 12px;
+            color: var(--text-main);
         }
 
         .empty-chat-greet p {
@@ -416,6 +430,7 @@
             border-radius: 16px;
             cursor: pointer;
             font-size: 0.95rem;
+            color: var(--text-main);
             transition: all 0.2s;
         }
 
@@ -469,7 +484,7 @@
 
         /* Стили Markdown внутри ответа */
         .message-bubble pre {
-            background: #000;
+            background: rgba(0, 0, 0, 0.2);
             padding: 12px;
             border-radius: 8px;
             overflow-x: auto;
@@ -497,7 +512,7 @@
             display: flex;
             align-items: flex-end;
             gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             transition: border-color 0.3s;
         }
 
@@ -509,7 +524,7 @@
             flex: 1;
             background: none;
             border: none;
-            color: #fff;
+            color: var(--text-main);
             font-size: 0.95rem;
             resize: none;
             max-height: 150px;
@@ -540,7 +555,7 @@
         .modal-backdrop {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
@@ -572,6 +587,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            color: var(--text-main);
         }
 
         .close-modal {
@@ -581,7 +597,7 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
-        .close-modal:hover { color: #fff; }
+        .close-modal:hover { color: var(--text-main); }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -688,6 +704,7 @@
             <div class="chat-history-list" id="history-list">
                 <!-- Динамическая история чатов -->
             </div>
+            <!-- Блок аккаунта закреплен в самом низу -->
             <div class="sidebar-footer">
                 <div class="user-profile-snippet">
                     <div class="avatar-circle" id="user-avatar-initial">U</div>
@@ -701,11 +718,14 @@
         <main class="chat-main">
             <header class="chat-header">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <button class="menu-toggle" onclick="toggleSidebar()" style="display: block;">☰</button>
+                    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
                     <span id="current-chat-title" style="font-weight: 500;">Новый диалог</span>
                 </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px;">
-                    Демо-режим ИИ
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🌙 ТЕМА</button>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg-card); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px;">
+                        Демо-режим ИИ
+                    </div>
                 </div>
             </header>
 
@@ -812,9 +832,28 @@
         let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
         let currentChatId = null;
 
+        // Инициализация темы
+        let currentTheme = localStorage.getItem('morof_theme') || 'dark';
+        if (currentTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.getElementById('theme-toggle-btn').innerText = '☀️ ТЕМА';
+        }
+
+        function toggleTheme() {
+            if (currentTheme === 'dark') {
+                currentTheme = 'light';
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('theme-toggle-btn').innerText = '☀️ ТЕМА';
+            } else {
+                currentTheme = 'dark';
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('theme-toggle-btn').innerText = '🌙 ТЕМА';
+            }
+            localStorage.setItem('morof_theme', currentTheme);
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             if (userProfile && userProfile.name) {
-                // Если профиль уже есть, пропускаем приветствия
                 enterApp(true);
             }
         });
@@ -912,6 +951,9 @@
             document.getElementById('current-chat-title').innerText = chat.title;
             renderMessages();
             renderChatHistory();
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
         }
 
         function deleteChat(e, chatId) {
@@ -964,7 +1006,6 @@
             const chat = chats.find(c => c.id === currentChatId);
             if (!chat) return;
 
-            // Если это первое сообщение, генерируем название чата
             if (chat.messages.length === 0) {
                 chat.title = text.length > 30 ? text.substring(0, 30) + '...' : text;
                 document.getElementById('current-chat-title').innerText = chat.title;
@@ -974,10 +1015,8 @@
             saveChats();
             renderMessages();
 
-            // Показываем индикатор «думает»
             appendThinkingIndicator();
 
-            // Имитация ответа ИИ (Демо-режим с архитектурой под реальный API)
             setTimeout(async () => {
                 removeThinkingIndicator();
                 const aiReply = await getAIResponse(text);
@@ -988,29 +1027,13 @@
         }
 
         async function getAIResponse(userText) {
-            // Место для подключения реального серверного эндпоинта через fetch:
-            /*
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userText, profile: userProfile })
-                });
-                const data = await response.json();
-                return data.reply;
-            } catch (err) {
-                return "Ошибка подключения к серверу ИИ.";
-            }
-            */
-
-            // Ответ демонстрационного режима
             const lower = userText.toLowerCase();
             if (lower.includes('привет') || lower.includes('здравствуй')) {
                 return `Привет, **${userProfile.name}**! Рад общению с тобой. Чем могу помочь тебе сегодня?`;
             } else if (lower.includes('python') || lower.includes('код')) {
                 return `Конечно! Вот пример простого скрипта на Python:\n\`\`\`python\ndef greet(name):\n    print(f"Привет, {name}!")\n\ngreet("${userProfile.name}")\n\`\`\``;
             } else {
-                return `Это демонстрационный ответ ИИ MOROF на твой запрос: *«${userText}»*. Архитектура полностью подготовлена для подключения реального API (например, через защищенный серверный эндпоинт).`;
+                return `Это демонстрационный ответ ИИ MOROF на твой запрос: *«${userText}»*. Архитектура полностью подготовлена для подключения реального API.`;
             }
         }
 
