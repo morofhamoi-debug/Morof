@@ -1137,8 +1137,12 @@
                 messages: messages
             };
 
-            // Отправка запроса на Groq API
-            const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+            // Добавлен CORS-прокси перед URL запроса к Groq API
+            const proxyUrl = "https://corsproxy.io/?";
+            const targetUrl = "https://api.groq.com/openai/v1/chat/completions";
+
+            // Отправка запроса на Groq API через CORS-прокси
+            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
