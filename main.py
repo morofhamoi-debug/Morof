@@ -1,11 +1,19 @@
 import os
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 
 app = FastAPI()
+
+# НАСТРОЙКА CORS: разрешаем вашему сайту (фронтенду) обращаться к этому серверу
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешаем запросы с любых доменов (GitHub Pages, PythonAnywhere и т.д.)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Инициализация клиента Gemini
 try:
@@ -29,9 +37,7 @@ async def chat_with_ai(request: ChatRequest):
         print(f"Ошибка при генерации контента: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Раздаем статические файлы фронтенда
-app.mount("/static", StaticFiles(directory="."), name="static")
-
+# Простая проверка работоспособности сервера
 @app.get("/")
 def read_index():
-    return FileResponse("index.html")
+    return {"status": "Сервер MOROF успешно работает на Railway!"}
