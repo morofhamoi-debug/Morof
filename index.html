@@ -50,7 +50,7 @@
             height: 100dvh;
         }
 
-        /* --- КОЛХОЗНЫЙ/КРАСИВЫЙ КАНВАС ДЛЯ ПАДАЮЩИХ БУКВ --- */
+        /* --- КАНВАС ДЛЯ ПАДАЮЩИХ БУКВ --- */
         #matrix-canvas {
             position: fixed;
             top: 0;
@@ -91,6 +91,20 @@
             text-align: center;
             max-width: 700px;
             padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Стили для картинки на экране приветствия */
+        .welcome-logo {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 24px;
+            box-shadow: 0 0 40px var(--accent-glow);
+            animation: fadeInDown 1s ease;
         }
 
         .welcome-title {
@@ -231,7 +245,6 @@
             background: var(--bg-main);
         }
 
-        /* Затемнение фона при открытом сайдбаре на мобильных */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -261,7 +274,6 @@
             z-index: 100;
         }
 
-        /* На мобильных сайдбар скрыт слева и плавно выезжает */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -327,14 +339,6 @@
             padding: 0 12px;
         }
 
-        .history-section-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 10px 8px;
-            letter-spacing: 0.5px;
-        }
-
         .history-item {
             padding: 10px 12px;
             border-radius: 8px;
@@ -356,7 +360,6 @@
             color: var(--text-main);
         }
 
-        /* Футер сайдбара (аккаунт в самом низу) */
         .sidebar-footer {
             margin-top: auto;
             padding: 16px;
@@ -413,7 +416,7 @@
             color: var(--text-main);
             cursor: pointer;
             font-size: 1.25rem;
-            display: block; /* Всегда доступна для открытия сайдбара */
+            display: block;
         }
 
         .chat-container {
@@ -518,7 +521,6 @@
             border-top-left-radius: 4px;
         }
 
-        /* Кнопки под ответом нейросети */
         .ai-message-actions {
             display: flex;
             gap: 12px;
@@ -543,7 +545,6 @@
             transform: scale(1.1);
         }
 
-        /* Стили Markdown внутри ответа */
         .message-bubble pre {
             background: rgba(0, 0, 0, 0.2);
             padding: 12px;
@@ -649,12 +650,6 @@
                 padding: 18px;
                 max-height: 85vh;
             }
-            .modal-box .form-group {
-                margin-bottom: 12px;
-            }
-            .modal-box h2 {
-                font-size: 1.4rem;
-            }
         }
 
         .modal-header {
@@ -676,6 +671,11 @@
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -702,9 +702,10 @@
     <!-- Канвас падающих букв -->
     <canvas id="matrix-canvas"></canvas>
 
-    <!-- ЭКРАН 1: Приветствие -->
+    <!-- ЭКРАН 1: Приветствие (Добавлена картинка LOG.jpg) -->
     <div id="screen-welcome" class="screen active">
         <div class="welcome-content">
+            <img src="LOG.jpg" alt="MOROF Logo" class="welcome-logo">
             <h1 class="welcome-title">Добро пожаловать в MOROF</h1>
             <p class="welcome-subtitle">«Твоя новая точка взаимодействия с искусственным интеллектом»</p>
             <button class="btn-primary" onclick="goToScreen('screen-profile')">Начать</button>
@@ -764,7 +765,6 @@
 
     <!-- ОСНОВНОЙ ИНТЕРФЕЙС ИИ -->
     <div id="app-screen" class="screen">
-        <!-- Затемнение фона при открытии сайдбара на мобильных -->
         <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
         <!-- Боковая панель -->
@@ -780,9 +780,7 @@
                 <input type="text" id="chat-search" class="form-input" placeholder="Поиск по чатам..." oninput="filterChats(this.value)" style="padding: 8px 12px; font-size: 0.85rem;">
             </div>
             <div class="chat-history-list" id="history-list">
-                <!-- Динамическая история чатов -->
             </div>
-            <!-- Блок аккаунта закреплен в самом низу -->
             <div class="sidebar-footer">
                 <div class="user-profile-snippet">
                     <div class="avatar-circle" id="user-avatar-initial">U</div>
@@ -817,7 +815,6 @@
                     </div>
                 </div>
                 <div class="messages-list" id="messages-list" style="display: none;">
-                    <!-- Сообщения чата -->
                 </div>
             </div>
 
@@ -856,7 +853,6 @@
             <div class="form-group">
                 <label>Тема оформления</label>
                 <button onclick="toggleTheme()" id="theme-toggle-btn" style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; font-weight: 500;">
-                    <!-- SVG иконка (солнце/луна меняется динамически) -->
                     <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
                     <span id="theme-btn-text">Тёмная тема</span>
                 </button>
@@ -873,7 +869,6 @@
 
     <!-- СКРИПТЫ ПРИЛОЖЕНИЯ -->
     <script>
-        /* --- АНИМАЦИЯ ПАДАЮЩИХ БУКВ (КАНВАС) --- */
         const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
 
@@ -909,12 +904,10 @@
         }
         setInterval(drawMatrix, 50);
 
-        /* --- СОСТОЯНИЕ И ЛОКАЛЬНОЕ ХРАНИЛИЩЕ --- */
         let userProfile = JSON.parse(localStorage.getItem('morof_profile')) || null;
         let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
         let currentChatId = null;
 
-        // Инициализация темы
         let currentTheme = localStorage.getItem('morof_theme') || 'dark';
         function updateThemeUI() {
             const iconEl = document.getElementById('theme-icon');
@@ -923,14 +916,12 @@
                 document.documentElement.setAttribute('data-theme', 'light');
                 if (textEl) textEl.innerText = 'Светлая тема';
                 if (iconEl) {
-                    // Нарисованное солнце без цветов (контур)
                     iconEl.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
                 }
             } else {
                 document.documentElement.removeAttribute('data-theme');
                 if (textEl) textEl.innerText = 'Тёмная тема';
                 if (iconEl) {
-                    // Нарисованная луна без цветов (контур)
                     iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
                 }
             }
@@ -999,7 +990,6 @@
             }
         }
 
-        /* --- УПРАВЛЕНИЕ ЧАТАМИ И ИСТОРИЕЙ --- */
         function createNewChat(switchView = true) {
             const newChat = {
                 id: 'chat_' + Date.now(),
@@ -1073,7 +1063,6 @@
             });
         }
 
-        /* --- ОТПРАВКА СООБЩЕНИЙ И ИИ МОДУЛЬ --- */
         function sendSuggestion(text) {
             document.getElementById('user-input').value = text;
             sendMessage();
@@ -1158,7 +1147,6 @@
                 if (msg.role === 'ai') {
                     bubble.innerHTML = marked.parse(msg.content);
                     
-                    // Добавление кнопок под сообщением ИИ
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'ai-message-actions';
                     actionsDiv.innerHTML = `
@@ -1186,7 +1174,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        /* Действия с сообщениями */
         function copyMessageText(btn, index) {
             const chat = chats.find(c => c.id === currentChatId);
             if (chat && chat.messages[index]) {
@@ -1254,7 +1241,6 @@
             if (ind) ind.remove();
         }
 
-        /* --- НАСТРОЙКИ И МОДАЛЬНЫЕ ОКНА --- */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
