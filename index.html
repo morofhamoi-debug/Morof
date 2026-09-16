@@ -226,25 +226,51 @@
             background: var(--bg-main);
         }
 
+        /* Затемнение фона при открытом сайдбаре на мобильных */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .sidebar {
             width: 280px;
             background: var(--bg-panel);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
         }
 
-        /* На мобильных сайдбар скрыт по умолчанию и открывается по классу open */
+        /* На мобильных сайдбар скрыт слева и плавно выезжает */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
+                top: 0;
+                left: 0;
                 height: 100%;
                 transform: translateX(-100%);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.3);
             }
             .sidebar.open {
                 transform: translateX(0);
+            }
+            .sidebar-overlay {
+                display: block;
             }
         }
 
@@ -689,6 +715,9 @@
 
     <!-- ОСНОВНОЙ ИНТЕРФЕЙС ИИ -->
     <div id="app-screen" class="screen">
+        <!-- Затемнение фона при открытии сайдбара на мобильных -->
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
         <!-- Боковая панель -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -722,7 +751,6 @@
                     <span id="current-chat-title" style="font-weight: 500;">Новый диалог</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <button onclick="toggleTheme()" id="theme-toggle-btn" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🌙 ТЕМА</button>
                     <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg-card); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px;">
                         Демо-режим ИИ
                     </div>
@@ -779,6 +807,14 @@
                     <option value="humor">С юмором</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Тема оформления</label>
+                <button onclick="toggleTheme()" id="theme-toggle-btn" style="width: 100%; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; font-weight: 500;">
+                    <!-- SVG иконка (солнце/луна меняется динамически) -->
+                    <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+                    <span id="theme-btn-text">Тёмная тема</span>
+                </button>
+            </div>
             <div style="display: flex; gap: 10px; margin-top: 30px;">
                 <button class="btn-primary" onclick="saveSettings()" style="flex: 1;">Сохранить</button>
                 <button class="btn-primary" onclick="resetProfile()" style="background: #ef4444; flex: 1;">Сбросить профиль</button>
@@ -834,22 +870,35 @@
 
         // Инициализация темы
         let currentTheme = localStorage.getItem('morof_theme') || 'dark';
-        if (currentTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            document.getElementById('theme-toggle-btn').innerText = '☀️ ТЕМА';
+        function updateThemeUI() {
+            const iconEl = document.getElementById('theme-icon');
+            const textEl = document.getElementById('theme-btn-text');
+            if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (textEl) textEl.innerText = 'Светлая тема';
+                if (iconEl) {
+                    // Нарисованное солнце без цветов (контур)
+                    iconEl.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                }
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                if (textEl) textEl.innerText = 'Тёмная тема';
+                if (iconEl) {
+                    // Нарисованная луна без цветов (контур)
+                    iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                }
+            }
         }
+        updateThemeUI();
 
         function toggleTheme() {
             if (currentTheme === 'dark') {
                 currentTheme = 'light';
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.getElementById('theme-toggle-btn').innerText = '☀️ ТЕМА';
             } else {
                 currentTheme = 'dark';
-                document.documentElement.removeAttribute('data-theme');
-                document.getElementById('theme-toggle-btn').innerText = '🌙 ТЕМА';
             }
             localStorage.setItem('morof_theme', currentTheme);
+            updateThemeUI();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -953,6 +1002,7 @@
             renderChatHistory();
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebar-overlay').classList.remove('open');
             }
         }
 
@@ -1103,11 +1153,13 @@
         /* --- НАСТРОЙКИ И МОДАЛЬНЫЕ ОКНА --- */
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
         }
 
         function openSettings() {
             document.getElementById('set-name').value = userProfile.name || '';
             document.getElementById('set-style').value = userProfile.style || 'friendly';
+            updateThemeUI();
             document.getElementById('settings-modal').classList.add('open');
         }
 
