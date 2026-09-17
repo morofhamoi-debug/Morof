@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ИЗМЕНЕНО: Добавлены параметры user-scalable=no, maximum-scale=1.0 для полного отключения функции приближения -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MOROF</title>
     <!-- Настройки для добавления на экран «Домой» на iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,8 +20,8 @@
             --bg-card: rgba(25, 28, 38, 0.6);
             --border-color: rgba(255, 255, 255, 0.08);
             --accent-purple: #8b5cf6;
-            --accent-blue: #3b82f6;
-            --accent-glow: rgba(139, 92, 246, 0.25);
+            --accent-blue: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
         }
@@ -32,7 +33,7 @@
             --border-color: rgba(0, 0, 0, 0.08);
             --text-main: #1f2937;
             --text-muted: #6b7280;
-            --accent-glow: rgba(139, 92, 246, 0.15);
+            --accent-glow: rgba(56, 189, 248, 0.15);
         }
 
         * {
@@ -48,6 +49,8 @@
             overflow-x: hidden;
             height: 100vh;
             height: 100dvh;
+            position: fixed;
+            width: 100%;
         }
 
         /* --- КАНВАС ДЛЯ ПАДАЮЩИХ БУКВ --- */
@@ -96,7 +99,6 @@
             align-items: center;
         }
 
-        /* Стили для картинки на экране приветствия */
         .welcome-logo {
             width: 160px;
             height: 160px;
@@ -399,6 +401,7 @@
             height: 100vh;
             height: 100dvh;
             position: relative;
+            overflow: hidden;
         }
 
         .chat-header {
@@ -408,6 +411,7 @@
             align-items: center;
             justify-content: space-between;
             background: var(--bg-main);
+            flex-shrink: 0;
         }
 
         .menu-toggle {
@@ -426,6 +430,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            -webkit-overflow-scrolling: touch;
         }
 
         .chat-content-inner {
@@ -450,27 +455,10 @@
         }
 
         .suggestions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
+            display: flex;
+            justify-content: center;
             width: 100%;
             margin-top: 20px;
-        }
-
-        .suggestion-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        .suggestion-card:hover {
-            border-color: var(--accent-purple);
-            transform: translateY(-2px);
         }
 
         /* --- СООБЩЕНИЯ --- */
@@ -509,23 +497,31 @@
         }
 
         .message.user .message-bubble {
-            background: var(--accent-purple);
-            color: #fff;
-            border-top-right-radius: 4px;
+            background: #e0f2fe;
+            color: #0f172a;
+            border-radius: 28px;
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
+            border: none;
+        }
+        [data-theme="light"] .message.user .message-bubble {
+            background: #bae6fd;
+            color: #08090D;
         }
 
         .message.ai .message-bubble {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background: transparent;
+            border: none;
             color: var(--text-main);
-            border-top-left-radius: 4px;
+            padding: 0;
+            max-width: 100%;
+            width: 100%;
         }
 
         .ai-message-actions {
             display: flex;
             gap: 12px;
             margin-top: 4px;
-            padding-left: 4px;
+            padding-left: 0;
         }
 
         .action-btn {
@@ -558,28 +554,35 @@
 
         /* --- ОБЛАСТЬ ВВОДА --- */
         .chat-input-area {
-            padding: 20px 24px;
+            padding: 16px 24px;
             background: var(--bg-main);
             display: flex;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .input-wrapper {
             width: 100%;
             max-width: 800px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 12px 16px;
+            background: rgba(25, 28, 38, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 36px;
+            padding: 12px 18px;
             display: flex;
             align-items: flex-end;
             gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             transition: border-color 0.3s;
+        }
+        [data-theme="light"] .input-wrapper {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .input-wrapper:focus-within {
-            border-color: var(--accent-purple);
+            border-color: var(--accent-blue);
         }
 
         .chat-textarea {
@@ -594,23 +597,41 @@
             line-height: 1.4;
         }
 
+        /* Стилизация плейсхолдера с текстом «Спросить MOROF...» прямо по центру овальной вкладки */
+        .chat-textarea::placeholder {
+            text-align: center;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+        .chat-textarea:focus::placeholder {
+            text-align: left; /* При вводе текста плейсхолдер уходит влево */
+        }
+
         .send-btn {
-            background: var(--accent-purple);
+            background: var(--accent-blue);
             border: none;
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            color: #fff;
+            color: #08090D;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s, background 0.2s;
+            transition: transform 0.2s, background 0.2s, border-radius 0.2s;
         }
 
         .send-btn:hover {
             transform: scale(1.05);
-            background: #7c3aed;
+            background: #0ea5e9;
+        }
+
+        .send-btn.stop-mode {
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* --- МОДАЛЬНОЕ ОКНО НАСТРОЕК --- */
@@ -682,7 +703,7 @@
         .thinking-indicator {
             display: flex;
             gap: 6px;
-            padding: 8px 12px;
+            padding: 8px 0;
             align-items: center;
         }
         .thinking-dot {
@@ -702,7 +723,7 @@
     <!-- Канвас падающих букв -->
     <canvas id="matrix-canvas"></canvas>
 
-    <!-- ЭКРАН 1: Приветствие (Изменено на logo.png) -->
+    <!-- ЭКРАН 1: Приветствие -->
     <div id="screen-welcome" class="screen active">
         <div class="welcome-content">
             <img src="logo.png" alt="MOROF Logo" class="welcome-logo">
@@ -808,10 +829,7 @@
                         <p>Задай вопрос, придумай что-нибудь новое или начни с идеи.</p>
                     </div>
                     <div class="suggestions-grid">
-                        <div class="suggestion-card" onclick="sendSuggestion('Объясни сложную тему простыми словами')">«Объясни сложную тему простыми словами»</div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Помоги написать текст для статьи')">«Помоги написать текст»</div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Придумай интересную идею для проекта')">«Придумай интересную идею»</div>
-                        <div class="suggestion-card" onclick="sendSuggestion('Напиши простой скрипт на Python')">«Помоги с программированием»</div>
+                        <!-- Кнопка «Спросить MOROF» удалена отсюда, так как перенесена в поле ввода -->
                     </div>
                 </div>
                 <div class="messages-list" id="messages-list" style="display: none;">
@@ -820,9 +838,10 @@
 
             <div class="chat-input-area">
                 <div class="input-wrapper">
-                    <textarea id="user-input" class="chat-textarea" placeholder="Напиши сообщение MOROF…" rows="1" onkeydown="handleKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
-                    <button class="send-btn" onclick="sendMessage()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    <!-- ИЗМЕНЕНО: Надпись «Спросить MOROF» теперь находится прямо внутри в середине овальной вкладки ввода текста -->
+                    <textarea id="user-input" class="chat-textarea" placeholder="Спросить MOROF..." rows="1" onkeydown="handleKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+                    <button id="send-btn" class="send-btn" onclick="handleSendButtonClick()" title="Отправить">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                     </button>
                 </div>
             </div>
@@ -908,6 +927,9 @@
         let chats = JSON.parse(localStorage.getItem('morof_chats')) || [];
         let currentChatId = null;
 
+        let activeController = null;
+        let isWaitingResponse = false;
+
         let currentTheme = localStorage.getItem('morof_theme') || 'dark';
         function updateThemeUI() {
             const iconEl = document.getElementById('theme-icon');
@@ -980,7 +1002,7 @@
             if (!userProfile) userProfile = { name: 'Пользователь' };
             document.getElementById('user-display-name').innerText = userProfile.name;
             document.getElementById('user-avatar-initial').innerText = userProfile.name.charAt(0).toUpperCase();
-            
+
             goToScreen('app-screen');
             renderChatHistory();
             if (chats.length === 0) {
@@ -1063,11 +1085,6 @@
             });
         }
 
-        function sendSuggestion(text) {
-            document.getElementById('user-input').value = text;
-            sendMessage();
-        }
-
         function handleKeydown(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -1080,10 +1097,47 @@
             el.style.height = (el.scrollHeight) + 'px';
         }
 
+        function handleSendButtonClick() {
+            if (isWaitingResponse) {
+                stopAIResponse();
+            } else {
+                sendMessage();
+            }
+        }
+
+        function stopAIResponse() {
+            if (activeController) {
+                activeController.abort();
+                activeController = null;
+            }
+            isWaitingResponse = false;
+            updateSendButtonState();
+            removeThinkingIndicator();
+        }
+
+        function updateSendButtonState() {
+            const btn = document.getElementById('send-btn');
+            if (isWaitingResponse) {
+                btn.classList.add('stop-mode');
+                btn.title = 'Остановить генерацию';
+                btn.innerHTML = '<div style="width: 12px; height: 12px; border: 2px solid #08090D; border-radius: 3px; background: transparent;"></div>';
+            } else {
+                btn.classList.remove('stop-mode');
+                btn.title = 'Отправить';
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
+            }
+        }
+
         async function sendMessage() {
+            if (isWaitingResponse) return;
             const inputEl = document.getElementById('user-input');
             const text = inputEl.value.trim();
             if (!text) return;
+
+            // ИЗМЕНЕНО: Добавлен виброотклик при отправке сообщения
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
 
             inputEl.value = '';
             inputEl.style.height = 'auto';
@@ -1101,46 +1155,100 @@
             renderMessages();
 
             appendThinkingIndicator();
+            isWaitingResponse = true;
+            updateSendButtonState();
+
+            activeController = new AbortController();
 
             try {
-                const aiReply = await getAIResponse(text, chat.messages);
-                removeThinkingIndicator();
-                chat.messages.push({ role: 'ai', content: aiReply });
+                const aiMsgIndex = chat.messages.length;
+                chat.messages.push({ role: 'ai', content: '' });
+
+                let fullServerText = '';
+                let displayedLength = 0;
+
+                await streamAIResponse(text, chat.messages.slice(0, -2), activeController.signal, (partialText) => {
+                    removeThinkingIndicator();
+                    fullServerText = partialText;
+                });
+
+                await new Promise((resolve) => {
+                    const printInterval = setInterval(() => {
+                        if (activeController === null || activeController.signal.aborted) {
+                            clearInterval(printInterval);
+                            resolve();
+                            return;
+                        }
+
+                        if (displayedLength < fullServerText.length) {
+                            displayedLength = Math.min(fullServerText.length, displayedLength + 4);
+                            chat.messages[aiMsgIndex].content = fullServerText.substring(0, displayedLength);
+                            renderMessages();
+                        } else {
+                            clearInterval(printInterval);
+                            // ИЗМЕНЕНО: Виброотклик при успешном завершении ответа ИИ
+                            if ('vibrate' in navigator) {
+                                navigator.vibrate([20, 50, 20]);
+                            }
+                            resolve();
+                        }
+                    }, 12);
+                });
+
                 saveChats();
-                renderMessages();
             } catch (error) {
                 removeThinkingIndicator();
-                chat.messages.push({ role: 'ai', content: 'Произошла ошибка при обращении к серверу: ' + error.message });
-                saveChats();
-                renderMessages();
+                if (error.name !== 'AbortError') {
+                    const lastMsg = chat.messages[chat.messages.length - 1];
+                    const errorText = 'Произошла ошибка при обращении к серверу: ' + error.message;
+                    if (lastMsg && lastMsg.role === 'ai' && !lastMsg.content) {
+                        lastMsg.content = errorText;
+                    } else {
+                        chat.messages.push({ role: 'ai', content: errorText });
+                    }
+                    saveChats();
+                    renderMessages();
+                }
+            } finally {
+                isWaitingResponse = false;
+                updateSendButtonState();
+                activeController = null;
             }
         }
 
-        async function getAIResponse(userText, messageHistory) {
-            // Формируем единый промпт с учетом системной инструкции профиля и истории сообщений
+        async function streamAIResponse(userText, messageHistory, signal, onChunk) {
             const systemInstruction = `Ты — MOROF, искусственный интеллект. Пользователя зовут ${userProfile.name}, его возраст: ${userProfile.age}. Стиль общения: ${userProfile.style}.`;
-            
-            // Собираем всю историю в читаемый вид для бэкенда или отправляем последний текст с контекстом
             const fullPrompt = `${systemInstruction}\n\nИстория диалога:\n` + messageHistory.map(m => `${m.role === 'user' ? 'Пользователь' : 'MOROF'}: ${m.content}`).join('\n');
 
-            const response = await fetch('/api/chat', {
+            const response = await fetch('https://Morof-production.up.railway.app/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ prompt: fullPrompt })
+                body: JSON.stringify({ prompt: fullPrompt }),
+                signal: signal
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.detail || 'Ошибка сервера');
+                let errorMsg = 'Ошибка сервера';
+                try {
+                    const errData = await response.json();
+                    errorMsg = errData.detail || errorMsg;
+                } catch(e) {}
+                throw new Error(errorMsg);
             }
 
-            const data = await response.json();
-            if (data.response) {
-                return data.response;
-            } else {
-                throw new Error('Неверный формат ответа от сервера');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let fullText = '';
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                fullText += chunk;
+                onChunk(fullText);
             }
         }
 
@@ -1162,13 +1270,13 @@
             chat.messages.forEach((msg, idx) => {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `message ${msg.role === 'user' ? 'user' : 'ai'}`;
-                
+
                 const bubble = document.createElement('div');
                 bubble.className = 'message-bubble';
 
                 if (msg.role === 'ai') {
                     bubble.innerHTML = marked.parse(msg.content);
-                    
+
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'ai-message-actions';
                     actionsDiv.innerHTML = `
