@@ -1,7 +1,8 @@
+
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from pydantic import BaseModel
 from google import genai
 
@@ -46,10 +47,15 @@ async def chat_with_ai(request: ChatRequest):
         print(f"Ошибка при генерации контента: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Простая проверка работоспособности сервера
-@app.get("/")
-def read_index():
-    return {"status": "Сервер MOROF со стримингом успешно работает на Render!"}
+# Главная страница: открывает index.html интерфейс
+@app.get("/", response_class=HTMLResponse)
+async def read_index():
+    html_path = "index.html"
+    if os.path.exists(html_path):
+        with open(html_path, "r", encoding="utf-8") as f:
+            return f.read()
+    else:
+        return "<h3>Файл index.html не найден в корне проекта!</h3>"
 
 # Автоматический запуск через Uvicorn, если файл запускается напрямую
 if __name__ == "__main__":
