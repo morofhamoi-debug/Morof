@@ -49,4 +49,9 @@ async def chat_with_ai(request: ChatRequest):
 # Простая проверка работоспособности сервера
 @app.get("/")
 def read_index():
-    return {"status": "Сервер MOROF со стримингом успешно работает на Railway!"}
+    return {"status": "Сервер MOROF со стримингом успешно работает на Render!"}
+
+# Автоматический запуск через Uvicorn, если файл запускается напрямую
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
