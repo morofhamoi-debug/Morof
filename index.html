@@ -372,6 +372,47 @@
   </div>
 </div>
 
+<!-- =============================================================
+     ИЗМЕНЕНИЕ №1: резервный НЕ-модульный скрипт.
+     Показывает понятную ошибку, если модуль не запустился.
+     ============================================================= -->
+<script>
+(function(){
+  var shown = false;
+  function showFallback(reason){
+    if (shown || window.__MOROF_BOOTED__) return;
+    shown = true;
+    var el = document.getElementById('loading');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+    var safe = reason ? String(reason).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+    el.innerHTML = '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:560px;font-family:system-ui,-apple-system,sans-serif;">'
+      + '<b style="color:#e33;font-size:16px;">Игра не смогла загрузиться.</b><br><br>'
+      + (safe ? '<span style="color:#666;font-size:12px;">Причина: ' + safe + '</span><br><br>' : '')
+      + 'Скорее всего, браузер блокирует ES-модули при открытии через <code>file://</code>.<br><br>'
+      + '<b style="color:#d8dde4;">Решение 1:</b> Запустите через локальный сервер. В VS Code: правой кнопкой по <code>index.html</code> → «Open with Live Server».<br><br>'
+      + '<b style="color:#d8dde4;">Решение 2:</b> В терминале в папке с файлом:<br>'
+      + '<code style="background:#111;padding:4px 8px;color:#c8d0d8;display:inline-block;margin:6px 0;">python -m http.server 8000</code><br>'
+      + 'Затем откройте <code>http://localhost:8000/index.html</code><br><br>'
+      + '<b style="color:#d8dde4;">Решение 3:</b> Проверьте интернет — Three.js грузится с <code>cdn.jsdelivr.net</code>.'
+      + '</div>';
+  }
+  window.__MOROF_SHOW_FALLBACK__ = showFallback;
+  setTimeout(function(){ showFallback('таймаут ожидания модуля (8 сек)'); }, 8000);
+  window.addEventListener('error', function(e){
+    if (!window.__MOROF_BOOTED__) showFallback(e && e.message ? e.message : 'ошибка скрипта');
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    if (!window.__MOROF_BOOTED__) {
+      var r = e && e.reason;
+      showFallback(r && r.message ? r.message : String(r || 'ошибка промиса'));
+    }
+  });
+})();
+</script>
+
 <script type="module">
 // =============================================================
 // MOROF: НОЧНАЯ СМЕНА — Часть 1
@@ -380,14 +421,24 @@
 
 let THREE;
 try {
-  THREE = await import('three');
+  // ИЗМЕНЕНИЕ №2: таймаут на загрузку Three.js, чтобы не висело бесконечно.
+  let __toId = null;
+  const __timeout = new Promise((_, rej) => {
+    __toId = setTimeout(() => rej(new Error('Таймаут загрузки Three.js (12 сек). Возможно, нет доступа к cdn.jsdelivr.net.')), 12000);
+  });
+  THREE = await Promise.race([ import('three'), __timeout ]);
+  if (__toId) clearTimeout(__toId);
 } catch (e) {
-  document.getElementById('loading').innerHTML =
-    '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:520px;">' +
-    '<b style="color:#e33;font-size:16px;">Не удалось загрузить 3D-движок.</b><br><br>' +
-    'Проверьте подключение к интернету или запустите файл через локальный сервер ' +
-    '(в VS Code: правая кнопка по index.html → «Open with Live Server»).<br><br>' +
-    '<span style="color:#666;font-size:12px;">Техническая информация: ' + (e && e.message || e) + '</span></div>';
+  if (window.__MOROF_SHOW_FALLBACK__) {
+    window.__MOROF_SHOW_FALLBACK__((e && e.message) || String(e));
+  } else {
+    document.getElementById('loading').innerHTML =
+      '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:520px;">' +
+      '<b style="color:#e33;font-size:16px;">Не удалось загрузить 3D-движок.</b><br><br>' +
+      'Проверьте подключение к интернету или запустите файл через локальный сервер ' +
+      '(в VS Code: правая кнопка по index.html → «Open with Live Server»).<br><br>' +
+      '<span style="color:#666;font-size:12px;">Техническая информация: ' + (e && e.message || e) + '</span></div>';
+  }
   throw e;
 }
 
@@ -2076,6 +2127,9 @@ setTimeout(()=>{
 window.addEventListener('blur', ()=>{
   if (state.running && !state.paused) openPause();
 });
+
+// ИЗМЕНЕНИЕ №3: сообщаем резервному скрипту, что модуль загрузился успешно.
+window.__MOROF_BOOTED__ = true;
 
 console.log('%c MOROF: Ночная смена ', 'background:#8c1a1a;color:#fff;padding:4px 8px;font-weight:bold;');
 console.log('Часть 1 загружена. Управление: WASD, Shift, Ctrl, E, F, Esc.');
