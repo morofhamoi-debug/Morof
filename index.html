@@ -2,1036 +2,425 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>Бабушка: Последний дом</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бабушка: Последний дом — Дом</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;touch-action:none}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#ccc;font-family:monospace}
-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-#hud{position:absolute;inset:0;pointer-events:none;z-index:2}
-#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.4))}
-#info{position:absolute;left:14px;bottom:14px;font-size:11px;color:#8a8070}
-#hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);padding:18px 28px;color:#d8c8a8;border:1px solid #4a4030;font-size:14px;display:none;cursor:pointer;z-index:10}
-#hint.on{display:block}
-#joy{position:absolute;left:20px;bottom:20px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);display:none;z-index:5}
-#joy.on{display:block}
-#joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(200,180,140,.42)}
-#cam{position:absolute;right:0;top:0;width:50%;height:100%;display:none;z-index:5}
-#cam.on{display:block}
-#err{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#000;color:#f88;padding:24px;text-align:center;z-index:100;font-size:13px;line-height:1.7;white-space:pre-wrap}
-#err.on{display:flex}
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#15181d; }
+  canvas { display:block; }
+  #hud {
+    position:fixed; top:14px; left:14px; z-index:10;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color:#e8e3da; background:rgba(12,14,18,0.72);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:12px; padding:14px 16px; backdrop-filter: blur(10px);
+    max-width: 340px; user-select:none;
+  }
+  #hud .title { font-size:15px; font-weight:700; letter-spacing:.4px; color:#f0c98a; }
+  #hud .sub { font-size:11px; opacity:.6; margin-top:2px; letter-spacing:.6px; text-transform:uppercase; }
+  #hud .hint { font-size:11.5px; opacity:.72; margin-top:10px; line-height:1.55; }
+  #hud .btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
+  #hud button {
+    font: inherit; font-size:11.5px; color:#ddd6c9; cursor:pointer;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.13);
+    border-radius:7px; padding:5px 10px; transition:.15s;
+  }
+  #hud button:hover { background:rgba(255,255,255,0.14); color:#fff; }
+  #hud button.off { opacity:.38; }
 </style>
 </head>
 <body>
-<canvas id="cv"></canvas>
-<div id="hud"><div id="vig"></div></div>
-<div id="hint"></div>
-<div id="joy"><i></i></div>
-<div id="cam"></div>
-<div id="info">WASD — движение · Мышь — обзор · ESC — курсор</div>
-<div id="err"></div>
-<script>
-"use strict";
-window.onerror = function(m,s,l,c){
-  var e=document.getElementById('err');
-  e.textContent='ОШИБКА: '+m+'\n'+(s||'').split('/').pop()+' ['+l+':'+c+']';
-  e.classList.add('on'); return false;
-};
 
-/* --- МАТЕМАТИКА --- */
-function m4(){return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);}
-function m4p(f,a,n,fa){var t=1/Math.tan(f/2),o=m4();o[0]=t/a;o[5]=t;o[10]=(fa+n)/(n-fa);o[11]=-1;o[14]=2*fa*n/(n-fa);return o;}
-function m4l(ex,ey,ez,cx,cy,cz){
-  var zx=ex-cx,zy=ey-cy,zz=ez-cz,l=Math.hypot(zx,zy,zz)||1;zx/=l;zy/=l;zz/=l;
-  var xx=zz,xy=0,xz=-zx;l=Math.hypot(xx,xy,xz)||1;xx/=l;xy/=l;xz/=l;
-  var yx=zy*xz-zz*xy,yy=zz*xx-zx*xz,yz=zx*xy-zy*xx,o=m4();
-  o[0]=xx;o[1]=yx;o[2]=zx;o[4]=xy;o[5]=yy;o[6]=zy;o[8]=xz;o[9]=yz;o[10]=zz;
-  o[12]=-(xx*ex+xy*ey+xz*ez);o[13]=-(yx*ex+yy*ey+yz*ez);o[14]=-(zx*ex+zy*ey+zz*ez);
-  return o;
-}
-var cl=function(v,a,b){return v<a?a:(v>b?b:v);};
+<div id="hud">
+  <div class="title">Бабушка: Последний дом</div>
+  <div class="sub">Этап 1 · Дом и окружение</div>
+  <div class="hint">
+    ЛКМ — вращение · Колесо — приближение<br>
+    ПКМ — сдвиг · Кнопки — виды и слои
+  </div>
+  <div class="btns">
+    <button data-act="roof">Крыша</button>
+    <button data-act="ceil2">Потолок 2 эт.</button>
+    <button data-act="floor2">2 этаж</button>
+    <button data-act="top">Сверху</button>
+    <button data-act="front">Фасад</button>
+    <button data-act="reset">Сброс</button>
+  </div>
+</div>
 
-/* --- ТЕКСТУРЫ --- */
-var TX={};
-function nz(x,y,s){var n=Math.sin(x*12.9898+y*78.233+s*43.3)*43758.5453;return n-Math.floor(n);}
-function mk(n,w,h,fn){
-  if(TX[n])return TX[n];
-  var c=document.createElement('canvas');c.width=w;c.height=h;
-  var x=c.getContext('2d'),img=x.createImageData(w,h),d=img.data;
-  for(var yy=0;yy<h;yy++)for(var xx=0;xx<w;xx++){
-    var co=fn(xx,yy,w,h),i=(yy*w+xx)*4;
-    d[i]=co[0]|0;d[i+1]=co[1]|0;d[i+2]=co[2]|0;d[i+3]=255;
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
   }
-  x.putImageData(img,0,0);TX[n]=c;return c;
 }
-var TEX={
-  wall:mk('wall',128,128,function(x,y,w,h){
-    var n=nz(x*.4,y*.4,1)*14,g=1-(y/h)*.2;
-    return [(212+n)*g,(198+n)*g,(168+n)*g];
-  }),
-  wallG:mk('wallG',128,128,function(x,y,w,h){
-    var n=nz(x*.5,y*.5,3)*12,g=1-(y/h)*.18;
-    return [(190+n)*g,(160+n)*g,(132+n)*g];
-  }),
-  wallO:mk('wallO',128,128,function(x,y,w,h){
-    var n=nz(x*.6,y*.6,6)*16,g=1-(y/h)*.22;
-    return [(150+n)*g,(138+n)*g,(120+n)*g];
-  }),
-  floor:mk('floor',128,128,function(x,y,w,h){
-    var rh=40,ry=y%rh,ri=Math.floor(y/rh),sh=(ri%2)*60,xx=(x+sh)%128;
-    var g=Math.sin(xx*.09)*.5+.5,n=nz(xx*.7,ry*.7,14)*12;
-    var r=158+g*26+n,gg=112+g*18+n,b=76+g*12+n;
-    if(ry<1.2){r*=.55;gg*=.55;b*=.55;}
-    var s=1-(ri%7)*.025;
-    return [r*s,gg*s,b*s];
-  }),
-  tile:mk('tile',128,128,function(x,y,w,h){
-    var b=(x%32)<2||(y%32)<2,n=nz(x*.8,y*.8,8)*14;
-    return b?[110+n,116+n,110+n]:[242+n,240+n,222+n];
-  }),
-  conc:mk('conc',128,128,function(x,y,w,h){
-    var n=nz(x*.7,y*.7,10)*20,g=1-(y/h)*.25;
-    return [(172+n)*g,(164+n)*g,(148+n)*g];
-  }),
-  plank:mk('plank',128,128,function(x,y,w,h){
-    var pH=24,py=y%pH,pi=Math.floor(y/pH),xx=(x+(pi%2)*40)%128;
-    var gr=Math.sin(xx*.14+py*.05)*.5+.5,n=nz(xx*.9,py*.9,13)*14;
-    var base=140+gr*30+n;if(py<1)base*=.4;
-    return [base*1.05,base*.72,base*.48];
-  }),
-  wood:mk('wood',64,64,function(x,y,w,h){
-    var yy=y*.6+Math.sin(x*.14)*4,g=Math.sin(yy*.5)*.5+.5;
-    var n=nz(x*.9,y*.9,16)*10;
-    return [136+g*36+n,96+g*22+n,62+g*14+n];
-  }),
-  woodD:mk('woodD',64,64,function(x,y,w,h){
-    var yy=y*.5+Math.sin(x*.11)*3,g=Math.sin(yy*.6)*.5+.5;
-    var n=nz(x*.9,y*.9,23)*8;
-    return [88+g*26+n,56+g*16+n,34+g*10+n];
-  }),
-  fab:mk('fab',64,64,function(x,y,w,h){
-    var n=nz(x*1.6,y*1.6,18)*14,wv=((x+y)%5<1?1:0)*7;
-    return [116+n+wv,100+n+wv,78+n+wv];
-  }),
-  fabD:mk('fabD',64,64,function(x,y,w,h){
-    var n=nz(x*1.6,y*1.6,28)*12;
-    return [78+n,66+n,54+n];
-  }),
-  met:mk('met',64,64,function(x,y,w,h){
-    var n=nz(x*1.2,y*1.2,19)*14,b=Math.sin(y*.5)*8;
-    return [150+n+b,152+n+b,154+n+b];
-  }),
-  br:mk('brass',64,64,function(x,y,w,h){
-    var n=nz(x*1.4,y*1.4,29)*12,b=Math.sin(y*.7)*10;
-    return [190+n+b,150+n+b,76+n+b];
-  }),
-  rug:mk('rug',64,64,function(x,y,w,h){
-    var n=nz(x*1.5,y*1.5,15)*14,r=((x>>3)+(y>>3))%2;
-    return r?[136+n,58+n,52+n]:[108+n,46+n,40+n];
-  })
-};
+</script>
 
-/* --- WEBGL --- */
-var cv=document.getElementById('cv');
-var gl=cv.getContext('webgl',{antialias:true,alpha:false})||cv.getContext('experimental-webgl');
-if(!gl){
-  var er=document.getElementById('err');er.textContent='WebGL не поддерживается.';
-  er.classList.add('on');throw new Error('no webgl');
-}
-var VERT='attribute vec3 aPos;attribute vec3 aNrm;attribute vec2 aUV;'+
-'uniform mat4 uProj,uView,uModel;uniform mat3 uNrmMat;'+
-'varying vec3 vNrm;varying vec3 vWorld;varying vec2 vUV;'+
-'void main(){vec4 wp=uModel*vec4(aPos,1.0);vWorld=wp.xyz;'+
-'vNrm=normalize(uNrmMat*aNrm);vUV=aUV;gl_Position=uProj*uView*wp;}';
-var FRAG='precision mediump float;varying vec3 vNrm;varying vec3 vWorld;varying vec2 vUV;'+
-'uniform vec3 uColor;uniform sampler2D uTex;uniform float uUseTex;'+
-'uniform vec3 uCamPos;uniform vec3 uAmbient;'+
-'uniform vec3 uLightPos[6];uniform vec3 uLightColor[6];uniform float uLightRange[6];uniform int uNumLights;'+
-'uniform float uFogNear;uniform float uFogFar;uniform vec3 uFogColor;'+
-'void main(){vec3 base=uColor;if(uUseTex>0.5){vec4 t=texture2D(uTex,vUV);base*=t.rgb;}'+
-'vec3 N=normalize(vNrm);vec3 col=uAmbient*base;'+
-'for(int i=0;i<6;i++){if(i>=uNumLights)break;vec3 L=uLightPos[i]-vWorld;float d=length(L);'+
-'if(d<0.001)continue;L=L/d;float diff=max(dot(N,L),0.0);'+
-'float att=clamp(1.0-d/uLightRange[i],0.0,1.0);col+=base*uLightColor[i]*diff*att*att;}'+
-'float dist=length(uCamPos-vWorld);float f=clamp((dist-uFogNear)/(uFogFar-uFogNear),0.0,1.0);'+
-'col=mix(col,uFogColor,f);gl_FragColor=vec4(col,1.0);}';
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-function sh(t,s){
-  var x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);
-  if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw new Error('Shader: '+gl.getShaderInfoLog(x));
-  return x;
-}
-var prog=gl.createProgram();
-gl.attachShader(prog,sh(gl.VERTEX_SHADER,VERT));
-gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FRAG));
-gl.linkProgram(prog);
-if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error('Link:'+gl.getProgramInfoLog(prog));
-gl.useProgram(prog);
+/* ============================================================
+   0. БАЗОВЫЕ КОНСТАНТЫ ДОМА
+   ============================================================ */
+const X0 = -8, X1 = 8;          // ширина дома (16 м)
+const Z0 = -6, Z1 = 6;          // глубина дома (12 м)
+const H1 = 3.0;                 // высота 1-го этажа
+const SLAB = 0.25;              // толщина межэтажного перекрытия
+const F2 = H1 + SLAB;           // 3.25 — уровень пола 2-го этажа
+const H2 = 3.0;                 // высота 2-го этажа
+const ROOF = F2 + H2;           // 6.25 — уровень потолка 2-го этажа
+const EXT = 0.30;               // толщина наружных стен
+const INT = 0.14;               // толщина внутренних перегородок
 
-var U={};
-['uProj','uView','uModel','uNrmMat','uColor','uTex','uUseTex','uCamPos','uAmbient',
- 'uLightPos','uLightColor','uLightRange','uNumLights','uFogNear','uFogFar','uFogColor']
-.forEach(function(n){U[n]=gl.getUniformLocation(prog,n);});
-var A={pos:gl.getAttribLocation(prog,'aPos'),nrm:gl.getAttribLocation(prog,'aNrm'),uv:gl.getAttribLocation(prog,'aUV')};
-gl.enable(gl.DEPTH_TEST);
-gl.disable(gl.CULL_FACE);
-gl.clearColor(0.05,0.055,0.07,1);
+/* ============================================================
+   1. РЕНДЕРЕР / СЦЕНА / КАМЕРА
+   ============================================================ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x232a33);
+scene.fog = new THREE.Fog(0x232a33, 55, 170);
 
-/* --- ГЕОМЕТРИЯ --- */
-var B={};
-function getB(m,tex,col){
-  if(!B[m])B[m]={v:[],i:[],tex:tex||null,col:col||[1,1,1],vb:null,ib:null,gt:null,n:0};
-  else{if(tex)B[m].tex=tex;if(col)B[m].col=col;}
-  return B[m];
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(22, 15, 26);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 3.0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.minDistance = 3;
+controls.maxDistance = 90;
+controls.maxPolarAngle = Math.PI * 0.515;
+controls.update();
+
+/* ============================================================
+   2. ПРОЦЕДУРНЫЕ ТЕКСТУРЫ
+   ============================================================ */
+function makeTex(w, h, draw, rx = 1, ry = 1) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  draw(ctx, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(rx, ry);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  return t;
 }
-function pq(b,v0,v1,v2,v3,n,uS,vS){
-  var base=b.v.length/8,vs=[v0,v1,v2,v3],uvs=[[0,vS],[uS,vS],[uS,0],[0,0]];
-  for(var i=0;i<4;i++){
-    var v=vs[i],u=uvs[i];
-    b.v.push(v[0],v[1],v[2],n[0],n[1],n[2],u[0],u[1]);
-  }
-  b.i.push(base,base+1,base+2,base,base+2,base+3);
-}
-function box(m,cx,cy,cz,sx,sy,sz,ts,tex,col){
-  ts=ts||1.5;
-  var b=getB(m,tex,col);
-  var hx=sx/2,hy=sy/2,hz=sz/2;
-  var x0=cx-hx,x1=cx+hx,y0=cy-hy,y1=cy+hy,z0=cz-hz,z1=cz+hz;
-  pq(b,[x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[1,0,0],sz/ts,sy/ts);
-  pq(b,[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],[-1,0,0],sz/ts,sy/ts);
-  pq(b,[x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0],[0,1,0],sx/ts,sz/ts);
-  pq(b,[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[0,-1,0],sx/ts,sz/ts);
-  pq(b,[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],[0,0,1],sx/ts,sy/ts);
-  pq(b,[x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],[0,0,-1],sx/ts,sy/ts);
-}
-function plane(m,x1,z1,x2,z2,y,ts,tex,col,flip){
-  ts=ts||1.5;
-  var b=getB(m,tex,col);
-  var w=Math.abs(x2-x1),d=Math.abs(z2-z1);
-  var xa=Math.min(x1,x2),za=Math.min(z1,z2),xb=Math.max(x1,x2),zb=Math.max(z1,z2);
-  var base=b.v.length/8,uS=w/ts,vS=d/ts;
-  var n=flip?[0,-1,0]:[0,1,0],vs,uvs;
-  if(!flip){vs=[[xa,y,zb],[xb,y,zb],[xb,y,za],[xa,y,za]];uvs=[[0,0],[uS,0],[uS,vS],[0,vS]];}
-  else{vs=[[xa,y,za],[xb,y,za],[xb,y,zb],[xa,y,zb]];uvs=[[0,vS],[uS,vS],[uS,0],[0,0]];}
-  for(var i=0;i<4;i++)b.v.push(vs[i][0],vs[i][1],vs[i][2],n[0],n[1],n[2],uvs[i][0],uvs[i][1]);
-  b.i.push(base,base+1,base+2,base,base+2,base+3);
-}
-function upload(){
-  for(var k in B){
-    var b=B[k];
-    if(b.v.length===0)continue;
-    b.vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b.vb);
-    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(b.v),gl.STATIC_DRAW);
-    b.ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,b.ib);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(b.i),gl.STATIC_DRAW);
-    b.n=b.i.length;
-    if(b.tex){
-      b.gt=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,b.gt);
-      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,b.tex);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+
+function plasterTex(tint = '#d9d3c6', grime = 0.05) {
+  return makeTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = tint;
+    ctx.fillRect(0, 0, w, h);
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const n = (Math.random() - 0.5) * 22;
+      d[i] += n; d[i + 1] += n; d[i + 2] += n;
     }
-  }
-}
-
-/* --- КОЛЛИЗИИ --- */
-var COL=[];
-function col(cx,cy,cz,sx,sy,sz){
-  COL.push({minX:cx-sx/2,maxX:cx+sx/2,minY:cy-sy/2,maxY:cy+sy/2,minZ:cz-sz/2,maxZ:cz+sz/2});
-}
-
-/* --- ХЕЛПЕРЫ МЕБЕЛИ --- */
-function legs(cx,cy,cz,w,d,lh,lt,tex){
-  var ox=(w-lt)/2,oz=(d-lt)/2;
-  box('woodD',cx-ox,cy-lh/2,cz-oz,lt,lh,lt,.4,tex);
-  box('woodD',cx+ox,cy-lh/2,cz-oz,lt,lh,lt,.4,tex);
-  box('woodD',cx-ox,cy-lh/2,cz+oz,lt,lh,lt,.4,tex);
-  box('woodD',cx+ox,cy-lh/2,cz+oz,lt,lh,lt,.4,tex);
-}
-function hnd(cx,cy,cz,len,ax){
-  if(ax==='x'){
-    box('br',cx-len/2+.02,cy,cz,.04,.04,.04,.3);
-    box('br',cx+len/2-.02,cy,cz,.04,.04,.04,.3);
-    box('br',cx,cy,cz-.035,len,.025,.025,.3);
-  } else {
-    box('br',cx,cy,cz-len/2+.02,.04,.04,.04,.3);
-    box('br',cx,cy,cz+len/2-.02,.04,.04,.04,.3);
-    box('br',cx-.035,cy,cz,.025,.025,len,.3);
-  }
-}
-function door(cx,cz,w,h,ax){
-  if(ax==='z'){
-    box('woodD',cx,h/2,cz-w/2-.04,.18,h+.1,.08,.5);
-    box('woodD',cx,h/2,cz+w/2+.04,.18,h+.1,.08,.5);
-    box('woodD',cx,h+.05,cz,.18,.1,w+.16,.5);
-    box('woodD',cx,h/2,cz,.07,h,w,.6);
-    box('woodD',cx+.05,h*.72,cz,.02,h*.4-.15,w-.2,.4);
-    box('woodD',cx+.05,h*.25,cz,.02,h*.4-.15,w-.2,.4);
-    box('br',cx+.07,1.05,cz+w/2-.15,.03,.03,.14,.2);
-    box('met',cx-.05,h*.15,cz-w/2+.1,.04,.1,.04,.2);
-    box('met',cx-.05,h*.85,cz-w/2+.1,.04,.1,.04,.2);
-  } else {
-    box('woodD',cx-w/2-.04,h/2,cz,.08,h+.1,.18,.5);
-    box('woodD',cx+w/2+.04,h/2,cz,.08,h+.1,.18,.5);
-    box('woodD',cx,h+.05,cz,w+.16,.1,.18,.5);
-    box('woodD',cx,h/2,cz,w,h,.07,.6);
-    box('woodD',cx,h*.72,cz+.05,w-.2,h*.4-.15,.02,.4);
-    box('woodD',cx,h*.25,cz+.05,w-.2,h*.4-.15,.02,.4);
-    box('br',cx+w/2-.15,1.05,cz+.07,.14,.03,.03,.2);
-    box('met',cx-.4,h*.15,cz-.05,.04,.1,.04,.2);
-    box('met',cx-.4,h*.85,cz-.05,.04,.1,.04,.2);
-  }
-}
-function win(cx,cy,cz,w,h,ax){
-  if(ax==='z'){
-    box('woodD',cx,cy,cz-w/2,.09,h,.07,.4);
-    box('woodD',cx,cy,cz+w/2,.09,h,.07,.4);
-    box('woodD',cx,cy+h/2,cz,.09,.07,w,.4);
-    box('woodD',cx,cy-h/2,cz,.09,.07,w,.4);
-    box('woodD',cx,cy-h/2-.04,cz,.22,.05,w+.24,.3);
-    box('sky',cx,cy,cz,.02,h,w,1);
-    box('woodD',cx,cy,cz,.08,h,.03,.3);
-    box('woodD',cx,cy,cz,.08,.03,w,.3);
-  } else {
-    box('woodD',cx-w/2,cy,cz,.07,h,.09,.4);
-    box('woodD',cx+w/2,cy,cz,.07,h,.09,.4);
-    box('woodD',cx,cy+h/2,cz,w,.07,.09,.4);
-    box('woodD',cx,cy-h/2,cz,w,.07,.09,.4);
-    box('woodD',cx,cy-h/2-.04,cz,w+.24,.05,.22,.3);
-    box('sky',cx,cy,cz,w,h,.02,1);
-    box('woodD',cx,cy,cz,.03,h,.08,.3);
-    box('woodD',cx,cy,cz,w,.03,.08,.3);
-  }
-}
-
-/* --- ПОСТРОЕНИЕ --- */
-var H=2.9,WT=0.25,WTI=0.15;
-var wallCol=[0.72,0.68,0.58],wallGCol=[0.58,0.66,0.54];
-var ceilCol=[0.95,0.92,0.88];
-
-function wallSeg(m,ax,fix,from,to,yB,h,ts,outer){
-  var t=outer?WT:WTI;if(to<=from)return;
-  var mid=(from+to)/2,len=to-from;
-  if(ax==='x')box(m,mid,yB+h/2,fix,len,h,t,ts);
-  else box(m,fix,yB+h/2,mid,t,h,len,ts);
-}
-function wallOpen(m,ax,fix,from,to,ops,yB,h,ts,outer){
-  ops=(ops||[]).slice().sort(function(a,b){return a.a-b.a;});
-  var cur=from;
-  for(var i=0;i<ops.length;i++){
-    var o=ops[i];
-    if(o.a>cur)wallSeg(m,ax,fix,cur,o.a,yB,h,ts,outer);
-    if(o.top!==undefined&&o.top<yB+h){
-      var t=outer?WT:WTI,mid=(o.a+o.b)/2,len=o.b-o.a,lh=yB+h-o.top;
-      if(ax==='x')box(m,mid,o.top+lh/2,fix,len,lh,t,ts);
-      else box(m,fix,o.top+lh/2,mid,t,lh,len,ts);
+    ctx.putImageData(img, 0, 0);
+    for (let i = 0; i < 70; i++) {
+      ctx.fillStyle = `rgba(120,104,80,${Math.random() * grime})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 42 + 8, 0, 6.3);
+      ctx.fill();
     }
-    cur=o.b;
-  }
-  if(cur<to)wallSeg(m,ax,fix,cur,to,yB,h,ts,outer);
-}
-
-function buildHouse(){
-  // Полы
-  plane('fFloor',-8,-6,-3,-3,0,1.6,TEX.floor);
-  plane('fFloor',-8,-3,-3,2,0,1.6,TEX.floor);
-  plane('fFloor',-8,2,-3,6,0,1.6,TEX.floor);
-  plane('fFloor',-3,-6,3,2,0,1.6,TEX.floor);
-  plane('fTile',-3,2,3,6,0,1.2,TEX.tile);
-  plane('fTile',3,2,6,6,0,1.0,TEX.tile);
-  plane('fOld',3,-3,6,2,0,1.4,TEX.wallO);
-  plane('fFloor',3,-6,6,-3,0,1.4,TEX.floor);
-
-  // Потолки
-  plane('fCeil',-8,-6,-3,-3,H,1.8,TEX.wall,ceilCol,true);
-  plane('fCeil',-8,-3,-3,2,H,1.8,TEX.wall,ceilCol,true);
-  plane('fCeil',-8,2,-3,6,H,1.8,TEX.wall,ceilCol,true);
-  plane('fCeil',-3,-6,3,2,H,1.8,TEX.wall,ceilCol,true);
-  plane('fCeil',-3,2,3,6,H,1.4,TEX.wall,ceilCol,true);
-  plane('fCeil',3,2,6,6,H,1.2,TEX.wall,ceilCol,true);
-  plane('fCeil',3,-3,6,2,H,1.4,TEX.wallO,ceilCol,true);
-  plane('fCeil',3,-6,3.5,-3,H,1.4,TEX.wall,ceilCol,true);
-  plane('fCeil',5,-6,6,-3,H,1.4,TEX.wall,ceilCol,true);
-  plane('fCeil',3.5,-6,5,-5.5,H,1.4,TEX.wall,ceilCol,true);
-  plane('fCeil',3.5,-3.3,5,-3,H,1.4,TEX.wall,ceilCol,true);
-
-  // Наружные стены
-  wallOpen('wallO','x',-6.5,-8.25,6.25,[{a:-5,b:-3.5,top:2.2}],0,H,2,true);
-  wallOpen('wallO','x',6.5,-8.25,6.25,[{a:-6.5,b:-5,top:2.4},{a:-1,b:1,top:2.4},{a:4,b:5.5,top:2.4}],0,H,2,true);
-  wallOpen('wallO','z',-8.25,-6.5,6.5,[{a:-5,b:-4,top:2.4},{a:-1,b:0,top:2.4},{a:3,b:4,top:2.4}],0,H,2,true);
-  wallOpen('wallO','z',6.25,-6.5,6.5,[{a:3,b:4,top:2.4}],0,H,2,true);
-
-  // Внутренние
-  wallOpen('wallG','z',-3,-6.5,6.5,[{a:-5.2,b:-4.2,top:2.15},{a:.3,b:1.3,top:2.15},{a:3.7,b:4.7,top:2.15}],0,H,1.6,false);
-  wallOpen('wallG','z',3,-6.5,6.5,[{a:-5.2,b:-4.2,top:2.15},{a:-1.3,b:-.3,top:2.15},{a:3.5,b:4.5,top:2.15}],0,H,1.6,false);
-  wallSeg('wall', 'x', 2, -8, -3, 0, H, 1.6, false);
-  wallOpen('wall','x',2,-3,3,[{a:-1.5,b:1.5,top:2.3}],0,H,1.6,false);
-  wallSeg('wall', 'x', 2, 3, 6, 0, H, 1.6, false);
-  wallSeg('wall', 'x', -3, -8, -3, 0, H, 1.6, false);
-  wallSeg('wall', 'x', -3, 3, 6, 0, H, 1.6, false);
-
-  // Двери
-  door(-4.25,-6.4,1.5,2.2,'x');
-  door(-3,-4.7,1.0,2.15,'z');
-  door(-3,.8,1.0,2.15,'z');
-  door(-3,4.2,1.0,2.15,'z');
-  door(3,-4.7,1.0,2.15,'z');
-  door(3,-.8,1.0,2.15,'z');
-  door(3,4,1.0,2.15,'z');
-
-  // Окна
-  win(0,1.7,6.4,2.0,1.5,'x');
-  win(-5.75,1.7,6.4,1.5,1.5,'x');
-  win(4.75,1.7,6.4,1.5,1.5,'x');
-  win(-8.15,1.7,-4.5,1,1.5,'z');
-  win(-8.15,1.7,-.5,1,1.5,'z');
-  win(-8.15,1.7,3.5,1,1.5,'z');
-  win(6.15,1.7,3.5,1,1.5,'z');
-}
-
-function buildFurniture(){
-  // СПАЛЬНЯ ИГРОКА
-  legs(-7.2,.15,-5,1.6,2.2,.3,.08);
-  box('wood',-7.2,.32,-5,1.6,.06,2.2,.7);
-  box('wood',-7.2,.38,-5,1.55,.06,2.15,.7);
-  box('fab',-7.2,.55,-5,1.5,.28,2.1,1,TEX.fab);
-  box('fab',-7.2,.7,-5,1.48,.03,2.08,1,TEX.fab);
-  // Изголовье
-  box('woodD',-7.95,.65,-6,.08,1.3,.08,.4);
-  box('woodD',-6.45,.65,-6,.08,1.3,.08,.4);
-  box('woodD',-7.2,1.15,-6,1.6,.15,.06,.4);
-  box('woodD',-7.2,.55,-6,1.6,.1,.06,.4);
-  for(var i=0;i<5;i++)box('woodD',-7.7+i*.25,.85,-6,.05,.55,.05,.3);
-  box('woodD',-7.2,.35,-3.9,1.6,.4,.06,.4);
-  // Подушка и одеяло
-  box('fab',-7.2,.72,-5.7,1.1,.14,.5,.6,TEX.fab);
-  box('fab',-7.2,.78,-5.7,1.05,.06,.45,.5,TEX.fab);
-  box('fabD',-7.2,.72,-4.4,1.5,.1,1.4,.8,TEX.fabD);
-  box('fabD',-7.2,.78,-4.4,1.45,.04,1.35,.8,TEX.fabD);
-  box('fabD',-7.2,.84,-4.4,1.4,.04,1.25,.8,TEX.fabD);
-
-  // Тумбочка + лампа
-  box('wood',-6.15,.35,-5.9,.5,.5,.5,.7);
-  box('wood',-6.15,.62,-5.9,.55,.04,.55,.6);
-  box('woodD',-6.15,.45,-5.66,.42,.1,.02,.3);
-  hnd(-6.15,.45,-5.64,.06,'x');
-  legs(-6.15,.06,-5.9,.5,.5,.12,.05);
-  box('met',-6.15,.68,-5.9,.18,.04,.18,.3,TEX.met);
-  box('met',-6.15,.82,-5.9,.04,.24,.04,.3,TEX.met);
-  box('light',-6.15,1,-5.9,.24,.18,.24,.3,null,[1.5,1.28,.9]);
-
-  // Шкаф
-  box('wood',-3.9,1.05,-4.7,.7,2.1,1.5,1.2);
-  box('woodD',-3.9,2.15,-4.7,.78,.06,1.58,.6);
-  box('woodD',-3.9,.02,-4.7,.78,.08,1.58,.6);
-  box('woodD',-3.72,1.05,-5.1,.02,1.9,.68,.6);
-  box('woodD',-3.72,1.05,-4.35,.02,1.9,.68,.6);
-  box('woodD',-3.71,1.35,-5.1,.01,.7,.5,.4);
-  box('woodD',-3.71,.65,-5.1,.01,.7,.5,.4);
-  box('woodD',-3.71,1.35,-4.35,.01,.7,.5,.4);
-  box('woodD',-3.71,.65,-4.35,.01,.7,.5,.4);
-  box('br',-3.7,1.05,-4.85,.02,.02,.08,.15);
-  box('br',-3.7,1.05,-4.55,.02,.02,.08,.15);
-
-  // Стул
-  legs(-5.5,.22,-3.6,.42,.42,.44,.05);
-  box('wood',-5.5,.46,-3.6,.45,.04,.45,.5);
-  box('woodD',-5.7,.72,-3.82,.05,.55,.05,.3);
-  box('woodD',-5.3,.72,-3.82,.05,.55,.05,.3);
-  box('woodD',-5.5,.94,-3.82,.42,.05,.04,.3);
-  box('woodD',-5.5,.75,-3.82,.42,.05,.04,.3);
-
-  // Стол
-  box('wood',-6.8,.75,-3.3,.7,.05,.5,.6);
-  box('woodD',-6.8,.72,-3.3,.72,.03,.52,.4);
-  legs(-6.8,.35,-3.3,.65,.45,.7,.05);
-  box('light',-6.75,.79,-3.3,.25,.04,.18,.3,null,[.72,.3,.24]);
-  box('rug',-5.5,.008,-4.5,2.2,.012,1.6,1.2,TEX.rug);
-
-  // ГОСТИНАЯ - диван
-  box('fab',-7.4,.4,-.5,1.05,.35,2,.9,TEX.fab);
-  legs(-7.4,.08,-.5,1,1.95,.16,.06);
-  box('fab',-7.4,.63,-1.05,.95,.16,.9,.6,TEX.fab);
-  box('fab',-7.4,.63,.05,.95,.16,.9,.6,TEX.fab);
-  box('fab',-7.75,.85,-.5,.35,.85,2,.9,TEX.fab);
-  box('fab',-7.4,.62,-1.55,1.05,.5,.18,.6,TEX.fab);
-  box('fab',-7.4,.62,.55,1.05,.5,.18,.6,TEX.fab);
-  // Кресла
-  box('fab',-6.5,.4,.8,.9,.4,.9,.8,TEX.fab);
-  box('fab',-6.5,.8,.4,.9,.75,.2,.7,TEX.fab);
-  legs(-6.5,.08,.8,.85,.85,.16,.05);
-  box('fab',-6.5,.4,-1.8,.9,.4,.9,.8,TEX.fab);
-  box('fab',-6.5,.8,-2.2,.9,.75,.2,.7,TEX.fab);
-  legs(-6.5,.08,-1.8,.85,.85,.16,.05);
-  // Журнальный столик
-  box('wood',-5.5,.42,-.5,1.2,.05,.7,.6);
-  box('woodD',-5.5,.39,-.5,1.22,.02,.72,.4);
-  legs(-5.5,.19,-.5,1.15,.65,.38,.05);
-  // ТВ-тумба
-  box('wood',-6.5,.28,1.75,1.4,.45,.5,.8);
-  box('woodD',-6.5,.52,1.75,1.45,.04,.55,.5);
-  box('woodD',-6.9,.28,1.49,.55,.35,.02,.4);
-  box('woodD',-6.1,.28,1.49,.55,.35,.02,.4);
-  box('br',-6.6,.28,1.47,.03,.02,.06,.15);
-  box('br',-6.4,.28,1.47,.03,.02,.06,.15);
-  legs(-6.5,.03,1.75,1.35,.45,.06,.05);
-  // ТВ
-  box('tv',-6.5,.9,1.75,1,.6,.15,.8,null,[.18,.16,.15]);
-  box('tv',-6.5,.9,1.72,.9,.5,.02,.6,null,[.05,.05,.06]);
-  // Книжный шкаф
-  box('wood',-4.2,1.1,-2.75,1.4,2.2,.4,1);
-  box('woodD',-4.2,2.24,-2.75,1.46,.08,.44,.5);
-  box('woodD',-4.2,.04,-2.75,1.46,.08,.44,.5);
-  box('woodD',-4.2,.6,-2.58,1.3,.03,.32,.3);
-  box('woodD',-4.2,1.1,-2.58,1.3,.03,.32,.3);
-  box('woodD',-4.2,1.6,-2.58,1.3,.03,.32,.3);
-  box('light',-4.6,.72,-2.55,.1,.22,.28,.3,null,[.72,.28,.2]);
-  box('light',-4.45,.72,-2.55,.1,.26,.28,.3,null,[.5,.6,.35]);
-  box('light',-3.7,1.22,-2.55,.12,.22,.28,.3,null,[.7,.6,.28]);
-  // Столик с лампой
-  box('wood',-3.4,.42,1.5,.5,.04,.5,.5);
-  legs(-3.4,.2,1.5,.45,.45,.4,.04);
-  box('met',-3.4,.48,1.5,.16,.03,.16,.3,TEX.met);
-  box('met',-3.4,.62,1.5,.03,.24,.03,.3,TEX.met);
-  box('light',-3.4,.82,1.5,.24,.18,.24,.3,null,[1.5,1.2,.75]);
-  // Ваза
-  box('light',-7.5,.15,1.5,.32,.3,.32,.4,null,[.55,.38,.24]);
-  box('light',-7.5,.45,1.5,.24,.3,.24,.4,null,[.58,.4,.26]);
-  box('light',-7.5,.68,1.5,.28,.16,.28,.4,null,[.55,.38,.24]);
-  box('rug',-5.8,.008,-.5,3.2,.012,2.4,1.5,TEX.rug);
-
-  // СПАЛЬНЯ БАБУШКИ
-  legs(-6.8,.15,3.8,1.8,2.2,.3,.09);
-  box('wood',-6.8,.32,3.8,1.8,.06,2.2,.8);
-  box('wood',-6.8,.38,3.8,1.75,.06,2.15,.8);
-  box('fab',-6.8,.55,3.8,1.7,.28,2.1,1,TEX.fab);
-  box('fab',-6.8,.7,3.8,1.68,.03,2.08,1,TEX.fab);
-  box('woodD',-7.6,.75,2.75,.1,1.5,.1,.5);
-  box('woodD',-6,.75,2.75,.1,1.5,.1,.5);
-  box('woodD',-6.8,1.4,2.75,1.7,.15,.08,.5);
-  box('woodD',-6.8,.6,2.75,1.7,.1,.08,.5);
-  box('woodD',-6.8,1,2.75,1.7,.08,.06,.4);
-  box('fabD',-6.8,.72,4.3,1.75,.14,1.35,.8,TEX.fabD);
-  box('fabD',-6.8,.8,4.3,1.7,.05,1.3,.8,TEX.fabD);
-  box('fab',-7.3,.72,3.05,.7,.14,.4,.5,TEX.fab);
-  box('fab',-6.3,.72,3.05,.7,.14,.4,.5,TEX.fab);
-  // Тумбочки
-  box('wood',-7.9,.32,3,.45,.55,.45,.6);
-  box('woodD',-7.9,.61,3,.5,.04,.5,.5);
-  hnd(-7.9,.4,3.25,.05,'x');
-  legs(-7.9,.06,3,.45,.45,.12,.05);
-  box('met',-7.9,.68,3,.14,.03,.14,.3,TEX.met);
-  box('met',-7.9,.82,3,.03,.24,.03,.3,TEX.met);
-  box('light',-7.9,1,3,.22,.16,.22,.3,null,[1.5,1.25,.85]);
-  box('wood',-5.7,.32,3,.45,.55,.45,.6);
-  box('woodD',-5.7,.61,3,.5,.04,.5,.5);
-  hnd(-5.7,.4,3.25,.05,'x');
-  legs(-5.7,.06,3,.45,.45,.12,.05);
-  // Шкаф большой
-  box('wood',-7.7,1.1,4.8,.7,2.2,1.6,1.2);
-  box('woodD',-7.7,2.24,4.8,.78,.08,1.68,.6);
-  box('woodD',-7.7,.04,4.8,.78,.08,1.68,.6);
-  box('woodD',-7.52,1.1,4.35,.02,1.95,.7,.6);
-  box('woodD',-7.52,1.1,5.25,.02,1.95,.7,.6);
-  box('woodD',-7.51,1.4,4.35,.01,.7,.5,.4);
-  box('woodD',-7.51,.7,4.35,.01,.7,.5,.4);
-  box('woodD',-7.51,1.4,5.25,.01,.7,.5,.4);
-  box('woodD',-7.51,.7,5.25,.01,.7,.5,.4);
-  box('br',-7.51,1.1,4.65,.02,.02,.08,.15);
-  box('br',-7.51,1.1,4.95,.02,.02,.08,.15);
-  // Комод
-  box('wood',-3.9,.75,4.7,.6,1.4,1.3,1);
-  box('woodD',-3.9,1.47,4.7,.66,.06,1.36,.5);
-  legs(-3.9,.06,4.7,.55,1.25,.12,.05);
-  box('woodD',-3.58,.4,4.2,.02,.25,.6,.4);
-  box('woodD',-3.58,.4,4.9,.02,.25,.6,.4);
-  box('woodD',-3.58,.8,4.2,.02,.25,.6,.4);
-  box('woodD',-3.58,.8,4.9,.02,.25,.6,.4);
-  box('woodD',-3.58,1.2,4.2,.02,.25,.6,.4);
-  box('woodD',-3.58,1.2,4.9,.02,.25,.6,.4);
-  hnd(-3.57,.4,4.7,.15,'z');
-  hnd(-3.57,.8,4.7,.15,'z');
-  hnd(-3.57,1.2,4.7,.15,'z');
-  // Зеркало
-  box('woodD',-3.2,1.6,3.8,.06,1.2,.7,.5);
-  box('sky',-3.18,1.6,3.8,.02,1.1,.6,.8);
-  // Часы
-  box('woodD',-5,2.1,6.1,.4,.5,.06,.4);
-  box('light',-5,2.1,6.05,.34,.4,.02,.3,null,[1.4,1.3,.95]);
-  box('rug',-5.7,.008,4,3.2,.012,2.2,1.4,TEX.rug);
-
-  // КУХНЯ
-  box('wood',-1,.42,5.55,3.2,.84,.55,1);
-  box('woodD',-1,.9,5.55,3.25,.04,.6,.5);
-  box('woodD',-1,.04,5.55,3.2,.08,.55,.5);
-  box('woodD',-2.1,.45,5.27,.6,.75,.02,.5);
-  box('woodD',-1,.45,5.27,.6,.75,.02,.5);
-  box('woodD',.1,.45,5.27,.6,.75,.02,.5);
-  box('woodD',-2.1,.78,5.27,.6,.14,.02,.4);
-  box('woodD',-1,.78,5.27,.6,.14,.02,.4);
-  hnd(-2.1,.6,5.25,.08,'x');
-  hnd(-1,.6,5.25,.08,'x');
-  hnd(.1,.6,5.25,.08,'x');
-  hnd(-2.1,.78,5.25,.08,'x');
-  hnd(-1,.78,5.25,.08,'x');
-  box('wood',-1,1.9,5.75,3.2,.7,.35,1);
-  box('woodD',-1,2.28,5.75,3.25,.06,.4,.5);
-  box('woodD',-2,1.9,5.56,.6,.6,.02,.4);
-  box('woodD',-1.2,1.9,5.56,.6,.6,.02,.4);
-  box('woodD',-.4,1.9,5.56,.6,.6,.02,.4);
-  box('woodD',.4,1.9,5.56,.6,.6,.02,.4);
-  hnd(-2,1.65,5.55,.08,'x');
-  hnd(-1.2,1.65,5.55,.08,'x');
-  hnd(-.4,1.65,5.55,.08,'x');
-  hnd(.4,1.65,5.55,.08,'x');
-  // Раковина
-  box('met',-1,.9,5.55,.7,.04,.45,.6,TEX.met);
-  box('met',-1,.86,5.55,.65,.08,.4,.6,TEX.met);
-  box('met',-1,1.05,5.75,.04,.28,.04,.3,TEX.met);
-  box('met',-1,1.18,5.7,.04,.04,.18,.3,TEX.met);
-  // Гарнитур запад
-  box('wood',-2.6,.42,4.5,.55,.84,2,.9);
-  box('woodD',-2.6,.9,4.5,.6,.04,2.05,.5);
-  box('woodD',-2.32,.45,3.9,.02,.75,.6,.4);
-  box('woodD',-2.32,.45,4.55,.02,.75,.6,.4);
-  box('woodD',-2.32,.45,5.15,.02,.75,.6,.4);
-  hnd(-2.31,.6,3.9,.08,'x');
-  hnd(-2.31,.6,4.55,.08,'x');
-  hnd(-2.31,.6,5.15,.08,'x');
-  box('wood',-2.6,1.9,4.5,.4,.7,2,.9);
-  box('woodD',-2.6,2.28,4.5,.45,.06,2.05,.5);
-  // Холодильник
-  box('fridge',2.55,.85,3.2,.7,1.7,.7,1,null,[.9,.9,.88]);
-  box('fridge',2.55,1.35,2.83,.6,.7,.02,.8,null,[.88,.88,.86]);
-  box('fridge',2.55,.55,2.83,.6,.8,.02,.8,null,[.88,.88,.86]);
-  box('met',2.2,1.1,2.8,.03,.25,.03,.15,TEX.met);
-  box('met',2.2,.6,2.8,.03,.25,.03,.15,TEX.met);
-  // Плита
-  box('met',1.4,.9,5.55,.6,.06,.6,.6,null,[.15,.15,.15]);
-  box('tv',1.15,.94,5.35,.14,.02,.14,.3,null,[.06,.06,.06]);
-  box('tv',1.65,.94,5.35,.14,.02,.14,.3,null,[.06,.06,.06]);
-  box('tv',1.15,.94,5.75,.14,.02,.14,.3,null,[.06,.06,.06]);
-  box('tv',1.65,.94,5.75,.14,.02,.14,.3,null,[.06,.06,.06]);
-  box('br',1.15,.72,5.88,.05,.05,.03,.15);
-  box('br',1.4,.72,5.88,.05,.05,.03,.15);
-  box('br',1.65,.72,5.88,.05,.05,.03,.15);
-  // Обеденный стол
-  box('wood',0,.75,3.5,1.3,.05,.9,.8);
-  box('woodD',0,.72,3.5,1.32,.02,.92,.5);
-  legs(0,.36,3.5,1.2,.8,.72,.06);
-  // 3 стула
-  function chair(cx,cz){
-    legs(cx,.22,cz,.42,.42,.44,.05);
-    box('wood',cx,.46,cz,.45,.04,.45,.5);
-    box('woodD',cx-.2,.72,cz-.2,.05,.55,.05,.3);
-    box('woodD',cx+.2,.72,cz-.2,.05,.55,.05,.3);
-    box('woodD',cx,.94,cz-.2,.42,.05,.04,.3);
-    box('woodD',cx,.75,cz-.2,.42,.05,.04,.3);
-  }
-  chair(-1.2,3.5);
-  chair(1.2,3.5);
-  box('wood',0,.46,4.5,.45,.04,.45,.5);
-  legs(0,.22,4.5,.42,.42,.44,.05);
-  box('woodD',-.2,.72,4.7,.05,.55,.05,.3);
-  box('woodD',.2,.72,4.7,.05,.55,.05,.3);
-  box('woodD',0,.94,4.7,.42,.05,.04,.3);
-  box('light',0.2,.79,3.5,.2,.03,.2,.3,null,[1,1,.98]);
-  box('light',-.3,.84,3.4,.1,.14,.1,.3,null,[.95,.96,.98]);
-  box('woodD',2.7,2.1,4,.06,.4,.35,.4);
-  box('light',2.67,2.1,4,.02,.34,.3,.3,null,[1.4,1.3,.95]);
-  box('rug',-1,.008,5.1,1.6,.012,.6,.8,TEX.rug);
-
-  // ВАННАЯ
-  box('bath',5.4,.35,4.5,1.6,.7,.9,1);
-  box('bathI',5.4,.62,4.5,1.4,.06,.7,.8,null,[.75,.78,.8]);
-  box('met',5.4,.75,5.05,.06,.2,.06,.3,TEX.met);
-  box('tile',3.5,.42,3.5,.4,.84,.4,.5,TEX.tile);
-  box('tile',3.5,.85,3.5,.6,.15,.45,.5,TEX.tile);
-  box('met',3.5,.83,3.5,.5,.02,.35,.4,TEX.met);
-  box('met',3.5,.95,3.65,.04,.22,.04,.3,TEX.met);
-  box('met',3.15,1.55,3.5,.03,.9,.7,.5,TEX.met);
-  box('sky',3.13,1.55,3.5,.02,.82,.62,.8);
-  box('bath',5.3,.35,5.4,.5,.55,.55,.6);
-  box('met',5.3,.75,5.65,.4,.25,.15,.4,TEX.met);
-  box('met',3.6,.4,5.3,.7,.8,.7,.9,TEX.met);
-  box('wood',3.4,1.9,5.6,.7,.6,.35,.5);
-  box('woodD',3.4,1.9,5.41,.65,.55,.02,.4);
-  hnd(3.4,1.9,5.4,.06,'x');
-
-  // КЛАДОВАЯ
-  box('wood',4.5,.5,1.7,2.5,.05,.35,.7);
-  box('wood',4.5,1.1,1.7,2.5,.05,.35,.7);
-  box('wood',4.5,1.7,1.7,2.5,.05,.35,.7);
-  box('box',3.8,.2,1.7,.5,.4,.35,.4,null,[.78,.62,.42]);
-  box('box',4.4,.2,1.7,.5,.4,.35,.4,null,[.72,.56,.38]);
-  box('box',5,.2,1.7,.5,.4,.35,.4,null,[.8,.64,.44]);
-  box('box',5.5,.2,1.7,.5,.4,.35,.4,null,[.74,.6,.4]);
-  box('jar',4,1.15,1.7,.15,.25,.15,.3,null,[.65,.72,.45]);
-  box('jar',4.2,1.15,1.7,.15,.25,.15,.3,null,[.65,.72,.45]);
-  box('met',3.5,.2,.5,.3,.4,.3,.4,null,[.85,.85,.88]);
-  chair(4.5,-.5);
-
-  // ЛЕСТНИЦЫ
-  buildStairs();
-  buildBasement();
-  buildAttic();
-}
-
-function buildStairs(){
-  var steps=12,stepH=H/steps,totZ=2,stepD=totZ/steps;
-  for(var i=0;i<steps;i++){
-    var cz=-3.5-(i+.5)*stepD,cy=(i+1)*stepH;
-    box('stairs',4.25,cy-stepH/2,cz,1.5,stepH,stepD,.8,TEX.plank);
-  }
-  var steps2=12,drop=2.7,stepH2=drop/steps2,totZ2=1.5,stepD2=totZ2/steps2;
-  for(var j=0;j<steps2;j++){
-    var cz2=-5-(j+.5)*stepD2,cy2=-(j+1)*stepH2+stepH2/2;
-    box('stairs',4.25,cy2,cz2,1.5,stepH2,stepD2,.8,TEX.plank);
-  }
-}
-
-function buildBasement(){
-  var BY=-2.7,CEIL=-.3,h=CEIL-BY;
-  plane('fB',-6,-5,2,1,BY,1.6,TEX.conc);
-  plane('cB',-6,-5,2,1,CEIL,1.6,TEX.conc,[.85,.82,.78],true);
-  box('conc',-2,BY+h/2,-5,8,h,.3,2,TEX.conc);
-  box('conc',-2,BY+h/2,1,8,h,.3,2,TEX.conc);
-  box('conc',-6,BY+h/2,-2,.3,h,6,2,TEX.conc);
-  box('conc',2,BY+h/2,-2,.3,h,6,2,TEX.conc);
-  box('conc',2.75,BY+h/2,-5.15,1.5,h,.3,1.6,TEX.conc);
-  box('conc',2.75,BY+h/2,-3.85,1.5,h,.3,1.6,TEX.conc);
-  plane('fB2',2,-5,3.5,-4,BY,1.6,TEX.conc);
-  plane('cB2',2,-5,3.5,-4,CEIL,1.6,TEX.conc,[.85,.82,.78],true);
-  for(var i=0;i<4;i++){
-    var bx=-6+1+i*2;
-    box('wood',bx,CEIL-.1,-2,.25,.2,5.5,1.2);
-  }
-  box('wood',-5.5,BY+1,-3,.7,.1,3,1);
-  box('wood',-5.5,BY+1.6,-3,.7,.1,3,1);
-  box('bar',0,BY+.4,-3.5,.7,.8,.7,.8,null,[.55,.45,.32]);
-  box('bar',-1,BY+.4,-3.2,.7,.8,.7,.8,null,[.58,.48,.32]);
-  box('bar',.9,BY+.4,-4.2,.7,.8,.7,.8,null,[.52,.42,.3]);
-  box('box',-4.5,BY+.25,-4.3,.6,.5,.5,.6,null,[.72,.58,.42]);
-  box('box',-4.5,BY+.75,-4.3,.55,.5,.5,.6,null,[.68,.54,.38]);
-  box('met',-2,CEIL-.3,-4.5,8,.1,.1,.5,TEX.met);
-  box('met',-2,CEIL-.3,.5,8,.1,.1,.5,TEX.met);
-  box('light',0,CEIL-.3,-2,.3,.15,.3,.3,null,[1.4,1.15,.75]);
-}
-
-function buildAttic(){
-  var AY=2.9,ax1=-4,az1=-4,ax2=6,az2=4,wallH=1.4,peakH=2.6;
-  plane('fAt',ax1,az1,ax2,az2,AY,1.2,TEX.plank);
-  plane('rS',ax1,az1,ax2,0,AY+1.9,2,TEX.plank,[.85,.78,.68],true);
-  plane('rN',ax1,0,ax2,az2,AY+1.9,2,TEX.plank,[.85,.78,.68],true);
-  for(var i=0;i<6;i++){
-    var bx=ax1+1+i*1.7;
-    box('wood',bx,AY+peakH,0,.15,.15,8,1.5);
-  }
-  box('plankW',ax1,AY+wallH/2,0,.2,wallH,8,1.5);
-  box('plankW',ax2,AY+wallH/2,0,.2,wallH,8,1.5);
-  box('wood',3,AY+.35,1,1.2,.7,.7,.8);
-  box('wood',3,AY+.72,1,1.25,.1,.75,.6);
-  box('met',3,AY+.5,1.36,.15,.15,.04,.2,TEX.met);
-  box('box',-1,AY+.25,-2,.55,.5,.55,.6,null,[.7,.55,.4]);
-  box('box',-1,AY+.75,-2,.5,.5,.5,.6,null,[.65,.5,.36]);
-  box('box',0,AY+.25,-2.5,.6,.5,.6,.6,null,[.72,.56,.42]);
-  box('box',5,AY+.25,3,.6,.5,.6,.6,null,[.7,.55,.4]);
-  box('wood',-3,AY+.4,1.5,.4,.05,.4,.5);
-  box('wood',-3.1,AY+.65,1.3,.05,.5,.4,.5);
-  box('sky',ax2-.05,AY+1,0,.05,.7,.7,1);
-  box('light',0,AY+peakH-.3,0,.15,.1,.15,.3,null,[1.3,1.2,.9]);
-}
-
-/* --- СВЕТ --- */
-var LIGHTS=[
-  {x:-6.5,y:2.55,z:-5.5,r:1.35,g:1.22,b:.9,range:9},
-  {x:-4.5,y:2.55,z:-4.5,r:1.1,g:1,b:.78,range:7},
-  {x:-6.5,y:2.55,z:-1.5,r:1.35,g:1.22,b:.9,range:9},
-  {x:-5,y:2.55,z:.5,r:1.1,g:1,b:.78,range:7},
-  {x:-6.5,y:2.55,z:3.5,r:1.35,g:1.22,b:.9,range:9},
-  {x:-4.5,y:2.55,z:5,r:1.1,g:1,b:.78,range:7},
-  {x:0,y:2.55,z:-4.5,r:1.15,g:1.05,b:.82,range:8},
-  {x:0,y:2.55,z:-1,r:1.15,g:1.05,b:.82,range:8},
-  {x:0,y:2.55,z:1,r:1.15,g:1.05,b:.82,range:8},
-  {x:0,y:2.55,z:4,r:1.35,g:1.22,b:.9,range:9},
-  {x:4.5,y:2.55,z:4,r:1.25,g:1.22,b:1.05,range:8},
-  {x:4.5,y:2.55,z:-.5,r:.9,g:.85,b:.65,range:6.5},
-  {x:4.5,y:2.55,z:-4.5,r:.95,g:.88,b:.68,range:7}
-];
-var LIGHTS_EXTRA=[
-  {x:0,y:-.6,z:-2,r:1.05,g:.9,b:.65,range:9},
-  {x:-3,y:-.6,z:-3,r:.75,g:.65,b:.5,range:6},
-  {x:2.75,y:-.6,z:-4.5,r:.75,g:.65,b:.5,range:6},
-  {x:0,y:4.6,z:0,r:1.1,g:1,b:.8,range:10},
-  {x:4,y:4.6,z:0,r:.7,g:.62,b:.5,range:6}
-];
-function lightsFor(px,py,pz){
-  var all=py<-.5?LIGHTS_EXTRA.slice(0,3):py>3.5?LIGHTS_EXTRA.slice(3):LIGHTS;
-  var arr=all.map(function(L){return {L:L,d:Math.hypot(L.x-px,L.y-py,L.z-pz)};});
-  arr.sort(function(a,b){return a.d-b.d;});
-  return arr.slice(0,6).map(function(o){return o.L;});
-}
-
-/* --- ИГРОК --- */
-var player={x:-5.5,y:1.7,z:-4.5,yaw:0,pitch:0,radius:.35};
-
-/* --- ВВОД --- */
-var keys={},pointerLocked=false;
-var hint=document.getElementById('hint');
-var joy=document.getElementById('joy');
-var camEl=document.getElementById('cam');
-var isMobile=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-if(isMobile){
-  joy.classList.add('on');camEl.classList.add('on');
-  document.getElementById('info').style.display='none';
-}
-function rLock(){if(!isMobile&&cv.requestPointerLock)cv.requestPointerLock();}
-cv.addEventListener('click',function(){if(!isMobile&&!pointerLocked)rLock();});
-document.addEventListener('pointerlockchange',function(){
-  pointerLocked=(document.pointerLockElement===cv);
-  if(!pointerLocked&&!isMobile){hint.textContent='НАЖМИТЕ, ЧТОБЫ ПРОДОЛЖИТЬ';hint.classList.add('on');}
-  else hint.classList.remove('on');
-});
-hint.addEventListener('click',function(){hint.classList.remove('on');rLock();});
-window.addEventListener('keydown',function(e){
-  keys[e.code]=true;
-  if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(e.code)>=0)e.preventDefault();
-});
-window.addEventListener('keyup',function(e){keys[e.code]=false;});
-window.addEventListener('blur',function(){for(var k in keys)keys[k]=false;});
-document.addEventListener('mousemove',function(e){
-  if(!pointerLocked)return;
-  player.yaw+=e.movementX*.0022;
-  player.pitch=cl(player.pitch-e.movementY*.0022,-1.3,1.3);
-});
-var joyActive=false,joyCX=0,joyCY=0,joyDX=0,joyDY=0;
-if(isMobile){
-  var knob=joy.querySelector('i');
-  function setJoy(cx,cy){
-    var dx=cx-joyCX,dy=cy-joyCY,r=55,L=Math.hypot(dx,dy)||1,clv=Math.min(L,r);
-    var nx=(dx/L)*clv,ny=(dy/L)*clv;
-    knob.style.transform='translate('+nx+'px,'+ny+'px)';
-    joyDX=nx/r;joyDY=ny/r;
-  }
-  joy.addEventListener('touchstart',function(e){
-    e.preventDefault();
-    var r=joy.getBoundingClientRect();
-    joyCX=r.left+r.width/2;joyCY=r.top+r.height/2;
-    joyActive=true;setJoy(e.touches[0].clientX,e.touches[0].clientY);
-  },{passive:false});
-  joy.addEventListener('touchmove',function(e){
-    e.preventDefault();
-    if(joyActive)setJoy(e.touches[0].clientX,e.touches[0].clientY);
-  },{passive:false});
-  joy.addEventListener('touchend',function(e){
-    e.preventDefault();
-    joyActive=false;knob.style.transform='';joyDX=joyDY=0;
-  },{passive:false});
-  var camTouchId=null,lastCX=0,lastCY=0;
-  camEl.addEventListener('touchstart',function(e){
-    e.preventDefault();
-    for(var i=0;i<e.changedTouches.length;i++){
-      var t=e.changedTouches[i];
-      if(camTouchId===null){camTouchId=t.identifier;lastCX=t.clientX;lastCY=t.clientY;}
+    // тонкие трещины
+    ctx.strokeStyle = 'rgba(88,78,64,0.20)';
+    for (let i = 0; i < 7; i++) {
+      ctx.lineWidth = 0.6 + Math.random() * 0.9;
+      let x = Math.random() * w, y = Math.random() * h;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      for (let s = 0; s < 9; s++) {
+        x += (Math.random() - 0.5) * 34;
+        y += (Math.random() - 0.5) * 34;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
     }
-  },{passive:false});
-  camEl.addEventListener('touchmove',function(e){
-    e.preventDefault();
-    for(var i=0;i<e.changedTouches.length;i++){
-      var t=e.changedTouches[i];
-      if(t.identifier===camTouchId){
-        var dx=t.clientX-lastCX,dy=t.clientY-lastCY;
-        lastCX=t.clientX;lastCY=t.clientY;
-        player.yaw+=dx*.006;
-        player.pitch=cl(player.pitch-dy*.006,-1.3,1.3);
+    // потёртости
+    for (let i = 0; i < 30; i++) {
+      ctx.fillStyle = `rgba(255,250,240,${Math.random() * 0.05})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 20 + 4, 0, 6.3);
+      ctx.fill();
+    }
+  }, 1, 1);
+}
+
+function woodTex(baseR = 104, baseG = 70, baseB = 42, rows = 8) {
+  return makeTex(512, 512, (ctx, w, h) => {
+    ctx.fillStyle = `rgb(${baseR * 0.7 | 0},${baseG * 0.7 | 0},${baseB * 0.7 | 0})`;
+    ctx.fillRect(0, 0, w, h);
+    const rh = h / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = r * rh;
+      const off = (r % 2) * (w / 3);
+      for (let px = -w; px < w * 2; px += w / 2.5) {
+        const v = 0.82 + Math.random() * 0.36;
+        ctx.fillStyle = `rgb(${baseR * v | 0},${baseG * v | 0},${baseB * v | 0})`;
+        ctx.fillRect(px + off, y, w / 2.5 - 2, rh - 2);
+      }
+      for (let g = 0; g < 16; g++) {
+        ctx.strokeStyle = `rgba(0,0,0,${0.03 + Math.random() * 0.06})`;
+        ctx.lineWidth = 1;
+        const gy = y + Math.random() * rh;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        for (let x = 0; x <= w; x += w / 10) ctx.lineTo(x, gy + (Math.random() - 0.5) * 3.2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(0,0,0,0.34)';
+      ctx.fillRect(0, y + rh - 2, w, 2);
+    }
+    // царапины и потёртости
+    for (let i = 0; i < 90; i++) {
+      ctx.fillStyle = `rgba(255,240,215,${Math.random() * 0.035})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 12 + 1, 0, 6.3);
+      ctx.fill();
+    }
+  }, 1, 1);
+}
+
+function tileTex(colR = 196, colG = 200, colB = 202, gapCol = '#7e8488', n = 4) {
+  return makeTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = gapCol;
+    ctx.fillRect(0, 0, w, h);
+    const s = w / n;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const v = 0.90 + Math.random() * 0.18;
+        ctx.fillStyle = `rgb(${colR * v | 0},${colG * v | 0},${colB * v | 0})`;
+        ctx.fillRect(i * s + 2, j * s + 2, s - 4, s - 4);
       }
     }
-  },{passive:false});
-  camEl.addEventListener('touchend',function(e){
-    for(var i=0;i<e.changedTouches.length;i++){
-      if(e.changedTouches[i].identifier===camTouchId)camTouchId=null;
+    for (let i = 0; i < 160; i++) {
+      ctx.fillStyle = `rgba(72,72,66,${Math.random() * 0.05})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 11 + 1, 0, 6.3);
+      ctx.fill();
     }
-  },{passive:false});
+  }, 1, 1);
 }
 
-/* --- ФИЗИКА --- */
-function collidesAt(x,y,z,r){
-  for(var i=0;i<COL.length;i++){
-    var c=COL[i];
-    if(y+.1<c.minY||y-1.5>c.maxY)continue;
-    if(x+r>c.minX&&x-r<c.maxX&&z+r>c.minZ&&z-r<c.maxZ)return true;
-  }
-  return false;
-}
-function movePlayer(dt){
-  var spd=2.8,mx=0,mz=0;
-  // A — влево, D — вправо (исправлено)
-  if(keys['KeyW']||keys['ArrowUp']){mx+=Math.sin(player.yaw);mz+=-Math.cos(player.yaw);}
-  if(keys['KeyS']||keys['ArrowDown']){mx-=Math.sin(player.yaw);mz-=-Math.cos(player.yaw);}
-  if(keys['KeyA']||keys['ArrowLeft']){mx-=Math.cos(player.yaw);mz-=Math.sin(player.yaw);}
-  if(keys['KeyD']||keys['ArrowRight']){mx+=Math.cos(player.yaw);mz+=Math.sin(player.yaw);}
-  if(joyActive){
-    var f=-joyDY,r=joyDX;
-    mx+=Math.sin(player.yaw)*f+Math.cos(player.yaw)*r;
-    mz+=-Math.cos(player.yaw)*f+Math.sin(player.yaw)*r;
-  }
-  var L=Math.hypot(mx,mz);
-  if(L>.01){
-    mx/=L;mz/=L;
-    var tx=mx*spd*dt,tz=mz*spd*dt;
-    if(!collidesAt(player.x+tx,player.y,player.z,player.radius))player.x+=tx;
-    if(!collidesAt(player.x,player.y,player.z+tz,player.radius))player.z+=tz;
-  }
+function carpetTex(color = '#6b3f3a') {
+  return makeTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, w, h);
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const n = (Math.random() - 0.5) * 40;
+      d[i] += n; d[i + 1] += n; d[i + 2] += n;
+    }
+    ctx.putImageData(img, 0, 0);
+    ctx.strokeStyle = 'rgba(230,215,190,0.18)';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(14, 14, w - 28, h - 28);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(26, 26, w - 52, h - 52);
+  }, 1, 1);
 }
 
-/* --- РЕНДЕР --- */
-var _lastT=0;
-function renderFrame(){
-  var now=performance.now();
-  var dt=(now-_lastT)/1000;_lastT=now;
-  if(dt>.1)dt=.1;
-  if(!isMobile||pointerLocked||joyActive||!hint.classList.contains('on'))movePlayer(dt);
-  var asp=cv.width/cv.height;
-  var proj=m4p(Math.PI/3,asp,.05,60);
-  var eyeY=player.y;
-  var cp=Math.cos(player.pitch);
-  var fx=Math.sin(player.yaw)*cp,fy=Math.sin(player.pitch),fz=-Math.cos(player.yaw)*cp;
-  var view=m4l(player.x,eyeY,player.z,player.x+fx,eyeY+fy,player.z+fz);
-  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.useProgram(prog);
-  gl.uniformMatrix4fv(U.uProj,false,proj);
-  gl.uniformMatrix4fv(U.uView,false,view);
-  gl.uniform3f(U.uCamPos,player.x,eyeY,player.z);
-  gl.uniform3f(U.uAmbient,.62,.62,.66);
-  gl.uniform3f(U.uFogColor,.08,.08,.1);
-  gl.uniform1f(U.uFogNear,14);
-  gl.uniform1f(U.uFogFar,45);
-  var lights=lightsFor(player.x,eyeY,player.z);
-  var pos=new Float32Array(18),col=new Float32Array(18),rng=new Float32Array(6);
-  for(var i=0;i<lights.length;i++){
-    pos[i*3]=lights[i].x;pos[i*3+1]=lights[i].y;pos[i*3+2]=lights[i].z;
-    col[i*3]=lights[i].r;col[i*3+1]=lights[i].g;col[i*3+2]=lights[i].b;
-    rng[i]=lights[i].range;
-  }
-  gl.uniform3fv(U.uLightPos,pos);
-  gl.uniform3fv(U.uLightColor,col);
-  gl.uniform1fv(U.uLightRange,rng);
-  gl.uniform1i(U.uNumLights,lights.length);
-  gl.uniformMatrix4fv(U.uModel,false,m4());
-  gl.uniformMatrix3fv(U.uNrmMat,false,new Float32Array([1,0,0,0,1,0,0,0,1]));
-  for(var k in B){
-    var b=B[k];
-    if(!b.vb||!b.n)continue;
-    gl.uniform3fv(U.uColor,b.col);
-    if(b.gt){
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D,b.gt);
-      gl.uniform1i(U.uTex,0);
-      gl.uniform1f(U.uUseTex,1);
-    } else gl.uniform1f(U.uUseTex,0);
-    gl.bindBuffer(gl.ARRAY_BUFFER,b.vb);
-    gl.enableVertexAttribArray(A.pos);
-    gl.vertexAttribPointer(A.pos,3,gl.FLOAT,false,32,0);
-    gl.enableVertexAttribArray(A.nrm);
-    gl.vertexAttribPointer(A.nrm,3,gl.FLOAT,false,32,12);
-    gl.enableVertexAttribArray(A.uv);
-    gl.vertexAttribPointer(A.uv,2,gl.FLOAT,false,32,24);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,b.ib);
-    gl.drawElements(gl.TRIANGLES,b.n,gl.UNSIGNED_SHORT,0);
-  }
-  requestAnimationFrame(renderFrame);
+function roofTex() {
+  return makeTex(256, 256, (ctx, w, h) => {
+    ctx.fillStyle = '#3a3330';
+    ctx.fillRect(0, 0, w, h);
+    const rows = 10, rh = h / rows;
+    for (let r = 0; r < rows; r++) {
+      const y = r * rh;
+      const off = (r % 2) * 14;
+      for (let x = -30; x < w + 30; x += 28) {
+        const v = 0.78 + Math.random() * 0.34;
+        ctx.fillStyle = `rgb(${72 * v | 0},${64 * v | 0},${60 * v | 0})`;
+        ctx.fillRect(x + off, y + 1, 26, rh - 2);
+      }
+      ctx.fillStyle = 'rgba(0,0,0,0.42)';
+      ctx.fillRect(0, y + rh - 2, w, 2);
+    }
+  }, 1, 1);
 }
 
-/* --- РЕГИСТРАЦИЯ МАТЕРИАЛОВ --- */
-function initBatches(){
-  var texB={
-    'fFloor':TEX.floor,'fTile':TEX.tile,'fOld':TEX.wallO,'fCeil':TEX.wall,
-    'wallO':TEX.wall,'wallG':TEX.wallG,'wall':TEX.wall,
-    'wood':TEX.wood,'woodD':TEX.woodD,'fab':TEX.fab,'fabD':TEX.fabD,
-    'met':TEX.met,'br':TEX.br,'rug':TEX.rug,'tile':TEX.tile,
-    'conc':TEX.conc,'plank':TEX.plank,'plankW':TEX.plank,'stairs':TEX.plank
+/* ============================================================
+   3. МАТЕРИАЛЫ
+   ============================================================ */
+const texPlaster = plasterTex('#d9d3c6', 0.055);
+const texPlasterExt = plasterTex('#b9ac97', 0.085);
+const texWoodFloor = woodTex(112, 76, 46, 8);
+const texWoodFloor2 = woodTex(96, 66, 42, 10);
+const texTileKitchen = tileTex(198, 192, 178, '#8a8579', 4);
+const texTileBath = tileTex(176, 190, 196, '#7c878c', 6);
+const texCarpet = carpetTex('#6d4038');
+const texCarpet2 = carpetTex('#3f4a52');
+const texRoof = roofTex();
+
+const matWall      = new THREE.MeshStandardMaterial({ map: texPlaster, roughness: 0.96, metalness: 0.0 });
+const matWallExt   = new THREE.MeshStandardMaterial({ map: texPlasterExt, roughness: 0.97, metalness: 0.0 });
+const matFloorWood = new THREE.MeshStandardMaterial({ map: texWoodFloor, roughness: 0.68, metalness: 0.0 });
+const matFloorWood2= new THREE.MeshStandardMaterial({ map: texWoodFloor2, roughness: 0.72, metalness: 0.0 });
+const matFloorTile = new THREE.MeshStandardMaterial({ map: texTileKitchen, roughness: 0.42, metalness: 0.03 });
+const matFloorBath = new THREE.MeshStandardMaterial({ map: texTileBath, roughness: 0.34, metalness: 0.05 });
+const matCarpet    = new THREE.MeshStandardMaterial({ map: texCarpet, roughness: 1.0 });
+const matCarpet2   = new THREE.MeshStandardMaterial({ map: texCarpet2, roughness: 1.0 });
+const matRoof      = new THREE.MeshStandardMaterial({ map: texRoof, roughness: 0.88, metalness: 0.03 });
+
+const matWoodDark  = new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 0.62, metalness: 0.04 });
+const matWoodMid   = new THREE.MeshStandardMaterial({ color: 0x6b4a2e, roughness: 0.66, metalness: 0.03 });
+const matWoodLight = new THREE.MeshStandardMaterial({ color: 0x9a7850, roughness: 0.7, metalness: 0.0 });
+const matTrim      = new THREE.MeshStandardMaterial({ color: 0xe4ded1, roughness: 0.72 });
+const matDoor      = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.58, metalness: 0.03 });
+const matDoorDark  = new THREE.MeshStandardMaterial({ color: 0x5d4229, roughness: 0.6 });
+const matMetal     = new THREE.MeshStandardMaterial({ color: 0x8a8d91, roughness: 0.35, metalness: 0.85 });
+const matMetalDark = new THREE.MeshStandardMaterial({ color: 0x3e4247, roughness: 0.45, metalness: 0.7 });
+const matGlass     = new THREE.MeshPhysicalMaterial({
+  color: 0xcfe0e8, roughness: 0.06, metalness: 0.0,
+  transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false
+});
+const matWindowFrame = new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: 0.7 });
+const matFabricSofa  = new THREE.MeshStandardMaterial({ color: 0x5a4a3c, roughness: 0.96 });
+const matFabricChair = new THREE.MeshStandardMaterial({ color: 0x6a5140, roughness: 0.96 });
+const matFabricBlue  = new THREE.MeshStandardMaterial({ color: 0x3d4a58, roughness: 0.95 });
+const matSheet       = new THREE.MeshStandardMaterial({ color: 0xe8e4da, roughness: 0.9 });
+const matBlanket     = new THREE.MeshStandardMaterial({ color: 0x7a4a3a, roughness: 0.95 });
+const matBlanket2    = new THREE.MeshStandardMaterial({ color: 0x445a63, roughness: 0.95 });
+const matStone       = new THREE.MeshStandardMaterial({ color: 0x6d6a63, roughness: 0.95 });
+const matPorcelain   = new THREE.MeshStandardMaterial({ color: 0xf2f4f3, roughness: 0.22, metalness: 0.02 });
+const matPaper       = new THREE.MeshStandardMaterial({ color: 0xd8cfb8, roughness: 0.95 });
+const matLampGlow    = new THREE.MeshStandardMaterial({
+  color: 0xfff4d8, emissive: 0xffd9a0, emissiveIntensity: 2.6, roughness: 0.4
+});
+const matLampGlow2   = new THREE.MeshStandardMaterial({
+  color: 0xe8f2ff, emissive: 0xa8ccff, emissiveIntensity: 2.0, roughness: 0.4
+});
+const matCanvasArt   = new THREE.MeshStandardMaterial({ color: 0x8a7a5e, roughness: 0.9 });
+const matGround      = new THREE.MeshStandardMaterial({ color: 0x3a4030, roughness: 1.0 });
+const matPath        = new THREE.MeshStandardMaterial({ color: 0x6a6157, roughness: 1.0 });
+const matFoliage     = new THREE.MeshStandardMaterial({ color: 0x2f4429, roughness: 1.0 });
+const matTrunk       = new THREE.MeshStandardMaterial({ color: 0x3a2b1e, roughness: 1.0 });
+
+/* ============================================================
+   4. ГЕОМЕТРИЯ-ХЕЛПЕРЫ
+   ============================================================ */
+const geoCache = new Map();
+function boxGeo(w, h, d) {
+  const k = w.toFixed(3) + '|' + h.toFixed(3) + '|' + d.toFixed(3);
+  let g = geoCache.get(k);
+  if (!g) { g = new THREE.BoxGeometry(w, h, d); geoCache.set(k, g); }
+  return g;
+}
+
+// Бокс с UV, отмасштабированными под реальный размер (для стен/полов)
+function uvBox(w, h, d, s = 0.36) {
+  const g = new THREE.BoxGeometry(w, h, d);
+  const uv = g.attributes.uv;
+  const a = uv.array;
+  for (let f = 0; f < 6; f++) {
+    let sw, sh;
+    if (f === 0 || f === 1)      { sw = d; sh = h; }   // ±X
+    else if (f === 2 || f === 3) { sw = w; sh = d; }   // ±Y
+    else                         { sw = w; sh = h; }   // ±Z
+    for (let v = 0; v < 4; v++) {
+      const i = (f * 4 + v) * 2;
+      a[i]     *= sw * s;
+      a[i + 1] *= sh * s;
+    }
+  }
+  uv.needsUpdate = true;
+  return g;
+}
+
+function addBox(parent, w, h, d, mat, x, y, z, ry = 0, rx = 0, rz = 0) {
+  const m = new THREE.Mesh(boxGeo(w, h, d), mat);
+  m.position.set(x, y, z);
+  m.rotation.set(rx, ry, rz);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+
+function addTexBox(parent, w, h, d, mat, x, y, z, ry = 0, s = 0.36) {
+  const m = new THREE.Mesh(uvBox(w, h, d, s), mat);
+  m.position.set(x, y, z);
+  m.rotation.y = ry;
+  m.castShadow = true;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+
+/* ---------- СТЕНА С ПРОЁМАМИ ----------
+   x1,z1 -> x2,z2 : линия стены
+   openings: [{from, width, bottom, top, type}] — from отсчитывается от (x1,z1)  */
+function buildWall(parent, x1, z1, x2, z2, opts = {}) {
+  const {
+    y0 = 0, height = H1, thickness = INT,
+    openings = [], material = matWall, uvScale = 0.36, solidMat = null
+  } = opts;
+
+  const dx = x2 - x1, dz = z2 - z1;
+  const len = Math.hypot(dx, dz);
+  if (len < 1e-4) return null;
+  const ang = Math.atan2(dz, dx);
+
+  const g = new THREE.Group();
+  g.position.set((x1 + x2) / 2, y0, (z1 + z2) / 2);
+  g.rotation.y = -ang;
+  parent.add(g);
+
+  const piece = (from, to, yb, yt) => {
+    const w = to - from, hgt = yt - yb;
+    if (w <= 0.002 || hgt <= 0.002) return;
+    const m = new THREE.Mesh(uvBox(w, hgt, thickness, uvScale), solidMat || material);
+    m.position.set(-len / 2 + (from + to) / 2, (yb + yt) / 2, 0);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    g.add(m);
   };
-  for(var k in texB){
-    if(!B[k])B[k]={v:[],i:[],tex:texB[k],col:[1,1,1],vb:null,ib:null,gt:null,n:0};
+
+  const ops = openings.slice().sort((a, b) => a.from - b.from);
+  let cursor = 0;
+  for (const op of ops) {
+    const b = op.bottom ?? 0;
+    const t = op.top ?? height;
+    piece(cursor, op.from, 0, height);
+    if (b > 0) piece(op.from, op.from + op.width, 0, b);
+    if (t < height) piece(op.from, op.from + op.width, t, height);
+    cursor = op.from + op.width;
   }
-  var colorB={
-    'sky':[1.15,1.28,1.45],'light':[1.4,1.2,.85],'tv':[.15,.13,.12],
-    'bath':[.95,.95,.93],'bathI':[.75,.78,.8],'fridge':[.9,.9,.88],
-    'box':[.72,.56,.4],'bar':[.55,.45,.32],'jar':[.65,.72,.45]
-  };
-  for(var k2 in colorB){
-    if(!B[k2])B[k2]={v:[],i:[],tex:null,col:colorB[k2],vb:null,ib:null,gt:null,n:0};
-  }
+  piece(cursor, len, 0, height);
+
+  return { group: g, len, ang, x1, z1, dx, dz };
 }
 
-/* --- РАЗМЕР ОКНА --- */
-function resize(){
-  var dpr=Math.min(window.devicePixelRatio||1,1.5);
-  cv.width=Math.max(320,Math.floor(window.innerWidth*dpr));
-  cv.height=Math.max(240,Math.floor(window.innerHeight*dpr));
-  gl.viewport(0,0,cv.width,cv.height);
-}
-window.addEventListener('resize',resize);
+/* ---------- ОКНО ---------- */
+function addWindow(parent, cx, cz, ry, w, h, sill, yBase = 0) {
+  const g = new THREE.Group();
+  g.position.set(cx, yBase, cz);
+  g.rotation.y = ry;
+  parent.add(g);
 
-/* --- КОЛЛИЗИИ СТЕН И МЕБЕЛИ --- */
-function buildColliders(){
-  // Наружные
-  col(-6.625,H/2,-6.5,3.25,H,WT);
-  col(1.375,H/2,-6.5,9.75,H,WT);
-  col(-1,H/2,6.5,14.5,H,WT);
-  col(-8.25,H/2,0,WT,H,13);
-  col(6.25,H/2,0,WT,H,13);
-  // Внутренние X=-3
-  col(-3,H/2,-5.85,WTI,H,1.3);
-  col(-3,H/2,-1.95,WTI,H,4.5);
-  col(-3,H/2,2.5,WTI,H,2.4);
-  col(-3,H/2,5.6,WTI,H,1.8);
-  // Внутренние X=3
-  col(3,H/2,-5.85,WTI,H,1.3);
-  col(3,H/2,-2.75,WTI,H,2.9);
-  col(3,H/2,1.6,WTI,H,3.8);
-  col(3,H/2,5.5,WTI,H,2.0);
-  // Z=2
-  col(-5.5,H/2,2,5,H,WTI);
-  col(-2.25,H/2,2,1.5,H,WTI);
-  col(2.25,H/2,2,1.5,H,WTI);
-  col(4.5,H/2,2,3,H,WTI);
-  // Z=-3
-  col(-5.5,H/2,-3,5,H,WTI);
-  col(4.5,H/2,-3,3,H,WTI);
-  // Мебель
-  col(-7.2,.3,-5,1.6,.6,2.2);
-  col(-3.9,1.05,-4.7,.7,2.1,1.5);
-  col(-7.4,.4,-.5,1,.8,2);
-  col(-5.5,.4,-.5,1.2,.7,.7);
-  col(-6.5,.5,1.75,1.4,1,.5);
-  col(-4.2,1.1,-2.75,1.4,2.2,.4);
-  col(-6.8,.3,3.8,1.8,.6,2.2);
-  col(-7.7,1.1,4.8,.7,2.2,1.6);
-  col(-3.9,.7,4.7,.6,1.4,1.3);
-  col(-1,.45,5.6,3.2,.9,.55);
-  col(-2.6,.45,4.5,.55,.9,2);
-  col(2.55,.85,3.2,.7,1.7,.7);
-  col(0,.4,3.5,1.2,.7,.8);
-  col(5.4,.35,4.5,1.6,.7,.9);
-  col(5.3,.35,5.4,.5,.7,.55);
-  col(3.6,.4,5.3,.7,.8,.7);
-  col(4.5,1.1,1.7,2.5,2.2,.35);
-}
-
-/* --- ИНИЦИАЛИЗАЦИЯ --- */
-function init(){
-  resize();
-  initBatches();
-  buildHouse();
-  buildFurniture();
-  buildColliders();
-  upload();
-  requestAnimationFrame(renderFrame);
-}
-init();
-</script>
-</body>
-</html>
+  const t = 0.07, fr = matWindowFrame;
+  addBox(g, w, t, 0.24, fr, 0, sill + h - t / 2, 0);
+  addBox(g, w, t, 0.24, fr, 0, sill + t / 2, 0);
+  addBox(g, t, h, 0.24, fr, -w / 2 + t / 2, sill + h / 2, 0);
+  addBox(g, t, h, 0.24, fr,  w / 2 - t / 2, sill + h / 2, 0);
+  // импосты
+  addBox(g, 0.045, h - 0.1, 0.13, fr, 0, sill + h / 2, 0);
+  addBox(g, w - 0.1, 0.045, 0.13, fr, 0, sill + h / 2, 0);
+  // стекло
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(w - 0.1, h -
