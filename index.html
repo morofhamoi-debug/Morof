@@ -2,99 +2,92 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>КВАРТИРА № 13</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#c8c8c8;font-family:"Courier New",monospace;user-select:none}
-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:0}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#c8c8c8;font-family:"Courier New",monospace}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
 #hud{position:absolute;inset:0;pointer-events:none;z-index:2}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(10,10,12,.82) 0%,rgba(0,0,0,.96) 80%);z-index:10;pointer-events:auto}
-.screen.on{display:flex}
-h1{font-size:clamp(26px,6vw,58px);letter-spacing:.18em;color:#b9a07a;text-shadow:0 0 24px rgba(200,150,80,.28);font-weight:400;text-align:center}
-.sub{font-size:clamp(11px,2.4vw,14px);color:#6e6a5f;letter-spacing:.28em;margin-top:14px;text-align:center}
-.menu-btns{margin-top:46px;display:flex;flex-direction:column;gap:11px;width:min(320px,80vw)}
-button{font-family:inherit;font-size:15px;letter-spacing:.14em;padding:13px 20px;background:rgba(20,20,22,.82);color:#b8b0a0;border:1px solid #3a3630;cursor:pointer;transition:.2s;text-align:center}
-button:hover:not(:disabled){background:rgba(60,50,40,.9);color:#e8d8b0;border-color:#7a6a4a}
-button:disabled{opacity:.32;cursor:default}
-.small{font-size:13px;padding:9px 16px}
-#crosshair{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border:1px solid rgba(220,220,220,.55);border-radius:50%;display:none}
-#crosshair.on{display:block}
-#prompt{position:absolute;left:50%;top:58%;transform:translateX(-50%);font-size:14px;letter-spacing:.08em;color:#ddd0b0;background:rgba(0,0,0,.62);padding:6px 14px;border:1px solid rgba(140,120,80,.4);display:none;white-space:nowrap}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.85) 100%)}
+#fear{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(80,0,0,.6) 100%);opacity:0;transition:opacity .6s}
+#cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border:1px solid rgba(220,220,220,.6);border-radius:50%;display:none}
+#cross.on{display:block}
+#prompt{position:absolute;left:50%;top:57%;transform:translateX(-50%);font-size:14px;color:#e0d0a8;background:rgba(0,0,0,.7);padding:6px 14px;border:1px solid rgba(150,120,70,.5);display:none;white-space:nowrap}
 #prompt.on{display:block}
-#objective{position:absolute;left:18px;top:16px;max-width:min(320px,58vw);font-size:12px;color:#9a9080;letter-spacing:.05em;line-height:1.5;display:none}
-#objective.on{display:block}
-#objective b{color:#c8a868;display:block;font-size:10.5px;letter-spacing:.22em;margin-bottom:4px}
-#notes{position:absolute;left:50%;top:18%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;width:min(420px,86vw);pointer-events:none}
-.note{background:rgba(10,10,12,.86);border-left:2px solid #b9924a;padding:7px 14px;font-size:12.5px;color:#d8c8a8;letter-spacing:.04em;max-width:100%;transition:opacity .6s}
-#vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.8) 100%);pointer-events:none}
-#flash{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:140px;height:4px;background:rgba(255,255,255,.08);display:none}
+#obj{position:absolute;left:16px;top:14px;font-size:12px;color:#9a9080;max-width:300px;line-height:1.5;display:none}
+#obj.on{display:block}
+#obj b{color:#c8a868;display:block;font-size:10px;letter-spacing:.2em;margin-bottom:3px}
+#notes{position:absolute;left:50%;top:16%;transform:translateX(-50%);width:min(400px,86vw);display:flex;flex-direction:column;gap:5px;align-items:center}
+.note{background:rgba(10,10,12,.88);border-left:2px solid #b9924a;padding:6px 12px;font-size:12px;color:#d8c8a8;transition:opacity .6s;max-width:100%;text-align:center}
+#flash{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:130px;height:3px;background:rgba(255,255,255,.08);display:none}
 #flash.on{display:block}
-#flash i{display:block;height:100%;background:#a8894e;width:100%;transition:width .25s}
-.panel{background:rgba(8,8,10,.96);border:1px solid #33302a;padding:24px;width:min(560px,92vw);max-height:86vh;overflow:auto;pointer-events:auto}
-.panel h2{font-size:15px;letter-spacing:.24em;color:#c8a868;margin-bottom:16px;font-weight:400}
+#flash i{display:block;height:100%;background:#a8894e;width:100%}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(10,10,12,.88),rgba(0,0,0,.98));z-index:10;padding:20px}
+.screen.on{display:flex}
+h1{font-size:clamp(26px,6vw,56px);letter-spacing:.18em;color:#b9a07a;text-align:center;font-weight:400;text-shadow:0 0 22px rgba(200,150,80,.3)}
+.sub{font-size:clamp(10px,2.3vw,13px);color:#6e6a5f;letter-spacing:.26em;margin-top:12px;text-align:center}
+.menu{display:flex;flex-direction:column;gap:10px;margin-top:40px;width:min(300px,80vw)}
+button{font-family:inherit;font-size:15px;letter-spacing:.12em;padding:12px 18px;background:rgba(20,20,22,.85);color:#b8b0a0;border:1px solid #3a3630;cursor:pointer;transition:.15s}
+button:hover:not(:disabled){background:rgba(60,50,40,.9);color:#e8d8b0;border-color:#7a6a4a}
+button:disabled{opacity:.32;cursor:not-allowed}
+.sm{font-size:12.5px;padding:8px 14px}
+.panel{background:rgba(8,8,10,.96);border:1px solid #33302a;padding:22px;width:min(560px,92vw);max-height:86vh;overflow:auto}
+.panel h2{font-size:15px;letter-spacing:.2em;color:#c8a868;margin-bottom:16px;font-weight:400}
 .panel p{font-size:13px;line-height:1.8;color:#a8a090;white-space:pre-line}
-.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1d1c1a;font-size:13px;color:#a8a090}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1d1c1a;font-size:13px;color:#a8a090}
 .row:last-child{border-bottom:none}
-.row input[type=range]{width:170px;accent-color:#a8894e}
+.row input[type=range]{width:160px;accent-color:#a8894e}
 .row input[type=checkbox]{accent-color:#a8894e}
 .item{padding:10px;border:1px solid #2a2824;margin-bottom:8px;background:rgba(20,20,22,.55)}
-.item b{color:#c8b890;font-size:13px;letter-spacing:.06em}
+.item b{color:#c8b890;font-size:13px}
 .item p{font-size:12px;color:#807a6e;margin-top:5px;line-height:1.5}
-#hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.86);padding:20px 30px;border:1px solid #4a4030;color:#d8c8a8;font-size:14px;letter-spacing:.08em;display:none;text-align:center;pointer-events:auto;cursor:pointer;z-index:15}
-#hint.on{display:block}
-.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);pointer-events:auto;z-index:20}
+.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);z-index:20;padding:20px}
 .overlay.on{display:flex}
-#damage{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(120,0,0,.85));opacity:0;pointer-events:none;transition:opacity .3s;z-index:3}
-#mobile{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
-#mobile.on{display:block}
-#joy{position:absolute;left:20px;bottom:20px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);pointer-events:auto}
-#joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(200,180,140,.4);border:1px solid rgba(200,180,140,.65)}
-.mbtn{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#ddd;font-size:13px;pointer-events:auto;display:flex;align-items:center;justify-content:center;letter-spacing:.05em}
-#mE{right:110px;bottom:110px}
-#mF{right:34px;bottom:110px}
-#mPause{right:20px;top:20px;width:52px;height:52px;font-size:11px}
-#clockFace{position:relative;width:210px;height:210px;border-radius:50%;background:#1a1814;border:3px solid #4a4030;margin:0 auto 18px}
-.hand{position:absolute;left:50%;bottom:50%;transform-origin:bottom center;background:#c8b890;border-radius:2px}
-#hHour{width:6px;height:56px;margin-left:-3px}
-#hMin{width:4px;height:80px;margin-left:-2px}
-.codein{font-size:30px;letter-spacing:.9em;color:#c8b890;text-align:center;margin:14px 0;padding:12px;border:1px solid #3a3630;background:#0e0e10;min-height:58px}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:250px;margin:0 auto}
-.keypad button{padding:12px;font-size:16px}
-#endText{max-width:min(620px,90vw);font-size:14px;line-height:1.85;color:#b8b0a0;letter-spacing:.04em;margin:22px 0;white-space:pre-line;text-align:center}
-#hudMsg{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);font-size:13px;color:#c8a868;letter-spacing:.1em;display:none;text-align:center;background:rgba(0,0,0,.7);padding:6px 14px;border:1px solid rgba(140,120,80,.4)}
-#hudMsg.on{display:block}
+#hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.88);padding:18px 26px;border:1px solid #4a4030;color:#d8c8a8;font-size:14px;display:none;cursor:pointer;z-index:15;text-align:center}
+#hint.on{display:block}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin:14px auto}
+.keypad button{padding:10px;font-size:15px}
+#codeDisp{font-size:28px;letter-spacing:.8em;color:#c8b890;text-align:center;margin:12px 0;padding:10px;border:1px solid #3a3630;background:#0e0e10;min-height:52px;padding-left:1em}
+#endText{max-width:min(600px,90vw);font-size:13.5px;line-height:1.85;color:#b8b0a0;margin:18px 0;white-space:pre-line;text-align:center}
+.mob{position:absolute;z-index:5;pointer-events:none;display:none}
+.mob.on{display:block}
+#joy{left:18px;bottom:18px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);pointer-events:auto}
+#joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(200,180,140,.4)}
+.mbtn{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#ddd;font-size:12px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
+#mE{right:100px;bottom:100px;position:absolute}
+#mF{right:28px;bottom:100px;position:absolute}
+#mP{right:18px;top:18px;width:48px;height:48px;position:absolute;font-size:10px}
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
+<canvas id="cv"></canvas>
 
 <div id="hud">
-  <div id="vignette"></div>
-  <div id="damage"></div>
-  <div id="crosshair"></div>
+  <div id="vig"></div>
+  <div id="fear"></div>
+  <div id="cross"></div>
   <div id="prompt"></div>
-  <div id="objective"><b>ЦЕЛЬ</b><span id="objText">Исследуйте квартиру</span></div>
+  <div id="obj"><b>ЦЕЛЬ</b><span id="objT">—</span></div>
   <div id="notes"></div>
   <div id="flash"><i></i></div>
-  <div id="hudMsg"></div>
 </div>
 
 <div id="hint"></div>
 
-<div class="screen on" id="screenMenu">
+<div class="screen on" id="scMenu">
   <h1>КВАРТИРА № 13</h1>
   <div class="sub">НЕКОТОРЫЕ ДВЕРИ ЛУЧШЕ НЕ ОТКРЫВАТЬ</div>
-  <div class="menu-btns">
+  <div class="menu">
     <button id="btnNew" type="button">НАЧАТЬ ИГРУ</button>
-    <button id="btnContinue" type="button" disabled>ПРОДОЛЖИТЬ</button>
-    <button id="btnSettings" type="button">НАСТРОЙКИ</button>
-    <button id="btnControls" type="button">УПРАВЛЕНИЕ</button>
+    <button id="btnCont" type="button" disabled>ПРОДОЛЖИТЬ</button>
+    <button id="btnSet" type="button">НАСТРОЙКИ</button>
+    <button id="btnCtrl" type="button">УПРАВЛЕНИЕ</button>
     <button id="btnAbout" type="button">ОБ ИГРЕ</button>
   </div>
 </div>
 
-<div class="screen" id="screenControls">
+<div class="screen" id="scCtrl">
   <div class="panel">
     <h2>УПРАВЛЕНИЕ</h2>
     <div class="row"><span>Движение</span><span>W A S D</span></div>
@@ -105,42 +98,40 @@ button:disabled{opacity:.32;cursor:default}
     <div class="row"><span>Инвентарь</span><span>I</span></div>
     <div class="row"><span>Журнал</span><span>J</span></div>
     <div class="row"><span>Пауза</span><span>ESC</span></div>
-    <div style="margin-top:20px;text-align:center"><button class="small" id="btnBackCtrl" type="button">НАЗАД</button></div>
+    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackCtrl" type="button">НАЗАД</button></div>
   </div>
 </div>
 
-<div class="screen" id="screenAbout">
+<div class="screen" id="scAbout">
   <div class="panel">
     <h2>ОБ ИГРЕ</h2>
     <p>Вы получили в наследство квартиру № 13 в старом доме. Она принадлежала Виктору Морозову — человеку, которого вы никогда не знали.
 
-Психологический хоррор-квест от первого лица. Исследуйте квартиру, читайте записки, решайте головоломки и решите судьбу того, что здесь произошло.
+Психологический хоррор от первого лица. Исследуйте квартиру, читайте записки, решайте головоломки и решите судьбу того, что здесь произошло.
 
 Все ресурсы созданы процедурно. Игра работает без интернета.</p>
-    <div style="margin-top:20px;text-align:center"><button class="small" id="btnBackAbout" type="button">НАЗАД</button></div>
+    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackAbout" type="button">НАЗАД</button></div>
   </div>
 </div>
 
-<div class="screen" id="screenSettings">
+<div class="screen" id="scSet">
   <div class="panel">
     <h2>НАСТРОЙКИ</h2>
     <div class="row"><span>Общая громкость</span><input type="range" id="sMaster" min="0" max="100" value="70"></div>
     <div class="row"><span>Звуки</span><input type="range" id="sSfx" min="0" max="100" value="80"></div>
-    <div class="row"><span>Атмосфера</span><input type="range" id="sAmb" min="0" max="100" value="60"></div>
     <div class="row"><span>Чувствительность</span><input type="range" id="sSens" min="20" max="300" value="100"></div>
-    <div class="row"><span>Инверсия оси Y</span><input type="checkbox" id="sInvert"></div>
-    <div class="row"><span>Дальность прорисовки</span><input type="range" id="sDraw" min="15" max="45" value="28"></div>
-    <div class="row"><span>Размер интерфейса</span><input type="range" id="sUI" min="80" max="140" value="100"></div>
-    <div style="margin-top:20px;text-align:center"><button class="small" id="btnBackSet" type="button">НАЗАД</button></div>
+    <div class="row"><span>Инверсия Y</span><input type="checkbox" id="sInv"></div>
+    <div class="row"><span>Дальность прорисовки</span><input type="range" id="sDraw" min="12" max="45" value="28"></div>
+    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackSet" type="button">НАЗАД</button></div>
   </div>
 </div>
 
 <div class="overlay" id="ovPause">
   <div class="panel" style="text-align:center">
     <h2>ПАУЗА</h2>
-    <div class="menu-btns" style="margin:24px auto 0">
+    <div class="menu" style="margin:20px auto 0">
       <button id="btnResume" type="button">ПРОДОЛЖИТЬ</button>
-      <button id="btnSaveGame" type="button">СОХРАНИТЬ ИГРУ</button>
+      <button id="btnSave" type="button">СОХРАНИТЬ</button>
       <button id="btnToMenu" type="button">ГЛАВНОЕ МЕНЮ</button>
     </div>
   </div>
@@ -150,66 +141,46 @@ button:disabled{opacity:.32;cursor:default}
   <div class="panel">
     <h2>ИНВЕНТАРЬ</h2>
     <div id="invList"></div>
-    <div style="margin-top:18px;text-align:center"><button class="small" id="btnCloseInv" type="button">ЗАКРЫТЬ</button></div>
+    <div style="margin-top:16px;text-align:center"><button class="sm" id="btnCloseInv" type="button">ЗАКРmarginЫТЬ</button></div>
   </div>
 </div>
 
-<div class="overlay" id="ovJournal">
+<div class="overlay" id="ovJ">
   <div class="panel">
     <h2>ЖУРНАЛ</h2>
     <div id="jList"></div>
-    <div style="margin-top:18px;text-align:center"><button class="small" id="btnCloseJ" type="button">ЗАКРЫТЬ</button></div>
+    <div style="margin-top:16px;text-align:center"><button class="sm" id="btnCloseJ" type="button">ЗАКРЫТЬ</button></div>
   </div>
 </div>
 
 <div class="overlay" id="ovRead">
   <div class="panel">
-    <h2 id="readTitle">ЗАПИСКА</h2>
-    <p id="readBody"></p>
-    <div style="margin-top:20px;text-align:center"><button class="small" id="btnCloseRead" type="button">ЗАКРЫТЬ</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovClock">
-  <div class="panel" style="text-align:center">
-    <h2>НАСТЕННЫЕ ЧАСЫ</h2>
-    <p style="font-size:12.5px;color:#8a8270;margin-bottom:14px">Стрелки остановились. Установите время, когда всё произошло.</p>
-    <div id="clockFace">
-      <div class="hand" id="hHour"></div>
-      <div class="hand" id="hMin"></div>
-    </div>
-    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px">
-      <div><div style="font-size:11px;color:#6a6050;margin-bottom:6px">ЧАСЫ</div>
-        <button class="small" id="hDown" type="button">−</button><span id="hVal" style="padding:0 12px;color:#c8b890">12</span><button class="small" id="hUp" type="button">+</button></div>
-      <div><div style="font-size:11px;color:#6a6050;margin-bottom:6px">МИНУТЫ</div>
-        <button class="small" id="mDown" type="button">−</button><span id="mVal" style="padding:0 12px;color:#c8b890">00</span><button class="small" id="mUp" type="button">+</button></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button id="clockConfirm" type="button">ПОДТВЕРДИТЬ</button>
-      <button class="small" id="clockClose" type="button">ОТОЙТИ</button>
-    </div>
+    <h2 id="rdT">ЗАПИСКА</h2>
+    <p id="rdB"></p>
+    <div style="-top:18px;text-align:center"><button class="sm" id="btnCloseRead" type="button">ЗАКРЫТЬ</button></div>
   </div>
 </div>
 
 <div class="overlay" id="ovCode">
   <div class="panel" style="text-align:center">
     <h2>КОДОВЫЙ ЗАМОК</h2>
-    <div class="codein" id="codeDisplay">____</div>
+    <p style="font-size:12px;color:#8a8270">Введите код из четырёх цифр</p>
+    <div id="codeDisp">____</div>
     <div class="keypad">
       <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
       <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
       <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
       <button type="button" data-k="C">C</button><button type="button" data-k="0">0</button><button type="button" data-k="OK">OK</button>
     </div>
-    <div style="margin-top:16px"><button class="small" id="btnCloseCode" type="button">ОТОЙТИ</button></div>
+    <div style="margin-top:12px"><button class="sm" id="btnCloseCode" type="button">ОТОЙТИ</button></div>
   </div>
 </div>
 
-<div class="overlay" id="ovEnding">
-  <div class="panel" style="text-align:center;width:min(720px,94vw)">
-    <h2 id="endingTitle"></h2>
+<div class="overlay" id="ovEnd">
+  <div class="panel" style="text-align:center;width:min(700px,94vw)">
+    <h2 id="endT"></h2>
     <div id="endText"></div>
-    <div class="menu-btns" style="margin:0 auto">
+    <div class="menu" style="margin:0 auto">
       <button id="btnEndMenu" type="button">В ГЛАВНОЕ МЕНЮ</button>
     </div>
   </div>
@@ -218,44 +189,41 @@ button:disabled{opacity:.32;cursor:default}
 <div class="overlay" id="ovDeath">
   <div class="panel" style="text-align:center">
     <h2 style="color:#a04040">ВЫ ПОГИБЛИ</h2>
-    <p id="deathText" style="font-size:13px;color:#8a8070;margin:16px 0;line-height:1.7">Что-то нашло вас во тьме.</p>
-    <div class="menu-btns" style="margin:16px auto 0">
+    <p id="deathT" style="font-size:13px;color:#8a8070;margin:14px 0;line-height:1.7">Что-то нашло вас во тьме.</p>
+    <div class="menu" style="margin:14px auto 0">
       <button id="btnRetry" type="button">ПОПРОБОВАТЬ СНОВА</button>
       <button id="btnDeathMenu" type="button">ГЛАВНОЕ МЕНЮ</button>
     </div>
   </div>
 </div>
 
-<div id="mobile">
+<div class="mob" id="mobile">
   <div id="joy"><i></i></div>
   <div class="mbtn" id="mE">E</div>
   <div class="mbtn" id="mF">F</div>
-  <div class="mbtn" id="mPause">ESC</div>
+  <div class="mbtn" id="mP">ESC</div>
 </div>
 
 <script>
 "use strict";
-/* =========================================================================
-   КВАРТИРА № 13 — автономная 3D-хоррор-игра
-   ========================================================================= */
-
-/* ---------- 1. МАТЕМАТИКА ---------- */
-function m4identity(){ return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); }
-function m4perspective(fovy, aspect, near, far){
-  const f = 1/Math.tan(fovy/2);
-  const o = new Float32Array(16);
-  o[0]=f/aspect; o[5]=f;
-  o[10]=(far+near)/(near-far); o[11]=-1;
-  o[14]=(2*far*near)/(near-far);
+/* =============== МАТЕМАТИКА =============== */
+function mat4(){ return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); }
+function mPersp(fov, asp, n, f){
+  const t = 1/Math.tan(fov/2), o = mat4();
+  o[0]=t/asp; o[5]=t; o[10]=(f+n)/(n-f); o[11]=-1; o[14]=(2*f*n)/(n-f); o[15]=0;
   return o;
 }
-function m4lookAt(ex,ey,ez, cx,cy,cz, ux,uy,uz){
+function mLook(ex,ey,ez, cx,cy,cz){
   let zx=ex-cx, zy=ey-cy, zz=ez-cz;
   let l=Math.hypot(zx,zy,zz)||1; zx/=l; zy/=l; zz/=l;
-  let xx=uy*zz-uz*zy, xy=uz*zx-ux*zz, xz=ux*zy-uy*zx;
+  let xx=zz*0-1*zy, xy=1*zx-0*zz, xz=0*zy-0*zx; // up=(0,1,0) => (uy*zz-uz*zy, uz*zx-ux*zz, ux*zy-uy*zx)
+  // Correct cross product: up=(0,1,0)
+  xx = 1*zz - 0*zy;
+  xy = 0*zx - 0*zz;
+  xz = 0*zy - 1*zx;
   l=Math.hypot(xx,xy,xz)||1; xx/=l; xy/=l; xz/=l;
   const yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
-  const o = new Float32Array(16);
+  const o = mat4();
   o[0]=xx; o[1]=yx; o[2]=zx; o[3]=0;
   o[4]=xy; o[5]=yy; o[6]=zy; o[7]=0;
   o[8]=xz; o[9]=yz; o[10]=zz; o[11]=0;
@@ -265,9 +233,8 @@ function m4lookAt(ex,ey,ez, cx,cy,cz, ux,uy,uz){
   o[15]=1;
   return o;
 }
-// Compose: translate(x,y,z) * rotateY(ry) * scale(sx,sy,sz). Column-major.
-function m4compose(x,y,z, sx,sy,sz, ry){
-  const c=Math.cos(ry||0), s=Math.sin(ry||0);
+function mModel(x,y,z, sx,sy,sz, ry){
+  const c = Math.cos(ry||0), s = Math.sin(ry||0);
   return new Float32Array([
     c*sx, 0, -s*sx, 0,
     0, sy, 0, 0,
@@ -275,198 +242,164 @@ function m4compose(x,y,z, sx,sy,sz, ry){
     x, y, z, 1
   ]);
 }
-const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const clamp = (v,a,b)=>v<a?a:(v>b?b:v);
+const rnd = (a,b)=>a+Math.random()*(b-a);
 
-/* ---------- 2. ТЕКСТУРЫ (процедурные) ---------- */
-const TexCache = {};
+/* =============== ТЕКСТУРЫ =============== */
+const texCache = {};
 function makeTex(name, w, h, fn){
-  if(TexCache[name]) return TexCache[name];
+  if(texCache[name]) return texCache[name];
   const c = document.createElement('canvas'); c.width=w; c.height=h;
   const ctx = c.getContext('2d');
   const img = ctx.createImageData(w,h);
   const d = img.data;
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
     const col = fn(x,y,w,h);
     const i = (y*w+x)*4;
     d[i]=col[0]|0; d[i+1]=col[1]|0; d[i+2]=col[2]|0; d[i+3]=255;
   }
   ctx.putImageData(img,0,0);
-  TexCache[name]=c;
+  texCache[name]=c;
   return c;
 }
-function noise2(x,y,s){
-  const n = Math.sin(x*12.9898+y*78.233+s*43.3)*43758.5453;
-  return n-Math.floor(n);
-}
+function nz(x,y,s){ const n = Math.sin(x*12.9898+y*78.233+s*43.3)*43758.5453; return n-Math.floor(n); }
 const TEX = {
   get wall(){ return makeTex('wall',128,128,(x,y,w,h)=>{
-    const n = noise2(x*.31,y*.31,1)*16 + noise2(x*.07,y*.07,2)*22;
-    const stripe = Math.sin(x*.18)*.5+.5;
-    const grime = 1-(y/h)*.28;
-    let r=(102+stripe*10+n)*grime, g=(88+stripe*8+n)*grime, b=(66+stripe*6+n)*grime;
-    if(noise2(x*.09,y*.09,7)>.9){ r-=22; g-=22; b-=18; }
-    return [r,g,b];
+    const n = nz(x*.3,y*.3,1)*14;
+    const st = Math.sin(x*.2)*.5+.5;
+    const gr = 1-(y/h)*.3;
+    return [(98+st*10+n)*gr, (84+st*8+n)*gr, (62+st*6+n)*gr];
   }); },
-  get wallGreen(){ return makeTex('wallGreen',128,128,(x,y,w,h)=>{
-    const n = noise2(x*.35,y*.35,3)*14 + noise2(x*.08,y*.08,5)*18;
-    const stripe = Math.sin(x*.15)*.5+.5;
-    const grime = 1-(y/h)*.3;
-    let r=(60+stripe*8+n)*grime, g=(72+stripe*10+n)*grime, b=(56+stripe*8+n)*grime;
-    return [r,g,b];
+  get wallG(){ return makeTex('wallG',128,128,(x,y,w,h)=>{
+    const n = nz(x*.35,y*.35,3)*12;
+    const gr = 1-(y/h)*.28;
+    return [(56+n)*gr, (68+n)*gr, (52+n)*gr];
   }); },
   get floor(){ return makeTex('floor',128,128,(x,y,w,h)=>{
-    const yy = y*.32 + Math.sin(x*.22)*4;
-    const wave = (Math.sin(yy*.7)*.5+.5);
-    let r=78+wave*36, g=56+wave*24, b=36+wave*14;
-    if(((y+((x>>4)<<2))%32)<1){ r*=.5; g*=.5; b*=.5; }
-    const n = noise2(x,y,11)*10;
+    const yy = y*.3 + Math.sin(x*.2)*3;
+    const wv = (Math.sin(yy*.7)*.5+.5);
+    let r=72+wv*32, g=52+wv*22, b=34+wv*14;
+    if((y%26)<1){ r*=.55; g*=.55; b*=.55; }
+    const n = nz(x,y,9)*10;
     return [r+n,g+n,b+n];
   }); },
   get tile(){ return makeTex('tile',128,128,(x,y,w,h)=>{
-    const border = (x%32)<2 || (y%32)<2;
-    const n = noise2(x*.6,y*.6,9)*12;
-    if(border) return [38+n,40+n,36+n];
-    return [148+n,150+n,142+n];
+    const b = (x%32)<2 || (y%32)<2;
+    const n = nz(x*.5,y*.5,5)*12;
+    return b ? [40+n,42+n,38+n] : [142+n,144+n,136+n];
   }); },
-  get concrete(){ return makeTex('concrete',128,128,(x,y,w,h)=>{
-    const n = noise2(x*.55,y*.55,6)*24 + noise2(x*.13,y*.13,13)*20;
-    return [86+n,84+n,80+n];
+  get conc(){ return makeTex('conc',128,128,(x,y,w,h)=>{
+    const n = nz(x*.5,y*.5,6)*22 + nz(x*.12,y*.12,13)*18;
+    return [82+n,80+n,76+n];
   }); },
   get wood(){ return makeTex('wood',128,128,(x,y,w,h)=>{
-    const yy = y*.28 + Math.sin(x*.15)*3;
-    const wave = (Math.sin(yy*.6)*.5+.5);
-    let r=64+wave*26, g=42+wave*16, b=26+wave*10;
-    if((y%22)<1){ r*=.6; g*=.6; b*=.6; }
-    const n = noise2(x,y,17)*9;
+    const yy = y*.25 + Math.sin(x*.14)*3;
+    const wv = (Math.sin(yy*.6)*.5+.5);
+    let r=62+wv*24, g=40+wv*16, b=26+wv*10;
+    const n = nz(x,y,17)*8;
     return [r+n,g+n,b+n];
   }); },
   get door(){ return makeTex('door',64,128,(x,y,w,h)=>{
-    const panel = x>8 && x<56 && ((y>10&&y<54)||(y>68&&y<118));
-    const base = panel?56:70;
-    const n = noise2(x*.6,y*.6,21)*12;
+    const p = x>8 && x<56 && ((y>12&&y<56)||(y>72&&y<116));
+    const base = p?58:72;
+    const n = nz(x*.6,y*.6,21)*10;
     return [base+n, base*.78+n, base*.56+n];
   }); },
   get metal(){ return makeTex('metal',64,64,(x,y,w,h)=>{
-    const n = noise2(x*.9,y*.9,8)*18;
-    const band = Math.sin(y*.4)*6;
-    return [70+n+band, 72+n+band, 76+n+band];
-  }); },
-  get fabric(){ return makeTex('fabric',64,64,(x,y,w,h)=>{
-    const n = noise2(x*1.2,y*1.2,3)*14;
-    const weave = ((x+y)%4<1?1:0)*6;
-    return [66+n+weave,60+n+weave,52+n+weave];
+    const n = nz(x*.9,y*.9,8)*16;
+    return [72+n, 74+n, 78+n];
   }); },
   get rug(){ return makeTex('rug',64,64,(x,y,w,h)=>{
-    const n = noise2(x*1.4,y*1.4,12)*16;
-    const ring = ((x>>2)+(y>>2))%2;
-    return ring ? [80+n,30+n,30+n] : [58+n,24+n,24+n];
-  }); },
-  get photo(){ return makeTex('photo',64,64,(x,y,w,h)=>{
-    const n = noise2(x*.4,y*.4,31)*24;
-    const cx=w/2, cy=h/2*1.2;
-    const d = Math.hypot(x-cx,y-cy);
-    if(d<16) return [64+n,56+n,44+n];
-    return [128+n*.6,108+n*.6,86+n*.6];
+    const n = nz(x*1.2,y*1.2,12)*14;
+    const r = ((x>>2)+(y>>2))%2;
+    return r ? [78+n,28+n,28+n] : [56+n,22+n,22+n];
   }); }
 };
 
-/* ---------- 3. WEBGL РЕНДЕРЕР ---------- */
-const VERT_SRC = `
-attribute vec3 aPos; attribute vec3 aNrm; attribute vec2 aUV;
-uniform mat4 uProj; uniform mat4 uView; uniform mat4 uModel; uniform mat3 uNrmMat;
-varying vec3 vNrm; varying vec3 vWorld; varying vec2 vUV;
+/* =============== WEBGL =============== */
+const VS = `attribute vec3 aP; attribute vec3 aN; attribute vec2 aU;
+uniform mat4 uP, uV, uM; uniform mat3 uNM;
+varying vec3 vN; varying vec3 vW; varying vec2 vU;
+void main(){ vec4 wp = uM * vec4(aP,1.0);
+  vW = wp.xyz; vN = normalize(uNM * aN); vU = aU;
+  gl_Position = uP * uV * wp; }`;
+const FS = `precision mediump float;
+varying vec3 vN; varying vec3 vW; varying vec2 vU;
+uniform vec3 uC; uniform sampler2D uT; uniform float uUseT;
+uniform vec3 uCam; uniform vec3 uAmb;
+uniform vec3 uLP[6]; uniform vec3 uLC[6]; uniform float uLR[6]; uniform int uNL;
+uniform vec3 uFDir; uniform float uFOn; uniform vec3 uFC; uniform float uFR;
+uniform float uFN; uniform float uFF; uniform vec3 uFogC;
 void main(){
-  vec4 wp = uModel * vec4(aPos,1.0);
-  vWorld = wp.xyz;
-  vNrm = normalize(uNrmMat * aNrm);
-  vUV = aUV;
-  gl_Position = uProj * uView * wp;
-}`;
-const FRAG_SRC = `
-precision mediump float;
-varying vec3 vNrm; varying vec3 vWorld; varying vec2 vUV;
-uniform vec3 uColor; uniform sampler2D uTex; uniform float uUseTex;
-uniform vec3 uCamPos; uniform vec3 uAmbient;
-uniform vec3 uLightPos[8]; uniform vec3 uLightColor[8]; uniform float uLightRange[8];
-uniform int uNumLights;
-uniform vec3 uFlashDir; uniform float uFlashOn; uniform vec3 uFlashColor; uniform float uFlashRange;
-uniform float uFogNear; uniform float uFogFar; uniform vec3 uFogColor;
-uniform float uEmissive;
-void main(){
-  vec3 base = uColor;
-  if(uUseTex > 0.5){
-    vec4 t = texture2D(uTex, vUV);
-    base *= t.rgb;
-  }
-  vec3 N = normalize(vNrm);
-  vec3 col = uAmbient * base;
-  for(int i=0;i<8;i++){
-    if(i>=uNumLights) break;
-    vec3 L = uLightPos[i] - vWorld;
-    float d = length(L);
+  vec3 base = uC;
+  if(uUseT > 0.5){ vec4 t = texture2D(uT, vU); base *= t.rgb; }
+  vec3 N = normalize(vN);
+  vec3 col = uAmb * base;
+  for(int i=0;i<6;i++){
+    if(i>=uNL) break;
+    vec3 L = uLP[i] - vW; float d = length(L);
     if(d < 0.001) continue;
     L = L/d;
     float diff = max(dot(N,L),0.0);
-    float att = clamp(1.0 - d/uLightRange[i], 0.0, 1.0);
-    att = att*att;
-    col += base * uLightColor[i] * diff * att;
+    float att = clamp(1.0 - d/uLR[i], 0.0, 1.0);
+    col += base * uLC[i] * diff * att * att;
   }
-  if(uFlashOn > 0.5){
-    vec3 L = uCamPos - vWorld;
-    float d = length(L);
-    if(d>0.001){
+  if(uFOn > 0.5){
+    vec3 L = uCam - vW; float d = length(L);
+    if(d > 0.001){
       L=L/d;
-      float diff = max(dot(N,L),0.18);
-      vec3 toFrag = normalize(vWorld - uCamPos);
-      float spot = dot(toFrag, uFlashDir);
-      spot = smoothstep(0.86, 0.97, spot);
-      float att = clamp(1.0 - d/uFlashRange, 0.0, 1.0);
-      col += base * uFlashColor * diff * spot * att * att * 1.4;
+      float diff = max(dot(N,L),0.15);
+      vec3 tf = normalize(vW - uCam);
+      float spot = smoothstep(0.85, 0.97, dot(tf, uFDir));
+      float att = clamp(1.0 - d/uFR, 0.0, 1.0);
+      col += base * uFC * diff * spot * att * att * 1.4;
     }
   }
-  col += base * uEmissive;
-  float dist = length(uCamPos - vWorld);
-  float f = clamp((dist - uFogNear)/(uFogFar - uFogNear), 0.0, 1.0);
-  col = mix(col, uFogColor, f);
+  float dd = length(uCam - vW);
+  float f = clamp((dd - uFN)/(uFF - uFN), 0.0, 1.0);
+  col = mix(col, uFogC, f);
   gl_FragColor = vec4(col, 1.0);
 }`;
 
 const R = {
-  gl:null, canvas:null, prog:null, uni:{}, meshes:{},
-  init(canvas){
-    this.canvas = canvas;
-    let gl = canvas.getContext('webgl',{antialias:false,alpha:false,depth:true}) ||
-             canvas.getContext('experimental-webgl');
+  gl:null, cv:null, prog:null, u:{}, m:{}, aP:0, aN:0, aU:0,
+  init(cv){
+    this.cv = cv;
+    let gl = cv.getContext('webgl', {antialias:false, alpha:false}) || cv.getContext('experimental-webgl');
     if(!gl) return false;
     this.gl = gl;
-    const vs = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vs, VERT_SRC); gl.compileShader(vs);
+    const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs,VS); gl.compileShader(vs);
     if(!gl.getShaderParameter(vs,gl.COMPILE_STATUS)){ console.error(gl.getShaderInfoLog(vs)); return false; }
-    const fs = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fs, FRAG_SRC); gl.compileShader(fs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs,FS); gl.compileShader(fs);
     if(!gl.getShaderParameter(fs,gl.COMPILE_STATUS)){ console.error(gl.getShaderInfoLog(fs)); return false; }
-    const p = gl.createProgram();
-    gl.attachShader(p,vs); gl.attachShader(p,fs); gl.linkProgram(p);
+    const p = gl.createProgram(); gl.attachShader(p,vs); gl.attachShader(p,fs); gl.linkProgram(p);
     if(!gl.getProgramParameter(p,gl.LINK_STATUS)){ console.error(gl.getProgramInfoLog(p)); return false; }
     this.prog = p; gl.useProgram(p);
-    const names = ['uProj','uView','uModel','uNrmMat','uColor','uTex','uUseTex','uCamPos','uAmbient',
-                   'uLightPos','uLightColor','uLightRange','uNumLights','uFlashDir','uFlashOn',
-                   'uFlashColor','uFlashRange','uFogNear','uFogFar','uFogColor','uEmissive'];
-    for(const n of names) this.uni[n] = gl.getUniformLocation(p,n);
-    this.aPos = gl.getAttribLocation(p,'aPos');
-    this.aNrm = gl.getAttribLocation(p,'aNrm');
-    this.aUV  = gl.getAttribLocation(p,'aUV');
+    const names = ['uP','uV','uM','uNM','uC','uT','uUseT','uCam','uAmb','uLP','uLC','uLR','uNL','uFDir','uFOn','uFC','uFR','uFN','uFF','uFogC'];
+    for(const n of names) this.u[n] = gl.getUniformLocation(p,n);
+    this.aP = gl.getAttribLocation(p,'aP');
+    this.aN = gl.getAttribLocation(p,'aN');
+    this.aU = gl.getAttribLocation(p,'aU');
     this.buildMeshes();
     this.resize();
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
     gl.clearColor(0.01,0.01,0.015,1);
     return true;
   },
+  createMesh(V,I){
+    const gl=this.gl;
+    const vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(V), gl.STATIC_DRAW);
+    let ib = null;
+    if(I){
+      ib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(I), gl.STATIC_DRAW);
+    }
+    return {vb, ib, count: I?I.length:V.length/8};
+  },
   buildMeshes(){
-    const gl = this.gl;
-    // Cube: pos(3) nrm(3) uv(2)
     const V=[], I=[];
     const faces = [
       {n:[1,0,0], v:[[.5,-.5,.5],[.5,-.5,-.5],[.5,.5,-.5],[.5,.5,.5]]},
@@ -478,88 +411,64 @@ const R = {
     ];
     let vi=0;
     for(const f of faces){
-      const uvs = [[0,1],[1,1],[1,0],[0,0]];
+      const uv = [[0,1],[1,1],[1,0],[0,0]];
       for(let k=0;k<4;k++){
-        V.push(f.v[k][0],f.v[k][1],f.v[k][2], f.n[0],f.n[1],f.n[2], uvs[k][0],uvs[k][1]);
+        V.push(f.v[k][0],f.v[k][1],f.v[k][2], f.n[0],f.n[1],f.n[2], uv[k][0],uv[k][1]);
       }
-      I.push(vi,vi+1,vi+2, vi,vi+2,vi+3);
-      vi+=4;
+      I.push(vi,vi+1,vi+2, vi,vi+2,vi+3); vi+=4;
     }
-    this.meshes.cube = this.createMesh(V,I);
-
-    // Plane (XZ, facing +Y)
-    const pv = [-.5,0,-.5, 0,1,0, 0,1,   .5,0,-.5, 0,1,0, 1,1,
-                 .5,0, .5, 0,1,0, 1,0,  -.5,0, .5, 0,1,0, 0,0];
-    const pi = [0,1,2, 0,2,3];
-    this.meshes.plane = this.createMesh(pv,pi);
-
-    // Wall (XY, facing +Z)
-    const wv = [-.5,-.5,0, 0,0,1, 0,1,   .5,-.5,0, 0,0,1, 1,1,
-                 .5, .5,0, 0,0,1, 1,0,  -.5, .5,0, 0,0,1, 0,0];
-    const wi = [0,1,2, 0,2,3];
-    this.meshes.wall = this.createMesh(wv,wi);
-  },
-  createMesh(verts, idxs){
-    const gl = this.gl;
-    const vbo = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
-    let ibo = null;
-    if(idxs){
-      ibo = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idxs), gl.STATIC_DRAW);
-    }
-    return {vbo, ibo, count: idxs?idxs.length:verts.length/8};
+    this.m.cube = this.createMesh(V,I);
+    this.m.plane = this.createMesh([
+      -.5,0,-.5, 0,1,0, 0,1,   .5,0,-.5, 0,1,0, 1,1,
+       .5,0, .5, 0,1,0, 1,0,  -.5,0, .5, 0,1,0, 0,0
+    ], [0,1,2, 0,2,3]);
   },
   resize(){
     const dpr = Math.min(window.devicePixelRatio||1, 1.5);
-    const w = Math.max(320, Math.floor(window.innerWidth * dpr));
-    const h = Math.max(240, Math.floor(window.innerHeight * dpr));
-    if(this.canvas.width !== w || this.canvas.height !== h){
-      this.canvas.width = w; this.canvas.height = h;
-    }
+    const w = Math.max(320, Math.floor(window.innerWidth*dpr));
+    const h = Math.max(240, Math.floor(window.innerHeight*dpr));
+    if(this.cv.width !== w || this.cv.height !== h){ this.cv.width = w; this.cv.height = h; }
     this.gl.viewport(0,0,w,h);
   },
-  beginFrame(proj, view, camPos){
+  begin(proj, view, cam){
     const gl = this.gl;
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(this.prog);
-    gl.uniformMatrix4fv(this.uni.uProj, false, proj);
-    gl.uniformMatrix4fv(this.uni.uView, false, view);
-    gl.uniform3fv(this.uni.uCamPos, camPos);
-    gl.uniform3fv(this.uni.uAmbient, [0.06,0.06,0.075]);
-    gl.uniform3fv(this.uni.uFogColor, [0.015,0.015,0.02]);
-    gl.uniform1f(this.uni.uFogNear, 4.0);
-    gl.uniform1f(this.uni.uFogFar, Settings.draw || 28);
+    gl.uniformMatrix4fv(this.u.uP, false, proj);
+    gl.uniformMatrix4fv(this.u.uV, false, view);
+    gl.uniform3fv(this.u.uCam, cam);
+    gl.uniform3fv(this.u.uAmb, [0.06, 0.06, 0.08]);
+    gl.uniform3fv(this.u.uFogC, [0.015, 0.015, 0.02]);
+    gl.uniform1f(this.u.uFN, 3.5);
+    gl.uniform1f(this.u.uFF, SET.draw || 28);
   },
   setLights(lights){
     const gl = this.gl;
-    const n = Math.min(lights.length, 8);
-    const pos = new Float32Array(24), col = new Float32Array(24), rng = new Float32Array(8);
+    const n = Math.min(lights.length, 6);
+    const P = new Float32Array(18), C = new Float32Array(18), Rg = new Float32Array(6);
     for(let i=0;i<n;i++){
-      pos[i*3]=lights[i].x; pos[i*3+1]=lights[i].y; pos[i*3+2]=lights[i].z;
-      col[i*3]=lights[i].r; col[i*3+1]=lights[i].g; col[i*3+2]=lights[i].b;
-      rng[i]=lights[i].range;
+      const L = lights[i];
+      P[i*3]=L.x; P[i*3+1]=L.y; P[i*3+2]=L.z;
+      C[i*3]=L.r; C[i*3+1]=L.g; C[i*3+2]=L.b;
+      Rg[i]=L.range;
     }
-    gl.uniform3fv(this.uni.uLightPos, pos);
-    gl.uniform3fv(this.uni.uLightColor, col);
-    gl.uniform1fv(this.uni.uLightRange, rng);
-    gl.uniform1i(this.uni.uNumLights, n);
+    gl.uniform3fv(this.u.uLP, P);
+    gl.uniform3fv(this.u.uLC, C);
+    gl.uniform1fv(this.u.uLR, Rg);
+    gl.uniform1i(this.u.uNL, n);
   },
   setFlash(on, dir, color, range){
     const gl = this.gl;
-    gl.uniform1f(this.uni.uFlashOn, on?1:0);
-    gl.uniform3fv(this.uni.uFlashDir, dir);
-    gl.uniform3fv(this.uni.uFlashColor, color);
-    gl.uniform1f(this.uni.uFlashRange, range);
+    gl.uniform1f(this.u.uFOn, on?1:0);
+    gl.uniform3fv(this.u.uFDir, dir);
+    gl.uniform3fv(this.u.uFC, color);
+    gl.uniform1f(this.u.uFR, range);
   },
-  draw(obj, camPos){
+  draw(obj){
     const gl = this.gl;
-    const mesh = this.meshes[obj.mesh] || this.meshes.cube;
-    gl.uniformMatrix4fv(this.uni.uModel, false, obj.matrix);
-    gl.uniform3fv(this.uni.uColor, obj.color || [1,1,1]);
-    gl.uniform1f(this.uni.uEmissive, obj.emissive || 0);
+    const mesh = obj.mesh === 'plane' ? this.m.plane : this.m.cube;
+    gl.uniformMatrix4fv(this.u.uM, false, obj.matrix);
+    gl.uniform3fv(this.u.uC, obj.color || [1,1,1]);
     if(obj.tex){
       gl.activeTexture(gl.TEXTURE0);
       if(!obj._glTex){
@@ -571,120 +480,90 @@ const R = {
         gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
       } else gl.bindTexture(gl.TEXTURE_2D, obj._glTex);
-      gl.uniform1i(this.uni.uTex, 0);
-      gl.uniform1f(this.uni.uUseTex, 1);
-    } else gl.uniform1f(this.uni.uUseTex, 0);
+      gl.uniform1i(this.u.uT, 0);
+      gl.uniform1f(this.u.uUseT, 1);
+    } else gl.uniform1f(this.u.uUseT, 0);
     const m = obj.matrix;
-    gl.uniformMatrix3fv(this.uni.uNrmMat, false, new Float32Array([
-      m[0],m[1],m[2], m[4],m[5],m[6], m[8],m[9],m[10]
-    ]));
-    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vbo);
-    gl.enableVertexAttribArray(this.aPos);
-    gl.vertexAttribPointer(this.aPos,3,gl.FLOAT,false,32,0);
-    gl.enableVertexAttribArray(this.aNrm);
-    gl.vertexAttribPointer(this.aNrm,3,gl.FLOAT,false,32,12);
-    gl.enableVertexAttribArray(this.aUV);
-    gl.vertexAttribPointer(this.aUV,2,gl.FLOAT,false,32,24);
-    if(mesh.ibo){
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.ibo);
+    gl.uniformMatrix3fv(this.u.uNM, false, new Float32Array([m[0],m[1],m[2], m[4],m[5],m[6], m[8],m[9],m[10]]));
+    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vb);
+    gl.enableVertexAttribArray(this.aP); gl.vertexAttribPointer(this.aP,3,gl.FLOAT,false,32,0);
+    gl.enableVertexAttribArray(this.aN); gl.vertexAttribPointer(this.aN,3,gl.FLOAT,false,32,12);
+    gl.enableVertexAttribArray(this.aU); gl.vertexAttribPointer(this.aU,2,gl.FLOAT,false,32,24);
+    if(mesh.ib){
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.ib);
       gl.drawElements(gl.TRIANGLES, mesh.count, gl.UNSIGNED_SHORT, 0);
     } else gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
   }
 };
 
-/* ---------- 4. ЗВУК ---------- */
+/* =============== ЗВУК =============== */
 const Snd = {
-  ctx:null, master:null, sfx:null, amb:null, ambNodes:null, ready:false,
+  ctx:null, ready:false, master:null, sfx:null,
   init(){
     if(this.ready) return;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       if(!AC) return;
       this.ctx = new AC();
-      this.master = this.ctx.createGain(); this.master.gain.value = (Settings.master||70)/100;
+      this.master = this.ctx.createGain(); this.master.gain.value = (SET.master||70)/100;
       this.master.connect(this.ctx.destination);
-      this.sfx = this.ctx.createGain(); this.sfx.gain.value = (Settings.sfx||80)/100;
+      this.sfx = this.ctx.createGain(); this.sfx.gain.value = (SET.sfx||80)/100;
       this.sfx.connect(this.master);
-      this.amb = this.ctx.createGain(); this.amb.gain.value = (Settings.amb||60)/100;
-      this.amb.connect(this.master);
       this.ready = true;
-      this.startAmbient();
-    } catch(e){ console.warn('audio', e); }
+    } catch(e){}
   },
-  resume(){ if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); },
-  updateVol(){
-    if(!this.ready) return;
-    this.master.gain.value = Settings.master/100;
-    this.sfx.gain.value = Settings.sfx/100;
-    this.amb.gain.value = Settings.amb/100;
-  },
-  noiseBuf(sec){
+  resume(){ if(this.ctx && this.ctx.state === 'suspended') try{ this.ctx.resume(); }catch(e){} },
+  vol(){ if(this.ready){ this.master.gain.value = SET.master/100; this.sfx.gain.value = SET.sfx/100; } },
+  nbuf(sec){
     const len = Math.floor(this.ctx.sampleRate * sec);
     const b = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
     const d = b.getChannelData(0);
     for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
     return b;
   },
-  playNoise(dur, freq, q, gain, type){
+  noise(dur, freq, q, gain, type){
     if(!this.ready) return;
-    const t = this.ctx.currentTime;
-    const src = this.ctx.createBufferSource();
-    src.buffer = this.noiseBuf(dur + 0.06);
-    const flt = this.ctx.createBiquadFilter();
-    flt.type = type || 'bandpass';
-    flt.frequency.value = freq; flt.Q.value = q || 1;
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(gain, t+0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
-    src.connect(flt); flt.connect(g); g.connect(this.sfx);
-    src.start(t); src.stop(t+dur+0.06);
+    try {
+      const t = this.ctx.currentTime;
+      const s = this.ctx.createBufferSource(); s.buffer = this.nbuf(dur+0.05);
+      const f = this.ctx.createBiquadFilter(); f.type = type||'bandpass';
+      f.frequency.value = freq; f.Q.value = q||1;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(gain, t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      s.connect(f); f.connect(g); g.connect(this.sfx);
+      s.start(t); s.stop(t+dur+0.05);
+    } catch(e){}
   },
-  playTone(freq, dur, type, gain, slide){
+  tone(freq, dur, type, gain, slide){
     if(!this.ready) return;
-    const t = this.ctx.currentTime;
-    const o = this.ctx.createOscillator();
-    o.type = type || 'sine'; o.frequency.value = freq;
-    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20,slide), t+dur);
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(gain, t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
-    o.connect(g); g.connect(this.sfx);
-    o.start(t); o.stop(t+dur+0.06);
+    try {
+      const t = this.ctx.currentTime;
+      const o = this.ctx.createOscillator();
+      o.type = type||'sine'; o.frequency.value = freq;
+      if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, slide), t+dur);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(gain, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      o.connect(g); g.connect(this.sfx);
+      o.start(t); o.stop(t+dur+0.05);
+    } catch(e){}
   },
-  step(){ this.playNoise(0.09, 240+Math.random()*160, 1.4, 0.09, 'lowpass'); },
-  door(){ this.playNoise(0.5, 180, 3, 0.13, 'bandpass'); this.playTone(90, 0.35, 'sine', 0.05, 55); },
-  lock(){ this.playNoise(0.06, 1400, 3, 0.11, 'bandpass'); },
-  pickup(){ this.playTone(660, 0.14, 'triangle', 0.08); setTimeout(()=>this.playTone(880,0.14,'triangle',0.07), 70); },
-  note(){ this.playNoise(0.2, 900, 4, 0.05, 'highpass'); },
-  click(){ this.playNoise(0.04, 1500, 4, 0.09, 'bandpass'); },
-  scare(){ if(!this.ready) return; this.playNoise(0.9, 85, 1, 0.28, 'lowpass'); this.playTone(55, 0.9, 'sawtooth', 0.15, 28); },
-  whisper(){ this.playNoise(1.4, 380, 9, 0.045, 'bandpass'); },
-  hurt(){ if(!this.ready) return; this.playNoise(0.4, 70, 1, 0.34, 'lowpass'); this.playTone(48, 0.7, 'sawtooth', 0.18, 22); },
-  startAmbient(){
-    if(!this.ready || this.ambNodes) return;
-    const ctx = this.ctx;
-    const d1 = ctx.createOscillator(); d1.type='sine'; d1.frequency.value=42;
-    const d2 = ctx.createOscillator(); d2.type='sine'; d2.frequency.value=52;
-    const dg = ctx.createGain(); dg.gain.value = 0.07;
-    const rain = ctx.createBufferSource(); rain.buffer = this.noiseBuf(4); rain.loop = true;
-    const rf = ctx.createBiquadFilter(); rf.type='lowpass'; rf.frequency.value=850;
-    const rg = ctx.createGain(); rg.gain.value = 0.028;
-    d1.connect(dg); d2.connect(dg); dg.connect(this.amb);
-    rain.connect(rf); rf.connect(rg); rg.connect(this.amb);
-    d1.start(); d2.start(); rain.start();
-    this.ambNodes = {dg, rg};
-  },
-  setFear(v){
-    if(!this.ready || !this.ambNodes) return;
-    this.ambNodes.dg.gain.value = 0.07 + v * 0.14;
-  }
+  step(){ this.noise(0.08, 240+Math.random()*150, 1.4, 0.09, 'lowpass'); },
+  door(){ this.noise(0.45, 180, 3, 0.12, 'bandpass'); this.tone(85, 0.35, 'sine', 0.05, 50); },
+  lock(){ this.noise(0.05, 1400, 3, 0.1, 'bandpass'); },
+  pick(){ this.tone(660, 0.12, 'triangle', 0.07); setTimeout(()=>this.tone(880,0.13,'triangle',0.06), 70); },
+  note(){ this.noise(0.2, 900, 4, 0.05, 'highpass'); },
+  click(){ this.noise(0.03, 1500, 4, 0.07, 'bandpass'); },
+  scare(){ this.noise(0.9, 80, 1, 0.25, 'lowpass'); this.tone(55, 0.9, 'sawtooth', 0.13, 28); },
+  hurt(){ this.noise(0.4, 70, 1, 0.3, 'lowpass'); this.tone(48, 0.7, 'sawtooth', 0.18, 22); }
 };
 
-/* ---------- 5. НАСТРОЙКИ ---------- */
-const Settings = {
-  master:70, sfx:80, amb:60, sens:100, invert:false, draw:28, ui:100,
+/* =============== НАСТРОЙКИ =============== */
+const SET = {
+  master:70, sfx:80, sens:100, inv:false, draw:28,
   load(){
     try {
       const s = JSON.parse(localStorage.getItem('apt13_set')||'{}');
@@ -692,361 +571,289 @@ const Settings = {
     } catch(e){}
   },
   save(){
-    try {
-      localStorage.setItem('apt13_set', JSON.stringify({
-        master:this.master, sfx:this.sfx, amb:this.amb,
-        sens:this.sens, invert:this.invert, draw:this.draw, ui:this.ui
-      }));
-    } catch(e){}
+    try { localStorage.setItem('apt13_set', JSON.stringify({
+      master:this.master, sfx:this.sfx, sens:this.sens, inv:this.inv, draw:this.draw
+    })); } catch(e){}
   }
 };
 
-/* ---------- 6. ИГРОВОЕ СОСТОЯНИЕ ---------- */
+/* =============== СОСТОЯНИЕ =============== */
 const G = {
-  state:'menu',           // menu | play | paused | overlay | dead | ending
-  flags: {},
-  notes: [],              // journal entries {title, body}
-  inventory: {},          // id -> {name, desc}
-  puzzles: { clock:false, code:false },
-  player: { x:0, y:1.6, z:2.8, yaw:Math.PI, pitch:0, vx:0, vz:0,
-            bob:0, crouch:false, running:false, stamina:1,
-            flashlight:false, flashCharge:1 },
-  fear: 0,
-  keys: [],
-  checkpoint: null,
-  ending: null
+  state:'menu',
+  flags:{},
+  notes:[],
+  inv:{},
+  puzzles:{clock:false, code:false},
+  P: { x:0, y:1.6, z:2.6, yaw:Math.PI, pitch:0, vx:0, vz:0,
+        bob:0, crouch:false, running:false, stamina:1,
+        flashlight:false, flashCharge:1 },
+  fear:0,
+  ending:null
 };
 
-function hasFlag(f){ return !!G.flags[f]; }
-function setFlag(f){ G.flags[f] = true; autoSave(); }
-function hasItem(id){ return !!G.inventory[id]; }
-function addItem(id, name, desc){ G.inventory[id] = {name, desc}; }
+/* =============== МИР =============== */
+const W = {
+  objects:[], colliders:[], interactables:[], doors:[], lights:[],
+  enemy:null,
 
-/* ---------- 7. МИР ---------- */
-const World = {
-  objects: [],
-  colliders: [],
-  interactables: [],
-  lights: [],
-  doors: [],
-  enemy: null,
   init(){
     this.objects.length = 0;
     this.colliders.length = 0;
     this.interactables.length = 0;
-    this.lights.length = 0;
     this.doors.length = 0;
-    buildWorld();
-  }
+    this.lights.length = 0;
+    this.enemy = null;
+    buildApartment();
+  },
+
+  obj(x,y,z, sx,sy,sz, color, tex, ry){
+    const o = { mesh:'cube', matrix:mModel(x,y,z,sx,sy,sz,ry||0), color:color||[1,1,1], tex:tex||null };
+    this.objects.push(o);
+    return o;
+  },
+  floor(x1,z1,x2,z2, tex, color){
+    const cx=(x1+x2)/2, cz=(z1+z2)/2;
+    this.objects.push({ mesh:'plane', matrix:mModel(cx,0,cz, Math.abs(x2-x1),1,Math.abs(z2-z1), 0),
+                        color:color||[1,1,1], tex:tex||TEX.floor });
+  },
+  ceil(x1,z1,x2,z2, tex, color){
+    const cx=(x1+x2)/2, cz=(z1+z2)/2;
+    const m = mModel(cx, 2.7, cz, Math.abs(x2-x1),1,Math.abs(z2-z1), 0);
+    m[5] = -1;
+    this.objects.push({ mesh:'plane', matrix:m, color:color||[0.5,0.48,0.45], tex:tex||TEX.conc });
+  },
+  wall(x1,z1,x2,z2, tex, color, h){
+    h = h || 2.7;
+    const len = Math.hypot(x2-x1, z2-z1);
+    const mx = (x1+x2)/2, mz = (z1+z2)/2;
+    const ang = Math.atan2(x2-x1, z2-z1);
+    this.obj(mx, h/2, mz, 0.12, h, len, color||[0.5,0.47,0.42], tex||TEX.wall, ang);
+    const t = 0.1;
+    this.colliders.push({ minX:Math.min(x1,x2)-t, maxX:Math.max(x1,x2)+t,
+                          minZ:Math.min(z1,z2)-t, maxZ:Math.max(z1,z2)+t, tag:'wall' });
+  },
+  wallGap(axis, fixed, from, to, ga, gb, tex, color){
+    if(ga > from) this.wall(
+      axis==='x'?from:fixed, axis==='x'?fixed:from,
+      axis==='x'?ga:fixed, axis==='x'?fixed:ga, tex, color);
+    if(to > gb) this.wall(
+      axis==='x'?gb:fixed, axis==='x'?fixed:gb,
+      axis==='x'?to:fixed, axis==='x'?fixed:to, tex, color);
+  },
+  collider(x1,z1,x2,z2,tag){
+    this.colliders.push({ minX:Math.min(x1,x2), maxX:Math.max(x1,x2),
+                          minZ:Math.min(z1,z2), maxZ:Math.max(z1,z2), tag:tag||'prop' });
+  },
+  door(id, hx, hz, w, openAngle, opts){
+    opts = opts || {};
+    const h = 2.1;
+    const d = {
+      id, hx, hz, w, h,
+      angle:0, target:0, openAngle,
+      locked: opts.locked||false,
+      keyId: opts.keyId||null,
+      meshObj: { mesh:'cube', matrix:mat4(), color:[0.55,0.44,0.34], tex:TEX.door },
+      collider: { minX:0,maxX:0,minZ:0,maxZ:0, tag:'door' },
+      finalAction: opts.finalAction || null
+    };
+    this.objects.push(d.meshObj);
+    this.colliders.push(d.collider);
+    this.doors.push(d);
+    updateDoorMatrix(d);
+    return d;
+  },
+  interact(id, aabb, prompt, onUse, opts){
+    opts = opts || {};
+    this.interactables.push({ id, aabb, prompt, onUse, once: !!opts.once,
+                              hideOnUse: !!opts.hideOnUse, obj: opts.obj || null, used:false });
+  },
+  prop(id, x,y,z, sx,sy,sz, color, tex, opts){
+    opts = opts || {};
+    const o = this.obj(x,y,z,sx,sy,sz, color, tex, opts.ry||0);
+    if(opts.collide) this.collider(x-sx/2, z-sz/2, x+sx/2, z+sz/2, 'prop');
+    if(opts.interact){
+      const aabb = { minX:x-sx/2, maxX:x+sx/2, minY:y-sy/2, maxY:y+sy/2, minZ:z-sz/2, maxZ:z+sz/2 };
+      this.interact(id, aabb, opts.prompt||'E — осмотреть', opts.onUse, opts);
+      const it = this.interactables[this.interactables.length-1];
+      it.obj = o;
+    }
+    return o;
+  },
+  light(x,y,z, r,g,b, range){ this.lights.push({x,y,z,r,g,b,range}); }
 };
 
-// Add a static mesh object
-function addObj(x,y,z, sx,sy,sz, color, tex, ry, emissive){
-  const o = {
-    mesh:'cube',
-    matrix: m4compose(x,y,z, sx,sy,sz, ry||0),
-    color: color || [1,1,1],
-    tex: tex || null,
-    emissive: emissive || 0
-  };
-  World.objects.push(o);
-  return o;
-}
-function addFloor(x1,z1,x2,z2, tex, color){
-  const cx = (x1+x2)/2, cz = (z1+z2)/2;
-  const w = Math.abs(x2-x1), d = Math.abs(z2-z1);
-  World.objects.push({
-    mesh:'plane',
-    matrix: m4compose(cx,0,cz, w,1,d, 0),
-    color: color||[1,1,1], tex: tex||TEX.floor, emissive:0
-  });
-}
-function addCeil(x1,z1,x2,z2, tex, color){
-  const cx = (x1+x2)/2, cz = (z1+z2)/2;
-  const w = Math.abs(x2-x1), d = Math.abs(z2-z1);
-  const m = m4compose(cx, 2.7, cz, w, 1, d, 0);
-  // Rotate 180° around X to face down: negate Y row
-  m[4] = 0; m[5] = -1; m[6] = 0;
-  World.objects.push({
-    mesh:'plane', matrix: m,
-    color: color||[0.5,0.48,0.45], tex: tex||TEX.concrete, emissive:0
-  });
-}
-function addWall(x1,z1,x2,z2, tex, color, h){
-  h = h || 2.7;
-  const len = Math.hypot(x2-x1, z2-z1);
-  const mx = (x1+x2)/2, mz = (z1+z2)/2;
-  const ang = Math.atan2(x2-x1, z2-z1);
-  addObj(mx, h/2, mz, 0.12, h, len, color||[0.5,0.47,0.42], tex||TEX.wall, ang);
-  // Collider
-  const t = 0.1;
-  World.colliders.push({
-    minX: Math.min(x1,x2)-t, maxX: Math.max(x1,x2)+t,
-    minZ: Math.min(z1,z2)-t, maxZ: Math.max(z1,z2)+t,
-    tag:'wall'
-  });
-}
-// Wall with door gap: runs from (x1,z1) to (x2,z2), gap centered at gapCenter along the axis, gap width gw
-function addWallWithGap(axis, fixed, from, to, gapA, gapB, tex, color){
-  if(gapA > from) addWall(axis==='x'?from:fixed, axis==='x'?fixed:from,
-                          axis==='x'?gapA:fixed, axis==='x'?fixed:gapA, tex, color);
-  if(to > gapB) addWall(axis==='x'?gapB:fixed, axis==='x'?fixed:gapB,
-                        axis==='x'?to:fixed, axis==='x'?fixed:to, tex, color);
-}
-
-function addDoor(id, hx, hz, w, openAngle, opts){
-  opts = opts || {};
-  const h = 2.1;
-  const door = {
-    id, hx, hz, w, h,
-    angle: 0, target: 0,
-    openAngle: openAngle,
-    locked: opts.locked || false,
-    keyId: opts.keyId || null,
-    isOpen: false,
-    meshObj: null,
-    collider: {minX:0,maxX:0,minZ:0,maxZ:0,tag:'door'},
-    special: opts.special || null
-  };
-  door.meshObj = { mesh:'cube', matrix: m4identity(),
-                   color:[0.55,0.44,0.34], tex:TEX.door, emissive:0 };
-  World.objects.push(door.meshObj);
-  World.colliders.push(door.collider);
-  World.doors.push(door);
-  updateDoorMatrix(door);
-  return door;
-}
 function updateDoorMatrix(d){
   const c = Math.cos(d.angle), s = Math.sin(d.angle);
-  // Door extends along +Z from hinge when closed (angle=0)
   const mx = d.hx + s * (d.w/2);
   const mz = d.hz + c * (d.w/2);
-  d.meshObj.matrix = m4compose(mx, d.h/2, mz, 0.07, d.h, d.w, d.angle);
-  // Collider AABB around rotated box
+  d.meshObj.matrix = mModel(mx, d.h/2, mz, 0.07, d.h, d.w, d.angle);
   const ax = d.hx, az = d.hz;
   const bx = d.hx + s*d.w, bz = d.hz + c*d.w;
   const t = 0.14;
-  d.collider.minX = Math.min(ax,bx)-t;
-  d.collider.maxX = Math.max(ax,bx)+t;
-  d.collider.minZ = Math.min(az,bz)-t;
-  d.collider.maxZ = Math.max(az,bz)+t;
+  d.collider.minX = Math.min(ax,bx)-t; d.collider.maxX = Math.max(ax,bx)+t;
+  d.collider.minZ = Math.min(az,bz)-t; d.collider.maxZ = Math.max(az,bz)+t;
   if(Math.abs(d.angle) > 1.0){
     d.collider.minX = 1e9; d.collider.maxX = -1e9;
     d.collider.minZ = 1e9; d.collider.maxZ = -1e9;
   }
 }
 function updateDoors(dt){
-  for(const d of World.doors){
+  for(const d of W.doors){
     if(Math.abs(d.angle - d.target) > 0.001){
       const dir = d.target > d.angle ? 1 : -1;
       d.angle += dir * dt * 3.5;
-      if((dir>0 && d.angle>d.target)||(dir<0 && d.angle<d.target)) d.angle = d.target;
+      if((dir>0 && d.angle>d.target) || (dir<0 && d.angle<d.target)) d.angle = d.target;
       updateDoorMatrix(d);
     }
   }
 }
 
-function addInteract(id, x, y, z, sx, sy, sz, opts){
-  opts = opts || {};
-  const aabb = {
-    minX: x - sx/2, maxX: x + sx/2,
-    minY: y - sy/2, maxY: y + sy/2,
-    minZ: z - sz/2, maxZ: z + sz/2
-  };
-  World.interactables.push({
-    id, aabb,
-    prompt: opts.prompt || 'E — осмотреть',
-    onUse: opts.onUse || null,
-    once: !!opts.once,
-    used: false,
-    hideOnUse: !!opts.hideOnUse,
-    obj: opts.obj || null
-  });
-}
-function addProp(id, x,y,z, sx,sy,sz, color, tex, opts){
-  opts = opts || {};
-  const o = addObj(x, y, z, sx, sy, sz, color, tex, opts.ry || 0, opts.emissive || 0);
-  if(opts.collide) World.colliders.push({
-    minX: x - sx/2, maxX: x + sx/2,
-    minZ: z - sz/2, maxZ: z + sz/2, tag:'prop'
-  });
-  if(opts.interact) addInteract(id, x, y, z, sx, sy, sz, Object.assign({obj:o}, opts));
-  return o;
-}
-function addLight(x,y,z, r,g,b, range){
-  World.lights.push({x,y,z, r,g,b, range});
-}
-function removeInteract(id){
-  const i = World.interactables.findIndex(it => it.id === id);
-  if(i >= 0) World.interactables.splice(i, 1);
-}
-function hideObject(o){ if(o) o.color = [0,0,0], o.emissive = -1; }
+/* =============== ПОСТРОЕНИЕ КВАРТИРЫ =============== */
+function buildApartment(){
+  const wallCol = [0.55,0.5,0.42], wallGCol = [0.42,0.48,0.4];
 
-/* ---------- 8. ПОСТРОЕНИЕ МИРА ---------- */
-function buildWorld(){
-  const wallTex = TEX.wall, wallGreen = TEX.wallGreen, floorTex = TEX.floor;
-  const tileTex = TEX.tile, concTex = TEX.concrete;
-  const wallCol = [0.55,0.5,0.42], wallGreenCol = [0.42,0.48,0.4];
-
-  // ===== ПОМЕЩЕНИЯ =====
-  // Коридор: X[-1.5,1.5], Z[-6,4]
-  // Гостиная: X[-6,-1.5], Z[0,4]
-  // Спальня:  X[-6,-1.5], Z[-6,0]
-  // Кухня:    X[1.5,6], Z[0,4]
-  // Ванная:   X[1.5,6], Z[-6,0]
+  // Коридор X[-1.5,1.5], Z[-6,4]
+  // Гостиная X[-6,-1.5], Z[0,4]
+  // Спальня X[-6,-1.5], Z[-6,0]
+  // Кухня X[1.5,6], Z[0,4]
+  // Ванная X[1.5,6], Z[-6,0]
 
   // Полы
-  addFloor(-1.5,-6, 1.5,4, floorTex, [0.75,0.72,0.62]);
-  addFloor(-6, 0, -1.5,4, floorTex, [0.8,0.72,0.6]);
-  addFloor(-6, -6, -1.5,0, floorTex, [0.72,0.62,0.5]);
-  addFloor(1.5, 0, 6,4, tileTex, [0.9,0.9,0.85]);
-  addFloor(1.5, -6, 6,0, tileTex, [0.9,0.92,0.9]);
+  W.floor(-1.5,-6, 1.5,4, TEX.floor, [0.75,0.72,0.62]);
+  W.floor(-6,0, -1.5,4, TEX.floor, [0.8,0.72,0.6]);
+  W.floor(-6,-6, -1.5,0, TEX.floor, [0.7,0.6,0.5]);
+  W.floor(1.5,0, 6,4, TEX.tile, [0.9,0.9,0.85]);
+  W.floor(1.5,-6, 6,0, TEX.tile, [0.9,0.92,0.9]);
 
   // Потолки
-  addCeil(-1.5,-6, 1.5,4, concTex, [0.4,0.39,0.37]);
-  addCeil(-6, 0, -1.5,4, concTex, [0.42,0.4,0.37]);
-  addCeil(-6, -6, -1.5,0, concTex, [0.4,0.38,0.36]);
-  addCeil(1.5, 0, 6,4, concTex, [0.45,0.44,0.42]);
-  addCeil(1.5, -6, 6,0, concTex, [0.45,0.44,0.42]);
+  W.ceil(-1.5,-6, 1.5,4);
+  W.ceil(-6,0, -1.5,4);
+  W.ceil(-6,-6, -1.5,0);
+  W.ceil(1.5,0, 6,4);
+  W.ceil(1.5,-6, 6,0);
 
   // Внешние стены
-  // Южная (Z=4): входная дверь X[-0.6,0.6]
-  addWallWithGap('x', 4, -6, -1.5, -1.5, -1.5, wallTex, wallCol);
-  addWallWithGap('x', 4, -1.5, 1.5, -0.6, 0.6, wallTex, wallCol);
-  addWallWithGap('x', 4, 1.5, 6, 1.5, 1.5, wallTex, wallCol);
-  // Северная (Z=-6)
-  addWall(-6,-6, 6,-6, wallTex, wallCol);
-  // Западная (X=-6)
-  addWall(-6,-6, -6,4, wallTex, wallCol);
-  // Восточная (X=6)
-  addWall(6,-6, 6,4, wallTex, wallCol);
+  // Юг Z=4 с проёмом входной двери [-0.6,0.6]
+  W.wallGap('x', 4, -6, -0.6, -6, -6, TEX.wall, wallCol);
+  W.wallGap('x', 4, -6, 6, -0.6, 0.6, TEX.wall, wallCol);
+  W.wallGap('x', 4, 0.6, 6, 6, 6, TEX.wall, wallCol);
+  // Север Z=-6
+  W.wall(-6,-6, 6,-6, TEX.wall, wallCol);
+  // Запад X=-6
+  W.wall(-6,-6, -6,4, TEX.wall, wallCol);
+  // Восток X=6
+  W.wall(6,-6, 6,4, TEX.wall, wallCol);
 
-  // Внутренняя стена X=-1.5 (коридор / левая половина)
-  // Двери: в спальню Z[-3,-2], в гостиную Z[1.5,2.5]
-  addWallWithGap('z', -1.5, -6, 0, -3.0, -2.0, wallGreen, wallGreenCol);
-  addWallWithGap('z', -1.5, 0, 4, 1.5, 2.5, wallGreen, wallGreenCol);
+  // Внутренняя X=-1.5 со проёмами:
+  // спальня Z[-3,-2], гостиная Z[1.5,2.5]
+  W.wallGap('z', -1.5, -6, 0, -3, -2, TEX.wallG, wallGCol);
+  W.wallGap('z', -1.5, 0, 4, 1.5, 2.5, TEX.wallG, wallGCol);
 
-  // Внутренняя стена X=1.5 (коридор / правая половина)
-  // Двери: в ванную Z[-3,-2], в кухню Z[1.5,2.5]
-  addWallWithGap('z', 1.5, -6, 0, -3.0, -2.0, wallGreen, wallGreenCol);
-  addWallWithGap('z', 1.5, 0, 4, 1.5, 2.5, wallGreen, wallGreenCol);
+  // Внутренняя X=1.5:
+  // ванная Z[-3,-2], кухня Z[1.5,2.5]
+  W.wallGap('z', 1.5, -6, 0, -3, -2, TEX.wallG, wallGCol);
+  W.wallGap('z', 1.5, 0, 4, 1.5, 2.5, TEX.wallG, wallGCol);
 
-  // Стена Z=0 (гостиная / спальня, X[-6,-1.5])
-  addWall(-6, 0, -1.5, 0, wallTex, wallCol);
-  // Стена Z=0 (кухня / ванная, X[1.5,6])
-  addWall(1.5, 0, 6, 0, tileTex, [0.55,0.55,0.5]);
+  // Z=0: между гостиной и спальней, кухней и ванной
+  W.wall(-6,0, -1.5,0, TEX.wall, wallCol);
+  W.wall(1.5,0, 6,0, TEX.tile, [0.55,0.55,0.5]);
 
   // ===== ДВЕРИ =====
-  // Входная дверь (в Z=4): петля в x=-0.6, открывается наружу в сторону площадки
-  addDoor('door_entry', -0.6, 4, 1.2, -1.5, {});
-  // Дверь гостиной (X=-1.5, Z[1.5,2.5])
-  addDoor('door_living', -1.5, 2.5, 1.0, 1.5, {});
-  // Дверь спальни (X=-1.5, Z[-3,-2])
-  addDoor('door_bedroom', -1.5, -2.0, 1.0, 1.5, {});
-  // Дверь кухни
-  addDoor('door_kitchen', 1.5, 2.5, 1.0, -1.5, {});
-  // Дверь ванной
-  addDoor('door_bath', 1.5, -2.0, 1.0, -1.5, {});
+  W.door('door_entry', -0.6, 4, 1.2, -1.55);
+  W.door('door_living', -1.5, 2.5, 1.0, 1.5);
+  W.door('door_bedroom', -1.5, -2.0, 1.0, 1.5);
+  W.door('door_kitchen', 1.5, 2.5, 1.0, -1.5);
+  W.door('door_bath', 1.5, -2.0, 1.0, -1.5);
 
   // ===== МЕБЕЛЬ =====
-  // Прихожая (коридор южная часть)
-  addProp('hallstand', 0.7, 0.55, 3.3, 0.7, 1.1, 0.35, [0.35,0.24,0.16], TEX.wood, {collide:true});
-  addProp('coatRack', -0.9, 1.6, 3.6, 0.08, 0.7, 0.9, [0.32,0.28,0.22], TEX.metal);
-  addProp('hallRug', 0, 0.005, 2.6, 1.4, 0.01, 1.0, [0.42,0.3,0.26], TEX.rug);
+  // Прихожая
+  W.prop('hallstand', 0.75, 0.55, 3.4, 0.7, 1.1, 0.35, [0.35,0.24,0.16], TEX.wood, {collide:true});
+  W.prop('coatRack', -0.9, 1.6, 3.6, 0.08, 0.8, 0.9, [0.32,0.28,0.22], TEX.metal);
+  W.prop('hallRug', 0, 0.005, 2.6, 1.4, 0.01, 1.0, [0.42,0.3,0.26], TEX.rug);
 
   // Гостиная
-  addProp('sofa', -4.7, 0.42, 1.2, 2.2, 0.8, 0.85, [0.35,0.3,0.24], TEX.fabric, {collide:true});
-  addProp('sofaBack', -4.7, 0.72, 1.55, 2.2, 0.5, 0.2, [0.3,0.26,0.2], TEX.fabric, {collide:true});
-  addProp('coffeeTable', -4.7, 0.24, 2.6, 1.1, 0.48, 0.6, [0.35,0.24,0.14], TEX.wood, {collide:true});
-  addProp('tvStand', -4.7, 0.28, 3.5, 1.1, 0.56, 0.4, [0.28,0.2,0.13], TEX.wood, {collide:true});
-  addProp('tv', -4.7, 0.95, 3.5, 1.0, 0.6, 0.15, [0.04,0.04,0.05], null, {collide:true});
-  addProp('bookshelf', -5.7, 1.3, 0.6, 0.4, 2.2, 1.8, [0.36,0.26,0.16], TEX.wood, {collide:true});
-  addProp('rug', -4.7, 0.005, 2.2, 2.3, 0.01, 1.5, [0.6,0.24,0.24], TEX.rug);
+  W.prop('sofa', -4.7, 0.42, 1.2, 2.2, 0.8, 0.85, [0.35,0.3,0.24], TEX.wood, {collide:true});
+  W.prop('sofaBack', -4.7, 0.72, 1.55, 2.2, 0.5, 0.2, [0.3,0.26,0.2], TEX.wood, {collide:true});
+  W.prop('cofTable', -4.7, 0.24, 2.6, 1.1, 0.48, 0.6, [0.35,0.24,0.14], TEX.wood, {collide:true});
+  W.prop('tvStand', -4.7, 0.28, 3.5, 1.1, 0.56, 0.4, [0.28,0.2,0.13], TEX.wood, {collide:true});
+  W.prop('tv', -4.7, 0.95, 3.5, 1.0, 0.6, 0.15, [0.04,0.04,0.05], null, {collide:true});
+  W.prop('shelf', -5.7, 1.3, 0.6, 0.4, 2.2, 1.8, [0.36,0.26,0.16], TEX.wood, {collide:true});
+  W.prop('rug1', -4.7, 0.005, 2.2, 2.3, 0.01, 1.5, [0.6,0.24,0.24], TEX.rug);
 
   // Спальня
-  addProp('bed', -4.5, 0.3, -3.0, 2.0, 0.6, 2.1, [0.34,0.26,0.2], TEX.fabric, {collide:true});
-  addProp('bedMatress', -4.5, 0.68, -3.0, 2.0, 0.16, 2.1, [0.55,0.5,0.42], TEX.fabric);
-  addProp('pillow', -4.5, 0.84, -3.9, 1.7, 0.16, 0.4, [0.7,0.66,0.58], TEX.fabric);
-  addProp('wardrobe', -5.6, 1.05, -4.4, 0.9, 2.1, 1.4, [0.34,0.24,0.16], TEX.wood, {collide:true});
-  addProp('nightstand', -3.1, 0.32, -3.9, 0.5, 0.64, 0.45, [0.4,0.3,0.2], TEX.wood, {collide:true});
-  addProp('bedroomRug', -3.6, 0.005, -2.0, 1.6, 0.01, 1.0, [0.42,0.28,0.28], TEX.rug);
+  W.prop('bed', -4.5, 0.3, -3, 2.0, 0.6, 2.1, [0.34,0.26,0.2], TEX.wood, {collide:true});
+  W.prop('matress', -4.5, 0.68, -3, 2.0, 0.16, 2.1, [0.55,0.5,0.42], TEX.wood);
+  W.prop('pillow', -4.5, 0.84, -3.9, 1.7, 0.16, 0.4, [0.7,0.66,0.58], TEX.wood);
+  W.prop('wardrobe', -5.6, 1.05, -4.4, 0.9, 2.1, 1.4, [0.34,0.24,0.16], TEX.wood, {collide:true});
+  W.prop('nightstd', -3.1, 0.32, -3.9, 0.5, 0.64, 0.45, [0.4,0.3,0.2], TEX.wood, {collide:true});
 
   // Кухня
-  addProp('counter', 2.4, 0.45, 0.5, 1.8, 0.9, 0.55, [0.55,0.5,0.4], TEX.wood, {collide:true});
-  addProp('counter2', 5.5, 0.45, 3.6, 0.55, 0.9, 0.6, [0.55,0.5,0.4], TEX.wood, {collide:true});
-  addProp('kSink', 2.4, 0.92, 0.5, 0.8, 0.04, 0.5, [0.7,0.72,0.72], TEX.metal);
-  addProp('fridge', 5.5, 0.8, 2.4, 0.65, 1.6, 0.65, [0.72,0.72,0.7], TEX.metal, {collide:true});
-  addProp('kTable', 3.9, 0.4, 3.0, 1.2, 0.06, 0.85, [0.4,0.28,0.16], TEX.wood, {collide:true});
-  addProp('kTableLeg', 3.9, 0.2, 3.0, 1.15, 0.4, 0.8, [0.3,0.2,0.12], TEX.wood, {collide:true});
-  addProp('kChair1', 3.2, 0.45, 3.0, 0.42, 0.06, 0.42, [0.35,0.24,0.14], TEX.wood, {collide:true});
-  addProp('kChair2', 4.6, 0.45, 3.0, 0.42, 0.06, 0.42, [0.35,0.24,0.14], TEX.wood, {collide:true});
+  W.prop('counter', 2.4, 0.45, 0.5, 1.8, 0.9, 0.55, [0.55,0.5,0.4], TEX.wood, {collide:true});
+  W.prop('counter2', 5.5, 0.45, 3.6, 0.55, 0.9, 0.6, [0.55,0.5,0.4], TEX.wood, {collide:true});
+  W.prop('kSink', 2.4, 0.92, 0.5, 0.8, 0.04, 0.5, [0.7,0.72,0.72], TEX.metal);
+  W.prop('fridge', 5.5, 0.8, 2.4, 0.65, 1.6, 0.65, [0.72,0.72,0.7], TEX.metal, {collide:true});
+  W.prop('kTable', 3.9, 0.4, 3, 1.2, 0.06, 0.85, [0.4,0.28,0.16], TEX.wood, {collide:true});
+  W.prop('kTableL', 3.9, 0.2, 3, 1.15, 0.4, 0.8, [0.3,0.2,0.12], TEX.wood, {collide:true});
+  W.prop('kChair1', 3.2, 0.45, 3, 0.42, 0.06, 0.42, [0.35,0.24,0.14], TEX.wood, {collide:true});
+  W.prop('kChair2', 4.6, 0.45, 3, 0.42, 0.06, 0.42, [0.35,0.24,0.14], TEX.wood, {collide:true});
 
   // Ванная
-  addProp('bath', 4.8, 0.35, -1.2, 1.6, 0.7, 0.75, [0.85,0.85,0.82], tileTex, {collide:true});
-  addProp('toilet', 2.4, 0.4, -4.5, 0.5, 0.8, 0.55, [0.9,0.9,0.88], tileTex, {collide:true});
-  addProp('bathSink', 5.4, 0.85, -5.4, 0.6, 0.14, 0.45, [0.9,0.9,0.88], tileTex);
-  addProp('bathSinkPed', 5.4, 0.42, -5.4, 0.3, 0.85, 0.3, [0.85,0.85,0.82], tileTex);
+  W.prop('bath', 4.8, 0.35, -1.2, 1.6, 0.7, 0.75, [0.85,0.85,0.82], TEX.tile, {collide:true});
+  W.prop('toilet', 2.4, 0.4, -4.5, 0.5, 0.8, 0.55, [0.9,0.9,0.88], TEX.tile, {collide:true});
+  W.prop('sink', 5.4, 0.85, -5.4, 0.6, 0.14, 0.45, [0.9,0.9,0.88], TEX.tile);
+  W.prop('sinkPed', 5.4, 0.42, -5.4, 0.3, 0.85, 0.3, [0.85,0.85,0.82], TEX.tile);
 
-  // ===== ИНТЕРАКТИВ И СЮЖЕТ =====
-
-  // Записка 1 — в прихожей на тумбе
-  addProp('note1', 0.7, 1.05, 3.3, 0.2, 0.02, 0.28, [0.88,0.84,0.72], null, {
-    interact:true, once:true, hideOnUse:true, collide:false,
+  // ===== ИНТЕРАКТИВ =====
+  // Записка 1 — письмо нотариуса
+  W.prop('note1', 0.75, 1.1, 3.4, 0.22, 0.02, 0.3, [0.88,0.84,0.72], null, {
+    interact:true, once:true, hideOnUse:true,
     prompt:'E — прочитать письмо',
     onUse: () => readNote('ПИСЬМО НОТАРИУСА',
 `«Уважаемый гражданин.
 
-Сообщаем, что согласно завещанию Виктора Андреевича Морозова, скончавшегося 13 ноября 1990 года, квартира № 13 по улице Заводской переходит в вашу собственность.
+Согласно завещанию Виктора Андреевича Морозова, скончавшегося 13 ноября 1990 года, квартира № 13 по улице Заводской переходит в вашу собственность.
 
 Ключ прилагается. Виктор не оставил пояснений, почему выбрал именно вас.
 
-Примите соболезнования.»`,
-      'note_intro'))
+Примите соболезнования.»`, 'intro')
   });
 
-  // Фонарик на тумбе прихожей
-  addProp('flashlightItem', 0.85, 1.05, 3.3, 0.09, 0.09, 0.24, [0.2,0.2,0.22], TEX.metal, {
-    interact:true, once:true, hideOnUse:true, collide:false,
+  // Фонарик
+  W.prop('flashlight', 0.9, 1.1, 3.4, 0.09, 0.09, 0.24, [0.2,0.2,0.22], TEX.metal, {
+    interact:true, once:true, hideOnUse:true,
     prompt:'E — взять фонарик',
     onUse: () => {
-      addItem('flashlight', 'Фонарик', 'Старый рабочий фонарик. Ещё работает.');
+      addItem('flashlight', 'Фонарик', 'Старый рабочий фонарик.');
       addNote('Найден фонарик — F для включения');
-      G.player.flashlight = true;
-      G.player.flashCharge = 1;
-      Snd.pickup();
-      updateHUD();
-      autoSave();
+      G.P.flashlight = true; G.P.flashCharge = 1;
+      Snd.pick(); updateHUD(); autoSave();
     }
   });
 
-  // Часы на стене в гостиной (у двери)
-  addProp('clockBody', -1.6, 1.9, 0.7, 0.06, 0.5, 0.4, [0.34,0.22,0.12], TEX.wood);
-  addInteract('clockInteract', -1.6, 1.9, 0.7, 0.4, 0.7, 0.7, {
-    prompt:'E — осмотреть часы',
-    onUse: openClock
-  });
+  // Часы (головоломка)
+  W.prop('clockBody', -1.6, 1.9, 0.7, 0.06, 0.5, 0.4, [0.34,0.22,0.12], TEX.wood);
+  W.interact('clockIt',
+    { minX:-1.75, maxX:-1.5, minY:1.5, maxY:2.2, minZ:0.4, maxZ:1.0 },
+    'E — осмотреть часы', openClock, { once:false });
 
-  // Записка 2 — в гостиной на столике
-  addProp('note2', -4.7, 0.51, 2.6, 0.22, 0.02, 0.3, [0.88,0.84,0.72], null, {
-    interact:true, once:true, hideOnUse:true, collide:false,
+  // Записка 2 — в гостиной
+  W.prop('note2', -4.7, 0.51, 2.6, 0.22, 0.02, 0.3, [0.88,0.84,0.72], null, {
+    interact:true, once:true, hideOnUse:true,
     prompt:'E — прочитать записку',
     onUse: () => readNote('ЗАПИСКА (1)',
 `«Я слышу шаги в коридоре каждую ночь. Ровно в 2:13.
 Сначала я думал — соседи. Но соседей нет.
 
-Часы в гостиной остановились именно тогда.
+Часы остановились именно тогда.
 Я не могу их завести обратно.
 
-Время здесь идёт не туда, куда должно.
-
-Чтобы что-то открылось, нужно вспомнить тот час.
-2:13. Ночь на 13 ноября.»`,
-      'note_clock')
+Стрелки нужно поставить на то самое время.
+2:13. Ночь на 13 ноября.»`, 'clock_hint')
   });
 
-  // Записка 3 — в спальне, на тумбочке
-  addProp('note3', -3.1, 0.66, -3.9, 0.2, 0.02, 0.28, [0.88,0.84,0.72], null, {
-    interact:true, once:true, hideOnUse:true, collide:false,
+  // Записка 3 — дневник в спальне
+  W.prop('note3', -3.1, 0.68, -3.9, 0.2, 0.02, 0.28, [0.88,0.84,0.72], null, {
+    interact:true, once:true, hideOnUse:true,
     prompt:'E — прочитать дневник',
     onUse: () => readNote('ДНЕВНИК ВИКТОРА',
 `«Моя дочь пропала в ночь на 13 ноября 1990 года.
@@ -1055,404 +862,293 @@ function buildWorld(){
 Я оставил её одну на полчаса. Вернулся — квартира пустая.
 Дверь была заперта изнутри. Окна закрыты.
 
-Полиция приехала, осмотрела, уехала.
 Дело закрыли через месяц: "ушла сама".
 
 Она не могла уйти сама. Дверь была заперта ИЗНУТРИ.
 
 С тех пор я не могу уехать. Что-то держит меня здесь.
 
-Может быть, вы сумеете закончить то, что не смог я.»`,
-      'note_diary'))
+Ключ от сейфа — в записке. Посмотрите внимательно.»`, 'diary')
   });
 
-  // Записка 4 — в кухне, на столе
-  addProp('note4', 3.9, 0.44, 3.0, 0.22, 0.02, 0.3, [0.88,0.84,0.72], null, {
-    interact:true, once:true, hideOnUse:true, collide:false,
+  // Записка 4 — в кухне, с кодом сейфа
+  W.prop('note4', 3.9, 0.44, 3, 0.22, 0.02, 0.3, [0.88,0.84,0.72], null, {
+    interact:true, once:true, hideOnUse:true,
     prompt:'E — прочитать записку',
     onUse: () => readNote('ЗАПИСКА (2)',
-`«Я начал понимать закономерность.
-
-Квартира не отпускает того, кто задаёт вопросы.
-Она повторяет одну и ту же ночь снова и снова.
-
-Ключ от дальней комнаты — в тайнике за часами.
-Но тайник открывается только тогда, когда стрелки встанут на своё место.
-
-У меня не хватило духу. Может быть, у вас хватит.»`,
-      'note_key'))
-  });
-
-  // Записка 5 — в ванной (за зеркалом)
-  addProp('note5', 5.4, 0.94, -5.4, 0.2, 0.02, 0.28, [0.88,0.84,0.72], null, {
-    interact:true, once:true, hideOnUse:true, collide:false,
-    prompt:'E — прочитать записку',
-    onUse: () => readNote('ЗАПИСКА (3)',
 `«В зеркале я вижу то, чего нет.
 
-Однажды я увидел в отражении комнату, которой нет в квартире.
-Там стоял шкаф, которого я не помню.
-И на шкафу лежал ключ.
+Однажды я увидел отражение комнаты, которой не помню.
+Там стоял шкаф. На шкафу лежал ключ.
 
-Если долго смотреть в зеркало в темноте — оно показывает правду.
-
-Код от сейфа: 1311.
-День, когда всё закончилось. Или началось.
-
-Ноль впереди. Четыре цифры.»`,
-      'note_code'))
+Код от сейфа — день, когда всё закончилось.
+Тринадцатое ноября. Одиннадцатый месяц.
+1311. Четыре цифры.»`, 'code_hint')
   });
 
-  // Сейф в спальне
-  addProp('safe', -5.6, 0.6, -2.4, 0.5, 0.5, 0.5, [0.28,0.28,0.3], TEX.metal, {
+  // Сейф
+  W.prop('safe', -5.6, 0.6, -2.4, 0.5, 0.5, 0.5, [0.28,0.28,0.3], TEX.metal, {
     interact:true, once:false, collide:true,
     prompt:'E — открыть сейф',
     onUse: openCode
   });
 
-  // ===== СВЕТ =====
-  addLight(0, 2.4, 2.6, 0.32, 0.28, 0.2, 4.5);   // прихожая
-  addLight(-4.7, 2.5, 2.0, 0.38, 0.3, 0.18, 5.0); // гостиная
-  addLight(-4.5, 2.5, -3.0, 0.3, 0.24, 0.16, 4.5); // спальня
-  addLight(3.9, 2.5, 2.0, 0.4, 0.34, 0.2, 5.0);   // кухня
-  addLight(4.5, 2.5, -3.0, 0.35, 0.34, 0.26, 4.5); // ванная
-  addLight(0, 2.4, -3.5, 0.16, 0.14, 0.12, 3.5);   // дальний коридор
+  // Дальняя дверь — заперта, нужен ключ
+  const farDoor = W.doors.find(d => d.id === 'door_bedroom');
+  // нет — сделаем отдельную дверь
 
-  // Врага пока нет — создадим при сюжетном событии
+  // ===== СВЕТ =====
+  W.light(0, 2.4, 2.6, 0.32, 0.28, 0.2, 4.5);
+  W.light(-4.7, 2.5, 2.0, 0.38, 0.3, 0.18, 5.0);
+  W.light(-4.5, 2.5, -3.0, 0.3, 0.24, 0.16, 4.5);
+  W.light(3.9, 2.5, 2.0, 0.4, 0.34, 0.2, 5.0);
+  W.light(4.5, 2.5, -3.0, 0.35, 0.34, 0.26, 4.5);
 }
 
-/* ---------- 9. ИГРОК ---------- */
-const Player = {
-  radius: 0.28,
-  eyeHeight: 1.6,
-  crouchHeight: 1.0,
-  speed: 2.6,
-  runSpeed: 4.6,
-  crouchSpeed: 1.2,
-  accel: 14,
-  friction: 12,
-  mouseSens: 0.0022,
+/* =============== ВВОД =============== */
+const In = {
+  keys:{},
+  locked:false,
+  hovered:null,
+  stepT:0,
 
-  update(dt){
-    const p = G.player;
-    const k = Input.keys;
-
-    // Crouch toggle / hold
-    const wantCrouch = k['ControlLeft'] || k['ControlRight'] || k['KeyC'];
-    p.crouch = wantCrouch;
-
-    // Wish direction from WASD (relative to yaw)
-    let fx = 0, fz = 0;
-    if(k['KeyW'] || k['ArrowUp']) fz -= 1;
-    if(k['KeyS'] || k['ArrowDown']) fz += 1;
-    if(k['KeyA'] || k['ArrowLeft']) fx -= 1;
-    if(k['KeyD'] || k['ArrowRight']) fx += 1;
-    const len = Math.hypot(fx, fz);
-    if(len > 1){ fx/=len; fz/=len; }
-
-    const cy = Math.cos(p.yaw), sy = Math.sin(p.yaw);
-    // In world: forward is (-sinYaw? ) — we use yaw such that 0 = looking along -Z
-    // forward vector = (-sin(yaw), 0, -cos(yaw))  — hmm, define: camera looks toward (sin(yaw), 0, -cos(yaw))
-    const wf_x = Math.sin(p.yaw), wf_z = -Math.cos(p.yaw);
-    const wr_x = Math.cos(p.yaw), wr_z = Math.sin(p.yaw);
-    const wishX = wf_x * (-fz) + wr_x * fx;
-    const wishZ = wf_z * (-fz) + wr_z * fx;
-
-    p.running = (k['ShiftLeft'] || k['ShiftRight']) && !p.crouch && p.stamina > 0.05;
-    const targetSpeed = p.crouch ? this.crouchSpeed : (p.running ? this.runSpeed : this.speed);
-
-    // Accelerate
-    const targetVX = wishX * targetSpeed;
-    const targetVZ = wishZ * targetSpeed;
-    const acc = (len > 0.01 ? this.accel : this.friction) * dt;
-    p.vx += clamp(targetVX - p.vx, -acc*4, acc*4);
-    p.vz += clamp(targetVZ - p.vz, -acc*4, acc*4);
-
-    // Damping when no input
-    if(len < 0.01){
-      p.vx *= Math.max(0, 1 - this.friction*dt);
-      p.vz *= Math.max(0, 1 - this.friction*dt);
-    }
-
-    // Stamina
-    if(p.running && (Math.abs(p.vx)+Math.abs(p.vz)) > 0.5) p.stamina = clamp(p.stamina - dt*0.35, 0, 1);
-    else p.stamina = clamp(p.stamina + dt*0.2, 0, 1);
-
-    // Move with collision
-    const nx = p.x + p.vx * dt;
-    const nz = p.z + p.vz * dt;
-    const r = this.radius;
-    if(!this.collides(nx, p.z, r)) p.x = nx; else p.vx = 0;
-    if(!this.collides(p.x, nz, r)) p.z = nz; else p.vz = 0;
-
-    // Clamp to apartment bounds (soft)
-    p.x = clamp(p.x, -6.3, 6.3);
-    p.z = clamp(p.z, -6.3, 4.4);
-
-    // Head bob
-    const speedMag = Math.hypot(p.vx, p.vz);
-    if(speedMag > 0.2){
-      p.bob += dt * (p.running ? 12 : 8);
-    } else {
-      p.bob += dt * 1.2;
-    }
-    // Footstep sound
-    this._stepTimer = (this._stepTimer || 0) - dt;
-    if(speedMag > 0.5 && this._stepTimer <= 0){
-      Snd.step();
-      this._stepTimer = p.running ? 0.28 : 0.42;
-    }
-  },
-
-  collides(x, z, r){
-    for(const c of World.colliders){
-      if(x + r > c.minX && x - r < c.maxX && z + r > c.minZ && z - r < c.maxZ){
-        return true;
-      }
-    }
-    return false;
-  },
-
-  eyeY(){
-    const p = G.player;
-    let base = p.crouch ? this.crouchHeight : this.eyeHeight;
-    const speedMag = Math.hypot(p.vx, p.vz);
-    const bobAmt = p.crouch ? 0.015 : (p.running ? 0.045 : 0.028);
-    const bob = Math.sin(p.bob) * bobAmt * Math.min(1, speedMag/2);
-    return base + bob;
-  },
-
-  forwardVec(){
-    const p = G.player;
-    const cp = Math.cos(p.pitch), sp = Math.sin(p.pitch);
-    return [Math.sin(p.yaw) * cp, sp, -Math.cos(p.yaw) * cp];
-  }
-};
-
-/* ---------- 10. УПРАВЛЕНИЕ ---------- */
-const Input = {
-  keys: {},
-  mouseX: 0, mouseY: 0,
-  pointerLocked: false,
-  mouseDown: false,
   init(){
-    // Keyboard
-    window.addEventListener('keydown', (e) => {
-      // Only capture game keys when in play mode
+    window.addEventListener('keydown', e => {
       if(G.state !== 'play') return;
       this.keys[e.code] = true;
-      // Prevent default for game keys
-      if(['KeyW','KeyA','KeyS','KeyD','Space','KeyE','KeyF','KeyI','KeyJ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
-      if(e.code === 'KeyE') tryInteract();
+      if(['KeyW','KeyA','KeyS','KeyD','KeyE','KeyF','KeyI','KeyJ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))
+        e.preventDefault();
+      if(e.code === 'KeyE') doInteract();
       if(e.code === 'KeyF') toggleFlashlight();
       if(e.code === 'KeyI') togglePanel('inv');
-      if(e.code === 'KeyJ') togglePanel('journal');
+      if(e.code === 'KeyJ') togglePanel('j');
+      if(e.code === 'Escape') pauseGame();
     });
-    window.addEventListener('keyup', (e) => {
-      this.keys[e.code] = false;
-    });
-    // On blur, clear keys
+    window.addEventListener('keyup', e => { this.keys[e.code] = false; });
     window.addEventListener('blur', () => { this.keys = {}; });
-    // Mouse
-    document.addEventListener('mousemove', (e) => {
-      if(G.state !== 'play') return;
-      if(!this.pointerLocked) return;
-      const sens = Player.mouseSens * (Settings.sens/100);
-      G.player.yaw += e.movementX * sens;
-      const pitchDelta = e.movementY * sens * (Settings.invert ? 1 : -1);
-      G.player.pitch = clamp(G.player.pitch + pitchDelta, -1.35, 1.35);
+
+    document.addEventListener('mousemove', e => {
+      if(G.state !== 'play' || !this.locked) return;
+      const s = 0.0022 * (SET.sens/100);
+      G.P.yaw += e.movementX * s;
+      G.P.pitch = clamp(G.P.pitch + e.movementY * s * (SET.inv ? 1 : -1), -1.35, 1.35);
     });
-    // Click to interact / focus
-    document.addEventListener('mousedown', (e) => {
-      if(G.state !== 'play') return;
-      if(e.button === 0 && this.pointerLocked){
-        // Could be used for attack — not needed here
-      }
-    });
-    // Pointer lock change
+
     document.addEventListener('pointerlockchange', () => {
-      this.pointerLocked = (document.pointerLockElement === R.canvas);
-      if(G.state === 'play' && !this.pointerLocked){
-        // Show hint to click to resume
+      this.locked = (document.pointerLockElement === R.cv);
+      if(G.state === 'play' && !this.locked){
         showHint('НАЖМИТЕ, ЧТОБЫ ВЕРНУТЬ УПРАВЛЕНИЕ', () => requestLock());
       } else hideHint();
     });
-    document.addEventListener('pointerlockerror', () => {
-      // ignore
-    });
-    // Click on canvas requests lock
-    R.canvas.addEventListener('click', () => {
-      if(G.state === 'play' && !this.pointerLocked) requestLock();
-    });
-    // Mobile
-    this.initMobile();
-  },
-  initMobile(){
-    if(!('ontouchstart' in window) && !navigator.maxTouchPoints) return;
-    if(window.innerWidth > 900) return;
-    document.getElementById('mobile').classList.add('on');
-    const joy = document.getElementById('joy');
-    const joyKnob = joy.querySelector('i');
-    let joyActive = false, jx0 = 0, jy0 = 0;
-    const onJoy = (e) => {
-      const t = e.touches ? e.touches[0] : e;
-      const r = joy.getBoundingClientRect();
-      jx0 = r.left + r.width/2; jy0 = r.top + r.height/2;
-      joyActive = true;
-      moveJoy(t);
-    };
-    const moveJoy = (t) => {
-      if(!joyActive) return;
-      const dx = t.clientX - jx0, dy = t.clientY - jy0;
-      const r = 55;
-      const len = Math.hypot(dx, dy) || 1;
-      const cl = Math.min(len, r);
-      const nx = (dx/len) * cl, ny = (dy/len) * cl;
-      joyKnob.style.transform = 'translate('+nx+'px,'+ny+'px)';
-      const ndx = nx/r, ndy = ny/r;
-      this.keys['KeyW'] = ndy < -0.25;
-      this.keys['KeyS'] = ndy > 0.25;
-      this.keys['KeyA'] = ndx < -0.25;
-      this.keys['KeyD'] = ndx > 0.25;
-    };
-    const endJoy = () => {
-      joyActive = false;
-      joyKnob.style.transform = '';
-      this.keys['KeyW'] = this.keys['KeyA'] = this.keys['KeyS'] = this.keys['KeyD'] = false;
-    };
-    joy.addEventListener('touchstart', (e)=>{ e.preventDefault(); onJoy(e); }, {passive:false});
-    joy.addEventListener('touchmove', (e)=>{ e.preventDefault(); moveJoy(e.touches[0]); }, {passive:false});
-    joy.addEventListener('touchend', (e)=>{ e.preventDefault(); endJoy(); }, {passive:false});
 
-    // Camera drag anywhere on right side of screen
-    let camTouchId = null, camLastX = 0, camLastY = 0;
-    document.addEventListener('touchstart', (e) => {
-      if(G.state !== 'play') return;
-      for(const t of e.changedTouches){
-        if(t.clientX > window.innerWidth * 0.4 && camTouchId === null){
-          camTouchId = t.identifier;
-          camLastX = t.clientX; camLastY = t.clientY;
-        }
-      }
-    }, {passive:false});
-    document.addEventListener('touchmove', (e) => {
-      if(G.state !== 'play') return;
-      for(const t of e.changedTouches){
-        if(t.identifier === camTouchId){
-          const dx = t.clientX - camLastX;
-          const dy = t.clientY - camLastY;
-          camLastX = t.clientX; camLastY = t.clientY;
-          const sens = Player.mouseSens * (Settings.sens/100) * 2;
-          G.player.yaw += dx * sens;
-          G.player.pitch = clamp(G.player.pitch + dy * sens * (Settings.invert ? 1 : -1), -1.35, 1.35);
-        }
-      }
-    }, {passive:false});
-    document.addEventListener('touchend', (e) => {
-      for(const t of e.changedTouches){
-        if(t.identifier === camTouchId) camTouchId = null;
-      }
-    }, {passive:false});
+    R.cv.addEventListener('click', () => {
+      if(G.state === 'play' && !this.locked) requestLock();
+    });
 
-    document.getElementById('mE').addEventListener('touchstart', (e)=>{ e.preventDefault(); if(G.state==='play') tryInteract(); });
-    document.getElementById('mF').addEventListener('touchstart', (e)=>{ e.preventDefault(); if(G.state==='play') toggleFlashlight(); });
-    document.getElementById('mPause').addEventListener('touchstart', (e)=>{ e.preventDefault(); if(G.state==='play') pauseGame(); });
+    // Мобильное управление
+    if(('ontouchstart' in window) && window.innerWidth < 900){
+      document.getElementById('mobile').classList.add('on');
+      const joy = document.getElementById('joy');
+      const knob = joy.querySelector('i');
+      let jx=0, jy=0, active=false;
+      const setK = (x,y)=>{
+        const r=55;
+        const L=Math.hypot(x,y)||1, cl=Math.min(L,r);
+        const nx=(x/L)*cl, ny=(y/L)*cl;
+        knob.style.transform = 'translate('+nx+'px,'+ny+'px)';
+        const dx=nx/r, dy=ny/r;
+        this.keys['KeyW'] = dy < -0.3;
+        this.keys['KeyS'] = dy > 0.3;
+        this.keys['KeyA'] = dx < -0.3;
+        this.keys['KeyD'] = dx > 0.3;
+      };
+      joy.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const r = joy.getBoundingClientRect();
+        jx = r.left + r.width/2; jy = r.top + r.height/2;
+        active = true; const t = e.touches[0]; setK(t.clientX-jx, t.clientY-jy);
+      }, {passive:false});
+      joy.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if(!active) return;
+        const t = e.touches[0]; setK(t.clientX-jx, t.clientY-jy);
+      }, {passive:false});
+      joy.addEventListener('touchend', e => {
+        e.preventDefault();
+        active = false; knob.style.transform = '';
+        this.keys['KeyW']=this.keys['KeyA']=this.keys['KeyS']=this.keys['KeyD']=false;
+      }, {passive:false});
+
+      // Вращение камеры касанием
+      let camId = null, lastX = 0, lastY = 0;
+      document.addEventListener('touchstart', e => {
+        if(G.state !== 'play') return;
+        for(const t of e.changedTouches){
+          if(t.clientX > window.innerWidth*0.4 && camId === null){
+            camId = t.identifier; lastX = t.clientX; lastY = t.clientY;
+          }
+        }
+      }, {passive:false});
+      document.addEventListener('touchmove', e => {
+        if(G.state !== 'play') return;
+        for(const t of e.changedTouches){
+          if(t.identifier === camId){
+            const dx = t.clientX-lastX, dy = t.clientY-lastY;
+            lastX = t.clientX; lastY = t.clientY;
+            const s = 0.005 * (SET.sens/100);
+            G.P.yaw += dx*s;
+            G.P.pitch = clamp(G.P.pitch + dy*s*(SET.inv?1:-1), -1.35, 1.35);
+          }
+        }
+      }, {passive:false});
+      document.addEventListener('touchend', e => {
+        for(const t of e.changedTouches){
+          if(t.identifier === camId) camId = null;
+        }
+      }, {passive:false});
+
+      document.getElementById('mE').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') doInteract(); });
+      document.getElementById('mF').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') toggleFlashlight(); });
+      document.getElementById('mP').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') pauseGame(); });
+    }
   }
 };
 
 function requestLock(){
-  if(!R.canvas) return;
-  try {
-    if(R.canvas.requestPointerLock) R.canvas.requestPointerLock();
-  } catch(e){ /* ignore */ }
+  try { if(R.cv.requestPointerLock) R.cv.requestPointerLock(); } catch(e){}
 }
 
-/* ---------- 11. ВЗАИМОДЕЙСТВИЕ ---------- */
-function tryInteract(){
-  const p = G.player;
-  const cam = [p.x, Player.eyeY(), p.z];
-  const fwd = Player.forwardVec();
+/* =============== ИГРОК =============== */
+const Player = {
+  r: 0.28,
+  update(dt){
+    const p = G.P;
+    const k = In.keys;
+    const crouch = !!(k['ControlLeft']||k['ControlRight']||k['KeyC']);
+    p.crouch = crouch;
 
-  // Ray-AABB test on all interactables, pick nearest within 2.5
-  let best = null, bestT = 2.5;
-  for(const it of World.interactables){
-    if(it.used && it.once) continue;
-    const t = rayAABB(cam, fwd, it.aabb);
-    if(t !== null && t < bestT){ bestT = t; best = it; }
+    let fx=0, fz=0;
+    if(k['KeyW']||k['ArrowUp']) fz -= 1;
+    if(k['KeyS']||k['ArrowDown']) fz += 1;
+    if(k['KeyA']||k['ArrowLeft']) fx -= 1;
+    if(k['KeyD']||k['ArrowRight']) fx += 1;
+    const len = Math.hypot(fx, fz);
+    if(len > 0){ fx/=len; fz/=len; }
+
+    const wfx = Math.sin(p.yaw), wfz = -Math.cos(p.yaw);
+    const wrx = Math.cos(p.yaw), wrz = Math.sin(p.yaw);
+    const wishX = wfx * (-fz) + wrx * fx;
+    const wishZ = wfz * (-fz) + wrz * fx;
+
+    p.running = (k['ShiftLeft']||k['ShiftRight']) && !p.crouch && p.stamina > 0.05;
+    const spd = p.crouch ? 1.2 : (p.running ? 4.4 : 2.6);
+
+    const acc = (len > 0.01 ? 14 : 12) * dt;
+    p.vx += clamp(wishX*spd - p.vx, -acc*3, acc*3);
+    p.vz += clamp(wishZ*spd - p.vz, -acc*3, acc*3);
+
+    if(p.running && Math.hypot(p.vx,p.vz) > 0.5) p.stamina = clamp(p.stamina - dt*0.35, 0, 1);
+    else p.stamina = clamp(p.stamina + dt*0.22, 0, 1);
+
+    const nx = p.x + p.vx*dt;
+    const nz = p.z + p.vz*dt;
+    if(!collides(nx, p.z, this.r)) p.x = nx; else p.vx = 0;
+    if(!collides(p.x, nz, this.r)) p.z = nz; else p.vz = 0;
+
+    p.x = clamp(p.x, -6.4, 6.4);
+    p.z = clamp(p.z, -6.4, 4.6);
+
+    const spdMag = Math.hypot(p.vx, p.vz);
+    if(spdMag > 0.2) p.bob += dt * (p.running ? 12 : 8);
+    else p.bob += dt * 1.2;
+
+    In.stepT -= dt;
+    if(spdMag > 0.5 && In.stepT <= 0){ Snd.step(); In.stepT = p.running ? 0.28 : 0.42; }
+  },
+  eyeY(){
+    const p = G.P;
+    const base = p.crouch ? 1.0 : 1.6;
+    const spdMag = Math.hypot(p.vx,p.vz);
+    const bobAmt = p.crouch ? 0.012 : (p.running ? 0.045 : 0.028);
+    return base + Math.sin(p.bob) * bobAmt * Math.min(1, spdMag/2);
+  },
+  fwd(){
+    const p = G.P;
+    const cp = Math.cos(p.pitch);
+    return [Math.sin(p.yaw)*cp, Math.sin(p.pitch), -Math.cos(p.yaw)*cp];
   }
-  if(!best) return;
-  if(best.onUse){
-    best.used = true;
-    if(best.hideOnUse && best.obj){
-      best.obj.color = [0,0,0];
-      best.obj.emissive = -1;  // fully dark, invisible
-    }
-    best.onUse();
+};
+
+function collides(x, z, r){
+  for(const c of W.colliders){
+    if(x + r > c.minX && x - r < c.maxX && z + r > c.minZ && z - r < c.maxZ) return true;
   }
+  return false;
 }
+
+/* =============== ВЗАИМОДЕЙСТВИЕ =============== */
 function rayAABB(o, d, a){
   let tmin = 0, tmax = 1e9;
+  const mins = [a.minX, a.minY, a.minZ];
+  const maxs = [a.maxX, a.maxY, a.maxZ];
   for(let i=0;i<3;i++){
-    const oi = o[i], di = d[i];
-    const amin = i===0?a.minX:(i===1?a.minY:a.minZ);
-    const amax = i===0?a.maxX:(i===1?a.maxY:a.maxZ);
-    if(Math.abs(di) < 1e-6){
-      if(oi < amin || oi > amax) return null;
+    if(Math.abs(d[i]) < 1e-6){
+      if(o[i] < mins[i] || o[i] > maxs[i]) return null;
     } else {
-      let t1 = (amin - oi)/di;
-      let t2 = (amax - oi)/di;
+      let t1 = (mins[i]-o[i])/d[i];
+      let t2 = (maxs[i]-o[i])/d[i];
       if(t1 > t2){ const tmp = t1; t1 = t2; t2 = tmp; }
       if(t1 > tmin) tmin = t1;
       if(t2 < tmax) tmax = t2;
       if(tmin > tmax) return null;
     }
   }
-  if(tmin < 0) return null;
-  return tmin;
+  return tmin >= 0 ? tmin : null;
 }
-function updatePrompt(){
-  const prompt = document.getElementById('prompt');
-  if(G.state !== 'play'){ prompt.classList.remove('on'); return; }
-  const p = G.player;
+
+function findHovered(){
+  const p = G.P;
   const cam = [p.x, Player.eyeY(), p.z];
-  const fwd = Player.forwardVec();
-  let best = null, bestT = 2.5;
-  for(const it of World.interactables){
+  const fwd = Player.fwd();
+  let best = null, bestT = 2.6;
+  // Interactables
+  for(const it of W.interactables){
     if(it.used && it.once) continue;
     const t = rayAABB(cam, fwd, it.aabb);
     if(t !== null && t < bestT){ bestT = t; best = it; }
   }
-  // Also check doors
-  if(!best){
-    for(const d of World.doors){
-      const aabb = {
-        minX: Math.min(d.hx, d.hx + Math.sin(d.angle)*d.w) - 0.2,
-        maxX: Math.max(d.hx, d.hx + Math.sin(d.angle)*d.w) + 0.2,
-        minY: 0, maxY: d.h,
-        minZ: Math.min(d.hz, d.hz + Math.cos(d.angle)*d.w) - 0.2,
-        maxZ: Math.max(d.hz, d.hz + Math.cos(d.angle)*d.w) + 0.2
-      };
-      const t = rayAABB(cam, fwd, aabb);
-      if(t !== null && t < bestT){
-        bestT = t;
-        best = { prompt: d.locked ? (d.id==='door_entry' ? 'E — выйти на площадку' : 'Заперто') : (d.angle > 0.5 ? 'E — закрыть дверь' : 'E — открыть дверь'),
-                 doorRef: d, isDoor: true };
-      }
+  // Doors
+  for(const d of W.doors){
+    const s = Math.sin(d.angle), c = Math.cos(d.angle);
+    const bx = d.hx + s*d.w, bz = d.hz + c*d.w;
+    const aabb = {
+      minX: Math.min(d.hx,bx)-0.15, maxX: Math.max(d.hx,bx)+0.15,
+      minY: 0, maxY: d.h,
+      minZ: Math.min(d.hz,bz)-0.15, maxZ: Math.max(d.hz,bz)+0.15
+    };
+    const t = rayAABB(cam, fwd, aabb);
+    if(t !== null && t < bestT){
+      bestT = t;
+      const prompt = d.locked
+        ? (d.keyId && hasItem(d.keyId) ? 'E — открыть ключом' : 'Заперто')
+        : (Math.abs(d.angle) < 0.15 ? 'E — открыть' : 'E — закрыть');
+      best = { isDoor:true, doorRef:d, prompt };
     }
   }
-  if(best){
-    prompt.textContent = best.prompt;
-    prompt.classList.add('on');
-    Input._hovered = best;
-  } else {
-    prompt.classList.remove('on');
-    Input._hovered = null;
-  }
+  return best;
 }
-
-/* Handle E press with door interaction */
-function handleInteractInput(){
-  const h = Input._hovered;
+function updatePrompt(){
+  const el = document.getElementById('prompt');
+  if(G.state !== 'play'){ el.classList.remove('on'); In.hovered = null; return; }
+  const h = findHovered();
+  In.hovered = h;
+  if(h){
+    el.textContent = h.prompt;
+    el.classList.add('on');
+  } else el.classList.remove('on');
+}
+function doInteract(){
+  const h = In.hovered;
   if(!h) return;
   if(h.isDoor){
     const d = h.doorRef;
@@ -1460,187 +1156,152 @@ function handleInteractInput(){
       if(d.keyId && hasItem(d.keyId)){
         d.locked = false;
         Snd.lock();
-        addNote('Дверь открыта');
-        autoSave();
+        addNote('Дверь открыта ключом.');
         d.target = d.openAngle;
-        Snd.door();
+        setTimeout(()=>Snd.door(), 200);
+        autoSave();
       } else {
         Snd.lock();
         addNote('Заперто. Нужен ключ.');
       }
-    } else {
-      d.target = (Math.abs(d.angle) < 0.2) ? d.openAngle : 0;
-      Snd.door();
+      return;
     }
+    d.target = (Math.abs(d.angle) < 0.2) ? d.openAngle : 0;
+    Snd.door();
     return;
   }
-  tryInteract();
+  // Interactable
+  if(h.onUse){
+    h.used = true;
+    if(h.hideOnUse && h.obj){
+      h.obj.color = [0,0,0];
+      h.obj._hidden = true;
+    }
+    h.onUse();
+  }
+}
+function toggleFlashlight(){
+  const p = G.P;
+  if(!hasItem('flashlight')){ addNote('Нет фонарика'); return; }
+  p.flashlight = !p.flashlight;
+  Snd.click();
+  updateHUD();
 }
 
-/* ---------- 12. UI / МЕНЮ ---------- */
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  if(id) document.getElementById(id).classList.add('on');
-}
-function showOverlay(id){
-  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('on'));
-  if(id) document.getElementById(id).classList.add('on');
-}
-function hideAllOverlays(){
-  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('on'));
-}
-
-let noteTimeouts = [];
+/* =============== ИНВЕНТАРЬ / ЖУРНАЛ =============== */
+function hasItem(id){ return !!G.inv[id]; }
+function addItem(id, name, desc){ G.inv[id] = {name, desc}; }
+function hasFlag(f){ return !!G.flags[f]; }
+function setFlag(f){ G.flags[f] = true; autoSave(); }
 function addNote(text){
   const notes = document.getElementById('notes');
   const el = document.createElement('div');
   el.className = 'note';
   el.textContent = text;
   notes.appendChild(el);
-  setTimeout(() => {
-    el.style.opacity = '0';
-    setTimeout(() => { if(el.parentNode) el.parentNode.removeChild(el); }, 600);
-  }, 3200);
+  setTimeout(()=>{ el.style.opacity = '0'; setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 700); }, 3000);
 }
 function setObjective(text){
-  document.getElementById('objText').textContent = text;
-  document.getElementById('objective').classList.add('on');
-}
-function showHint(text, cb){
-  const h = document.getElementById('hint');
-  h.textContent = text;
-  h.classList.add('on');
-  h.onclick = () => {
-    h.classList.remove('on');
-    h.onclick = null;
-    if(cb) cb();
-  };
-}
-function hideHint(){
-  const h = document.getElementById('hint');
-  h.classList.remove('on');
-  h.onclick = null;
+  document.getElementById('objT').textContent = text;
+  document.getElementById('obj').classList.add('on');
 }
 function updateHUD(){
-  const p = G.player;
-  // Flash indicator
   const fl = document.getElementById('flash');
-  if(p.flashlight){
+  if(G.P.flashlight){
     fl.classList.add('on');
-    fl.querySelector('i').style.width = Math.round(p.flashCharge * 100) + '%';
+    fl.querySelector('i').style.width = Math.round(G.P.flashCharge*100) + '%';
   } else fl.classList.remove('on');
-  // Crosshair
-  document.getElementById('crosshair').classList.toggle('on', G.state === 'play');
+  document.getElementById('cross').classList.toggle('on', G.state === 'play');
 }
-
-function toggleFlashlight(){
-  const p = G.player;
-  if(!hasItem('flashlight')){ addNote('Нет фонарика'); return; }
-  if(p.flashCharge <= 0 && !p.flashlight){ addNote('Фонарик разряжен'); return; }
-  p.flashlight = !p.flashlight;
-  Snd.click();
-  updateHUD();
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function togglePanel(which){
   if(G.state !== 'play') return;
   if(which === 'inv'){
     if(document.getElementById('ovInv').classList.contains('on')){
       document.getElementById('ovInv').classList.remove('on');
-      G.state = 'play';
+      G.state = 'play'; In.keys = {};
     } else {
-      renderInventory();
+      renderInv();
       document.getElementById('ovInv').classList.add('on');
-      G.state = 'overlay';
-      Input.keys = {};
+      G.state = 'overlay'; In.keys = {};
     }
-  } else if(which === 'journal'){
-    if(document.getElementById('ovJournal').classList.contains('on')){
-      document.getElementById('ovJournal').classList.remove('on');
-      G.state = 'play';
+  } else {
+    if(document.getElementById('ovJ').classList.contains('on')){
+      document.getElementById('ovJ').classList.remove('on');
+      G.state = 'play'; In.keys = {};
     } else {
-      renderJournal();
-      document.getElementById('ovJournal').classList.add('on');
-      G.state = 'overlay';
-      Input.keys = {};
+      renderJ();
+      document.getElementById('ovJ').classList.add('on');
+      G.state = 'overlay'; In.keys = {};
     }
   }
 }
-
-function renderInventory(){
-  const list = document.getElementById('invList');
-  const ids = Object.keys(G.inventory);
-  if(ids.length === 0){
-    list.innerHTML = '<p style="color:#6a6050">Пусто.</p>';
-    return;
-  }
-  list.innerHTML = ids.map(id => {
-    const it = G.inventory[id];
-    return '<div class="item"><b>'+escapeHtml(it.name)+'</b><p>'+escapeHtml(it.desc)+'</p></div>';
+function renderInv(){
+  const el = document.getElementById('invList');
+  const ids = Object.keys(G.inv);
+  if(!ids.length){ el.innerHTML = '<p style="color:#6a6050">Пусто.</p>'; return; }
+  el.innerHTML = ids.map(id => {
+    const it = G.inv[id];
+    return '<div class="item"><b>'+esc(it.name)+'</b><p>'+esc(it.desc)+'</p></div>';
   }).join('');
 }
-function renderJournal(){
-  const list = document.getElementById('jList');
-  if(G.notes.length === 0){
-    list.innerHTML = '<p style="color:#6a6050">Журнал пуст.</p>';
-    return;
-  }
-  list.innerHTML = G.notes.map(n => {
-    return '<div class="item"><b>'+escapeHtml(n.title)+'</b><p>'+escapeHtml(n.body)+'</p></div>';
-  }).join('');
+function renderJ(){
+  const el = document.getElementById('jList');
+  if(!G.notes.length){ el.innerHTML = '<p style="color:#6a6050">Журнал пуст.</p>'; return; }
+  el.innerHTML = G.notes.map(n =>
+    '<div class="item"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p></div>'
+  ).join('');
 }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-/* ---------- 13. ЗАПИСКИ ---------- */
 function readNote(title, body, flag){
-  G._pendingRead = {title, body, flag};
-  document.getElementById('readTitle').textContent = title;
-  document.getElementById('readBody').textContent = body;
+  document.getElementById('rdT').textContent = title;
+  document.getElementById('rdB').textContent = body;
   document.getElementById('ovRead').classList.add('on');
-  G.state = 'overlay';
-  Input.keys = {};
+  G.state = 'overlay'; In.keys = {};
   Snd.note();
+  // Save to journal
+  if(!G.notes.find(n => n.title === title)){
+    G.notes.push({title, body});
+  }
+  if(flag && !G.flags[flag]) G.flags[flag] = true;
+  autoSave();
 }
 
-/* ---------- 14. ГОЛОВОЛОМКИ ---------- */
-function openClock(){
-  const puz = G.puzzles.clock;
-  document.getElementById('ovClock').classList.add('on');
-  G.state = 'overlay';
-  Input.keys = {};
-  updateClockDisplay();
-}
+/* =============== ГОЛОВОЛОМКИ =============== */
 let clockH = 12, clockM = 0;
-function updateClockDisplay(){
-  const hV = document.getElementById('hVal');
-  const mV = document.getElementById('mVal');
-  hV.textContent = String(clockH).padStart(2,'0');
-  mV.textContent = String(clockM).padStart(2,'0');
-  const hAng = (clockH % 12) * 30 + clockM * 0.5;
-  const mAng = clockM * 6;
-  document.getElementById('hHour').style.transform = 'rotate('+hAng+'deg)';
-  document.getElementById('hMin').style.transform  = 'rotate('+mAng+'deg)';
+function updateClockUI(){
+  document.getElementById('hVal').textContent = String(clockH).padStart(2,'0');
+  document.getElementById('mVal').textContent = String(clockM).padStart(2,'0');
+  const hA = (clockH%12)*30 + clockM*0.5;
+  const mA = clockM*6;
+  document.getElementById('hHour').style.transform = 'rotate('+hA+'deg)';
+  document.getElementById('hMin').style.transform = 'rotate('+mA+'deg)';
+}
+function openClock(){
+  document.getElementById('ovClock').classList.add('on');
+  G.state = 'overlay'; In.keys = {};
+  updateClockUI();
 }
 function submitClock(){
   if(clockH === 2 && clockM === 13){
     if(!G.puzzles.clock){
       G.puzzles.clock = true;
-      addNote('Стрелки встали. Где-то щёлкнул замок.');
+      addNote('За часами что-то щёлкнуло.');
       Snd.lock();
-      // Reveal key near clock
-      addProp('keyItem', -1.85, 0.6, 0.7, 0.08, 0.03, 0.18, [0.9,0.85,0.5], TEX.metal, {
-        interact:true, once:true, hideOnUse:true, collide:false,
+      // Спавн ключа
+      W.prop('key_secret_pickup', -1.85, 0.6, 0.7, 0.1, 0.04, 0.2, [0.9,0.85,0.5], TEX.metal, {
+        interact:true, once:true, hideOnUse:true,
         prompt:'E — взять ключ',
         onUse: () => {
           addItem('key_secret', 'Ключ от дальней комнаты', 'Металлический ключ с гравировкой "13".');
-          addNote('Получен ключ от дальней комнаты');
-          Snd.pickup();
+          addNote('Получен ключ от дальней комнаты.');
+          Snd.pick();
+          setObjective('Откройте запертую комнату (дверь в спальню — заперта)');
           autoSave();
         }
       });
-      setObjective('Найдите дальнюю комнату за кухней');
+      setObjective('Заберите ключ из-за часов');
       autoSave();
     }
     document.getElementById('ovClock').classList.remove('on');
@@ -1650,93 +1311,76 @@ function submitClock(){
     Snd.click();
   }
 }
+
+let codeBuf = '';
 function openCode(){
-  const codeDisp = document.getElementById('codeDisplay');
-  let code = '';
-  codeDisp.textContent = '____';
-  const handler = (e) => {
-    const k = e.currentTarget.getAttribute('data-k');
-    Snd.click();
-    if(k === 'C'){ code = ''; }
-    else if(k === 'OK'){
-      if(code === '1311'){
-        if(!G.puzzles.code){
-          G.puzzles.code = true;
-          addItem('revolver', 'Старый револьвер', 'Револьвер без патронов. Тяжёлый. Холодный.');
-          addNote('В сейфе — старый револьвер и записка');
-          G.notes.push({title:'ЗАПИСКА ИЗ СЕЙФА', body:'«Если ты это читаешь — значит, ты тоже видишь. Я не смог остановить это. Ты должен выбрать. Уйти, узнать правду или остаться.»'});
-          Snd.pickup();
-          autoSave();
-        }
-        document.getElementById('ovCode').classList.remove('on');
-        G.state = 'play';
-        codeDisp.textContent = '____';
-        code = '';
-        return;
-      } else {
-        addNote('Неверный код');
-        code = '';
-      }
-    }
-    else if(k >= '0' && k <= '9'){
-      if(code.length < 4) code += k;
-    }
-    codeDisp.textContent = (code + '____').slice(0,4);
-  };
-  // Remove old handlers by cloning — simple approach: use named handler reference
-  document.querySelectorAll('.keypad button').forEach(b => {
-    const clone = b.cloneNode(true);
-    b.parentNode.replaceChild(clone, b);
-    clone.addEventListener('click', handler);
-  });
+  codeBuf = '';
+  document.getElementById('codeDisp').textContent = '____';
   document.getElementById('ovCode').classList.add('on');
-  G.state = 'overlay';
-  Input.keys = {};
+  G.state = 'overlay'; In.keys = {};
+}
+function handleCodeKey(k){
+  if(k === 'C'){ codeBuf = ''; }
+  else if(k === 'OK'){
+    if(codeBuf === '1311'){
+      if(!G.puzzles.code){
+        G.puzzles.code = true;
+        addItem('revolver', 'Старый револьвер', 'Тяжёлый. Холодный. Без патронов.');
+        G.notes.push({
+          title:'ЗАПИСКА ИЗ СЕЙФА',
+          body:'«Если ты читаешь это, значит, ты тоже видел. Я не смог остановить это. Уйти, узнать правду или остаться — выбирай сам.»'
+        });
+        addNote('В сейфе — револьвер и записка.');
+        Snd.pick();
+        autoSave();
+      }
+      document.getElementById('ovCode').classList.remove('on');
+      G.state = 'play';
+      codeBuf = '';
+      return;
+    } else {
+      addNote('Неверный код');
+      Snd.click();
+      codeBuf = '';
+    }
+  } else if(k >= '0' && k <= '9'){
+    if(codeBuf.length < 4) codeBuf += k;
+  }
+  document.getElementById('codeDisp').textContent = (codeBuf + '____').slice(0,4);
 }
 
-/* ---------- 15. ВРАГ ---------- */
+/* =============== МОНСТР =============== */
 function spawnEnemy(){
-  if(World.enemy) return;
-  // Create simple humanoid figure: body + head
-  const body = addObj(0, 1.0, -5.5, 0.5, 1.6, 0.35, [0.06,0.05,0.06], null, 0, 0);
-  const head = addObj(0, 2.05, -5.5, 0.34, 0.4, 0.34, [0.08,0.06,0.08], null, 0, 0);
-  const armL = addObj(-0.4, 1.05, -5.5, 0.14, 1.5, 0.14, [0.06,0.05,0.06], null, 0, 0);
-  const armR = addObj( 0.4, 1.05, -5.5, 0.14, 1.5, 0.14, [0.06,0.05,0.06], null, 0, 0);
-  // Eyes
-  const eyeL = addObj(-0.08, 2.08, -5.32, 0.05, 0.05, 0.02, [0.9,0.1,0.1], null, 0, 0.9);
-  const eyeR = addObj( 0.08, 2.08, -5.32, 0.05, 0.05, 0.02, [0.9,0.1,0.1], null, 0, 0.9);
-
-  World.enemy = {
-    x:0, z:-5.5,
-    body, head, armL, armR, eyeL, eyeR,
-    state:'patrol',   // patrol | chase | idle
-    target: {x:0, z:-5.5},
-    patrolPoints: [ {x:-4, z:-4}, {x:-4, z:-1}, {x:0, z:1}, {x:3, z:2}, {x:-4, z:1} ],
-    ppIdx: 0,
-    lastSeen: 0,
-    speed: 1.8,
-    chaseSpeed: 2.9,
-    fearLevel: 0
+  if(W.enemy) return;
+  const mk = (x,y,z,sx,sy,sz,c) => {
+    const o = { mesh:'cube', matrix:mModel(x,y,z,sx,sy,sz,0), color:c, tex:null };
+    W.objects.push(o); return o;
   };
-лась  addNote('Что-то появилось в квартире...');
+  const body = mk(0, 1.0, -4, 0.55, 1.6, 0.35, [0.05,0.04,0.06]);
+  const head = mk(0, 2.05, -4, 0.36, 0.42, 0.36, [0.07,0.05,0.08]);
+  const armL = mk(-0.42, 1.05, -4, 0.14, 1.6, 0.14, [0.05,0.04,0.06]);
+  const armR = mk( 0.42, 1.05, -4, 0.14, 1.6, 0.14, [0.05,0.04,0.06]);
+  const eyeL = mk(-0.09, 2.08, -3.82, 0.06, 0.06, 0.03, [0.85,0.08,0.08]);
+  const eyeR = mk( 0.09, 2.08, -3.82, 0.06, 0.06, 0.03, [0.85,0.08,0.08]);
+  W.enemy = {
+    x:0, z:-4, body, head, armL, armR, eyeL, eyeR,
+    state:'patrol', ppIdx:0,
+    patrolPts: [{x:-4,z:-4},{x:-4,z:-1},{x:0,z:0},{x:3,z:1},{x:3,z:3}],
+    lastSeen:0
+  };
+  addNote('Что-то ходит по квартире...');
   Snd.scare();
 }
-
 function updateEnemy(dt){
-  const e = World.enemy;
-  if(!e) return;
-  const p = G.player;
-
-  // Distance to player
+  const e = W.enemy;
+  if(!e || G.state !== 'play') return;
+  const p = G.P;
   const dx = p.x - e.x, dz = p.z - e.z;
   const dist = Math.hypot(dx, dz);
 
-  // Line of sight (approximate — just distance for now)
-  const canSee = dist < 6;
-
-  if(canSee && dist < 5){
+  if(dist < 5.5 && dist > 0.9){
     e.state = 'chase';
-    e.lastSeen = 3;
+    e.lastSeen = 2.5;
   } else {
     e.lastSeen -= dt;
     if(e.lastSeen <= 0) e.state = 'patrol';
@@ -1744,146 +1388,106 @@ function updateEnemy(dt){
 
   let tx, tz, spd;
   if(e.state === 'chase'){
-    tx = p.x; tz = p.z;
-    spd = e.chaseSpeed;
-    // If very close, hit player
-    if(dist < 0.7){
-      playerDied('Оно догнало вас.');
+    tx = p.x; tz = p.z; spd = 2.9;
+    if(dist < 0.75){
+      playerDied('Оно догнало вас в темноте.');
       return;
     }
   } else {
-    const pt = e.patrolPoints[e.ppIdx];
-    tx = pt.x; tz = pt.z;
-    spd = e.speed;
-    if(Math.hypot(tx - e.x, tz - e.z) < 0.5){
-      e.ppIdx = (e.ppIdx + 1) % e.patrolPoints.length;
-    }
+    const pt = e.patrolPts[e.ppIdx];
+    tx = pt.x; tz = pt.z; spd = 1.7;
+    if(Math.hypot(tx-e.x, tz-e.z) < 0.5) e.ppIdx = (e.ppIdx+1) % e.patrolPts.length;
   }
 
-  // Move toward target (no collisions for enemy — it can pass through walls to keep it simple but this is "unfair". Let's do simple wall avoidance)
   const ddx = tx - e.x, ddz = tz - e.z;
   const d = Math.hypot(ddx, ddz) || 1;
-  const nx = ddx/d, nz = ddz/d;
-  const step = spd * dt;
-  let newX = e.x + nx*step;
-  let newZ = e.z + nz*step;
-  // Simple wall blocking
-  if(!enemyCollides(newX, e.z)) e.x = newX;
-  if(!enemyCollides(e.x, newZ)) e.z = newZ;
+  e.x += (ddx/d) * spd * dt;
+  e.z += (ddz/d) * spd * dt;
 
-  // Update mesh positions
-  const bobOff = Math.sin(performance.now()*0.006) * 0.05;
-  e.body.matrix = m4compose(e.x, 1.0 + bobOff, e.z, 0.5, 1.6, 0.35, 0);
-  e.head.matrix = m4compose(e.x, 2.05 + bobOff, e.z, 0.34, 0.4, 0.34, 0);
-  e.armL.matrix = m4compose(e.x - 0.4, 1.05 + bobOff, e.z, 0.14, 1.5, 0.14, 0);
-  e.armR.matrix = m4compose(e.x + 0.4, 1.05 + bobOff, e.z, 0.14, 1.5, 0.14, 0);
-  e.eyeL.matrix = m4compose(e.x - 0.08, 2.08 + bobOff, e.z - 0.18, 0.05, 0.05, 0.02, 0);
-  e.eyeR.matrix = m4compose(e.x + 0.08, 2.08 + bobOff, e.z - 0.18, 0.05, 0.05, 0.02, 0);
+  const bo = Math.sin(performance.now()*0.007) * 0.05;
+  const ap = Math.sin(performance.now()*0.005) * 0.12;
+  e.body.matrix = mModel(e.x, 1.0+bo, e.z, 0.55, 1.6, 0.35, 0);
+  e.head.matrix = mModel(e.x, 2.05+bo, e.z, 0.36, 0.42, 0.36, 0);
+  e.armL.matrix = mModel(e.x-0.42, 1.05+bo+ap, e.z, 0.14, 1.6, 0.14, 0);
+  e.armR.matrix = mModel(e.x+0.42, 1.05+bo-ap, e.z, 0.14, 1.6, 0.14, 0);
+  e.eyeL.matrix = mModel(e.x-0.09, 2.08+bo, e.z-0.19, 0.06, 0.06, 0.03, 0);
+  e.eyeR.matrix = mModel(e.x+0.09, 2.08+bo, e.z-0.19, 0.06, 0.06, 0.03, 0);
 
-  // Fear increases when close
-  if(dist < 4) G.fear = Math.min(1, G.fear + dt*0.15);
+  if(dist < 4) G.fear = Math.min(1, G.fear + dt*0.18);
+  const fe = document.getElementById('fear');
+  fe.style.opacity = (G.fear*0.7).toString();
 }
-
-function enemyCollides(x, z){
-  // Simple — no collisions, let it phase. Better for gameplay.
-  return false;
-}
-
 function playerDied(reason){
   if(G.state !== 'play') return;
   G.state = 'dead';
-  Input.keys = {};
+  In.keys = {};
   if(document.pointerLockElement) document.exitPointerLock();
-  document.getElementById('deathText').textContent = reason;
+  document.getElementById('deathT').textContent = reason;
   document.getElementById('ovDeath').classList.add('on');
   Snd.hurt();
 }
 
-/* ---------- 16. ФИНАЛЫ ---------- */
-function triggerEscapeEnding(){
-  const notesFound = G.notes.length;
-  const solvedClock = G.puzzles.clock;
-  const solvedCode = G.puzzles.code;
-  const knowTruth = solvedClock && solvedCode;
-  // If player hasn't found truth, give "Escape" ending
-  showEnding('ПОБЕГ',
-`Вы вышли за дверь квартиры № 13.
-
-Дверь закры за вашей спиной без единого звука.
-
-На следующий день вы получили письмо от нотариуса. В нём говорилось, что квартира № 13 снова свободна.
-
-Ключ лежал в конверте.
-
-Вы никогда не возвращались на улицу Заводскую. Но иногда, ровно в 2:13, вы просыпались от шагов в коридоре.
-
-${knowTruth ? 'Но вы успели узнать правду. И это — уже нечто.' : 'Вы так и не узнали, что случилось в той квартире на самом деле.'}`,
-    'escape');
-  setFlag('ending_escape');
-}
-
-function triggerTruthEnding(){
-  showEnding('ПРАВДА',
-`Вы собрали всё, что осталось от Виктора Морозова.
-
-Его дочь не уходила из квартиры — она никогда из неё не выходила. Дверь была заперта изнутри, потому что внутри был кто-то. Не девочка. Что-то, что носило её облик.
-
-Виктор пытался остановить это. Он переписывал время, ломал часы, ставил новые замки. Но квартира всегда возвращала всё на свои места.
-
-Теперь вы знаете. И это знание — единственный способ закрыть петлю.
-
-Вы выходите на лестничную площадку. За вашей спиной дверь № 13 становится тихой. По-настоящему тихой, впервые за тридцать лет.
-
-Вы не оглядываетесь.`,
-    'truth');
-  setFlag('ending_truth');
-}
-
-function triggerStayEnding(){
-  showEnding('ОСТАТЬСЯ',
-`Вы закрываете дверь изнутри.
-
-Ключ падает на пол и остаётся там.
-
-Часы на стене сами собой начинают идти. Вперёд.
-
-В квартире № 13 появился новый жилец.
-
-Через несколько дней нотариус отправит кому-то письмо. В конверте будет лежать ключ.
-
-А в прихожей — новая записка, написанная вашей рукой.`,
-    'stay');
-  setFlag('ending_stay');
-}
-
+/* =============== ФИНАЛЫ =============== */
 function showEnding(title, body, id){
   G.ending = id;
   G.state = 'ending';
-  Input.keys = {};
+  In.keys = {};
   if(document.pointerLockElement) document.exitPointerLock();
-  document.getElementById('endingTitle').textContent = title;
+  document.getElementById('endT').textContent = title;
   document.getElementById('endText').textContent = body;
-  document.getElementById('ovEnding').classList.add('on');
-  Snd.playTone(70, 3.0, 'sine', 0.12, 40);
+  document.getElementById('ovEnd').classList.add('on');
+  Snd.tone(70, 3.0, 'sine', 0.12, 40);
   autoSave();
 }
+function tryExitApartment(){
+  // Игрок дошёл до входной двери и пытается выйти — выбираем финал по флагам
+  const truth = hasFlag('read_diary') && hasFlag('code_hint') && G.puzzles.clock && G.puzzles.code;
+  if(truth && hasItem('revolver')){
+    showEnding('ПРАВДА',
+`Вы стоите в дверях квартиры № 13.
 
-/* ---------- 17. СОХРАНЕНИЕ ---------- */
+Вы знаете то, чего не знал Виктор. Его дочь не уходила отсюда. Она стала этим местом — потому что не могла уйти, пока кто-то не вспомнит её.
+
+Вы помните.
+
+За вашей спиной дверь становится тихой. По-настоящему тихой. Впервые за тридцать лет.
+
+Вы выходите на лестничную площадку. Не оглядываетесь.`, 'truth');
+    setFlag('end_truth');
+  } else if(G.puzzles.clock && hasItem('key_secret')){
+    showEnding('ОСТАТЬСЯ',
+`Вы закрываете дверь изнутри.
+
+Ключ падает на пол и остаётся лежать там, где упал.
+
+Часы на стене начинают идти. Вперёд.
+
+Через несколько дней нотариус отправит кому-то письмо. В конверте будет ключ. В прихожей — новая записка, написанная вашей рукой.
+
+Квартира № 13 приняла нового жильца.`, 'stay');
+    setFlag('end_stay');
+  } else {
+    showEnding('ПОБЕГ',
+`Вы вышли за дверь квартиры № 13.
+
+Она закрылась за вашей спиной без единого звука.
+
+На следующий день вы получили письмо от нотариуса. В нём говорилось, что квартира снова свободна. Ключ лежал в конверте.
+
+Вы никогда не возвращались на улицу Заводскую. Но иногда, ровно в 2:13, вы просыпались от шагов в коридоре.`, 'escape');
+    setFlag('end_escape');
+  }
+}
+
+/* =============== СОХРАНЕНИЕ =============== */
 function autoSave(){
   try {
-    const save = {
-      v: 1,
-      chapter: 1,
-      flags: G.flags,
-      notes: G.notes,
-      inventory: G.inventory,
-      puzzles: G.puzzles,
-      player: {x:G.player.x, z:G.player.z, yaw:G.player.yaw, pitch:G.player.pitch, flashlight:G.player.flashlight},
-      checkpoint: G.checkpoint,
-      time: Date.now()
-    };
-    localStorage.setItem('apt13_save', JSON.stringify(save));
-    updateContinueButton();
+    localStorage.setItem('apt13_save', JSON.stringify({
+      v:1, flags:G.flags, notes:G.notes, inv:G.inv, puzzles:G.puzzles,
+      player: { x:G.P.x, z:G.P.z, yaw:G.P.yaw, pitch:G.P.pitch, flashlight:G.P.flashlight },
+      t: Date.now()
+    }));
+    updateContinueBtn();
   } catch(e){}
 }
 function loadSave(){
@@ -1892,35 +1496,105 @@ function loadSave(){
     if(!raw) return false;
     const s = JSON.parse(raw);
     if(!s || s.v !== 1) return false;
-    G.flags = s.flags || {};
-    G.notes = s.notes || [];
-    G.inventory = s.inventory || {};
-    G.puzzles = s.puzzles || {clock:false, code:false};
+    G.flags = s.flags||{};
+    G.notes = s.notes||[];
+    G.inv = s.inv||{};
+    G.puzzles = s.puzzles||{clock:false,code:false};
     if(s.player){
-      G.player.x = s.player.x; G.player.z = s.player.z;
-      G.player.yaw = s.player.yaw; G.player.pitch = s.player.pitch;
-      G.player.flashlight = !!s.player.flashlight;
+      G.P.x = s.player.x; G.P.z = s.player.z;
+      G.P.yaw = s.player.yaw; G.P.pitch = s.player.pitch;
+      G.P.flashlight = !!s.player.flashlight;
     }
     return true;
   } catch(e){ return false; }
 }
-function hasSave(){
-  try { return !!localStorage.getItem('apt13_save'); } catch(e){ return false; }
-}
-function updateContinueButton(){
-  const b = document.getElementById('btnContinue');
+function hasSave(){ try { return !!localStorage.getItem('apt13_save'); } catch(e){ return false; } }
+function updateContinueBtn(){
+  const b = document.getElementById('btnCont');
   if(b) b.disabled = !hasSave();
 }
 
-/* ---------- 18. ИГРОВОЙ ЦИКЛ ---------- */
-let _lastTime = 0;
-let _gameLoopId = null;
+/* =============== ПЕРЕХОДЫ =============== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  if(id) document.getElementById(id).classList.add('on');
+}
+function hideAllOverlays(){
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('on'));
+}
+function showHint(text, cb){
+  const h = document.getElementById('hint');
+  h.textContent = text;
+  h.classList.add('on');
+  h.onclick = () => { h.classList.remove('on'); h.onclick = null; if(cb) cb(); };
+}
+function hideHint(){
+  const h = document.getElementById('hint');
+  h.classList.remove('on');
+  h.onclick = null;
+}
 
+function startNewGame(){
+  Snd.init(); Snd.resume();
+  G.flags = {}; G.notes = []; G.inv = {};
+  G.puzzles = {clock:false, code:false};
+  G.P.x = 0; G.P.z = 2.6; G.P.yaw = Math.PI; G.P.pitch = 0;
+  G.P.vx = G.P.vz = 0; G.P.flashlight = false; G.P.flashCharge = 1;
+  G.fear = 0;
+  clockH = 12; clockM = 0; codeBuf = '';
+  hideAllOverlays();
+  showScreen(null);
+  W.init();
+  setObjective('Осмотрите квартиру. Найдите, что произошло.');
+  G.state = 'play';
+  updateHUD();
+  requestLock();
+  addNote('Квартира № 13. Владелец — Виктор Морозов.');
+  // Разблокировать комнату монстра через 15 сек
+  setTimeout(() => { if(G.state === 'play' && !W.enemy) spawnEnemy(); }, 15000);
+}
+function continueGame(){
+  Snd.init(); Snd.resume();
+  if(!loadSave()){ addNote('Сохранение повреждено — начинаем заново.'); startNewGame(); return; }
+  hideAllOverlays();
+  showScreen(null);
+  W.init();
+  setObjective('Продолжайте исследование.');
+  G.state = 'play';
+  updateHUD();
+  requestLock();
+  setTimeout(() => { if(G.state === 'play' && !W.enemy) spawnEnemy(); }, 5000);
+}
+function pauseGame(){
+  if(G.state !== 'play') return;
+  G.state = 'paused';
+  In.keys = {};
+  if(document.pointerLockElement) document.exitPointerLock();
+  document.getElementById('ovPause').classList.add('on');
+}
+function resumeGame(){
+  hideAllOverlays();
+  G.state = 'play';
+  In.keys = {};
+  requestLock();
+}
+function goToMenu(){
+  G.state = 'menu';
+  In.keys = {};
+  if(document.pointerLockElement) document.exitPointerLock();
+  hideAllOverlays();
+  showScreen('scMenu');
+  updateContinueBtn();
+  updateHUD();
+}
+
+/* =============== ИГРОВОЙ ЦИКЛ =============== */
+let _lastT = 0;
 function gameLoop(t){
-  if(!_lastTime) _lastTime = t;
-  let dt = (t - _lastTime) / 1000;
-  _lastTime = t;
-  if(dt > 0.1) dt = 0.1;  // Clamp after tab switch
+  if(!_lastT) _lastT = t;
+  let dt = (t - _lastT) / 1000;
+  _lastT = t;
+  if(dt > 0.1) dt = 0.1;
 
   if(G.state === 'play'){
     Player.update(dt);
@@ -1928,142 +1602,170 @@ function gameLoop(t){
     updateEnemy(dt);
     updatePrompt();
     // Fear decay
-    const nearEnemy = World.enemy ? Math.hypot(G.player.x-World.enemy.x, G.player.z-World.enemy.z) : 99;
-    if(nearEnemy > 5) G.fear = Math.max(0, G.fear - dt*0.1);
-    Snd.setFear(G.fear);
-    // Damage overlay
-    document.getElementById('damage').style.opacity = (G.fear * 0.6).toString();
-    // Fear vignette intensification
-    const vig = document.getElementById('vignette');
-    vig.style.opacity = (0.75 + G.fear * 0.25).toString();
+    if(!W.enemy) G.fear = Math.max(0, G.fear - dt*0.05);
+    // Восстановление заряда фонарика со временем
+    if(G.P.flashlight) G.P.flashCharge = clamp(G.P.flashCharge - dt*0.003, 0, 1);
+    updateHUD();
   }
-
   render();
-  _gameLoopId = requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
-
 function render(){
   if(!R.gl) return;
-
-  const p = G.player;
-  const aspect = R.canvas.width / R.canvas.height;
-  const proj = m4perspective(Math.PI/3, aspect, 0.05, 60);
+  const p = G.P;
+  const aspect = R.cv.width / R.cv.height;
+  const proj = mPersp(Math.PI/3, aspect, 0.05, 60);
   const eyeY = Player.eyeY();
-  const cp = Math.cos(p.pitch), sp = Math.sin(p.pitch);
-  const fx = Math.sin(p.yaw) * cp;
-  const fy = sp;
-  const fz = -Math.cos(p.yaw) * cp;
-  const view = m4lookAt(p.x, eyeY, p.z, p.x + fx, eyeY + fy, p.z + fz, 0, 1, 0);
+  const cp = Math.cos(p.pitch);
+  const fx = Math.sin(p.yaw)*cp;
+  const fy = Math.sin(p.pitch);
+  const fz = -Math.cos(p.yaw)*cp;
+  const view = mLook(p.x, eyeY, p.z, p.x+fx, eyeY+fy, p.z+fz);
   const camPos = [p.x, eyeY, p.z];
 
-  R.beginFrame(proj, view, camPos);
-  R.setLights(World.lights);
-  const flashDir = [fx, fy, fz];
-  R.setFlash(p.flashlight, flashDir, [1.0, 0.94, 0.78], 9.0);
+  R.begin(proj, view, camPos);
+  R.setLights(W.lights);
+  R.setFlash(p.flashlight, [fx, fy, fz], [1.0, 0.94, 0.78], 9.0);
 
-  // Frustum cull (very rough — by distance)
-  const drawDist = (Settings.draw || 28) + 2;
-  const drawDist2 = drawDist * drawDist;
-  for(const o of World.objects){
-    if(o.emissive < 0) continue;
-    // Extract position from matrix (elements 12,13,14)
+  const drawD = (SET.draw||28) + 4;
+  const d2 = drawD*drawD;
+  for(const o of W.objects){
+    if(o._hidden) continue;
     const m = o.matrix;
     const ox = m[12], oy = m[13], oz = m[14];
-    const dx = ox - p.x, dy = oy - eyeY, dz = oz - p.z;
-    if(dx*dx + dy*dy + dz*dz > drawDist2 * 4) continue;
-    R.draw(o, camPos);
+    const dx = ox-p.x, dy = oy-eyeY, dz = oz-p.z;
+    if(dx*dx+dy*dy+dz*dz > d2*4) continue;
+    R.draw(o);
   }
 }
 
-/* ---------- 19. ПЕРЕХОДЫ СОСТОЯНИЙ ---------- */
-function startNewGame(){
-  // Init systems
-  Snd.init(); Snd.resume();
-
-  // Reset state
-  G.flags = {};
-  G.notes = [];
-  G.inventory = {};
-  G.puzzles = {clock:false, code:false};
-  G.player.x = 0; G.player.z = 2.8;
-  G.player.yaw = Math.PI;
-  G.player.pitch = 0;
-  G.player.vx = G.player.vz = 0;
-  G.player.flashlight = false;
-  G.player.flashCharge = 1;
-  G.fear = 0;
-  G.ending = null;
-
-  // Rebuild world fresh
-  buildWorld();
-  World.enemy = null;
-  clockH = 12; clockM = 0;
-
-  hideAllOverlays();
-  showScreen(null);
-  setObjective('Исследуйте квартиру. Найдите, что здесь произошло.');
-
-  G.state = 'play';
-  updateHUD();
-  requestLock();
-  addNote('Квартира № 13. Владелец: Виктор Морозов.');
-}
-
-function continueGame(){
-  Snd.init(); Snd.resume();
-  if(!loadSave()){ addNote('Сохранение повреждено'); startNewGame(); return; }
-  buildWorld();
-  hideAllOverlays();
-  showScreen(null);
-  setObjective('Продолжайте исследование');
-  G.state = 'play';
-  updateHUD();
-  requestLock();
-}
-
-function pauseGame(){
-  if(G.state !== 'play') return;
-  G.state = 'paused';
-  Input.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  document.getElementById('ovPause').classList.add('on');
-}
-function resumeGame(){
-  hideAllOverlays();
-  G.state = 'play';
-  _lastTime = 0;
-  requestLock();
-}
-function goToMenu(){
-  G.state = 'menu';
-  Input.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  hideAllOverlays();
-  showScreen('screenMenu');
-  updateContinueButton();
-  updateHUD();
-}
-
-/* ---------- 20. ОБРАБОТЧИКИ КНОПОК ---------- */
+/* =============== ИНИЦИАЛИЗАЦИЯ UI =============== */
 function bindUI(){
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
-  // === Главное меню ===
+  // ===== ГЛАВНОЕ МЕНЮ =====
   $('btnNew').addEventListener('click', () => { Snd.click(); startNewGame(); });
-  $('btnContinue').addEventListener('click', () => { Snd.click(); continueGame(); });
-  $('btnSettings').addEventListener('click', () => { Snd.click(); showScreen('screenSettings'); });
-  $('btnControls').addEventListener('click', () => { Snd.click(); showScreen('screenControls'); });
-  $('btnAbout').addEventListener('click', () => { Snd.click(); showScreen('screenAbout'); });
+  $('btnCont').addEventListener('click', () => { Snd.click(); continueGame(); });
+  $('btnSet').addEventListener('click', () => { Snd.click(); showScreen('scSet'); });
+  $('btnCtrl').addEventListener('click', () => { Snd.click(); showScreen('scCtrl'); });
+  $('btnAbout').addEventListener('click', () => { Snd.click(); showScreen('scAbout'); });
 
-  // === Возвраты ===
-  $('btnBackSet').addEventListener('click', () => { Snd.click(); showScreen('screenMenu'); });
-  $('btnBackCtrl').addEventListener('click', () => { Snd.click(); showScreen('screenMenu'); });
-  $('btnBackAbout').addEventListener('click', () => { Snd.click(); showScreen('screenMenu'); });
+  // ===== НАЗАД =====
+  $('btnBackSet').addEventListener('click', () => { Snd.click(); showScreen('scMenu'); });
+  $('btnBackCtrl').addEventListener('click', () => { Snd.click(); showScreen('scMenu'); });
+  $('btnBackAbout').addEventListener('click', () => { Snd.click(); showScreen('scMenu'); });
 
-  // === Настройки ===
-  const sMaster = $('sMaster'), sSfx = $('sSfx'), sAmb = $('sAmb'), sSens = $('sSens'), sInvert = $('sInvert'), sDraw = $('sDraw'), sUI = $('sUI');
-  sMaster.value = Settings.master; sSfx.value = Settings.sfx; sAmb.value = Settings.amb;
-  sSens.value = Settings.sens; sInvert.checked = Settings.invert; sDraw.value = Settings.draw; sUI.value = Settings.ui;
+  // ===== НАСТРОЙКИ =====
+  const sm = $('sMaster'), ss = $('sSfx'), sn = $('sSens'), si = $('sInv'), sd = $('sDraw');
+  sm.value = SET.master; ss.value = SET.sfx; sn.value = SET.sens; si.checked = SET.inv; sd.value = SET.draw;
+  sm.addEventListener('input', () => { SET.master = +sm.value; Snd.vol(); SET.save(); });
+  ss.addEventListener('input', () => { SET.sfx = +ss.value; Snd.vol(); SET.save(); });
+  sn.addEventListener('input', () => { SET.sens = +sn.value; SET.save(); });
+  si.addEventListener('change', () => { SET.inv = si.checked; SET.save(); });
+  sd.addEventListener('input', () => { SET.draw = +sd.value; SET.save(); });
 
-  sMaster.addEventListener('input', () => { Settings.master = +sMaster.value; Snd.updateVol(); Settings.save(); });
-  sSfx.addEventListener('input', () => { Settings
+  // ===== ПАУЗА =====
+  $('btnResume').addEventListener('click', () => { Snd.click(); resumeGame(); });
+  $('btnSave').addEventListener('click', () => { Snd.click(); autoSave(); addNote('Игра сохранена.'); });
+  $('btnToMenu').addEventListener('click', () => { Snd.click(); goToMenu(); });
+
+  // ===== ИНВЕНТАРЬ / ЖУРНАЛ =====
+  $('btnCloseInv').addEventListener('click', () => {
+    document.getElementById('ovInv').classList.remove('on');
+    if(G.state === 'overlay') G.state = 'play';
+  });
+  $('btnCloseJ').addEventListener('click', () => {
+    document.getElementById('ovJ').classList.remove('on');
+    if(G.state === 'overlay') G.state = 'play';
+  });
+  $('btnCloseRead').addEventListener('click', () => {
+    document.getElementById('ovRead').classList.remove('on');
+    if(G.state === 'overlay') G.state = 'play';
+  });
+
+  // ===== ЧАСЫ =====
+  $('hUp').addEventListener('click', () => { clockH = (clockH%12)+1; updateClockUI(); Snd.click(); });
+  $('hDown').addEventListener('click', () => { clockH = clockH>1?clockH-1:12; updateClockUI(); Snd.click(); });
+  $('mUp').addEventListener('click', () => { clockM = (clockM+1)%60; updateClockUI(); Snd.click(); });
+  $('mDown').addEventListener('click', () => { clockM = (clockM+59)%60; updateClockUI(); Snd.click(); });
+  $('clockConfirm').addEventListener('click', () => { Snd.click(); submitClock(); });
+  $('clockClose').addEventListener('click', () => {
+    document.getElementById('ovClock').classList.remove('on');
+    if(G.state === 'overlay') G.state = 'play';
+  });
+
+  // ===== КОД =====
+  document.querySelectorAll('.keypad button').forEach(b => {
+    b.addEventListener('click', () => {
+      Snd.click();
+      handleCodeKey(b.getAttribute('data-k'));
+    });
+  });
+  $('btnCloseCode').addEventListener('click', () => {
+    document.getElementById('ovCode').classList.remove('on');
+    if(G.state === 'overlay') G.state = 'play';
+  });
+
+  // ===== ФИНАЛ =====
+  $('btnEndMenu').addEventListener('click', () => { Snd.click(); goToMenu(); });
+  $('btnRetry').addEventListener('click', () => { Snd.click(); startNewGame(); });
+  $('btnDeathMenu').addEventListener('click', () => { Snd.click(); goToMenu(); });
+
+  // Клик на оверлеях — закрыть при нажатии вне панели
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', e => {
+      if(e.target === ov){
+        // не закрываем pause / death / ending
+        if(ov.id === 'ovPause' || ov.id === 'ovDeath' || ov.id === 'ovEnd') return;
+        ov.classList.remove('on');
+        if(G.state === 'overlay') G.state = 'play';
+      }
+    });
+  });
+
+  // Кнопка ESC вне игры
+  document.addEventListener('keydown', e => {
+    if(e.code === 'Escape' && G.state === 'paused'){
+      resumeGame();
+    }
+  });
+}
+
+/* =============== СТАРТ =============== */
+function init(){
+  try {
+    SET.load();
+  } catch(e){}
+
+  // Renderer
+  const ok = R.init(document.getElementById('cv'));
+  if(!ok){
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;padding:20px;text-align:center;color:#c8c8c8;font-family:monospace">WebGL недоступен в вашем браузере. Игра не может быть запущена.<br>Пожалуйста, используйте современный браузер с поддержкой WebGL.</div>';
+    return;
+  }
+
+  // UI
+  bindUI();
+  updateContinueBtn();
+  updateHUD();
+
+  // Input
+  In.init();
+
+  // Resize
+  window.addEventListener('resize', () => R.resize());
+
+  // Menu background: простой рендер одного кадра
+  W.init();
+  requestAnimationFrame(gameLoop);
+}
+
+// Запуск после загрузки DOM
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
