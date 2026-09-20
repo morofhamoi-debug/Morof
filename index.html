@@ -13,14 +13,14 @@
   #overlay {
     position:fixed; inset:0; z-index:10; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background: radial-gradient(circle at 50% 40%, rgba(35,22,10,0.9), rgba(0,0,0,0.99));
+    background: radial-gradient(circle at 50% 40%, rgba(25,14,8,0.92), rgba(0,0,0,0.99));
     color:#c9b48a; text-align:center; padding:20px;
     transition: opacity .3s;
   }
   #overlay h1 {
     font-size: clamp(28px, 6vw, 54px);
     letter-spacing: 8px; margin-bottom: 18px;
-    text-shadow: 0 0 24px rgba(255,140,0,0.55), 0 0 4px #000;
+    text-shadow: 0 0 24px rgba(255,80,20,0.5), 0 0 4px #000;
     color:#e0c48a;
   }
   #overlay p { font-size: 15px; line-height: 2.0; opacity: 0.85; }
@@ -43,12 +43,17 @@
   }
   #vignette {
     position:fixed; inset:0; pointer-events:none; z-index:4;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%);
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 25%, rgba(0,0,0,0.92) 100%);
   }
   #damage {
     position:fixed; inset:0; pointer-events:none; z-index:3;
     background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(30,0,0,0.35) 100%);
     mix-blend-mode: multiply;
+  }
+  #grain {
+    position:fixed; inset:0; pointer-events:none; z-index:2;
+    opacity:0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
   }
 </style>
 </head>
@@ -68,13 +73,14 @@
 
 <div id="vignette"></div>
 <div id="damage"></div>
+<div id="grain"></div>
 <div id="crosshair"></div>
 <div id="hud">ФОНАРИК: ВКЛ &nbsp;|&nbsp; ЭТАЖ: 1</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
-   ТЁМНЫЙ ДОМ — хоррор-прогулка по двухэтажному дому
+   ТЁМНЫЙ ДОМ — мрачная хоррор-прогулка по двухэтажному дому
    ============================================================ */
 
 // ---------- ОСНОВНЫЕ КОНСТАНТЫ ДОМА ----------
@@ -86,10 +92,10 @@ const STAIR    = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
 
 // ---------- СЦЕНА ----------
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x030406);
-scene.fog = new THREE.FogExp2(0x030406, 0.052);
+scene.background = new THREE.Color(0x020304);
+scene.fog = new THREE.FogExp2(0x020304, 0.062);
 
-const camera = new THREE.PerspectiveCamera(74, innerWidth / innerHeight, 0.05, 200);
+const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.05, 200);
 camera.rotation.order = 'YXZ';
 scene.add(camera);
 
@@ -100,20 +106,413 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.05;
 document.body.appendChild(renderer.domElement);
 
+/* ============================================================
+   ПРОЦЕДУРНЫЕ ТЕКСТУРЫ (генерируются на canvas)
+   ============================================================ */
+const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+function makeTex(w, h, drawFn, repeatX = 1, repeatY = 1) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  drawFn(ctx, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeatX, repeatY);
+  t.anisotropy = maxAniso;
+  t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+
+function addNoise(ctx, w, h, amount) {
+  const img = ctx.getImageData(0, 0, w, h);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (Math.random() - 0.5) * amount;
+    d[i]   = Math.max(0, Math.min(255, d[i]   + n));
+    d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+    d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// --- ТЁМНЫЕ ОБОИ С УЗОРОМ (для внутренних стен) ---
+function drawWallpaper(ctx, w, h) {
+  // базовый градиент — выцветшие обои
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0,    '#463125');
+  g.addColorStop(0.45, '#39271c');
+  g.addColorStop(1,    '#2b1d14');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+
+  // вертикальные тонкие полосы
+  for (let x = 0; x < w; x += 32) {
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(x, 0, 2, h);
+    ctx.fillStyle = 'rgba(120,80,50,0.05)';
+    ctx.fillRect(x + 2, 0, 1, h);
+  }
+
+  // узор — ромбы/дамаск
+  const cell = 64;
+  for (let y = 0; y < h; y += cell) {
+    for (let x = 0; x < w; x += cell) {
+      const off = ((y / cell) % 2) * (cell / 2);
+      ctx.save();
+      ctx.translate(x + off, y);
+
+      // внешний ромб
+      ctx.strokeStyle = 'rgba(110, 70, 45, 0.55)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(cell/2, 8);
+      ctx.lineTo(cell-8, cell/2);
+      ctx.lineTo(cell/2, cell-8);
+      ctx.lineTo(8, cell/2);
+      ctx.closePath();
+      ctx.stroke();
+
+      // внутренний ромб
+      ctx.strokeStyle = 'rgba(140, 95, 60, 0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cell/2, 18);
+      ctx.lineTo(cell-18, cell/2);
+      ctx.lineTo(cell/2, cell-18);
+      ctx.lineTo(18, cell/2);
+      ctx.closePath();
+      ctx.stroke();
+
+      // центральная точка
+      ctx.fillStyle = 'rgba(160, 110, 65, 0.4)';
+      ctx.beginPath();
+      ctx.arc(cell/2, cell/2, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // мелкие листики по углам
+      ctx.fillStyle = 'rgba(90, 55, 35, 0.35)';
+      for (let a = 0; a < 4; a++) {
+        const ax = (a % 2) * cell;
+        const ay = Math.floor(a / 2) * cell;
+        ctx.beginPath();
+        ctx.ellipse(ax, ay, 8, 3, Math.PI/4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  // пятна сырости / грязи
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = 15 + Math.random() * 70;
+    const rad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const dark = Math.random() > 0.5;
+    rad.addColorStop(0, dark
+      ? `rgba(15, 10, 8, ${0.15 + Math.random()*0.25})`
+      : `rgba(90, 60, 35, ${0.08 + Math.random()*0.12})`);
+    rad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = rad;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  // подтёки сверху
+  for (let i = 0; i < 15; i++) {
+    const x = Math.random() * w;
+    const len = 40 + Math.random() * 180;
+    const grad = ctx.createLinearGradient(x, 0, x, len);
+    grad.addColorStop(0, 'rgba(10, 8, 6, 0.5)');
+    grad.addColorStop(1, 'rgba(10, 8, 6, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, 0, 2 + Math.random() * 3, len);
+  }
+
+  addNoise(ctx, w, h, 22);
+}
+
+// --- ГРЯЗНАЯ ШТУКАТУРКА / БЕТОН (для внешних стен) ---
+function drawConcrete(ctx, w, h) {
+  ctx.fillStyle = '#332f2a';
+  ctx.fillRect(0, 0, w, h);
+
+  // крупные разводы
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = 20 + Math.random() * 100;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const dark = Math.random() > 0.5;
+    g.addColorStop(0, dark
+      ? `rgba(10, 10, 10, ${0.2 + Math.random()*0.3})`
+      : `rgba(70, 65, 55, ${0.1 + Math.random()*0.2})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  // трещины
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+  for (let i = 0; i < 10; i++) {
+    ctx.lineWidth = 0.5 + Math.random() * 1.2;
+    ctx.beginPath();
+    let x = Math.random() * w;
+    let y = Math.random() * h;
+    ctx.moveTo(x, y);
+    const segs = 8 + Math.floor(Math.random() * 12);
+    for (let s = 0; s < segs; s++) {
+      x += (Math.random() - 0.5) * 40;
+      y += (Math.random() - 0.5) * 40;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // тёмные подтёки
+  for (let i = 0; i < 25; i++) {
+    const x = Math.random() * w;
+    const len = 30 + Math.random() * 120;
+    const grad = ctx.createLinearGradient(x, 0, x, len);
+    grad.addColorStop(0, 'rgba(5, 5, 5, 0.55)');
+    grad.addColorStop(1, 'rgba(5, 5, 5, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, 0, 2 + Math.random() * 4, len);
+  }
+
+  addNoise(ctx, w, h, 45);
+}
+
+// --- ДЕРЕВЯННЫЙ ПОЛ (тёмные доски) ---
+function drawWoodFloor(ctx, w, h) {
+  ctx.fillStyle = '#1e140d';
+  ctx.fillRect(0, 0, w, h);
+
+  const plankH = 48;
+  for (let y = 0; y < h; y += plankH) {
+    // оттенок доски
+    const shade = 25 + Math.random() * 25;
+    ctx.fillStyle = `rgb(${shade + 15}, ${shade + 2}, ${shade - 6})`;
+    ctx.fillRect(0, y, w, plankH - 2);
+
+    // волокна
+    for (let i = 0; i < 30; i++) {
+      ctx.strokeStyle = `rgba(0, 0, 0, ${0.04 + Math.random() * 0.16})`;
+      ctx.lineWidth = 0.4 + Math.random() * 1.0;
+      ctx.beginPath();
+      const gy = y + Math.random() * plankH;
+      ctx.moveTo(0, gy);
+      for (let x = 0; x < w; x += 16) {
+        ctx.lineTo(x, gy + Math.sin(x * 0.06 + y * 0.1) * 2 + (Math.random() - 0.5) * 2);
+      }
+      ctx.stroke();
+    }
+
+    // светлые волокна
+    for (let i = 0; i < 6; i++) {
+      ctx.strokeStyle = `rgba(110, 70, 40, ${0.04 + Math.random() * 0.08})`;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      const gy = y + Math.random() * plankH;
+      ctx.moveTo(0, gy);
+      for (let x = 0; x < w; x += 20) {
+        ctx.lineTo(x, gy + Math.sin(x * 0.05 + y) * 2);
+      }
+      ctx.stroke();
+    }
+
+    // щель между досками
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.fillRect(0, y + plankH - 2, w, 2);
+
+    // поперечные стыки
+    const offset = Math.random() * 200;
+    for (let x = offset; x < w; x += 130 + Math.random() * 160) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      ctx.fillRect(x, y, 2, plankH);
+    }
+  }
+
+  // потёртости / грязь
+  for (let i = 0; i < 25; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = 20 + Math.random() * 60;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(0, 0, 0, ${0.15 + Math.random() * 0.25})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  addNoise(ctx, w, h, 18);
+}
+
+// --- ПОТОЛОК / ПЕРЕКРЫТИЕ (пятна, трещины) ---
+function drawCeiling(ctx, w, h) {
+  ctx.fillStyle = '#2a2620';
+  ctx.fillRect(0, 0, w, h);
+
+  for (let i = 0; i < 90; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = 15 + Math.random() * 90;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const dark = Math.random() > 0.45;
+    g.addColorStop(0, dark
+      ? `rgba(8, 6, 4, ${0.2 + Math.random()*0.35})`
+      : `rgba(80, 65, 45, ${0.08 + Math.random()*0.15})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  // трещины
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+  for (let i = 0; i < 12; i++) {
+    ctx.lineWidth = 0.5 + Math.random() * 1.3;
+    ctx.beginPath();
+    let x = Math.random() * w;
+    let y = Math.random() * h;
+    ctx.moveTo(x, y);
+    for (let s = 0; s < 10 + Math.floor(Math.random() * 10); s++) {
+      x += (Math.random() - 0.5) * 35;
+      y += (Math.random() - 0.5) * 35;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  addNoise(ctx, w, h, 28);
+}
+
+// --- МЕБЕЛЬНОЕ ДЕРЕВО (плотное, тёмное) ---
+function drawFurnitureWood(ctx, w, h) {
+  ctx.fillStyle = '#2a1a10';
+  ctx.fillRect(0, 0, w, h);
+
+  for (let i = 0; i < 60; i++) {
+    ctx.strokeStyle = `rgba(0, 0, 0, ${0.05 + Math.random() * 0.2})`;
+    ctx.lineWidth = 0.5 + Math.random() * 1.5;
+    ctx.beginPath();
+    const y = Math.random() * h;
+    ctx.moveTo(0, y);
+    for (let x = 0; x < w; x += 12) {
+      ctx.lineTo(x, y + Math.sin(x * 0.1 + i) * 2 + (Math.random()-0.5)*1.5);
+    }
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < 8; i++) {
+    ctx.strokeStyle = `rgba(120, 75, 40, ${0.1 + Math.random() * 0.1})`;
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    const y = Math.random() * h;
+    ctx.moveTo(0, y);
+    for (let x = 0; x < w; x += 16) {
+      ctx.lineTo(x, y + Math.sin(x * 0.08 + i) * 2);
+    }
+    ctx.stroke();
+  }
+
+  addNoise(ctx, w, h, 16);
+}
+
+// --- ТЁМНЫЙ МЕТАЛЛ (с потёртостями) ---
+function drawMetal(ctx, w, h) {
+  ctx.fillStyle = '#3a3a40';
+  ctx.fillRect(0, 0, w, h);
+  for (let i = 0; i < 120; i++) {
+    const x = Math.random() * w, y = Math.random() * h;
+    const r = 5 + Math.random() * 40;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const dark = Math.random() > 0.5;
+    g.addColorStop(0, dark ? 'rgba(0,0,0,0.35)' : 'rgba(120,110,100,0.12)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  addNoise(ctx, w, h, 25);
+}
+
+// --- ПЛИТКА (для ванной/кухни) ---
+function drawTile(ctx, w, h) {
+  ctx.fillStyle = '#1a1a18';
+  ctx.fillRect(0, 0, w, h);
+  const s = 64;
+  for (let y = 0; y < h; y += s) {
+    for (let x = 0; x < w; x += s) {
+      const shade = 45 + Math.random() * 25;
+      ctx.fillStyle = `rgb(${shade}, ${shade - 3}, ${shade - 8})`;
+      ctx.fillRect(x + 2, y + 2, s - 4, s - 4);
+      // грязь в швах
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(x, y, s, 2);
+      ctx.fillRect(x, y, 2, s);
+    }
+  }
+  for (let i = 0; i < 30; i++) {
+    const x = Math.random() * w, y = Math.random() * h;
+    const r = 10 + Math.random() * 40;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(0,0,0,${0.2 + Math.random()*0.3})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  addNoise(ctx, w, h, 20);
+}
+
+// Создаём текстуры
+const texWallpaper = makeTex(512, 512, drawWallpaper, 2, 1);
+const texConcrete  = makeTex(512, 512, drawConcrete,  3, 2);
+const texFloor     = makeTex(512, 512, drawWoodFloor, 6, 5);
+const texCeiling   = makeTex(512, 512, drawCeiling,   3, 3);
+const texWood      = makeTex(256, 256, drawFurnitureWood, 1, 1);
+const texMetal     = makeTex(256, 256, drawMetal, 1, 1);
+const texTile      = makeTex(256, 256, drawTile, 1, 1);
+
 // ---------- МАТЕРИАЛЫ ----------
-const matWallOuter = new THREE.MeshStandardMaterial({ color: 0x585349, roughness: 1.0, metalness: 0.0 });
-const matWall      = new THREE.MeshStandardMaterial({ color: 0x8a8274, roughness: 0.97, metalness: 0.0 });
-const matSlab      = new THREE.MeshStandardMaterial({ color: 0x3d332a, roughness: 0.95 });
-const matWood      = new THREE.MeshStandardMaterial({ color: 0x63432a, roughness: 0.88 });
-const matWoodDark  = new THREE.MeshStandardMaterial({ color: 0x3a2718, roughness: 0.9 });
-const matDark      = new THREE.MeshStandardMaterial({ color: 0x1e1b18, roughness: 0.85 });
-const matFabric    = new THREE.MeshStandardMaterial({ color: 0x35283a, roughness: 1.0 });
-const matMetal     = new THREE.MeshStandardMaterial({ color: 0x55555c, roughness: 0.45, metalness: 0.7 });
-const matWhite     = new THREE.MeshStandardMaterial({ color: 0xb9b6a8, roughness: 0.7 });
-const matStone     = new THREE.MeshStandardMaterial({ color: 0x4a453e, roughness: 1.0 });
+const matWallOuter = new THREE.MeshStandardMaterial({
+  map: texConcrete, bumpMap: texConcrete, bumpScale: 0.04,
+  color: 0x9a9088, roughness: 1.0, metalness: 0.0
+});
+const matWall = new THREE.MeshStandardMaterial({
+  map: texWallpaper, bumpMap: texWallpaper, bumpScale: 0.025,
+  color: 0xb8a890, roughness: 0.97, metalness: 0.0
+});
+const matSlab = new THREE.MeshStandardMaterial({
+  map: texCeiling, bumpMap: texCeiling, bumpScale: 0.03,
+  color: 0x9a8f80, roughness: 0.98
+});
+const matWood = new THREE.MeshStandardMaterial({
+  map: texWood, bumpMap: texWood, bumpScale: 0.02,
+  color: 0xb0a090, roughness: 0.75
+});
+const matWoodDark = new THREE.MeshStandardMaterial({
+  map: texFloor, bumpMap: texFloor, bumpScale: 0.025,
+  color: 0x7a6a5a, roughness: 0.85
+});
+const matDark = new THREE.MeshStandardMaterial({
+  map: texWood, bumpMap: texWood, bumpScale: 0.02,
+  color: 0x3a3030, roughness: 0.9
+});
+const matFabric = new THREE.MeshStandardMaterial({ color: 0x2a1e28, roughness: 1.0 });
+const matMetal = new THREE.MeshStandardMaterial({
+  map: texMetal, bumpMap: texMetal, bumpScale: 0.01,
+  color: 0x8a8a92, roughness: 0.5, metalness: 0.65
+});
+const matWhite = new THREE.MeshStandardMaterial({
+  map: texTile, bumpMap: texTile, bumpScale: 0.015,
+  color: 0xc0bdb0, roughness: 0.65
+});
+const matStone = new THREE.MeshStandardMaterial({
+  map: texTile, bumpMap: texTile, bumpScale: 0.02,
+  color: 0x807870, roughness: 0.95
+});
 
 // ---------- СИСТЕМЫ КОЛЛИЗИЙ ----------
 const colliders = [];
@@ -232,12 +631,13 @@ for (let i = 0; i < STEPS; i++) {
   box(STAIR.x2 - STAIR.x1, topY, stepD, matWood,
       (STAIR.x1 + STAIR.x2) / 2, 0, zA + stepD / 2, false);
 }
+// Тонкая тёмная кромка на ступенях
 for (let i = 0; i < STEPS; i++) {
   const zA = STAIR.z1 + i * stepD + stepD;
   const topY = (i + 1) * stepH;
   const edge = new THREE.Mesh(
     new THREE.BoxGeometry(STAIR.x2 - STAIR.x1, 0.02, 0.03),
-    new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 1.0 })
+    new THREE.MeshStandardMaterial({ color: 0x1a1008, roughness: 1.0 })
   );
   edge.position.set((STAIR.x1 + STAIR.x2) / 2, topY + 0.01, zA - 0.015);
   edge.receiveShadow = true;
@@ -309,8 +709,8 @@ box(0.5, 0.85, 0.4, matWhite, 5.0, F1, -7.4);
    СВЕТ
    ============================================================ */
 
-scene.add(new THREE.AmbientLight(0x1b2434, 0.30));
-const hemi = new THREE.HemisphereLight(0x1a2436, 0x060606, 0.18);
+scene.add(new THREE.AmbientLight(0x141c2c, 0.22));
+const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.14);
 scene.add(hemi);
 
 const flickerLights = [];
@@ -334,20 +734,20 @@ function addRoomLight(x, y, z, color, intensity, distance) {
   return l;
 }
 
-addRoomLight(-5.5, 2.55, -4.0, 0xff9a4a, 0.55, 9);
-addRoomLight(-5.5, 2.55,  4.5, 0xffc07a, 0.42, 8);
-addRoomLight( 2.0, 2.55, -3.0, 0x6f8fbf, 0.30, 9);
-addRoomLight( 2.0, 2.55,  4.0, 0x6f8fbf, 0.28, 9);
-addRoomLight( 6.8, 2.55, -4.5, 0x8a7a5a, 0.22, 7);
-addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff9a4a, 0.45, 9);
-addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff9a4a, 0.40, 9);
-addRoomLight( 2.0, F1 + 2.55,  0.0, 0x6f8fbf, 0.28, 9);
-addRoomLight( 7.5, F1 + 2.55, -4.0, 0x88a0b8, 0.30, 7);
+addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 0.55, 9);
+addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.42, 8);
+addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.30, 9);
+addRoomLight( 2.0, 2.55,  4.0, 0x5f80b0, 0.28, 9);
+addRoomLight( 6.8, 2.55, -4.5, 0x806a4a, 0.22, 7);
+addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff8040, 0.45, 9);
+addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.40, 9);
+addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.28, 9);
+addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.30, 7);
 
 /* ============================================================
    ФОНАРИК
    ============================================================ */
-const flashlight = new THREE.SpotLight(0xfff0cf, 3.2, 34, Math.PI / 7.2, 0.42, 1.35);
+const flashlight = new THREE.SpotLight(0xfff0cf, 3.4, 34, Math.PI / 7.0, 0.42, 1.35);
 flashlight.castShadow = true;
 flashlight.shadow.mapSize.set(1024, 1024);
 flashlight.shadow.camera.near = 0.15;
@@ -391,7 +791,7 @@ flLens.position.z = -0.212;
 flLens.rotation.y = Math.PI;
 handGroup.add(flLens);
 
-const handMat = new THREE.MeshStandardMaterial({ color: 0x6b5744, roughness: 1.0 });
+const handMat = new THREE.MeshStandardMaterial({ color: 0x5a4535, roughness: 1.0 });
 const handMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.10, 0.20), handMat);
 handMesh.position.set(0.005, -0.035, 0.09);
 handGroup.add(handMesh);
@@ -441,7 +841,6 @@ document.addEventListener('keyup', (e) => {
 
 let pointerLocked = false;
 
-// === ИСПРАВЛЕНО: клик работает и по оверлею, и по канвасу ===
 function requestLock() {
   if (pointerLocked) return;
   try {
