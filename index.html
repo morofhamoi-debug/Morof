@@ -6,96 +6,54 @@
 <title>Тёмный Дом</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:100%; height:100%; overflow:hidden; background:#000;
-    font-family: 'Courier New', monospace; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Courier New', monospace; }
   canvas { display:block; }
   #overlay {
     position:fixed; inset:0; z-index:10; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background: radial-gradient(circle at 50% 40%, rgba(25,14,8,0.92), rgba(0,0,0,0.99));
-    color:#c9b48a; text-align:center; padding:20px;
-    transition: opacity .3s; touch-action: none;
+    color:#c9b48a; text-align:center; padding:20px; transition: opacity .3s; touch-action: none;
   }
-  #overlay h1 {
-    font-size: clamp(28px, 6vw, 54px);
-    letter-spacing: 8px; margin-bottom: 18px;
-    text-shadow: 0 0 24px rgba(255,80,20,0.5), 0 0 4px #000;
-    color:#e0c48a;
-  }
+  #overlay h1 { font-size: clamp(28px, 6vw, 54px); letter-spacing: 8px; margin-bottom: 18px;
+    text-shadow: 0 0 24px rgba(255,80,20,0.5), 0 0 4px #000; color:#e0c48a; }
   #overlay p { font-size: 15px; line-height: 2.0; opacity: 0.85; }
   #overlay .key { color:#ffb347; font-weight:bold; }
-  #overlay .hint {
-    margin-top: 30px; font-size: 13px; opacity: 0.55;
-    animation: pulse 1.8s infinite; letter-spacing: 2px;
-  }
+  #overlay .hint { margin-top: 30px; font-size: 13px; opacity: 0.55; animation: pulse 1.8s infinite; letter-spacing: 2px; }
   @keyframes pulse { 0%,100%{opacity:0.2} 50%{opacity:0.9} }
-  #hud {
-    position:fixed; bottom:14px; left:16px; z-index:5; pointer-events:none;
-    color:#8a7a5a; font-size:12px; letter-spacing:1px; text-shadow:0 0 8px #000;
-  }
-  body.mobile #hud {
-    top: calc(14px + env(safe-area-inset-top, 0px));
-    bottom: auto; font-size: 11px; left: 16px;
-  }
-  #crosshair {
-    position:fixed; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
-    background:rgba(255,255,255,0.30); border-radius:50%; z-index:5; pointer-events:none;
-    box-shadow: 0 0 6px rgba(0,0,0,0.8);
-  }
-  #vignette {
-    position:fixed; inset:0; pointer-events:none; z-index:4;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 25%, rgba(0,0,0,0.92) 100%);
-  }
-  #damage {
-    position:fixed; inset:0; pointer-events:none; z-index:3;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(30,0,0,0.35) 100%);
-    mix-blend-mode: multiply;
-  }
-  #grain {
-    position:fixed; inset:0; pointer-events:none; z-index:2;
-    opacity:0.05;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
-  }
+  #hud { position:fixed; bottom:14px; left:16px; z-index:5; pointer-events:none;
+    color:#8a7a5a; font-size:12px; letter-spacing:1px; text-shadow:0 0 8px #000; }
+  body.mobile #hud { top: calc(14px + env(safe-area-inset-top, 0px)); bottom: auto; font-size: 11px; left: 16px; }
+  #crosshair { position:fixed; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
+    background:rgba(255,255,255,0.30); border-radius:50%; z-index:5; pointer-events:none; box-shadow: 0 0 6px rgba(0,0,0,0.8); }
+  #vignette { position:fixed; inset:0; pointer-events:none; z-index:4;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 25%, rgba(0,0,0,0.92) 100%); }
+  #damage { position:fixed; inset:0; pointer-events:none; z-index:3;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(30,0,0,0.35) 100%); mix-blend-mode: multiply; }
+  #grain { position:fixed; inset:0; pointer-events:none; z-index:2; opacity:0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>"); }
   #mobile-controls { position: fixed; inset: 0; z-index: 8; pointer-events: none; display: none; }
   #mobile-controls.active { display: block; }
   #move-zone { position: absolute; left: 0; top: 0; width: 45%; height: 100%; pointer-events: auto; touch-action: none; }
   #look-zone { position: absolute; right: 0; top: 0; width: 55%; height: 100%; pointer-events: auto; touch-action: none; }
-  #joystick {
-    position: fixed; width: 130px; height: 130px;
-    margin-left: -65px; margin-top: -65px; border-radius: 50%;
+  #joystick { position: fixed; width: 130px; height: 130px; margin-left: -65px; margin-top: -65px; border-radius: 50%;
     border: 2px solid rgba(200, 180, 140, 0.35);
     background: radial-gradient(circle, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.4) 100%);
-    display: none; z-index: 9; pointer-events: none;
-    box-shadow: 0 0 24px rgba(0,0,0,0.55) inset;
-  }
-  #joystick-stick {
-    position: absolute; left: 50%; top: 50%;
-    width: 56px; height: 56px; margin-left: -28px; margin-top: -28px; border-radius: 50%;
+    display: none; z-index: 9; pointer-events: none; box-shadow: 0 0 24px rgba(0,0,0,0.55) inset; }
+  #joystick-stick { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px;
+    margin-left: -28px; margin-top: -28px; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, rgba(240, 220, 180, 0.6), rgba(160, 130, 90, 0.35));
-    border: 2px solid rgba(220, 200, 160, 0.7);
-    box-shadow: 0 0 14px rgba(255, 200, 120, 0.25);
-    pointer-events: none;
-  }
-  #flashlight-btn {
-    position: fixed;
-    top: calc(16px + env(safe-area-inset-top, 0px));
+    border: 2px solid rgba(220, 200, 160, 0.7); box-shadow: 0 0 14px rgba(255, 200, 120, 0.25); pointer-events: none; }
+  #flashlight-btn { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px));
     right: calc(16px + env(safe-area-inset-right, 0px));
-    width: 58px; height: 58px; border-radius: 50%;
-    background: rgba(18, 14, 10, 0.6);
-    border: 2px solid rgba(120, 100, 70, 0.5);
-    display: none; align-items: center; justify-content: center;
-    z-index: 12; pointer-events: auto; touch-action: none;
-    color: #6a5a3a; box-shadow: 0 0 16px rgba(0,0,0,0.6);
-    transition: background 0.15s, box-shadow 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
-    -webkit-tap-highlight-color: transparent; user-select: none;
-  }
+    width: 58px; height: 58px; border-radius: 50%; background: rgba(18, 14, 10, 0.6);
+    border: 2px solid rgba(120, 100, 70, 0.5); display: none; align-items: center; justify-content: center;
+    z-index: 12; pointer-events: auto; touch-action: none; color: #6a5a3a; box-shadow: 0 0 16px rgba(0,0,0,0.6);
+    transition: all 0.15s; -webkit-tap-highlight-color: transparent; user-select: none; }
   #flashlight-btn.active { display: flex; }
   #flashlight-btn svg { width: 34px; height: 34px; display: block; }
-  #flashlight-btn.on {
-    color: #ffd27a; background: rgba(50, 35, 15, 0.78);
+  #flashlight-btn.on { color: #ffd27a; background: rgba(50, 35, 15, 0.78);
     border-color: rgba(255, 200, 120, 0.7);
-    box-shadow: 0 0 22px rgba(255, 180, 80, 0.55), 0 0 8px rgba(255, 200, 120, 0.4) inset;
-  }
+    box-shadow: 0 0 22px rgba(255, 180, 80, 0.55), 0 0 8px rgba(255, 200, 120, 0.4) inset; }
   #flashlight-btn:active { transform: scale(0.93); }
 </style>
 </head>
@@ -136,18 +94,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
-   ТЁМНЫЙ ДОМ — реалистичная мебель + правильная расстановка
+   ТЁМНЫЙ ДОМ — реалистичная мебель с правильной ориентацией
+   Локальная система: front = +Z, right = +X.
+   facing = направление, куда смотрит ПЕРЕД мебели в мире.
    ============================================================ */
 
 const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
               || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
 if (isMobile) document.body.classList.add('mobile');
 
-const T      = 0.30;
-const F1     = 3.20;
-const SLAB_B = 2.90;
-const F2     = 6.40;
-const STAIR  = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
+const T = 0.30, F1 = 3.20, SLAB_B = 2.90, F2 = 6.40;
+const STAIR = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020304);
@@ -227,8 +184,7 @@ function drawWoodFloor(ctx, w, h) {
     ctx.fillStyle = `rgb(${shade+15},${shade+2},${shade-6})`;
     ctx.fillRect(0,y,w,plankH-2);
     for (let i = 0; i < 20; i++) {
-      ctx.strokeStyle = `rgba(0,0,0,${0.04+Math.random()*0.16})`;
-      ctx.lineWidth = 0.4 + Math.random();
+      ctx.strokeStyle = `rgba(0,0,0,${0.04+Math.random()*0.16})`; ctx.lineWidth = 0.4 + Math.random();
       ctx.beginPath(); const gy = y + Math.random()*plankH; ctx.moveTo(0,gy);
       for (let x = 0; x < w; x += 16) ctx.lineTo(x, gy + Math.sin(x*0.06 + y*0.1)*2);
       ctx.stroke();
@@ -250,8 +206,7 @@ function drawCeiling(ctx, w, h) {
 function drawFurnitureWood(ctx, w, h) {
   ctx.fillStyle = '#2a1a10'; ctx.fillRect(0,0,w,h);
   for (let i = 0; i < 50; i++) {
-    ctx.strokeStyle = `rgba(0,0,0,${0.05+Math.random()*0.2})`;
-    ctx.lineWidth = 0.5 + Math.random()*1.5;
+    ctx.strokeStyle = `rgba(0,0,0,${0.05+Math.random()*0.2})`; ctx.lineWidth = 0.5 + Math.random()*1.5;
     ctx.beginPath(); const y = Math.random()*h; ctx.moveTo(0,y);
     for (let x = 0; x < w; x += 12) ctx.lineTo(x, y + Math.sin(x*0.1 + i)*2);
     ctx.stroke();
@@ -273,8 +228,7 @@ function drawTile(ctx, w, h) {
   const s = 64;
   for (let y = 0; y < h; y += s) for (let x = 0; x < w; x += s) {
     const shade = 45 + Math.random()*25;
-    ctx.fillStyle = `rgb(${shade},${shade-3},${shade-8})`;
-    ctx.fillRect(x+2,y+2,s-4,s-4);
+    ctx.fillStyle = `rgb(${shade},${shade-3},${shade-8})`; ctx.fillRect(x+2,y+2,s-4,s-4);
     ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x,y,s,2); ctx.fillRect(x,y,2,s);
   }
   addNoise(ctx, w, h, 20);
@@ -283,8 +237,7 @@ function drawFabric(ctx, w, h) {
   ctx.fillStyle = '#3a2a32'; ctx.fillRect(0,0,w,h);
   for (let y = 0; y < h; y += 3) for (let x = 0; x < w; x += 3) {
     const n = Math.random()*40;
-    ctx.fillStyle = `rgba(${60+n},${45+n},${55+n},0.5)`;
-    ctx.fillRect(x,y,2,2);
+    ctx.fillStyle = `rgba(${60+n},${45+n},${55+n},0.5)`; ctx.fillRect(x,y,2,2);
   }
   addNoise(ctx, w, h, 25);
 }
@@ -308,7 +261,6 @@ const texWood      = makeTex(256, 256, drawFurnitureWood, 1, 1);
 const texMetal     = makeTex(256, 256, drawMetal, 1, 1);
 const texTile      = makeTex(256, 256, drawTile, 1, 1);
 const texFabric    = makeTex(128, 128, drawFabric, 3, 3);
-const texLeather   = makeTex(128, 128, drawFabric, 3, 3);
 const texMarble    = makeTex(256, 256, drawMarble, 1, 1);
 
 /* ---------- МАТЕРИАЛЫ ---------- */
@@ -356,7 +308,7 @@ const matBookMats  = [
   new THREE.MeshStandardMaterial({ color: 0x2a4a4a, roughness: 0.9 })
 ];
 
-/* ---------- КОЛЛИЗИИ ---------- */
+/* ---------- КОЛЛИЗИИ + БАЗОВЫЕ ПРИМИТИВЫ ---------- */
 const colliders = [];
 const floorRects = [];
 const flickerLights = [];
@@ -379,6 +331,40 @@ function cyl(rt, rb, h, mat, x, y, z, seg = 12) {
   scene.add(m);
   return m;
 }
+
+/* ============================================================
+   ЛОКАЛЬНАЯ СИСТЕМА КООРДИНАТ
+   front = +Z (куда смотрит мебель), right = +X
+   facing = куда "лицо" мебели смотрит в мире
+   ============================================================ */
+function localToWorld(cx, cz, lx, lz, facing) {
+  switch (facing) {
+    case 'z+': return { x: cx + lx, z: cz + lz };
+    case 'z-': return { x: cx - lx, z: cz - lz };
+    case 'x+': return { x: cx + lz, z: cz - lx };
+    case 'x-': return { x: cx - lz, z: cz + lx };
+    default:   return { x: cx + lx, z: cz + lz };
+  }
+}
+function rotDims(lw, ld, facing) {
+  const horiz = (facing === 'x+' || facing === 'x-');
+  return { w: horiz ? ld : lw, d: horiz ? lw : ld };
+}
+function lbox(lw, lh, ld, lx, ly, lz, mat, cx, cz, facing, collide) {
+  const p = localToWorld(cx, cz, lx, lz, facing);
+  const rd = rotDims(lw, ld, facing);
+  return box(rd.w, lh, rd.d, mat, p.x, ly, p.z, collide);
+}
+function lcyl(r, h, lx, ly, lz, mat, cx, cz, facing, seg) {
+  const p = localToWorld(cx, cz, lx, lz, facing);
+  return cyl(r, r, h, mat, p.x, ly, p.z, seg);
+}
+function lCollider(cx, cz, lw, ld, ly, lh, facing) {
+  const rd = rotDims(lw, ld, facing);
+  addCollider(cx - rd.w/2, cx + rd.w/2, cz - rd.d/2, cz + rd.d/2, ly, ly + lh);
+}
+
+/* ---------- СТЕНЫ ---------- */
 function wallX(x1, x2, z, y0, y1, mat = matWall, collide = true) {
   if (x2 - x1 <= 0 || y1 - y0 <= 0) return;
   box(x2 - x1, y1 - y0, T, mat, (x1+x2)/2, y0, z, collide);
@@ -474,467 +460,388 @@ for (let i = 0; i < STEPS; i++) {
 box(20, 0.35, 16, matWallOuter, 0, F2, 0, false);
 
 /* ============================================================
-   ФУНКЦИИ МЕБЕЛИ (с поддержкой facing)
-   facing: 'z+' — «спинка» на -z, «лицо» на +z (по умолчанию)
-           'z-' — «спинка» на +z, «лицо» на -z
-           'x+' — «спинка» на -x, «лицо» на +x
-           'x-' — «спинка» на +x, «лицо» на -x
+   МЕБЕЛЬ — 4-направленная ориентация
    ============================================================ */
 
-// ДИВАН / КРЕСЛО
-function buildSofa(x, z, w, d, fabricMat, seatMat, facing = 'z+') {
-  const sgn = facing === 'z-' ? -1 : 1;
+/* ДИВАН / КРЕСЛО */
+function buildSofa(cx, cz, w, d, fabricMat, seatMat, facing = 'z+') {
   const legH = 0.12, seatY = legH + 0.18;
   const armW = 0.22, armH = 0.55;
   const backH = 0.65, backT = 0.22;
   const innerW = w - armW * 2;
 
-  // Ножки
+  // Ножки по углам
   for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
                           [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
-    cyl(0.04, 0.044, legH, matWoodDeep, x + lx, 0, z + lz, 8);
+    lcyl(0.04, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
   }
   // Основание
-  box(w, 0.22, d, fabricMat, x, legH, z, false);
-  // Сиденье
+  lbox(w, 0.22, d, 0, legH, 0, fabricMat, cx, cz, facing, false);
+  // Сиденье (подушки)
   const seatDepth = d - backT - 0.05;
   const nSeats = Math.max(2, Math.round(innerW / 0.8));
   const seatW = innerW / nSeats;
-  const seatCenterZ = z + sgn * (backT/2 + 0.02);
+  const seatZ = backT/2 + 0.02;
   for (let i = 0; i < nSeats; i++) {
-    const sx = x - innerW/2 + seatW * (i + 0.5);
-    box(seatW - 0.03, 0.14, seatDepth - 0.03, seatMat, sx, seatY, seatCenterZ, false);
-    box(seatW - 0.03, 0.06, 0.03, seatMat, sx, seatY + 0.10, seatCenterZ + sgn * (seatDepth - 0.04)/2, false);
+    const sx = -innerW/2 + seatW * (i + 0.5);
+    lbox(seatW - 0.03, 0.14, seatDepth - 0.03, sx, seatY, seatZ, seatMat, cx, cz, facing, false);
+    lbox(seatW - 0.03, 0.06, 0.03, sx, seatY + 0.10, seatZ + (seatDepth - 0.04)/2, seatMat, cx, cz, facing, false);
   }
   // Подлокотники
   for (const side of [-1, 1]) {
-    const ax = x + side * (w/2 - armW/2);
-    box(armW, armH - legH, d, fabricMat, ax, legH, z, false);
-    box(armW - 0.02, 0.06, d - 0.02, fabricMat, ax, legH + armH - legH, z, false);
+    const ax = side * (w/2 - armW/2);
+    lbox(armW, armH - legH, d, ax, legH, 0, fabricMat, cx, cz, facing, false);
+    lbox(armW - 0.02, 0.06, d - 0.02, ax, legH + armH - legH, 0, fabricMat, cx, cz, facing, false);
   }
   // Спинка
-  const backZ = z + sgn * (-d/2 + backT/2);
-  box(w, backH, backT, fabricMat, x, legH + 0.22, backZ, false);
-  box(w - 0.02, 0.06, backT - 0.02, fabricMat, x, legH + 0.22 + backH, backZ, false);
+  const backZ = -d/2 + backT/2;
+  lbox(w, backH, backT, 0, legH + 0.22, backZ, fabricMat, cx, cz, facing, false);
+  lbox(w - 0.02, 0.06, backT - 0.02, 0, legH + 0.22 + backH, backZ, fabricMat, cx, cz, facing, false);
   // Подушки спинки
-  const cushionZ = z + sgn * (-d/2 + backT + 0.08);
+  const cushionZ = -d/2 + backT + 0.08;
   for (let i = 0; i < nSeats; i++) {
-    const sx = x - innerW/2 + seatW * (i + 0.5);
-    box(seatW - 0.08, 0.42, 0.14, seatMat, sx, seatY + 0.20, cushionZ, false);
+    const sx = -innerW/2 + seatW * (i + 0.5);
+    lbox(seatW - 0.08, 0.42, 0.14, sx, seatY + 0.20, cushionZ, seatMat, cx, cz, facing, false);
   }
   // Декоративные подушки
-  box(0.4, 0.36, 0.14, matPillow, x - innerW/2 + 0.25, seatY + 0.20, cushionZ, false);
-  box(0.4, 0.36, 0.14, matPillow, x + innerW/2 - 0.25, seatY + 0.20, cushionZ, false);
+  lbox(0.4, 0.36, 0.14, -innerW/2 + 0.25, seatY + 0.20, cushionZ, matPillow, cx, cz, facing, false);
+  lbox(0.4, 0.36, 0.14,  innerW/2 - 0.25, seatY + 0.20, cushionZ, matPillow, cx, cz, facing, false);
 
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, armH + legH + 0.05);
+  lCollider(cx, cz, w, d, 0, armH + legH + 0.05, facing);
 }
 function buildArmchair(x, z, fabricMat, seatMat, facing = 'z+') {
   buildSofa(x, z, 0.9, 0.9, fabricMat, seatMat, facing);
 }
 
-// ЖУРНАЛЬНЫЙ СТОЛИК
-function buildCoffeeTable(x, z, w, d) {
+/* ЖУРНАЛЬНЫЙ СТОЛИК */
+function buildCoffeeTable(cx, cz, w, d, facing = 'z+') {
   const topH = 0.42, legH = topH - 0.04;
   for (const [lx, lz] of [[-w/2+0.08, -d/2+0.08], [w/2-0.08, -d/2+0.08],
                           [-w/2+0.08,  d/2-0.08], [w/2-0.08,  d/2-0.08]]) {
-    cyl(0.03, 0.04, legH, matWoodDeep, x + lx, 0, z + lz, 8);
+    lcyl(0.035, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
   }
-  box(w, 0.05, d, matWoodOak, x, legH, z, false);
-  box(w - 0.15, 0.03, d - 0.15, matWoodOak, x, legH*0.4, z, false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, topH);
+  lbox(w, 0.05, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w - 0.15, 0.03, d - 0.15, 0, legH*0.4, 0, matWoodOak, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, topH, facing);
 }
 
-// КОМОД / ТУМБА (facing: куда смотрят ящики)
-function buildDresser(x, z, w, h, d, drawers, mat = matWood, facing = 'z+') {
-  const sgn = facing === 'z-' ? -1 : 1;
+/* КОМОД / ТУМБА — ящики лицом к "facing" */
+function buildDresser(cx, cz, w, h, d, drawers, mat = matWood, facing = 'z+') {
   const legH = 0.10;
   for (const [lx, lz] of [[-w/2+0.06, -d/2+0.06], [w/2-0.06, -d/2+0.06],
                           [-w/2+0.06,  d/2-0.06], [w/2-0.06,  d/2-0.06]]) {
-    cyl(0.025, 0.03, legH, matWoodDeep, x + lx, 0, z + lz, 6);
+    lcyl(0.028, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
   }
-  box(w, h - legH, d, mat, x, legH, z, false);
-  box(w + 0.04, 0.03, d + 0.04, matWoodOak, x, h, z, false);
+  lbox(w, h - legH, d, 0, legH, 0, mat, cx, cz, facing, false);
+  lbox(w + 0.04, 0.03, d + 0.04, 0, h, 0, matWoodOak, cx, cz, facing, false);
   const innerH = h - legH - 0.06;
   const drawerH = innerH / drawers;
-  const frontZ = z + sgn * (d/2 + 0.005);
+  const frontZ = d/2 + 0.005;
   for (let i = 0; i < drawers; i++) {
     const dy = legH + 0.03 + i * drawerH;
-    box(w - 0.10, drawerH - 0.03, 0.02, matWoodOak, x, dy + 0.015, frontZ, false);
-    box(0.14, 0.018, 0.02, matHandle, x, dy + drawerH/2, frontZ + sgn * 0.03, false);
+    lbox(w - 0.10, drawerH - 0.03, 0.02, 0, dy + 0.015, frontZ, matWoodOak, cx, cz, facing, false);
+    lbox(0.14, 0.018, 0.02, 0, dy + drawerH/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
   }
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 function buildNightstand(x, z, mat = matWood, facing = 'z+') {
   buildDresser(x, z, 0.5, 0.55, 0.4, 2, mat, facing);
 }
 
-// ШКАФ (facing: куда смотрят дверцы)
-function buildWardrobe(x, z, w, h, d, mat = matWood, facing = 'z+') {
-  const sgn = facing === 'z-' ? -1 : 1;
-  box(w, h, d, mat, x, 0, z, false);
-  box(w - 0.05, 0.08, d - 0.05, matWoodDeep, x, 0, z, false);
-  box(w + 0.06, 0.06, d + 0.06, matWoodDeep, x, h, z, false);
+/* ШКАФ — дверцы лицом к "facing" */
+function buildWardrobe(cx, cz, w, h, d, mat = matWood, facing = 'z+') {
+  lbox(w, h, d, 0, 0, 0, mat, cx, cz, facing, false);
+  lbox(w - 0.05, 0.08, d - 0.05, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w + 0.06, 0.06, d + 0.06, 0, h, 0, matWoodDeep, cx, cz, facing, false);
   const doorW = (w - 0.06) / 2;
-  const frontZ = z + sgn * (d/2 + 0.005);
-  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x - doorW/2 - 0.015, 0.10, frontZ, false);
-  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x + doorW/2 + 0.015, 0.10, frontZ, false);
-  box(0.02, 0.14, 0.02, matHandle, x - 0.04, h/2, frontZ + sgn * 0.03, false);
-  box(0.02, 0.14, 0.02, matHandle, x + 0.04, h/2, frontZ + sgn * 0.03, false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  const frontZ = d/2 + 0.005;
+  lbox(doorW - 0.01, h - 0.20, 0.025, -doorW/2 - 0.015, 0.10, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(doorW - 0.01, h - 0.20, 0.025,  doorW/2 + 0.015, 0.10, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(0.02, 0.14, 0.02, -0.04, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lbox(0.02, 0.14, 0.02,  0.04, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-// КРОВАТЬ (facing: где изголовье)
-function buildBed(x, z, mat = matWood, facing = 'z+') {
-  // facing 'z+': изголовье на -z (изголовье у северной стены)
-  const sgn = facing === 'z-' ? -1 : 1;
+/* КРОВАТЬ — изголовье со стороны, противоположной "facing" */
+/* facing = направление, куда смотрит изножье (от изголовья) */
+function buildBed(cx, cz, mat = matWood, facing = 'z+') {
   const bedW = 1.55, bedL = 2.05;
   const frameH = 0.35, mattressH = 0.22;
+  const headZ = -bedL/2 - 0.05;
+  const footZ = bedL/2 + 0.04;
 
-  // Каркас
-  box(bedW + 0.06, frameH, bedL + 0.06, matWoodOak, x, 0, z, false);
-  box(bedW, 0.10, bedL, matWoodDeep, x, 0, z, false);
-  // Изголовье
-  const headZ = z + sgn * (-bedL/2 - 0.05);
-  box(bedW + 0.06, 1.0, 0.10, matWoodOak, x, 0, headZ, false);
+  lbox(bedW + 0.06, frameH, bedL + 0.06, 0, 0, 0, matWoodOak, cx, cz, facing, false);
+  lbox(bedW, 0.10, bedL, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(bedW + 0.06, 1.0, 0.10, 0, 0, headZ, matWoodOak, cx, cz, facing, false);
+  // Планки изголовья
   for (let i = 0; i < 7; i++) {
-    const px = x - bedW/2 + 0.15 + i * (bedW - 0.30) / 6;
-    box(0.05, 0.55, 0.05, matWoodOak, px, 0.42, headZ, false);
+    const px = -bedW/2 + 0.15 + i * (bedW - 0.30) / 6;
+    lbox(0.05, 0.55, 0.05, px, 0.42, headZ, matWoodOak, cx, cz, facing, false);
   }
-  box(bedW + 0.10, 0.08, 0.12, matWoodOak, x, 1.0, headZ, false);
-  // Изножье
-  const footZ = z + sgn * (bedL/2 + 0.04);
-  box(bedW + 0.06, 0.55, 0.08, matWoodOak, x, 0, footZ, false);
+  lbox(bedW + 0.10, 0.08, 0.12, 0, 1.0, headZ, matWoodOak, cx, cz, facing, false);
+  lbox(bedW + 0.06, 0.55, 0.08, 0, 0, footZ, matWoodOak, cx, cz, facing, false);
   // Матрас
-  box(bedW, mattressH, bedL, matMattress, x, frameH, z, false);
-  box(bedW + 0.02, 0.04, bedL - 0.05, matSheet, x, frameH + mattressH, z, false);
+  lbox(bedW, mattressH, bedL, 0, frameH, 0, matMattress, cx, cz, facing, false);
+  lbox(bedW + 0.02, 0.04, bedL - 0.05, 0, frameH + mattressH, 0, matSheet, cx, cz, facing, false);
   // Одеяло
-  box(bedW - 0.05, 0.06, bedL * 0.65, matBlanket, x, frameH + mattressH + 0.04, z + sgn * (bedL * 0.17), false);
-  box(bedW - 0.05, 0.04, 0.20, matSheet, x, frameH + mattressH + 0.06, z - sgn * (bedL * 0.15), false);
+  lbox(bedW - 0.05, 0.06, bedL * 0.65, 0, frameH + mattressH + 0.04, bedL * 0.17, matBlanket, cx, cz, facing, false);
+  lbox(bedW - 0.05, 0.04, 0.20, 0, frameH + mattressH + 0.06, -bedL * 0.15, matSheet, cx, cz, facing, false);
   // Подушки
-  const pillowZ = z + sgn * (-bedL/2 + 0.35);
-  box(0.62, 0.14, 0.40, matPillow, x - 0.36, frameH + mattressH + 0.04, pillowZ, false);
-  box(0.62, 0.14, 0.40, matPillow, x + 0.36, frameH + mattressH + 0.04, pillowZ, false);
-  box(0.60, 0.02, 0.36, matPillow, x - 0.36, frameH + mattressH + 0.18, pillowZ, false);
-  box(0.60, 0.02, 0.36, matPillow, x + 0.36, frameH + mattressH + 0.18, pillowZ, false);
+  const pillowZ = -bedL/2 + 0.35;
+  lbox(0.62, 0.14, 0.40, -0.36, frameH + mattressH + 0.04, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.62, 0.14, 0.40,  0.36, frameH + mattressH + 0.04, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.60, 0.02, 0.36, -0.36, frameH + mattressH + 0.18, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.60, 0.02, 0.36,  0.36, frameH + mattressH + 0.18, pillowZ, matPillow, cx, cz, facing, false);
 
-  addCollider(x - bedW/2 - 0.03, x + bedW/2 + 0.03, z - bedL/2 - 0.10, z + bedL/2 + 0.05, 0, 0.9);
+  lCollider(cx, cz, bedW + 0.06, bedL + 0.15, 0, 0.9, facing);
 }
 
-// ОБЕДЕННЫЙ СТОЛ
-function buildTable(x, z, w, d) {
+/* ОБЕДЕННЫЙ СТОЛ */
+function buildTable(cx, cz, w, d, facing = 'z+') {
   const h = 0.75, topT = 0.05, legH = h - topT, legR = 0.045;
   for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
                           [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
-    cyl(legR, legR*1.1, legH, matWoodDeep, x + lx, 0, z + lz, 8);
+    lcyl(legR, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
   }
-  box(w - 0.20, 0.08, 0.04, matWoodDeep, x, legH - 0.08, z - d/2 + 0.20, false);
-  box(w - 0.20, 0.08, 0.04, matWoodDeep, x, legH - 0.08, z + d/2 - 0.20, false);
-  box(0.04, 0.08, d - 0.20, matWoodDeep, x - w/2 + 0.20, legH - 0.08, z, false);
-  box(0.04, 0.08, d - 0.20, matWoodDeep, x + w/2 - 0.20, legH - 0.08, z, false);
-  box(w, topT, d, matWoodOak, x, legH, z, false);
-  box(w + 0.04, 0.02, d + 0.04, matWoodDeep, x, legH + topT, z, false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  lbox(w - 0.20, 0.08, 0.04, 0, legH - 0.08, -d/2 + 0.20, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.20, 0.08, 0.04, 0, legH - 0.08,  d/2 - 0.20, matWoodDeep, cx, cz, facing, false);
+  lbox(0.04, 0.08, d - 0.20, -w/2 + 0.20, legH - 0.08, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(0.04, 0.08, d - 0.20,  w/2 - 0.20, legH - 0.08, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w, topT, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-// СТУЛ
-function buildChair(x, z, facing = 1, mat = matWood) {
+/* СТУЛ — спинка с противоположной стороны от "facing" */
+/* facing = направление, куда смотрит сидящий человек (напр. на стол) */
+function buildChair(cx, cz, facing = 'z+', mat = matWood) {
   const seatH = 0.45, seatT = 0.05, legH = seatH - seatT;
   const backH = 0.50, backT = 0.04, w = 0.42, d = 0.42;
   for (const [lx, lz] of [[-w/2+0.04, -d/2+0.04], [w/2-0.04, -d/2+0.04],
                           [-w/2+0.04,  d/2-0.04], [w/2-0.04,  d/2-0.04]]) {
-    cyl(0.022, 0.025, legH, matWoodDeep, x + lx, 0, z + lz, 6);
+    lcyl(0.022, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
   }
-  box(w - 0.08, 0.04, 0.02, matWoodDeep, x, legH - 0.06, z - d/2 + 0.04, false);
-  box(w - 0.08, 0.04, 0.02, matWoodDeep, x, legH - 0.06, z + d/2 - 0.04, false);
-  box(0.02, 0.04, d - 0.08, matWoodDeep, x - w/2 + 0.04, legH - 0.06, z, false);
-  box(0.02, 0.04, d - 0.08, matWoodDeep, x + w/2 - 0.04, legH - 0.06, z, false);
-  box(w, seatT, d, matWoodOak, x, legH, z, false);
-  const bz = facing > 0 ? z + d/2 - 0.02 : z - d/2 + 0.02;
-  box(w, backH, backT, matWoodOak, x, seatH, bz, false);
+  lbox(w - 0.08, 0.04, 0.02, 0, legH - 0.06, -d/2 + 0.04, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.08, 0.04, 0.02, 0, legH - 0.06,  d/2 - 0.04, matWoodDeep, cx, cz, facing, false);
+  lbox(0.02, 0.04, d - 0.08, -w/2 + 0.04, legH - 0.06, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(0.02, 0.04, d - 0.08,  w/2 - 0.04, legH - 0.06, 0, matWoodDeep, cx, cz, facing, false);
+  // Сиденье
+  lbox(w, seatT, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
+  // Спинка — на ЗАДНЕЙ стороне (local -Z, т.к. front=+Z — это лицо сидящего)
+  const bz = -d/2 + 0.02;
+  lbox(w, backH, backT, 0, seatH, bz, matWoodOak, cx, cz, facing, false);
   for (let i = 0; i < 3; i++) {
-    const px = x - w/2 + 0.07 + i * (w - 0.14) / 2;
-    box(0.03, backH - 0.06, 0.025, matWoodOak, px, seatH + 0.03, bz, false);
+    const px = -w/2 + 0.07 + i * (w - 0.14) / 2;
+    lbox(0.03, backH - 0.06, 0.025, px, seatH + 0.03, bz, matWoodOak, cx, cz, facing, false);
   }
-  box(w + 0.02, 0.05, backT + 0.02, matWoodOak, x, seatH + backH, bz, false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, seatH + 0.05);
+  lbox(w + 0.02, 0.05, backT + 0.02, 0, seatH + backH, bz, matWoodOak, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, seatH + 0.05, facing);
 }
 
-// КНИЖНЫЙ ШКАФ (facing: 'x+'/'x-'/'z+'/'z-')
-function buildBookshelf(x, y0, z, w, h, d, facing) {
+/* КНИЖНЫЙ ШКАФ */
+function buildBookshelf(cx, cz, w, h, d, facing, y0 = 0) {
   const shelfT = 0.03, sideT = 0.05;
-  const dir  = facing === 'z+' ? 1 : facing === 'z-' ? -1 : 0;
-  const dirX = facing === 'x+' ? 1 : facing === 'x-' ? -1 : 0;
-  if (dir !== 0) {
-    box(sideT, h, d, matWood, x - w/2 + sideT/2, y0, z, false);
-    box(sideT, h, d, matWood, x + w/2 - sideT/2, y0, z, false);
-    box(w, h, 0.02, matWoodDeep, x, y0, z - dir * (d/2 - 0.01), false);
-    box(w, 0.04, d, matWoodOak, x, y0, z, false);
-    box(w, 0.04, d, matWoodOak, x, y0 + h - 0.04, z, false);
-    const shelfCount = Math.max(2, Math.floor(h / 0.42));
-    const shelfStep = (h - 0.08) / shelfCount;
-    for (let s = 1; s < shelfCount; s++) {
-      box(w - 0.10, shelfT, d - 0.05, matWoodOak, x, y0 + s * shelfStep, z, false);
-    }
-    for (let s = 0; s < shelfCount; s++) {
-      const sy = y0 + 0.04 + s * shelfStep + shelfT;
-      const books = 4 + Math.floor(Math.random() * 5);
-      let bx = x - (w - 0.20) / 2;
-      for (let b = 0; b < books; b++) {
-        const bw = 0.03 + Math.random() * 0.03;
-        const bh = 0.20 + Math.random() * 0.16;
-        const bmat = matBookMats[Math.floor(Math.random() * matBookMats.length)];
-        box(bw, bh, d - 0.12, bmat, bx + bw/2, sy, z, false);
-        bx += bw + 0.005;
-        if (bx > x + (w - 0.20) / 2 - 0.05) break;
-      }
-    }
-  } else {
-    box(w, h, sideT, matWood, x, y0, z - d/2 + sideT/2, false);
-    box(w, h, sideT, matWood, x, y0, z + d/2 - sideT/2, false);
-    box(w, h, 0.02, matWoodDeep, x - dirX * (w/2 - 0.01), y0, z, false);
-    box(w, 0.04, d, matWoodOak, x, y0, z, false);
-    box(w, 0.04, d, matWoodOak, x, y0 + h - 0.04, z, false);
-    const shelfCount = Math.max(2, Math.floor(h / 0.42));
-    const shelfStep = (h - 0.08) / shelfCount;
-    for (let s = 1; s < shelfCount; s++) {
-      box(w - 0.05, shelfT, d - 0.10, matWoodOak, x, y0 + s * shelfStep, z, false);
-    }
-    for (let s = 0; s < shelfCount; s++) {
-      const sy = y0 + 0.04 + s * shelfStep + shelfT;
-      const books = 4 + Math.floor(Math.random() * 5);
-      let bz = z - (d - 0.20) / 2;
-      for (let b = 0; b < books; b++) {
-        const bw = 0.03 + Math.random() * 0.03;
-        const bh = 0.20 + Math.random() * 0.16;
-        const bmat = matBookMats[Math.floor(Math.random() * matBookMats.length)];
-        box(w - 0.12, bh, bw, bmat, x, sy, bz + bw/2, false);
-        bz += bw + 0.005;
-        if (bz > z + (d - 0.20) / 2 - 0.05) break;
-      }
+  // Боковые панели
+  lbox(sideT, h, d, -w/2 + sideT/2, y0, 0, matWood, cx, cz, facing, false);
+  lbox(sideT, h, d,  w/2 - sideT/2, y0, 0, matWood, cx, cz, facing, false);
+  // Задняя стенка (local -Z)
+  lbox(w, h, 0.02, 0, y0, -d/2 + 0.01, matWoodDeep, cx, cz, facing, false);
+  // Верх и низ
+  lbox(w, 0.04, d, 0, y0, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w, 0.04, d, 0, y0 + h - 0.04, 0, matWoodOak, cx, cz, facing, false);
+  // Полки
+  const shelfCount = Math.max(2, Math.floor(h / 0.42));
+  const shelfStep = (h - 0.08) / shelfCount;
+  for (let s = 1; s < shelfCount; s++) {
+    lbox(w - 0.10, shelfT, d - 0.05, 0, y0 + s * shelfStep, 0, matWoodOak, cx, cz, facing, false);
+  }
+  // Книги
+  for (let s = 0; s < shelfCount; s++) {
+    const sy = y0 + 0.04 + s * shelfStep + shelfT;
+    const books = 4 + Math.floor(Math.random() * 5);
+    let bx = -w/2 + 0.10;
+    for (let b = 0; b < books; b++) {
+      const bw = 0.03 + Math.random() * 0.03;
+      const bh = 0.20 + Math.random() * 0.16;
+      const bmat = matBookMats[Math.floor(Math.random() * matBookMats.length)];
+      lbox(bw, bh, d - 0.12, bx + bw/2, sy, 0, bmat, cx, cz, facing, false);
+      bx += bw + 0.005;
+      if (bx > w/2 - 0.10) break;
     }
   }
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y0, y0 + h);
+  lCollider(cx, cz, w, d, y0, h, facing);
 }
 
-// ТЕЛЕВИЗОР (facing: 'z+' — экран в +z)
-function buildTV(x, y, z, w, h, facing) {
+/* ТЕЛЕВИЗОР — экран на стороне "facing" */
+function buildTV(cx, cy, cz, w, h, facing) {
   const bezelT = 0.02, screenDepth = 0.05;
-  const dir = facing === 'z-' ? -1 : facing === 'z+' ? 1 : 0;
-  box(w, h, screenDepth, matDark, x, y, z, false);
-  const screenZ = z + dir * (screenDepth/2 + 0.001);
-  box(w - bezelT*2, h - bezelT*2, 0.005, matTVScreen, x, y + bezelT, screenZ, false);
-  box(0.08, 0.06, 0.08, matDark, x, y - 0.06, z, false);
-  box(0.5, 0.03, 0.20, matDark, x, y - 0.09, z, false);
+  lbox(w, h, screenDepth, 0, cy, 0, matDark, cx, cz, facing, false);
+  lbox(w - bezelT*2, h - bezelT*2, 0.005, 0, cy + bezelT, screenDepth/2 + 0.001, matTVScreen, cx, cz, facing, false);
+  lbox(0.08, 0.06, 0.08, 0, cy - 0.06, 0, matDark, cx, cz, facing, false);
+  lbox(0.5, 0.03, 0.20, 0, cy - 0.09, 0, matDark, cx, cz, facing, false);
 }
 
-// ТВ-ТУМБА (facing — куда смотрят дверцы)
-function buildTVStand(x, z, w, h, d, facing = 'z+') {
-  const sgn = facing === 'z-' ? -1 : 1;
+/* ТВ-ТУМБА — дверцы на "facing" */
+function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
   const legH = 0.10;
   for (const [lx, lz] of [[-w/2+0.08, -d/2+0.06], [w/2-0.08, -d/2+0.06],
                           [-w/2+0.08,  d/2-0.06], [w/2-0.08,  d/2-0.06]]) {
-    cyl(0.025, 0.03, legH, matWoodDeep, x + lx, 0, z + lz, 6);
+    lcyl(0.028, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
   }
-  box(w, h - legH, d, matWood, x, legH, z, false);
-  box(w + 0.03, 0.03, d + 0.03, matWoodOak, x, h, z, false);
+  lbox(w, h - legH, d, 0, legH, 0, matWood, cx, cz, facing, false);
+  lbox(w + 0.03, 0.03, d + 0.03, 0, h, 0, matWoodOak, cx, cz, facing, false);
   const doorW = (w - 0.08) / 2;
-  const frontZ = z + sgn * (d/2 + 0.005);
-  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x - doorW/2 - 0.01, legH + 0.03, frontZ, false);
-  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x + doorW/2 + 0.01, legH + 0.03, frontZ, false);
-  box(0.02, 0.12, 0.02, matHandle, x - 0.03, h/2, frontZ + sgn * 0.03, false);
-  box(0.02, 0.12, 0.02, matHandle, x + 0.03, h/2, frontZ + sgn * 0.03, false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  const frontZ = d/2 + 0.005;
+  lbox(doorW, h - legH - 0.06, 0.02, -doorW/2 - 0.01, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(doorW, h - legH - 0.06, 0.02,  doorW/2 + 0.01, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(0.02, 0.12, 0.02, -0.03, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lbox(0.02, 0.12, 0.02,  0.03, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-// НИЖНЯЯ КУХОННАЯ СЕКЦИЯ (facing — куда смотрят дверцы, т.е. от стены)
-// Параметры: len — длина вдоль стены, depth — глубина от стены
-function buildBaseCabinet(x, z, len, depth, h, sections, facing) {
+/* НИЖНЯЯ КУХОННАЯ СЕКЦИЯ — дверцы на "facing" */
+function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
   const legH = 0.10;
-  const horiz = (facing === 'x+' || facing === 'x-');  // длинная сторона вдоль Z
-  const W = horiz ? depth : len;
-  const D = horiz ? len : depth;
-  const sgn = facing === 'z+' || facing === 'x+' ? 1 : -1;
+  const W = len, D = depth;  // local: width along X, depth along Z
+  const sgn = (facing === 'z+' || facing === 'x+') ? 1 : -1;
 
-  // Цоколь
-  box(W - 0.04, legH, D - 0.04, matWoodDeep, x, 0, z, false);
-  // Корпус
-  box(W, h - legH, D, matWood, x, legH, z, false);
-  // Столешница
-  box(W + 0.04, 0.05, D + 0.04, matCountertop, x, h, z, false);
+  lbox(W - 0.04, legH, D - 0.04, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(W, h - legH, D, 0, legH, 0, matWood, cx, cz, facing, false);
+  lbox(W + 0.04, 0.05, D + 0.04, 0, h, 0, matCountertop, cx, cz, facing, false);
 
-  const secLen = horiz ? D / sections : W / sections;
+  const secW = W / sections;
+  const frontZ = D/2 + 0.005;
   for (let i = 0; i < sections; i++) {
-    if (horiz) {
-      const sz = z - D/2 + secLen * (i + 0.5);
-      const faceX = x + sgn * (W/2 + 0.005);
-      const isDrawer = (i === 0);
-      if (isDrawer) {
-        const h1 = (h - legH - 0.10) / 2 - 0.03;
-        box(0.02, h1, secLen - 0.04, matWoodOak, faceX, legH + 0.03, sz, false);
-        box(0.02, h1, secLen - 0.04, matWoodOak, faceX, legH + h1 + 0.06, sz, false);
-        box(0.02, 0.018, 0.14, matHandle, faceX + sgn * 0.025, legH + 0.10, sz, false);
-        box(0.02, 0.018, 0.14, matHandle, faceX + sgn * 0.025, h - 0.10, sz, false);
-      } else {
-        box(0.02, h - legH - 0.06, secLen - 0.04, matWoodOak, faceX, legH + 0.03, sz, false);
-        box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, legH + 0.30, sz, false);
-      }
+    const sx = -W/2 + secW * (i + 0.5);
+    const isDrawer = (i === 0);
+    if (isDrawer) {
+      const h1 = (h - legH - 0.10) / 2 - 0.03;
+      lbox(secW - 0.04, h1, 0.02, sx, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
+      lbox(secW - 0.04, h1, 0.02, sx, legH + h1 + 0.06, frontZ, matWoodOak, cx, cz, facing, false);
+      lbox(0.14, 0.018, 0.02, sx, legH + 0.10, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
+      lbox(0.14, 0.018, 0.02, sx, h - 0.10, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
     } else {
-      const sx = x - W/2 + secLen * (i + 0.5);
-      const faceZ = z + sgn * (D/2 + 0.005);
-      const isDrawer = (i === 0);
-      if (isDrawer) {
-        const h1 = (h - legH - 0.10) / 2 - 0.03;
-        box(secLen - 0.04, h1, 0.02, matWoodOak, sx, legH + 0.03, faceZ, false);
-        box(secLen - 0.04, h1, 0.02, matWoodOak, sx, legH + h1 + 0.06, faceZ, false);
-        box(0.14, 0.018, 0.02, matHandle, sx, legH + 0.10, faceZ + sgn * 0.025, false);
-        box(0.14, 0.018, 0.02, matHandle, sx, h - 0.10, faceZ + sgn * 0.025, false);
-      } else {
-        box(secLen - 0.04, h - legH - 0.06, 0.02, matWoodOak, sx, legH + 0.03, faceZ, false);
-        box(0.02, 0.10, 0.02, matHandle, sx, legH + 0.30, faceZ + sgn * 0.025, false);
-      }
+      lbox(secW - 0.04, h - legH - 0.06, 0.02, sx, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
+      lbox(0.02, 0.10, 0.02, sx, legH + 0.30, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
     }
   }
-  addCollider(x - W/2, x + W/2, z - D/2, z + D/2, 0, h + 0.05);
+  lCollider(cx, cz, W, D, 0, h + 0.05, facing);
 }
 
-// ВЕРХНИЙ ШКАФ (навесной)
-function buildUpperCabinet(x, y, z, len, depth, h, facing) {
-  const horiz = (facing === 'x+' || facing === 'x-');
-  const W = horiz ? depth : len;
-  const D = horiz ? len : depth;
-  const sgn = facing === 'z+' || facing === 'x+' ? 1 : -1;
-
-  box(W, h, D, matWood, x, y, z, false);
-  const doorW = horiz ? (D - 0.06) / 2 : (W - 0.06) / 2;
-  if (horiz) {
-    const faceX = x + sgn * (W/2 + 0.005);
-    box(0.02, h - 0.08, doorW, matWoodOak, faceX, y + 0.04, z - doorW/2 - 0.01, false);
-    box(0.02, h - 0.08, doorW, matWoodOak, faceX, y + 0.04, z + doorW/2 + 0.01, false);
-    box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, y + h/2 - 0.05, z - 0.03, false);
-    box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, y + h/2 - 0.05, z + 0.03, false);
-  } else {
-    const faceZ = z + sgn * (D/2 + 0.005);
-    box(doorW, h - 0.08, 0.02, matWoodOak, x - doorW/2 - 0.01, y + 0.04, faceZ, false);
-    box(doorW, h - 0.08, 0.02, matWoodOak, x + doorW/2 + 0.01, y + 0.04, faceZ, false);
-    box(0.02, 0.10, 0.02, matHandle, x - 0.03, y + h/2 - 0.05, faceZ + sgn * 0.025, false);
-    box(0.02, 0.10, 0.02, matHandle, x + 0.03, y + h/2 - 0.05, faceZ + sgn * 0.025, false);
-  }
-  addCollider(x - W/2, x + W/2, z - D/2, z + D/2, y, y + h);
+/* ВЕРХНИЙ ШКАФ (навесной) */
+function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
+  const W = len, D = depth;
+  lbox(W, h, D, 0, cy, 0, matWood, cx, cz, facing, false);
+  const doorW = (W - 0.06) / 2;
+  const frontZ = D/2 + 0.005;
+  lbox(doorW, h - 0.08, 0.02, -doorW/2 - 0.01, cy + 0.04, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(doorW, h - 0.08, 0.02,  doorW/2 + 0.01, cy + 0.04, frontZ, matWoodOak, cx, cz, facing, false);
+  lbox(0.02, 0.10, 0.02, -0.03, cy + h/2 - 0.05, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lbox(0.02, 0.10, 0.02,  0.03, cy + h/2 - 0.05, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lCollider(cx, cz, W, D, cy, h, facing);
 }
 
-// ХОЛОДИЛЬНИК (facing — куда смотрит дверь)
-function buildFridge(x, z, facing) {
+/* ХОЛОДИЛЬНИК */
+function buildFridge(cx, cz, facing) {
   const w = 0.72, h = 1.85, d = 0.72;
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(w, h, d, matFridge, x, 0, z, false);
   const freezH = 0.55;
-  const sgn = dir;
-  const faceX = x + (facing === 'x+' || facing === 'x-' ? sgn * (d/2 + 0.005) : 0);
-  const faceZ = z + (facing === 'z+' || facing === 'z-' ? sgn * (d/2 + 0.005) : 0);
-  if (facing === 'x+' || facing === 'x-') {
-    box(0.02, freezH - 0.02, w - 0.02, matFridge, faceX, h - freezH + 0.01, z, false);
-    box(0.02, h - freezH - 0.10, w - 0.02, matFridge, faceX, 0.05, z, false);
-    box(0.005, 0.01, w, matDark, faceX + sgn * 0.001, h - freezH, z, false);
-    box(0.03, 0.30, 0.03, matHandle, faceX + sgn * 0.04, h - freezH + 0.10, z - 0.15 * sgn, false);
-    box(0.03, 0.40, 0.03, matHandle, faceX + sgn * 0.04, 0.55, z - 0.15 * sgn, false);
-  } else {
-    box(w - 0.02, freezH - 0.02, 0.02, matFridge, x, h - freezH + 0.01, faceZ, false);
-    box(w - 0.02, h - freezH - 0.10, 0.02, matFridge, x, 0.05, faceZ, false);
-    box(w, 0.01, 0.005, matDark, x, h - freezH, faceZ + sgn * 0.001, false);
-    box(0.03, 0.30, 0.03, matHandle, x - 0.15 * sgn, h - freezH + 0.10, faceZ + sgn * 0.04, false);
-    box(0.03, 0.40, 0.03, matHandle, x - 0.15 * sgn, 0.55, faceZ + sgn * 0.04, false);
-  }
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  const frontZ = d/2 + 0.005;
+  lbox(w, h, d, 0, 0, 0, matFridge, cx, cz, facing, false);
+  lbox(w - 0.02, freezH - 0.02, 0.02, 0, h - freezH + 0.01, frontZ, matFridge, cx, cz, facing, false);
+  lbox(w - 0.02, h - freezH - 0.10, 0.02, 0, 0.05, frontZ, matFridge, cx, cz, facing, false);
+  lbox(w, 0.01, 0.005, 0, h - freezH, frontZ + 0.001, matDark, cx, cz, facing, false);
+  lbox(0.03, 0.30, 0.03, 0.15, h - freezH + 0.10, frontZ + 0.04, matHandle, cx, cz, facing, false);
+  lbox(0.03, 0.40, 0.03, 0.15, 0.55, frontZ + 0.04, matHandle, cx, cz, facing, false);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-// ПЛИТА (facing — куда смотрит дверца духовки)
-function buildStove(x, z, facing) {
+/* ПЛИТА */
+function buildStove(cx, cz, facing) {
   const w = 0.62, h = 0.90, d = 0.62;
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(w, h - 0.05, d, matStove, x, 0, z, false);
-  const faceX = x + (facing === 'x+' || facing === 'x-' ? dir * (d/2 + 0.005) : 0);
-  const faceZ = z + (facing === 'z+' || facing === 'z-' ? dir * (d/2 + 0.005) : 0);
-  const knobAxis = (facing === 'x+' || facing === 'x-');
-  if (knobAxis) {
-    box(0.02, h - 0.30, w - 0.10, matGlass, faceX, 0.06, z, false);
-    box(0.04, 0.03, w - 0.15, matChrome, faceX + dir * 0.035, h - 0.25, z, false);
-    box(0.02, 0.10, w, matDark, faceX, h - 0.10, z, false);
-    for (let i = 0; i < 4; i++) {
-      const kz = z - w/2 + 0.10 + i * (w - 0.20) / 3;
-      const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
-      knob.rotation.z = Math.PI / 2;
-      knob.position.set(faceX + dir * 0.02, h - 0.05, kz);
-      scene.add(knob);
-    }
-  } else {
-    box(w - 0.10, h - 0.30, 0.02, matGlass, x, 0.06, faceZ, false);
-    box(w - 0.15, 0.03, 0.04, matChrome, x, h - 0.25, faceZ + dir * 0.035, false);
-    box(w, 0.10, 0.02, matDark, x, h - 0.10, faceZ, false);
-    for (let i = 0; i < 4; i++) {
-      const kx = x - w/2 + 0.10 + i * (w - 0.20) / 3;
-      const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
-      knob.rotation.x = Math.PI / 2;
-      knob.position.set(kx, h - 0.05, faceZ + dir * 0.02);
-      scene.add(knob);
-    }
+  const frontZ = d/2 + 0.005;
+  lbox(w, h - 0.05, d, 0, 0, 0, matStove, cx, cz, facing, false);
+  lbox(w - 0.10, h - 0.30, 0.02, 0, 0.06, frontZ, matGlass, cx, cz, facing, false);
+  lbox(w - 0.15, 0.03, 0.04, 0, h - 0.25, frontZ + 0.035, matChrome, cx, cz, facing, false);
+  lbox(w, 0.10, 0.02, 0, h - 0.10, frontZ, matDark, cx, cz, facing, false);
+  // Ручки
+  for (let i = 0; i < 4; i++) {
+    const lx = -w/2 + 0.10 + i * (w - 0.20) / 3;
+    const p = localToWorld(cx, cz, lx, frontZ + 0.02, facing);
+    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
+    const horiz = (facing === 'x+' || facing === 'x-');
+    if (horiz) knob.rotation.z = Math.PI / 2; else knob.rotation.x = Math.PI / 2;
+    knob.position.set(p.x, h - 0.05, p.z);
+    scene.add(knob);
   }
-  box(w, 0.04, d, matStove, x, h - 0.05, z, false);
-  for (const [dx, dz] of [[-0.15,-0.15],[0.15,-0.15],[-0.15,0.15],[0.15,0.15]]) {
+  lbox(w, 0.04, d, 0, h - 0.05, 0, matStove, cx, cz, facing, false);
+  // 4 конфорки
+  const burnPositions = [[-0.15,-0.15],[0.15,-0.15],[-0.15,0.15],[0.15,0.15]];
+  for (const [dx, dz] of burnPositions) {
+    const p = localToWorld(cx, cz, dx, dz, facing);
     const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 16), matDark);
-    burner.position.set(x + dx, h + 0.005, z + dz);
+    burner.position.set(p.x, h + 0.005, p.z);
     scene.add(burner);
   }
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
+  lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-// РАКОВИНА
-function buildSink(x, y, z, facing) {
+/* РАКОВИНА */
+function buildSink(cx, cy, cz, facing) {
   const basinW = 0.5, basinD = 0.4;
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(basinW, 0.06, basinD, matPorcelain, x, y, z, false);
-  box(basinW - 0.06, 0.02, basinD - 0.06, matMetal, x, y + 0.02, z, false);
+  const frontZ = basinD/2 - 0.06;
+  lbox(basinW, 0.06, basinD, 0, cy, 0, matPorcelain, cx, cz, facing, false);
+  lbox(basinW - 0.06, 0.02, basinD - 0.06, 0, cy + 0.02, 0, matMetal, cx, cz, facing, false);
+  // Слив
+  const pd = localToWorld(cx, cz, 0, 0, facing);
   const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.005, 8), matDark);
-  drain.position.set(x, y + 0.03, z); scene.add(drain);
-  const offX = (facing === 'x+' || facing === 'x-') ? dir * (basinW/2 - 0.06) : 0;
-  const offZ = (facing === 'z+' || facing === 'z-') ? dir * (basinD/2 - 0.06) : 0;
-  cyl(0.018, 0.018, 0.16, matChrome, x - offX, y + 0.06, z - offZ, 8);
+  drain.position.set(pd.x, cy + 0.03, pd.z); scene.add(drain);
+  // Смеситель (у задней стенки)
+  const pb = localToWorld(cx, cz, 0, -frontZ, facing);
+  cyl(0.018, 0.018, 0.16, matChrome, pb.x, cy + 0.06, pb.z, 8);
+  // Изогнутый носик
+  const pn = localToWorld(cx, cz, 0, -frontZ + 0.07, facing);
   const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.14, 8), matChrome);
-  if (facing === 'x+' || facing === 'x-') { spout.rotation.z = Math.PI / 2; }
-  else { spout.rotation.x = Math.PI / 2; }
-  spout.position.set(x - offX + (facing === 'x+' || facing === 'x-' ? -dir*0.07 : 0),
-                     y + 0.22,
-                     z - offZ + (facing === 'z+' || facing === 'z-' ? -dir*0.07 : 0));
-  scene.add(spout);
+  const horiz = (facing === 'x+' || facing === 'x-');
+  if (horiz) spout.rotation.z = Math.PI / 2; else spout.rotation.x = Math.PI / 2;
+  spout.position.set(pn.x, cy + 0.22, pn.z); scene.add(spout);
+  // Ручки
+  const h1 = localToWorld(cx, cz, -0.05, -frontZ, facing);
+  const hh1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.06, 6), matChrome);
+  hh1.position.set(h1.x, cy + 0.20, h1.z); scene.add(hh1);
+  const h2 = localToWorld(cx, cz, 0.05, -frontZ, facing);
+  const hh2 = hh1.clone(); hh2.position.set(h2.x, cy + 0.20, h2.z); scene.add(hh2);
 }
 
-// УНИТАЗ
-function buildToilet(x, y0, z, facing) {
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(0.42, 0.50, 0.20, matPorcelain, x, y0, z + dir * 0.20, false);
-  box(0.46, 0.04, 0.24, matPorcelain, x, y0 + 0.50, z + dir * 0.20, false);
-  box(0.06, 0.02, 0.06, matChrome, x, y0 + 0.54, z + dir * 0.20, false);
-  box(0.25, y0 + 0.30, 0.22, matPorcelain, x, 0, z + dir * 0.02, false);
+/* УНИТАЗ */
+function buildToilet(cx, cy0, cz, facing) {
+  // Танк сзади (local -Z), чаша спереди (local +Z)
+  lbox(0.42, 0.50, 0.20, 0, cy0, -0.20, matPorcelain, cx, cz, facing, false);
+  lbox(0.46, 0.04, 0.24, 0, cy0 + 0.50, -0.20, matPorcelain, cx, cz, facing, false);
+  lbox(0.06, 0.02, 0.06, 0, cy0 + 0.54, -0.20, matChrome, cx, cz, facing, false);
+  lbox(0.25, cy0 + 0.30, 0.22, 0, 0, -0.02, matPorcelain, cx, cz, facing, false);
+  // Чаша
+  const pBowl = localToWorld(cx, cz, 0, 0.08, facing);
   const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.20, 16), matPorcelain);
-  bowl.position.set(x, y0 + 0.30, z - dir * 0.08);
+  bowl.position.set(pBowl.x, cy0 + 0.30, pBowl.z);
   bowl.castShadow = true; bowl.receiveShadow = true; scene.add(bowl);
   const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 16), matPorcelain);
-  seat.position.set(x, y0 + 0.42, z - dir * 0.08); scene.add(seat);
+  seat.position.set(pBowl.x, cy0 + 0.42, pBowl.z); scene.add(seat);
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.02, 16), matPorcelain);
-  lid.position.set(x, y0 + 0.45, z - dir * 0.08); scene.add(lid);
-  addCollider(x - 0.22, x + 0.22, z - dir * 0.10 - 0.25, z - dir * 0.10 + 0.25, y0, y0 + 0.55);
+  lid.position.set(pBowl.x, cy0 + 0.45, pBowl.z); scene.add(lid);
+  lCollider(cx, cz, 0.46, 0.6, cy0, 0.55, facing);
 }
 
-// ВАННА
-function buildBathtub(x, y0, z, w, d) {
-  box(w, 0.55, d, matPorcelain, x, y0, z, false);
-  box(w - 0.15, 0.02, d - 0.15, matMetal, x, y0 + 0.50, z, false);
-  box(0.04, 0.04, 0.04, matChrome, x, y0 + 0.54, z + d/2 - 0.10, false);
-  box(w - 0.05, 0.10, d - 0.05, matPorcelain, x, 0, z, false);
-  cyl(0.02, 0.02, 0.20, matChrome, x - w/2 + 0.20, y0 + 0.54, z - d/2 + 0.10, 8);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y0, y0 + 0.55);
+/* ВАННА */
+function buildBathtub(cx, cy0, cz, w, d, facing = 'z+') {
+  const p1 = localToWorld(cx, cz, -w/2 + 0.20, -d/2 + 0.10, facing);
+  lbox(w, 0.55, d, 0, cy0, 0, matPorcelain, cx, cz, facing, false);
+  lbox(w - 0.15, 0.02, d - 0.15, 0, cy0 + 0.50, 0, matMetal, cx, cz, facing, false);
+  lbox(0.04, 0.04, 0.04, 0, cy0 + 0.54, d/2 - 0.10, matChrome, cx, cz, facing, false);
+  lbox(w - 0.05, 0.10, d - 0.05, 0, 0, 0, matPorcelain, cx, cz, facing, false);
+  cyl(0.02, 0.02, 0.20, matChrome, p1.x, cy0 + 0.54, p1.z, 8);
+  lCollider(cx, cz, w, d, cy0, 0.55, facing);
 }
 
-// ТОРШЕР
+/* ТОРШЕР */
 function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
   cyl(0.18, 0.20, 0.03, matDark, x, y0, z, 16);
   cyl(0.02, 0.02, 1.50, matChrome, x, y0 + 0.03, z, 8);
@@ -951,7 +858,7 @@ function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
   addCollider(x - 0.20, x + 0.20, z - 0.20, z + 0.20, y0, y0 + 1.6);
 }
 
-// НАСТОЛЬНАЯ ЛАМПА
+/* НАСТОЛЬНАЯ ЛАМПА */
 function buildTableLamp(x, y0, z, colorHex, intensity) {
   cyl(0.07, 0.09, 0.03, matDark, x, y0, z, 12);
   cyl(0.012, 0.012, 0.24, matChrome, x, y0 + 0.03, z, 6);
@@ -966,7 +873,7 @@ function buildTableLamp(x, y0, z, colorHex, intensity) {
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random()*100, speed: 1.8 + Math.random()*3 });
 }
 
-// РАСТЕНИЕ
+/* РАСТЕНИЕ */
 function buildPlant(x, z, scale = 1, y0 = 0) {
   cyl(0.20 * scale, 0.15 * scale, 0.30 * scale, matPot, x, y0, z, 12);
   cyl(0.21 * scale, 0.21 * scale, 0.03 * scale, matPot, x, y0 + 0.30 * scale, z, 12);
@@ -986,142 +893,126 @@ function buildPlant(x, z, scale = 1, y0 = 0) {
   addCollider(x - 0.20 * scale, x + 0.20 * scale, z - 0.20 * scale, z + 0.20 * scale, y0, y0 + 0.5 * scale);
 }
 
-// КАРТИНА (на стене, чуть отступая от поверхности стены)
-function buildPainting(x, y, z, w, h, facing, matContent) {
-  const dir  = (facing === 'z+' || facing === 'z-') ? (facing === 'z+' ? 1 : -1) : 0;
-  const dirX = (facing === 'x+' || facing === 'x-') ? (facing === 'x+' ? 1 : -1) : 0;
-  if (dir !== 0) {
-    box(w, h, 0.04, matWoodDeep, x, y - h/2, z, false);
-    box(w - 0.10, h - 0.10, 0.005, matContent || matPaper, x, y - h/2 + 0.05, z + dir * 0.025, false);
-    box(w*0.5, h*0.35, 0.003, matBookMats[0], x - w*0.15, y - h/2 + h*0.55, z + dir * 0.032, false);
-    box(w*0.35, h*0.4, 0.003, matBookMats[2], x + w*0.15, y - h/2 + h*0.35, z + dir * 0.032, false);
-  } else {
-    box(0.04, h, w, matWoodDeep, x, y - h/2, z, false);
-    box(0.005, h - 0.10, w - 0.10, matContent || matPaper, x + dirX * 0.025, y - h/2 + 0.05, z, false);
-    box(0.003, h*0.35, w*0.5, matBookMats[0], x + dirX * 0.032, y - h/2 + h*0.55, z - w*0.15, false);
-  }
+/* КАРТИНА НА СТЕНЕ */
+function buildPainting(cx, cy, cz, w, h, facing, matContent) {
+  const frontZ = 0.02;
+  lbox(w, h, 0.04, 0, cy - h/2, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.10, h - 0.10, 0.005, 0, cy - h/2 + 0.05, frontZ, matContent || matPaper, cx, cz, facing, false);
+  lbox(w*0.5, h*0.35, 0.003, -w*0.15, cy - h/2 + h*0.55, frontZ + 0.005, matBookMats[0], cx, cz, facing, false);
+  lbox(w*0.35, h*0.4, 0.003,  w*0.15, cy - h/2 + h*0.35, frontZ + 0.005, matBookMats[2], cx, cz, facing, false);
 }
 
-// ЧАСЫ
-function buildClock(x, y, z, facing) {
-  const dir  = (facing === 'z+' || facing === 'z-') ? (facing === 'z+' ? 1 : -1) : 0;
-  const dirX = (facing === 'x+' || facing === 'x-') ? (facing === 'x+' ? 1 : -1) : 0;
+/* ЧАСЫ */
+function buildClock(cx, cy, cz, facing) {
   const radius = 0.18;
-  if (dir !== 0) {
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
-    body.rotation.x = Math.PI / 2;
-    body.position.set(x, y, z); body.castShadow = true; scene.add(body);
-    const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
-    face.position.set(x, y, z + dir * 0.026); scene.add(face);
-    const hh = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.003), matDark);
-    hh.position.set(x, y + 0.035, z + dir * 0.028); scene.add(hh);
-    const mh = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.13, 0.003), matDark);
-    mh.position.set(x, y + 0.05, z + dir * 0.028); scene.add(mh);
-  } else {
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
-    body.rotation.z = Math.PI / 2;
-    body.position.set(x, y, z); body.castShadow = true; scene.add(body);
-    const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
-    face.rotation.y = dirX > 0 ? Math.PI / 2 : -Math.PI / 2;
-    face.position.set(x + dirX * 0.026, y, z); scene.add(face);
-    const hh = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.09, 0.012), matDark);
-    hh.position.set(x + dirX * 0.028, y + 0.035, z); scene.add(hh);
-    const mh = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.13, 0.008), matDark);
-    mh.position.set(x + dirX * 0.028, y + 0.05, z); scene.add(mh);
-  }
+  const frontZ = 0.026;
+  // Корпус — плоский цилиндр, ориентированный перпендикулярно стене
+  // Проще: 2 бокса и круглая "морда" из круга
+  const pBody = localToWorld(cx, cz, 0, 0, facing);
+  const horiz = (facing === 'x+' || facing === 'x-');
+  // Круглый корпус
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
+  if (horiz) body.rotation.z = Math.PI / 2; else body.rotation.x = Math.PI / 2;
+  body.position.set(pBody.x, cy, pBody.z); body.castShadow = true; scene.add(body);
+  // Циферблат
+  const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
+  const pFace = localToWorld(cx, cz, 0, frontZ, facing);
+  if (horiz) face.rotation.y = (facing === 'x+') ? Math.PI/2 : -Math.PI/2;
+  face.position.set(pFace.x, cy, pFace.z); scene.add(face);
+  // Стрелки
+  const pHand1 = localToWorld(cx, cz, 0, frontZ + 0.002, facing);
+  const hh = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.003), matDark);
+  hh.position.set(pHand1.x, cy + 0.035, pHand1.z);
+  if (horiz) hh.rotation.y = Math.PI/2;
+  scene.add(hh);
+  const mh = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.13, 0.003), matDark);
+  mh.position.set(pHand1.x, cy + 0.05, pHand1.z);
+  if (horiz) mh.rotation.y = Math.PI/2;
+  scene.add(mh);
 }
 
-// КОВЁР
+/* КОВЁР */
 function buildRug(x, z, w, d, mat, y0 = 0) {
   box(w, 0.012, d, mat, x, y0 + 0.002, z, false);
 }
 
 /* ============================================================
-   РАССТАНОВКА МЕБЕЛИ — ВСЁ НА СВОИХ МЕСТАХ
+   РАССТАНОВКА — все предметы на своих местах
    Внутренние поверхности стен:
-     z = -8  →  z = -7.85
-     z =  8  →  z =  7.85
-     x = -10 →  x = -9.85
-     x =  10 →  x =  9.85
-     x = 0 (со стороны гостиной) → x = -0.15
-     x = 0 (со стороны кухни)    → x =  0.15
-     z = 0 (со стороны гостиной) → z = -0.15
-     z = 0 (со стороны кухни)    → z =  0.15
+     Северная  z = -8 → z = -7.85
+     Южная     z =  8 → z =  7.85
+     Западная  x = -10 → x = -9.85
+     Восточная x =  10 → x =  9.85
+     Центр (x=0) внутренние: x = ±0.15
+     Центр (z=0) внутренние: z = ±0.15
    ============================================================ */
 
-/* -------- ГОСТИНАЯ (x[-10,0], z[-8,0]) -------- */
-
-// ТВ-тумба вплотную к северной стене (z=-7.85), по центру x=-6
-buildTVStand(-6.0, -7.625, 1.8, 0.45, 0.45, 'z+');
-// Телевизор на тумбе, экраном на юг
+/* ====== ГОСТИНАЯ (1 эт.: x[-10, 0], z[-8, 0]) ====== */
+// ТВ-тумба и телевизор у северной стены — экран смотрит на юг (+Z)
+buildTVStand(-6.0, -7.6, 1.8, 0.45, 0.45, 'z+');
 buildTV(-6.0, 0.75, -7.3, 1.30, 0.75, 'z+');
 
-// Диван лицом к ТВ (спинкой на юг)
+// Диван напротив ТВ, лицом к северу (-Z)
 buildSofa(-6.0, -3.5, 2.6, 0.95, matFabric, matFabric, 'z-');
 
-// Журнальный столик между диваном и ТВ
-buildCoffeeTable(-6.0, -5.4, 1.0, 0.55);
+// Журнальный столик между ТВ и диваном
+buildCoffeeTable(-6.0, -5.4, 1.0, 0.55, 'z+');
 
-// Кресло рядом, лицом к ТВ
+// Кресло сбоку, тоже лицом к ТВ (-Z)
 buildArmchair(-3.2, -4.6, matFabric2, matFabric2, 'z-');
 
-// Книжный шкаф у западной стены
-buildBookshelf(-9.65, 0, -4.0, 0.35, 2.0, 1.8, 'x+');
+// Книжный шкаф у западной стены, открыт на восток (x+)
+buildBookshelf(-9.5, -4.0, 1.8, 2.0, 0.35, 'x+');
 
 // Торшер в северо-западном углу
 buildFloorLamp(-9.0, -7.0, 0xffc88a, 0.7);
 
-// Комод у южной стены (z = 0, спина на юг, двери в гостиную → facing 'z+')
-buildDresser(-3.7, -0.4, 1.4, 0.85, 0.5, 3, matWood, 'z+');
+// Комод у ЮЖНОЙ стены (z = 0, внутр. -0.15), ящики лицом в комнату (на север, -Z)
+buildDresser(-3.7, -0.42, 1.4, 0.85, 0.5, 3, matWood, 'z-');
 
-// Тумбочка с лампой у западной стены
-buildDresser(-9.6, 0.0, 1.2, 0.6, 0.5, 2, matWood, 'x-');  // двери на восток в комнату
-buildTableLamp(-9.6, 0.6, 0.0, 0xffb070, 0.5);
+// Тумбочка у ЗАПАДНОЙ стены, ящики на восток (x+)
+buildDresser(-9.55, 0.5, 1.2, 0.6, 0.5, 2, matWood, 'x+');
+buildTableLamp(-9.55, 0.6, 0.5, 0xffb070, 0.5);
 
 // Растение в юго-западном углу
 buildPlant(-9.3, -0.8, 1.0);
 
-// Ковёр в центре
+// Ковёр
 buildRug(-6.0, -5.0, 3.2, 2.2, matRug);
 
-// Картины на северной стене
+// Картины на СЕВЕРНОЙ стене (внутр. z=-7.84), лицом на юг (+Z)
 buildPainting(-8.0, 2.0, -7.84, 0.9, 0.65, 'z+', matPaper);
 buildPainting(-4.0, 2.0, -7.84, 0.75, 0.95, 'z+', matBookMats[2]);
 
-// Картина на западной стене
+// Картина на ЗАПАДНОЙ стене (внутр. x=-9.84), лицом на восток (+X)
 buildPainting(-9.84, 1.85, -3.5, 1.1, 0.8, 'x+', matPaper);
 
-// Часы на северной стене
+// Часы на СЕВЕРНОЙ стене (лицом +Z)
 buildClock(-2.0, 2.7, -7.84, 'z+');
 
-/* -------- КУХНЯ (x[-10,0], z[0,8]) -------- */
-
-// Нижняя кухонная секция у западной стены (x=-10, внутр. -9.85)
-// depth=0.60 → центр x = -9.85 + 0.30 = -9.55
-// len=4.0 → центр z = 0.15 + 2.0 = 2.15
+/* ====== КУХНЯ (1 эт.: x[-10, 0], z[0, 8]) ====== */
+// Нижняя секция вдоль ЗАПАДНОЙ стены (x=-9.85), дверцы на восток (x+)
+// len=4.0 → ширина вдоль Z, depth=0.60 → глубина вдоль X
 buildBaseCabinet(-9.55, 2.15, 4.0, 0.60, 0.90, 4, 'x+');
 
-// Верхние шкафы над секцией (верх на y=1.55, высота 0.70)
+// Верхние шкафы над секцией
 buildUpperCabinet(-9.72, 1.55, 1.15, 1.6, 0.35, 0.70, 'x+');
 buildUpperCabinet(-9.72, 1.55, 3.15, 1.6, 0.35, 0.70, 'x+');
 
-// Холодильник в северо-западном углу кухни
-// depth=0.72 → центр x = -9.85 + 0.36 = -9.49
-// z → ставим у северной стены (z=8, внутр. 7.85): центр z = 7.85 - 0.36 = 7.49
+// Холодильник в СЕВЕРО-ЗАПАДНОМ углу кухни, дверь на восток (x+)
 buildFridge(-9.49, 7.49, 'x+');
 
-// Плита у западной стены, рядом с секцией (со стороны окна)
-buildStove(-9.54, 4.6, 'x+');
+// Плита вдоль западной стены, дверца духовки на восток (x+)
+buildStove(-9.55, 4.6, 'x+');
 
-// Раковина врезана в столешницу (небольшой блок сверху секции)
-buildSink(-9.55, 0.90, 4.0, 'x+');
+// Раковина на столешнице, смеситель у стены — открывается в комнату (x+)
+buildSink(-9.55, 0.90, 5.4, 'x+');
 
 // Микроволновка на столешнице
 (function(){
-  const x = -9.5, z = 1.0, y = 0.90;
-  box(0.55, 0.35, 0.42, matDark, x, y, z, false);
-  box(0.02, 0.22, 0.35, matGlass, x - 0.28, y + 0.06, z, false);
-  box(0.02, 0.05, 0.05, matChrome, x - 0.27, y + 0.15, z, false);
+  box(0.42, 0.35, 0.55, matDark, -9.5, 0.90, 1.0, false);
+  box(0.02, 0.22, 0.35, matGlass, -9.29, 0.96, 1.0, false);
+  box(0.02, 0.05, 0.05, matChrome, -9.28, 1.05, 1.0, false);
 })();
 
 // Чайник на столешнице
@@ -1135,14 +1026,14 @@ buildSink(-9.55, 0.90, 4.0, 'x+');
   scene.add(spout);
 })();
 
-// Обеденный стол в центре кухни
-buildTable(-5.0, 4.0, 1.6, 0.9);
+// Обеденный стол в центре
+buildTable(-5.0, 4.0, 1.6, 0.9, 'z+');
 
-// Стулья вокруг стола
-buildChair(-5.0, 3.0, 1);   // северный стул (спинка на юг)
-buildChair(-5.0, 5.0, -1);  // южный стул (спинка на север)
-buildChair(-6.0, 4.0, 1);   // западный
-buildChair(-4.0, 4.0, 1);   // восточный
+// Стулья — все лицом к столу
+buildChair(-5.0, 3.0, 'z+');   // северный → смотрит на юг (на стол)
+buildChair(-5.0, 5.0, 'z-');   // южный → смотрит на север
+buildChair(-6.0, 4.0, 'x+');   // западный → смотрит на восток
+buildChair(-4.0, 4.0, 'x-');   // восточный → смотрит на запад
 
 // Посуда на столе
 box(0.20, 0.02, 0.20, matPorcelain, -5.3, 0.77, 4.0, false);
@@ -1163,7 +1054,7 @@ cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, 0.75, 4.5, 12);
   }
 })();
 
-// Мусорное ведро в юго-восточном углу кухни
+// Мусорное ведро в юго-восточном углу
 (function(){
   const x = -0.6, z = 7.5;
   const trash = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.45, 12), matMetal);
@@ -1171,17 +1062,17 @@ cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, 0.75, 4.5, 12);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.45);
 })();
 
-// Растение в юго-восточном углу
+// Растение
 buildPlant(-0.6, 1.0, 0.9);
 
-// Картина на южной стене
+// Картина на ЮЖНОЙ стене (внутр. z=7.84), лицом на север (-Z)
 buildPainting(-4.0, 2.0, 7.84, 0.9, 0.65, 'z-', matPaper);
-// Часы на западной стене
+
+// Часы на ЗАПАДНОЙ стене (внутр. x=-9.84), лицом на восток (+X)
 buildClock(-9.84, 2.5, 6.0, 'x+');
 
-/* -------- КЛАДОВАЯ (x[4,10], z[-8,0]) -------- */
-
-// Металлический стеллаж у северной стены
+/* ====== КЛАДОВАЯ (1 эт.: x[4, 10], z[-8, 0]) ====== */
+// Металлический стеллаж у СЕВЕРНОЙ стены
 (function(){
   const x = 6.5, z = -7.6, w = 2.4, h = 2.0, d = 0.5;
   const shelfYs = [0.05, 0.65, 1.25, 1.85];
@@ -1189,9 +1080,7 @@ buildClock(-9.84, 2.5, 6.0, 'x+');
                           [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
     cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
   }
-  for (const sy of shelfYs) {
-    box(w, 0.04, d, matWoodDark, x, sy, z, false);
-  }
+  for (const sy of shelfYs) box(w, 0.04, d, matWoodDark, x, sy, z, false);
   box(0.35, 0.28, 0.35, matWood, x - 0.6, shelfYs[1] + 0.04, z, false);
   box(0.30, 0.25, 0.30, matWoodDeep, x - 0.15, shelfYs[1] + 0.04, z, false);
   box(0.40, 0.30, 0.38, matWood, x + 0.55, shelfYs[2] + 0.04, z, false);
@@ -1199,22 +1088,20 @@ buildClock(-9.84, 2.5, 6.0, 'x+');
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
-// Второй стеллаж у западной стены кладовой (x=4, внутр. 4.15)
+// Второй стеллаж у ЗАПАДНОЙ стены (внутр. x=4.15)
 (function(){
   const x = 4.35, z = -2.5, w = 0.4, h = 2.0, d = 2.0;
   for (const [lx, lz] of [[-w/2+0.05, -d/2+0.05], [w/2-0.05, -d/2+0.05],
                           [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
     cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
   }
-  for (const sy of [0.05, 0.70, 1.35, 1.90]) {
-    box(w, 0.04, d, matWoodDark, x, sy, z, false);
-  }
+  for (const sy of [0.05, 0.70, 1.35, 1.90]) box(w, 0.04, d, matWoodDark, x, sy, z, false);
   box(0.3, 0.3, 0.4, matWood, x, 0.09, z - 0.5, false);
   box(0.35, 0.35, 0.35, matWoodDeep, x, 0.74, z + 0.4, false);
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
-// Велосипед у восточной стены (x=10, внутр. 9.85)
+// Велосипед у ВОСТОЧНОЙ стены
 (function(){
   const x = 9.4, z = -3.5;
   const tireMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.95 });
@@ -1252,28 +1139,28 @@ box(0.65, 0.45, 0.65, matFabric3, 9.2, 0, -7.2);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.30);
 })();
 
-/* -------- СПАЛЬНЯ 1 (2-й этаж, x[-10,0], z[-8,0]) -------- */
-
-// Кровать в северо-западном углу изголовьем к северной стене
-// Изголовье на z=-7.85, длина 2.05 → центр z = -7.85 + 1.025 + 0.05 ≈ -6.78
+/* ====== СПАЛЬНЯ 1 (2 эт.: x[-10, 0], z[-8, 0]) ====== */
+// Кровать — изголовье к СЕВЕРНОЙ стене (z=-7.85), лежим лицом на юг (+Z)
+// Изголовье на -Z → facing='z+'
+// Центр z = -7.85 + bedL/2 + 0.05 = -7.85 + 1.025 + 0.05 = -6.775
 buildBed(-7.5, -6.78, matWood, 'z+');
 
-// Тумбочка справа от кровати (у изголовья)
+// Тумбочка у изголовья, ящики на юг (+Z)
 buildNightstand(-6.4, -7.4, matWood, 'z+');
 buildTableLamp(-6.4, F1 + 0.55, -7.4, 0xffb070, 0.5);
 
-// Шкаф у восточной стены (x=0, внутр. -0.15 со стороны спальни)
-buildWardrobe(-0.45, -6.5, 0.6, 2.1, 1.4, matWood, 'z+');
-// Поворачивать шкаф сложно — вместо этого ставим у северной стены и меняем размеры
-// (см. ниже — предпочтительно против северной стены)
+// Шкаф у ВОСТОЧНОЙ стены (внутр. x=-0.15), дверцы на запад (-X) в комнату
+// Локальная ширина = 1.4 (вдоль Z), глубина = 0.6 (вдоль X)
+// Центр x = -0.15 - 0.30 = -0.45
+buildWardrobe(-0.45, -6.5, 1.4, 2.1, 0.6, matWood, 'x-');
 
-// Комод у южной стены
-buildDresser(-8.5, -0.4, 1.6, 0.85, 0.5, 3, matWood, 'z+');
+// Комод у ЮЖНОЙ стены, ящики на север (-Z)
+buildDresser(-8.5, -0.4, 1.6, 0.85, 0.5, 3, matWood, 'z-');
 
-// Стеллаж с книгами у западной стены
-buildBookshelf(-9.65, F1, -3.5, 0.35, 1.9, 1.6, 'x+');
+// Стеллаж с книгами у ЗАПАДНОЙ стены
+buildBookshelf(-9.5, F1, -3.5, 1.6, 1.9, 0.35, 'x+');
 
-// Кресло в юго-западном углу
+// Кресло в юго-западном углу, лицом в комнату (+X / +Z)
 buildArmchair(-8.5, F1, -1.3, matFabric2, matFabric2, 'z+');
 
 // Ковёр
@@ -1290,24 +1177,24 @@ buildClock(-4.5, F1 + 2.7, -7.84, 'z+');
 // Растение
 buildPlant(-9.3, F1, -0.8, 0.9);
 
-/* -------- СПАЛЬНЯ 2 (2-й этаж, x[-10,0], z[0,8]) -------- */
-
-// Кровать изголовьем к южной стене (z=8, внутр. 7.85)
+/* ====== СПАЛЬНЯ 2 (2 эт.: x[-10, 0], z[0, 8]) ====== */
+// Кровать — изголовье к ЮЖНОЙ стене (z=7.85), лежим лицом на север (-Z)
+// Изголовье на -local Z, facing='z-' (перед на -Z)
+// Центр z = 7.85 - 1.075 = 6.775
 buildBed(-7.5, 6.78, matWood, 'z-');
 
 // Тумбочка
 buildNightstand(-6.4, 7.4, matWood, 'z-');
 buildTableLamp(-6.4, F1 + 0.55, 7.4, 0xffb070, 0.5);
 
-// Шкаф у северной стены (z=0 со стороны кухни, но у спальни внутренняя поверхность z=0.15)
-// Правильнее — у восточной стены спальни (x=0, внутр. -0.15)
-buildWardrobe(-0.45, 5.5, 0.6, 2.1, 1.4, matWood, 'z-');
+// Шкаф у ВОСТОЧНОЙ стены (внутр. x=-0.15), дверцы на запад (-X)
+buildWardrobe(-0.45, 5.5, 1.4, 2.1, 0.6, matWood, 'x-');
 
-// Комод у северной стены
-buildDresser(-8.5, 0.4, 1.6, 0.85, 0.5, 3, matWood, 'z-');
+// Комод у СЕВЕРНОЙ стены (внутр. z=0.15), ящики на юг (+Z)
+buildDresser(-8.5, 0.4, 1.6, 0.85, 0.5, 3, matWood, 'z+');
 
-// Стеллаж у западной стены
-buildBookshelf(-9.65, F1, 2.5, 0.35, 1.9, 1.6, 'x+');
+// Стеллаж у ЗАПАДНОЙ стены
+buildBookshelf(-9.5, F1, 2.5, 1.6, 1.9, 0.35, 'x+');
 
 // Кресло
 buildArmchair(-8.5, F1, 1.3, matFabric, matFabric, 'z-');
@@ -1325,34 +1212,35 @@ buildClock(-4.5, F1 + 2.7, 7.84, 'z-');
 // Растение
 buildPlant(-9.3, F1, 0.8, 0.9);
 
-/* -------- ВАННАЯ (2-й этаж, x[4,10], z[-8,-6]) -------- */
+/* ====== ВАННАЯ (2 эт.: x[4, 10], z[-8, -6]) ====== */
+// Ванна — изголовьем к СЕВЕРНОЙ стене (внутр. z=-7.85)
+// Ставим на 0.9 глубины, центр z = -7.85 + 0.45 = -7.4
+buildBathtub(8.4, F1, -7.4, 1.7, 0.9, 'z+');
 
-// Ванна вдоль северной стены (z=-8, внутр. -7.85)
-// Размер 1.7×0.9, ставим к стене: центр z = -7.85 + 0.45 = -7.4
-buildBathtub(8.4, F1, -7.4, 1.7, 0.9);
+// Унитаз — танк у СЕВЕРНОЙ стены, чаша на юг (+Z)
+buildToilet(6.0, F1, -7.55, 'z+');
 
-// Унитаз у западной стены ванной (x=4, внутр. 4.15)
-buildToilet(4.6, F1, -6.6, 'x-');
-
-// Раковина на тумбе у южной стены (z=-6, внутр. -6.15)
+// Раковина на тумбе — у ЮЖНОЙ стены (внутр. z=-6.15), смеситель к стене, лицом на север (-Z)
 (function(){
-  box(0.5, 0.75, 0.4, matWhite, 6.0, F1, -6.5, false);
-  buildSink(6.0, F1 + 0.75, -6.5, 'z-');
+  // Тумба-стойка у южной стены
+  box(0.5, 0.75, 0.4, matWhite, 4.7, F1, -6.4, false);
+  // Раковина на тумбе — открывается на север (-Z)
+  buildSink(4.7, F1 + 0.75, -6.4, 'z-');
 })();
 
-// Зеркало над раковиной
-buildPainting(6.0, F1 + 1.85, -6.16, 0.7, 0.9, 'z+', matGlass);
+// Зеркало над раковиной (на южной стене, лицом на север -Z)
+buildPainting(4.7, F1 + 1.85, -6.16, 0.7, 0.9, 'z-', matGlass);
 
 // Навесной шкафчик
-box(0.5, 0.6, 0.4, matWhite, 7.5, F1 + 1.5, -6.6, false);
-box(0.52, 0.02, 0.42, matChrome, 7.5, F1 + 2.1, -6.6, false);
-box(0.02, 0.10, 0.02, matHandle, 7.35, F1 + 1.75, -6.4, false);
+box(0.5, 0.6, 0.4, matWhite, 7.5, F1 + 1.5, -6.4, false);
+box(0.52, 0.02, 0.42, matChrome, 7.5, F1 + 2.1, -6.4, false);
+box(0.02, 0.10, 0.02, matHandle, 7.35, F1 + 1.75, -6.2, false);
 
-// Полотенца на крючках
-box(0.28, 0.55, 0.03, matSheet, 4.5, F1 + 1.55, -7.9, false);
-box(0.28, 0.55, 0.03, matFabric2, 4.8, F1 + 1.55, -7.9, false);
+// Полотенца на крючках (южная стена)
+box(0.28, 0.55, 0.03, matSheet, 5.5, F1 + 1.55, -6.16, false);
+box(0.28, 0.55, 0.03, matFabric2, 5.8, F1 + 1.55, -6.16, false);
 
-// Полка с флаконами
+// Полка с флаконами над ванной (северная стена)
 box(1.0, 0.04, 0.22, matWhite, 8.0, F1 + 1.55, -7.85, false);
 cyl(0.04, 0.04, 0.12, matGlass, 7.8, F1 + 1.59, -7.85, 8);
 cyl(0.035, 0.035, 0.10, matBookMats[5], 8.0, F1 + 1.59, -7.85, 8);
@@ -1361,7 +1249,7 @@ cyl(0.03, 0.03, 0.08, matBookMats[2], 8.2, F1 + 1.59, -7.85, 8);
 // Стеллаж в углу
 box(0.4, 1.8, 1.2, matWhite, 9.65, F1, -7.0, false);
 
-// Стержень для шторы
+// Стержень для шторы у ванны
 (function(){
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.7, 8), matChrome);
   rod.rotation.z = Math.PI / 2;
@@ -1373,7 +1261,6 @@ box(0.4, 1.8, 1.2, matWhite, 9.65, F1, -7.0, false);
 /* ============================================================
    СВЕТ
    ============================================================ */
-
 const ambient = new THREE.AmbientLight(0x141c2c, 0.22);
 scene.add(ambient);
 const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.14);
