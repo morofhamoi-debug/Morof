@@ -1292,3 +1292,685 @@ function makeCandle(x, y, z, parent) {
   // пальто
   const coatCols = [0x4a4038, 0x3a4a52, 0x5a4a3a, 0x2e343a];
   for (
+  // пальто на вешалке
+  const coatCols = [0x4a4038, 0x3a4a52, 0x5a4a3a, 0x2e343a];
+  for (let i = 0; i < 4; i++) {
+    const zz = -0.45 + i * 0.30;
+    const cm = new THREE.MeshStandardMaterial({ color: coatCols[i % coatCols.length], roughness: 0.95 });
+    const coat = addBox(0.04, 0.95, 0.36, cm, 0.06, -0.52, zz, 0, vg);
+    coat.rotation.z = 0.05;
+  }
+  // сумка на крючке
+  addBox(0.20, 0.24, 0.10, M.fabricBeige, 0.12, -0.72, 0.32, 0, vg);
+  addBox(0.04, 0.14, 0.02, M.woodDark, 0.12, -0.58, 0.32, 0, vg);
+
+  // зеркало над тумбой
+  makeMirror(-2.42, 1.55, 4.30, Math.PI / 2, 0.60, 0.85);
+  // узкая полка под зеркалом
+  addBox(0.14, 0.035, 1.05, M.woodLight, -2.28, 1.02, 4.30);
+  // чаша для ключей
+  addCyl(0.11, 0.09, 0.055, 14, M.metal, -2.28, 1.07, 4.60);
+  addBox(0.03, 0.008, 0.09, M.metal, -2.28, 1.10, 4.62);
+  addCyl(0.012, 0.012, 0.035, 6, M.metal, -2.25, 1.10, 4.64);
+
+  // выключатель у входа
+  addBox(0.035, 0.11, 0.075, M.white, -2.44, 1.30, 5.10);
+  addBox(0.02, 0.05, 0.03, M.metalDark, -2.46, 1.30, 5.10);
+
+  // потолочный светильник — ЯРКИЙ
+  makeCeilingLamp(0, H1, 4.3, 0xffe2b8, 40, 15);
+  const hallExtra = new THREE.PointLight(0xfff0d4, 22, 12, 2);
+  hallExtra.position.set(-1.0, 2.5, 4.0);
+  scene.add(hallExtra);
+})();
+
+/* =========================================================================
+   17. ГЛАВНЫЙ КОРИДОР 1 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function corridor1() {
+  // ковровая дорожка
+  makeRug(-1.3, 2.25, 10.5, 0.85, M.rug2);
+
+  // потолочные светильники — 2 шт для длинного коридора
+  makeCeilingLamp(-4.0, H1, 2.25, 0xffe0b0, 32, 13);
+  makeCeilingLamp(1.5, H1, 2.25, 0xffe0b0, 32, 13);
+
+  // бра вдоль коридора
+  makeSconce(-6.5, 2.05, 1.58, Math.PI, 7);
+  makeSconce(-2.0, 2.05, 1.58, Math.PI, 7);
+  makeSconce(2.8, 2.05, 1.58, Math.PI, 7);
+
+  // картины
+  makePainting(-4.6, 1.85, 1.57, Math.PI, 0.55, 0.70, 0x6a5a42);
+  makePainting(-1.2, 1.90, 1.57, Math.PI, 0.70, 0.50, 0x7a5a3a);
+  makePainting(1.6, 1.75, 1.57, Math.PI, 0.42, 0.58, 0x5a4a3a);
+  makePainting(-3.4, 1.80, 2.93, 0, 0.60, 0.45, 0x4a5a6a);
+  makePainting(0.4, 1.95, 2.93, 0, 0.50, 0.65, 0x6a4a3a);
+
+  // часы на стене
+  makeClock(3.6, 2.15, 1.58, Math.PI);
+
+  // столик у стены
+  const ct = mkGroup(-5.6, 0, 2.62, 0);
+  addBox(0.85, 0.05, 0.42, M.woodMid, 0, 0.78, 0, 0, ct);
+  addBox(0.75, 0.04, 0.36, M.woodLight, 0, 0.55, 0, 0, ct);
+  [[-0.36, -0.16], [0.36, -0.16], [-0.36, 0.16], [0.36, 0.16]].forEach(([a, b]) => {
+    addBox(0.055, 0.78, 0.055, M.woodDark, a, 0.39, b, 0, ct);
+  });
+  makeVase(-5.75, 0.81, 2.55, ct, 0x7a8a9a);
+  makeBook(-5.35, 0.81, 2.68, 0.35, 0x6a3a3a);
+  makeBook(-5.35, 0.86, 2.68, 0.30, 0x3a4a6a);
+
+  // стул у стены
+  makeChair(-7.10, 2.55, Math.PI * 0.6, M.woodLight);
+
+  // декоративная деревянная панель
+  addBox(2.60, 1.05, 0.025, M.woodMid, -6.5, 0.62, 1.535);
+  addBox(2.60, 1.05, 0.025, M.woodMid, 3.0, 0.62, 1.535);
+
+  // дополнительный яркий источник
+  const corrExtra = new THREE.PointLight(0xfff0d0, 22, 14, 2);
+  corrExtra.position.set(-1.0, 2.5, 2.25);
+  scene.add(corrExtra);
+})();
+
+/* =========================================================================
+   18. ГОСТИНАЯ (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function livingRoom() {
+  const cx = -4.3, cz = -2.0;
+
+  makeRug(cx, cz, 5.4, 4.0, M.rug1);
+
+  // диван у западной стены
+  makeSofa(-6.6, -1.5, Math.PI / 2, M.fabricGreen);
+
+  // журнальный столик
+  makeCoffeeTable(-4.2, -1.8, 0);
+  makeBook(-4.3, 0.47, -1.75, 0.15, 0x7a3a3a);
+  makeBook(-4.1, 0.47, -1.85, -0.25, 0x3a5a7a);
+  makeCup(-4.0, 0.47, -1.65, 0xe8e2d4);
+  makeVase(-4.5, 0.47, -1.95, null, 0x8a9a7a);
+
+  // кресло
+  makeArmchair(-2.7, -2.6, -Math.PI / 4, M.fabricBeige);
+
+  // боковой столик + лампа
+  const st = mkGroup(-6.6, 0, 0.6, Math.PI / 2);
+  addBox(0.45, 0.52, 0.45, M.woodMid, 0, 0.26, 0, 0, st);
+  addBox(0.40, 0.04, 0.40, M.woodLight, 0, 0.52, 0, 0, st);
+  makeTableLamp(0, 0.52, 0, st);
+
+  // торшер
+  makeFloorLamp(-2.0, -0.2);
+
+  // ТВ-тумба
+  const tv = mkGroup(-5.0, 0, 1.30, 0);
+  addBox(1.60, 0.70, 0.55, M.woodMid, 0, 0.35, 0, 0, tv);
+  addBox(1.50, 0.05, 0.50, M.woodLight, 0, 0.70, 0, 0, tv);
+  addBox(1.30, 0.78, 0.07, M.metalDark, 0, 0.35, -0.28, 0, tv);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.20, 0.68), M.tvScreen);
+  screen.position.set(0, 0.35, -0.315); screen.rotation.y = Math.PI; tv.add(screen);
+  addBox(0.10, 0.14, 0.10, M.woodDark, -0.6, 0.79, 0.10, 0, tv);
+  addCyl(0.03, 0.03, 0.10, 8, M.metal, 0.55, 0.76, 0.10, tv);
+
+  // книжный шкаф
+  makeBookshelf(-3.0, 1.30, 0, 1.30, 2.10, 0.35, 5);
+
+  // растение
+  makePlant(-1.4, 0.9, 1.0);
+
+  // занавески
+  makeCurtains('x', -IZ, -6.60, -5.10, 0.95, 2.45);
+  makeCurtains('x', -IZ, -4.10, -2.60, 0.95, 2.45);
+
+  // картина над диваном
+  makePainting(-WX + 0.025, 1.95, -1.5, Math.PI / 2, 0.85, 0.60, 0x6a5a4a);
+
+  // полка с фотографиями
+  makeBookshelf(-6.6, -4.2, -Math.PI / 2, 0.9, 0.30, 0.20, 1);
+
+  // яркий светильник
+  makeCeilingLamp(cx, H1, cz, 0xffe2b8, 45, 15);
+  const lrExtra = new THREE.PointLight(0xffe8c8, 26, 14, 2);
+  lrExtra.position.set(-4.0, 2.4, -1.5);
+  scene.add(lrExtra);
+})();
+
+/* =========================================================================
+   19. КУХНЯ (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function kitchen() {
+  // гарнитур вдоль северной стены
+  makeCabinetRun(-1.0, -5.05, 3.4, 0, true);
+
+  // мойка под окном
+  makeSink(1.20, -5.05, 0);
+
+  // плита
+  makeStove(2.55, -5.05, 0);
+
+  // холодильник
+  makeFridge(-0.55, -3.50, Math.PI / 2);
+
+  // верхние шкафы
+  makeUpperCabinets(-1.5, 1.95, -5.05, 3.6, 0, 0.36);
+  makeUpperCabinets(2.30, 1.95, -5.05, 1.00, 0, 0.36);
+
+  // фартук
+  addBox(3.6, 0.55, 0.02, M.tileFloor, -1.5, 1.30, -5.03);
+
+  // вытяжка
+  addBox(0.70, 0.16, 0.50, M.metal, 2.55, 1.95, -5.20);
+  addBox(0.50, 0.55, 0.45, M.metal, 2.55, 2.30, -5.20);
+
+  // чайник
+  addCyl(0.10, 0.09, 0.16, 14, M.metal, 0.30, 0.94, -5.05);
+  addBox(0.10, 0.03, 0.06, M.metal, 0.30, 1.05, -4.98);
+
+  // разделочная доска
+  addBox(0.32, 0.03, 0.20, M.woodLight, 1.90, 0.93, -5.05);
+
+  // блок ножей
+  addBox(0.10, 0.14, 0.06, M.woodDark, 1.65, 0.98, -5.05);
+
+  // тарелки на полке
+  for (let i = 0; i < 3; i++) {
+    addCyl(0.09, 0.09, 0.015, 16, M.porcelain, -2.70, 1.30, -5.05 + 0.001 * i).rotation.x = Math.PI / 2;
+  }
+
+  // чашки
+  for (let i = 0; i < 3; i++) {
+    addCyl(0.045, 0.038, 0.07, 12, M.white, -2.15 + i * 0.15, 1.75, -5.10);
+  }
+
+  // специи
+  for (let i = 0; i < 3; i++) {
+    addCyl(0.035, 0.035, 0.10, 10, M.woodDark, 0.10 + i * 0.09, 0.98, -5.05);
+  }
+
+  // полотенце у раковины
+  addBox(0.20, 0.30, 0.02, M.fabricBeige, 0.90, 1.10, -5.05);
+
+  // губка и мыло
+  addBox(0.08, 0.04, 0.06, new THREE.MeshStandardMaterial({ color: 0xf0e040, roughness: 0.9 }), 1.00, 0.94, -4.90);
+  addCyl(0.03, 0.03, 0.14, 8, M.white, 1.55, 1.00, -4.90);
+
+  // мусорное ведро
+  addCyl(0.16, 0.16, 0.50, 14, M.metalDark, -2.30, 0.25, -4.70);
+
+  // полка с продуктами
+  addBox(1.20, 0.05, 0.22, M.woodMid, -1.5, 2.55, -5.05);
+  for (let i = 0; i < 4; i++) {
+    addBox(0.12, 0.20, 0.12, new THREE.MeshStandardMaterial({ color: 0xb0a070, roughness: 0.9 }),
+      -2.0 + i * 0.25, 2.68, -5.05);
+  }
+
+  // обеденный стол
+  makeTable(-0.5, -2.60, 0, 1.20, 0.85, 0.75, M.woodLight, M.woodMid);
+  makeChair(-1.35, -2.60, Math.PI / 2, M.woodLight);
+  makeChair(0.35, -2.60, -Math.PI / 2, M.woodLight);
+  makeChair(-0.5, -3.30, 0, M.woodLight);
+  makeChair(-0.5, -1.90, Math.PI, M.woodLight);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-1.5, H1, -3.5, 0xfff0d4, 48, 14);
+  makeCeilingLamp(2.0, H1, -3.5, 0xfff0d4, 32, 11);
+  const kExtra = new THREE.PointLight(0xfff4d8, 26, 12, 2);
+  kExtra.position.set(0, 2.5, -3.5);
+  scene.add(kExtra);
+
+  makeSconce(0, 2.05, -IZ + 0.05, 0, 8);
+})();
+
+/* =========================================================================
+   20. СТОЛОВАЯ (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function dining() {
+  makeTable(5.7, -3.5, 0, 1.60, 1.00, 0.76, M.woodMid, M.woodDark);
+  addBox(1.50, 0.02, 0.90, M.linen, 5.7, 0.78, -3.5);
+
+  makeChair(4.85, -4.20, -Math.PI / 4, M.woodLight);
+  makeChair(6.55, -4.20, Math.PI / 4, M.woodLight);
+  makeChair(4.85, -2.80, -Math.PI * 0.75, M.woodLight);
+  makeChair(6.55, -2.80, Math.PI * 0.75, M.woodLight);
+  makeChair(5.70, -2.40, Math.PI, M.woodLight);
+  makeChair(5.70, -4.60, 0, M.woodLight);
+
+  for (let i = 0; i < 4; i++) {
+    addCyl(0.11, 0.10, 0.012, 16, M.porcelain, 5.2 + (i % 2) * 1.0, 0.80, -3.2 - Math.floor(i / 2) * 0.6);
+  }
+  addCyl(0.09, 0.11, 0.22, 14, M.porcelain, 5.7, 0.90, -3.5);
+  makeVase(5.4, 0.80, -3.3, null, 0x9a7a6a);
+
+  // буфет
+  const bf = mkGroup(6.6, 0, -1.85, 0);
+  addBox(0.55, 1.80, 1.80, M.woodMid, 0, 0.90, 0, 0, bf);
+  addBox(0.50, 0.05, 1.70, M.woodLight, 0, 1.82, 0, 0, bf);
+  addBox(0.50, 0.72, 0.03, M.woodLight, 0, 1.40, 0.92, 0, bf);
+  addBox(0.50, 0.72, 0.03, M.woodLight, 0, 0.60, 0.92, 0, bf);
+  addCyl(0.07, 0.05, 0.14, 12, M.porcelain, 0.10, 0.95, 0.30, bf);
+  addCyl(0.07, 0.05, 0.14, 12, M.porcelain, -0.10, 0.95, 0.30, bf);
+  addCyl(0.09, 0.09, 0.12, 12, M.porcelain, 0.10, 1.15, 0.30, bf);
+
+  makePainting(7.30, 1.85, -3.5, Math.PI / 2, 0.80, 0.55, 0x6a4a3a);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(5.7, H1, -3.5, 0xffe0b0, 44, 12);
+  const dExtra = new THREE.PointLight(0xffe8c8, 22, 11, 2);
+  dExtra.position.set(6.0, 2.5, -3.0);
+  scene.add(dExtra);
+
+  makeSconce(4.3, 2.05, -IZ + 0.05, 0, 7);
+})();
+
+/* =========================================================================
+   21. КЛАДОВАЯ (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function pantry() {
+  function shelf(cx, cz, ry, w, d, h, n) {
+    const g = mkGroup(cx, 0, cz, ry);
+    addBox(w, 0.06, d, M.woodMid, 0, 0.03, 0, 0, g);
+    for (let i = 1; i <= n; i++) {
+      addBox(w, 0.045, d, M.woodLight, 0, (h / n) * i, 0, 0, g);
+    }
+    addBox(0.06, h, d, M.woodDark, -w / 2 + 0.03, h / 2, 0, 0, g);
+    addBox(0.06, h, d, M.woodDark,  w / 2 - 0.03, h / 2, 0, 0, g);
+    return g;
+  }
+  shelf(-0.6, -1.15, 0, 2.0, 0.35, 2.0, 5);
+  shelf(1.5, 0.9, Math.PI, 2.0, 0.35, 2.0, 5);
+
+  const jarCols = [0x6a8a4a, 0x8a7a3a, 0x7a5a3a, 0x5a6a4a];
+  for (let i = 0; i < 12; i++) {
+    const yy = 0.4 + Math.floor(i / 4) * 0.4;
+    const xx = -1.4 + (i % 4) * 0.40;
+    addCyl(0.06, 0.06, 0.16, 12, new THREE.MeshStandardMaterial({ color: jarCols[i % 4], roughness: 0.5 }),
+      xx, yy, -1.15);
+  }
+  for (let i = 0; i < 4; i++) {
+    addBox(0.28, 0.22, 0.22, new THREE.MeshStandardMaterial({ color: 0xa88a5a, roughness: 0.9 }),
+      1.2 + (i % 2) * 0.35, 0.50 + Math.floor(i / 2) * 0.42, 0.9);
+  }
+  addCyl(0.18, 0.22, 0.40, 12, M.fabricBeige, 0.4, 0.20, 0.9);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(0.5, H1, 0, 0xfff0d4, 24, 9);
+  const pExtra = new THREE.PointLight(0xfff0d4, 14, 8, 2);
+  pExtra.position.set(0.5, 2.3, 0);
+  scene.add(pExtra);
+})();
+
+/* =========================================================================
+   22. ПОСТИРОЧНАЯ (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function laundry() {
+  const wm = mkGroup(2.9, 0, 0.4, Math.PI);
+  addBox(0.62, 0.85, 0.62, M.white, 0, 0.425, 0, 0, wm);
+  addCyl(0.20, 0.20, 0.05, 20, M.metalDark, 0, 0.42, 0.32, wm).rotation.x = Math.PI / 2;
+  addCyl(0.16, 0.16, 0.02, 20, new THREE.MeshStandardMaterial({ color: 0x556677, roughness: 0.3 }),
+    0, 0.42, 0.34, wm).rotation.x = Math.PI / 2;
+  addBox(0.30, 0.05, 0.05, M.metalDark, 0, 0.80, 0.33, 0, wm);
+
+  addBox(1.20, 0.04, 0.30, M.woodMid, 4.6, 1.60, -1.0);
+  addBox(1.20, 0.04, 0.30, M.woodMid, 4.6, 1.20, -1.0);
+  for (let i = 0; i < 4; i++) {
+    addCyl(0.05, 0.05, 0.14, 10, M.white, 4.2 + i * 0.25, 1.69, -1.0);
+  }
+
+  makeSink(4.6, 0.6, Math.PI);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(4.0, H1, 0, 0xfff0d4, 28, 9);
+  const lExtra = new THREE.PointLight(0xfff0d4, 16, 9, 2);
+  lExtra.position.set(4.0, 2.3, 0);
+  scene.add(lExtra);
+})();
+
+/* =========================================================================
+   23. КАБИНЕТ 1 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function study1() {
+  const d = mkGroup(-6.4, 0, 4.2, 0);
+  addBox(1.60, 0.06, 0.75, M.woodMid, 0, 0.76, 0, 0, d);
+  addBox(0.60, 0.60, 0.60, M.woodMid, -0.60, 0.38, 0, 0, d);
+  addBox(0.55, 0.55, 0.55, M.woodLight, -0.60, 0.42, 0, 0, d);
+  addBox(0.05, 0.72, 0.70, M.woodDark, 0.75, 0.36, 0, 0, d);
+
+  makeChair(-6.4, 4.9, 0, M.woodLight);
+  makeTableLamp(-6.0, 0.79, 4.2, d);
+
+  addBox(0.30, 0.005, 0.22, M.paper, -6.6, 0.79, 4.3);
+  addBox(0.30, 0.005, 0.22, M.paper, -6.5, 0.80, 4.35, 0.15);
+  makeBook(-6.8, 0.79, 4.0, 0.2, 0x5a3a3a);
+
+  makeBookshelf(-3.2, 3.2, Math.PI / 2, 1.40, 2.10, 0.35, 5);
+  makeArmchair(-3.6, 5.0, -Math.PI / 4, M.fabricBlue);
+
+  makePainting(-IX + 0.18, 1.85, 4.5, Math.PI / 2, 0.60, 0.80, 0x4a5a4a);
+  makeClock(-5.5, 2.20, 3.07, 0);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-5.4, H1, 4.3, 0xffe0b0, 34, 12);
+  const sExtra = new THREE.PointLight(0xffe8c8, 20, 10, 2);
+  sExtra.position.set(-5.4, 2.3, 4.3);
+  scene.add(sExtra);
+})();
+
+/* =========================================================================
+   24. САНУЗЕЛ 1 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function wc1() {
+  makeToilet(4.8, 5.0, Math.PI);
+  makeVanity(3.0, 4.9, -Math.PI / 2);
+
+  addBox(0.02, 0.10, 0.45, M.metal, 3.65, 1.55, 4.30);
+  addBox(0.02, 0.28, 0.42, M.fabricBeige, 3.66, 1.40, 4.30);
+
+  addBox(0.35, 0.65, 0.35, M.white, 5.20, 1.60, 5.20);
+  addBox(0.20, 0.15, 0.03, M.metalDark, 5.45, 2.70, 3.20);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(4.0, H1, 4.5, 0xfff0d4, 26, 8);
+  const wExtra = new THREE.PointLight(0xfff0d4, 14, 8, 2);
+  wExtra.position.set(4.0, 2.3, 4.5);
+  scene.add(wExtra);
+})();
+
+/* =========================================================================
+   25. ПОДЛЕСТНИЧНАЯ КЛАДОВАЯ (внутри)
+   ========================================================================= */
+(function underStairsCloset() {
+  addBox(1.20, 0.04, 0.30, M.woodMid, 6.5, 0.60, 2.55);
+  addBox(1.20, 0.04, 0.30, M.woodMid, 6.5, 1.10, 2.55);
+  addBox(1.20, 0.04, 0.30, M.woodMid, 6.5, 1.60, 2.55);
+  for (let i = 0; i < 3; i++) {
+    addBox(0.28, 0.22, 0.24, new THREE.MeshStandardMaterial({ color: 0xa88a5a, roughness: 0.9 }),
+      6.1 + i * 0.30, 0.71, 2.55);
+  }
+  for (let i = 0; i < 2; i++) {
+    addBox(0.30, 0.24, 0.26, new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 0.9 }),
+      6.3 + i * 0.35, 1.22, 2.55);
+  }
+  makeCeilingLamp(6.7, 2.20, 2.85, 0xffe0a0, 9, 4);
+})();
+
+/* =========================================================================
+   26. ЛЕСТНИЧНЫЙ ХОЛЛ + ОСВЕЩЕНИЕ ЛЕСТНИЦЫ
+   ========================================================================= */
+(function stairHall() {
+  makeSconce(ST_X0 - 0.05, 1.85, 1.0, -Math.PI / 2, 8);
+  makeSconce(ST_X0 - 0.05, 4.20, 3.0, -Math.PI / 2, 8);
+  makeCeilingLamp(6.9, H1, 1.5, 0xffe0b0, 24, 8);
+  const sh = new THREE.PointLight(0xffe8c8, 16, 9, 2);
+  sh.position.set(6.9, 2.4, 1.5);
+  scene.add(sh);
+})();
+
+/* =========================================================================
+   27. КОРИДОР 2 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function corridor2() {
+  const yLamp = F2 + H2 - 0.30;
+  makeRug(-1.3, 1.5, 12.0, 0.80, M.rug2);
+
+  makeCeilingLamp(-4.0, yLamp + 0.30, 1.5, 0xffe0b0, 32, 13);
+  makeCeilingLamp(2.5, yLamp + 0.30, 1.5, 0xffe0b0, 32, 13);
+
+  makeSconce(-6.0, F2 + 2.05, 0.58, Math.PI, 6);
+  makeSconce(0.0, F2 + 2.05, 0.58, Math.PI, 6);
+  makeSconce(4.0, F2 + 2.05, 0.58, Math.PI, 6);
+
+  makePainting(-5.0, F2 + 1.85, 0.57, Math.PI, 0.55, 0.65, 0x5a4a6a);
+  makePainting(-1.5, F2 + 1.80, 0.57, Math.PI, 0.65, 0.50, 0x4a5a6a);
+  makePainting(2.0, F2 + 1.90, 0.57, Math.PI, 0.45, 0.60, 0x6a4a5a);
+  makePainting(-3.5, F2 + 1.85, 2.43, 0, 0.60, 0.75, 0x5a6a4a);
+
+  const ce2 = new THREE.PointLight(0xffe8c8, 20, 13, 2);
+  ce2.position.set(-1.0, F2 + 2.5, 1.5);
+  scene.add(ce2);
+})();
+
+/* =========================================================================
+   28. СПАЛЬНЯ 1 (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function bedroom1() {
+  makeBed(-5.8, -3.5, 0, M.blanket1);
+  makeNightstand(-7.05, -2.7, 0);
+  makeNightstand(-4.55, -2.7, 0);
+  makeTableLamp(-7.05, 0.55, -2.7, null);
+  makeBook(-4.55, 0.58, -2.7, 0.2, 0x5a3a3a);
+
+  makeWardrobe(-7.0, 0.6, Math.PI / 2, 1.10, 2.20, 0.60);
+  makeDresser(-5.0, 1.10, Math.PI, 1.20, 0.85, 0.50, 3);
+  makeMirror(-5.0, 1.85, 1.32, 0, 0.75, 0.95);
+  makeChair(-3.10, -5.00, 0.6, M.woodLight);
+
+  makeTable(-3.60, -1.50, 0, 1.10, 0.60, 0.76, M.woodMid, M.woodDark);
+  makeTableLamp(-3.20, 0.79, -1.50, null);
+  makeBook(-4.00, 0.79, -1.40, 0.3, 0x3a5a3a);
+  addBox(0.30, 0.005, 0.22, M.paper, -3.80, 0.79, -1.60);
+
+  addCyl(0.05, 0.06, 0.12, 12, new THREE.MeshStandardMaterial({ color: 0xb0a080, roughness: 0.5 }),
+    -6.0, 0.98, -IZ + 0.20);
+
+  makeCurtains('x', -IZ, -6.60, -5.20, 4.20, 5.70);
+  makeCurtains('z', -WX, -4.60, -3.20, 4.20, 5.70);
+
+  makePainting(-5.8, F2 + 2.10, -IZ + 0.04, 0, 0.70, 0.50, 0x6a5a4a);
+  makeRug(-5.5, -1.0, 3.6, 2.6, M.rug1);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-5.0, F2 + H2, -1.5, 0xffe2b8, 42, 13);
+  const b1 = new THREE.PointLight(0xffe8c8, 24, 11, 2);
+  b1.position.set(-5.0, F2 + 2.5, -2.0);
+  scene.add(b1);
+})();
+
+/* =========================================================================
+   29. СПАЛЬНЯ 2 (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function bedroom2() {
+  makeBed(5.5, -3.5, 0, M.blanket2);
+  makeNightstand(6.55, -2.7, 0);
+  makeNightstand(4.45, -2.7, 0);
+  makeTableLamp(6.55, 0.55, -2.7, null);
+  makeCup(4.45, 0.58, -2.7, 0x8a9ab0);
+
+  makeWardrobe(5.5, 0.10, Math.PI, 1.30, 2.20, 0.60);
+  makeDresser(3.0, -3.0, Math.PI / 2, 1.05, 0.85, 0.50, 3);
+  makeChair(3.30, -1.80, -0.5, M.woodLight);
+
+  makeCurtains('x', -IZ, 3.40, 4.90, 4.20, 5.70);
+  makeCurtains('x', -IZ, 6.00, 7.50, 4.20, 5.70);
+  makeCurtains('z', WX, -4.60, -3.20, 4.20, 5.70);
+
+  makePainting(5.5, F2 + 2.05, -IZ + 0.04, 0, 0.65, 0.45, 0x4a5a4a);
+  makeRug(5.2, -1.8, 2.6, 2.4, M.rug2);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(5.0, F2 + H2, -2.5, 0xffe2b8, 40, 12);
+  const b2 = new THREE.PointLight(0xffe8c8, 22, 10, 2);
+  b2.position.set(5.0, F2 + 2.5, -2.5);
+  scene.add(b2);
+})();
+
+/* =========================================================================
+   30. СПАЛЬНЯ 3 (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function bedroom3() {
+  makeBed(-0.5, 4.5, 0, M.blanket1);
+  makeNightstand(-1.55, 3.7, 0);
+  makeNightstand(0.55, 3.7, 0);
+  makeTableLamp(-1.55, 0.55, 3.7, null);
+  makeBook(0.55, 0.58, 3.7, -0.2, 0x3a5a3a);
+
+  makeWardrobe(2.6, 4.0, Math.PI, 1.20, 2.15, 0.60);
+  makeDresser(-2.0, 5.0, Math.PI / 2, 0.95, 0.85, 0.50, 3);
+
+  makeTable(-1.0, 2.85, 0, 1.10, 0.55, 0.75, M.woodLight, M.woodDark);
+  makeTableLamp(-1.35, 0.78, 2.85, null);
+  makeBook(-0.6, 0.78, 2.9, 0.15, 0x7a3a3a);
+  makeChair(-1.0, 3.55, Math.PI, M.woodLight);
+
+  makeCurtains('x', WZ, 1.35, 2.70, 4.20, 5.70);
+  makeCurtains('x', WZ, -2.25, -0.95, 4.20, 5.70);
+  makeCurtains('z', -WX, 3.60, 4.90, 4.20, 5.70);
+
+  makeRug(0.0, 4.5, 2.8, 2.4, M.rug1);
+  makePainting(-0.5, F2 + 2.15, WZ - 0.04, Math.PI, 0.75, 0.55, 0x6a4a5a);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-0.5, F2 + H2, 4.3, 0xffe2b8, 40, 13);
+  const b3 = new THREE.PointLight(0xffe8c8, 24, 11, 2);
+  b3.position.set(-0.5, F2 + 2.5, 4.3);
+  scene.add(b3);
+})();
+
+/* =========================================================================
+   31. ВАННАЯ 2 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function bathroom2() {
+  makeBathtub(-0.75, -2.5, Math.PI / 2);
+  makeToilet(0.55, -3.0, -Math.PI / 2);
+  makeVanity(0.55, -1.5, -Math.PI / 2);
+  makeMirror(0.85, 1.55, -1.5, -Math.PI / 2, 0.60, 0.80);
+
+  addBox(0.02, 0.10, 0.45, M.metal, -0.20, 1.70, -1.2);
+  addBox(0.02, 0.30, 0.42, M.fabricBeige, -0.19, 1.55, -1.2);
+
+  addBox(0.45, 0.60, 0.30, M.white, 0.65, 1.65, -0.20);
+  addBox(0.20, 0.15, 0.03, M.metalDark, -0.20, 2.70, -3.42);
+
+  addBox(0.02, 1.20, 3.8, M.tileWC, -1.49, 1.40, -1.5);
+  addBox(2.4, 1.20, 0.02, M.tileWC, -0.25, 1.40, -3.48);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-0.25, F2 + H2, -1.5, 0xfff0d4, 32, 10);
+  const wc2 = new THREE.PointLight(0xfff0d4, 18, 9, 2);
+  wc2.position.set(-0.25, F2 + 2.4, -1.5);
+  scene.add(wc2);
+})();
+
+/* =========================================================================
+   32. КЛАДОВАЯ 2 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function storage2() {
+  makeWardrobe(-1.10, -4.5, Math.PI / 2, 0.90, 2.20, 0.55);
+  addBox(0.85, 0.04, 0.30, M.woodMid, 0.30, 0.80, -4.6);
+  addBox(0.85, 0.04, 0.30, M.woodMid, 0.30, 1.30, -4.6);
+  addBox(0.85, 0.04, 0.30, M.woodMid, 0.30, 1.80, -4.6);
+  for (let i = 0; i < 4; i++) {
+    addBox(0.26, 0.22, 0.22, new THREE.MeshStandardMaterial({ color: 0xa88a5a, roughness: 0.9 }),
+      -0.5 + (i % 2) * 0.5, 0.62 + Math.floor(i / 2) * 0.42, -4.6);
+  }
+  addBox(0.55, 0.15, 0.38, M.woodDark, 0.05, 0.08, -4.0);
+  addBox(0.55, 0.15, 0.38, M.woodDark, 0.05, 0.24, -4.0);
+  for (let i = 0; i < 3; i++) {
+    addBox(0.30, 0.06, 0.22, M.paper, -0.2, 0.85 + i * 0.06, -5.0);
+  }
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-0.25, F2 + H2, -4.3, 0xffe0b0, 22, 8);
+  const st2 = new THREE.PointLight(0xffe8c8, 12, 7, 2);
+  st2.position.set(-0.25, F2 + 2.4, -4.3);
+  scene.add(st2);
+})();
+
+/* =========================================================================
+   33. КАБИНЕТ 2 ЭТАЖА (ЯРКИЙ СВЕТ)
+   ========================================================================= */
+(function study2() {
+  const d = mkGroup(-5.5, F2, 4.5, 0);
+  addBox(1.50, 0.06, 0.70, M.woodMid, 0, 0.76, 0, 0, d);
+  addBox(0.55, 0.55, 0.55, M.woodLight, -0.60, 0.38, 0, 0, d);
+  addBox(0.05, 0.72, 0.65, M.woodDark, 0.70, 0.36, 0, 0, d);
+  makeChair(-5.5, 5.2, 0, M.woodLight);
+  makeTableLamp(-5.2, 0.79, 4.5, d);
+  makeBook(-5.8, 0.79, 4.4, 0.2, 0x4a5a4a);
+  addBox(0.30, 0.005, 0.22, M.paper, -5.5, 0.79, 4.6);
+
+  makeBookshelf(-7.0, 3.0, Math.PI / 2, 1.30, 2.10, 0.35, 5);
+  makeArmchair(-3.9, 4.8, -Math.PI / 4, M.fabricBlue);
+  makePainting(-5.5, F2 + 2.05, 2.53, 0, 0.65, 0.50, 0x5a4a4a);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(-5.4, F2 + H2, 4.3, 0xffe0b0, 32, 11);
+  const s2 = new THREE.PointLight(0xffe8c8, 18, 9, 2);
+  s2.position.set(-5.4, F2 + 2.5, 4.3);
+  scene.add(s2);
+})();
+
+/* =========================================================================
+   34. ЛЕСТНИЧНАЯ ПЛОЩАДКА 2 ЭТАЖА
+   ========================================================================= */
+(function landing2() {
+  makeMirror(ST_X1 - 0.30, F2 + 1.70, 2.30, -Math.PI / 2, 0.55, 0.80);
+  addBox(0.80, 0.05, 0.35, M.woodMid, 6.7, F2 + 0.78, 4.2);
+  [[-0.35, -0.12], [0.35, -0.12], [-0.35, 0.12], [0.35, 0.12]].forEach(([a, b]) => {
+    addBox(0.05, 0.78, 0.05, M.woodDark, 6.7 + a, F2 + 0.39, 4.2 + b);
+  });
+  makeVase(6.5, F2 + 0.81, 4.2, null, 0x8a7a9a);
+
+  // ЯРКИЙ свет
+  makeCeilingLamp(6.8, F2 + H2, 5.0, 0xffe0b0, 32, 10);
+  const lan = new THREE.PointLight(0xffe8c8, 20, 10, 2);
+  lan.position.set(6.8, F2 + 2.4, 4.8);
+  scene.add(lan);
+})();
+
+/* =========================================================================
+   35. ОБЩЕЕ ОСВЕЩЕНИЕ — ГЛОБАЛЬНЫЙ СВЕТ (ВАЖНО!)
+   ========================================================================= */
+(function globalLights() {
+  // Рассеянный свет — базовый минимум, чтобы ничего не проваливалось в черноту
+  const amb = new THREE.AmbientLight(0xffffff, 1.2);
+  scene.add(amb);
+
+  // Полусферический — мягкий общий
+  const hemi = new THREE.HemisphereLight(0xd4e4f4, 0xa89880, 1.4);
+  scene.add(hemi);
+
+  // Солнце снаружи (с тенями)
+  const sun = new THREE.DirectionalLight(0xfff2dd, 2.4);
+  sun.position.set(28, 40, 22);
+  sun.target.position.set(0, 0, 0);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -30;
+  sun.shadow.camera.right = 30;
+  sun.shadow.camera.top = 30;
+  sun.shadow.camera.bottom = -30;
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 100;
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.02;
+  scene.add(sun);
+  scene.add(sun.target);
+
+  // Мягкое заполнение с противоположной стороны
+  const fill = new THREE.DirectionalLight(0xdfe8f4, 0.9);
+  fill.position.set(-22, 18, -18);
+  scene.add(fill);
+})();
+
+/* =========================================================================
+   36. АНИМАЦИЯ, КЛАВИШИ, РЕНДЕР
+   ========================================================================= */
+let showRoof = true, showCeilings = true;
+addEventListener('keydown', (e) => {
+  const k = e.key.toLowerCase();
+  if (k === 'r') { showRoof = !showRoof; roofGroup.visible = showRoof; }
+  if (k === 'c') { showCeilings = !showCeilings; ceilingGroup.visible = showCeilings; }
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+</script>
+</body>
+</html>
