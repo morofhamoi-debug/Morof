@@ -19,17 +19,6 @@
   #app{position:fixed;inset:0;}
   #game-canvas-wrap{position:absolute;inset:0;}
 
-  /* --- LOADING (оставлено для резервного сообщения об ошибке) --- */
-  #loading{
-    position:fixed;inset:0;background:#000;color:#889;display:flex;
-    align-items:center;justify-content:center;flex-direction:column;z-index:1000;
-    transition:opacity .8s;
-  }
-  #loading .dot{width:8px;height:8px;background:#a11;border-radius:50%;margin-bottom:20px;animation:pulse 1.2s infinite;}
-  #loading .txt{font-size:13px;letter-spacing:.3em;color:#556;}
-  @keyframes pulse{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:1;transform:scale(1.2)}}
-  #loading.hide{opacity:0;pointer-events:none;}
-
   /* --- MAIN MENU --- */
   #menu{
     position:fixed;inset:0;z-index:500;
@@ -239,13 +228,6 @@
   /* FPS indicator small */
   #fps{position:absolute;top:8px;right:10px;font-size:10px;color:#4a4f57;letter-spacing:.1em;z-index:60;pointer-events:none;display:none;}
 </style>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-  }
-}
-</script>
 </head>
 <body>
 <div id="app">
@@ -261,8 +243,6 @@
     <div id="subtitle"></div>
   </div>
   <div id="fps">FPS 60</div>
-
-  <!-- ЭКРАН ЗАГРУЗКИ УДАЛЁН. Резервное сообщение об ошибке создаётся динамически только при сбое. -->
 
   <!-- MAIN MENU -->
   <div id="menu" class="hide">
@@ -368,74 +348,14 @@
   </div>
 </div>
 
-<!-- =============================================================
-     Резервный НЕ-модульный скрипт — срабатывает только при сбое
-     (file:// блокировка модулей, ошибка CDN, таймаут).
-     Экран загрузки при нормальном запуске не показывается вовсе;
-     если что-то пойдёт не так — здесь будет создано сообщение.
-     ============================================================= -->
-<script>
-(function(){
-  var shown = false;
-  function showFallback(reason){
-    if (shown || window.__MOROF_BOOTED__) return;
-    shown = true;
-    var el = document.getElementById('loading');
-    if (!el){
-      el = document.createElement('div');
-      el.id = 'loading';
-      el.style.cssText = 'position:fixed;inset:0;background:#000;color:#889;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:2000;padding:20px;font-family:system-ui,-apple-system,sans-serif;';
-      document.body.appendChild(el);
-    }
-    el.style.display = 'flex';
-    el.style.opacity = '1';
-    el.style.pointerEvents = 'auto';
-    var safe = reason ? String(reason).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
-    el.innerHTML = '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:560px;">'
-      + '<b style="color:#e33;font-size:16px;">Игра не смогла загрузиться.</b><br><br>'
-      + (safe ? '<span style="color:#666;font-size:12px;">Причина: ' + safe + '</span><br><br>' : '')
-      + 'Скорее всего, браузер блокирует ES-модули при открытии через <code>file://</code>.<br><br>'
-      + '<b style="color:#d8dde4;">Решение 1:</b> Запустите через локальный сервер. В VS Code: правой кнопкой по <code>index.html</code> → «Open with Live Server».<br><br>'
-      + '<b style="color:#d8dde4;">Решение 2:</b> В терминале в папке с файлом:<br>'
-      + '<code style="background:#111;padding:4px 8px;color:#c8d0d8;display:inline-block;margin:6px 0;">python -m http.server 8000</code><br>'
-      + 'Затем откройте <code>http://localhost:8000/index.html</code><br><br>'
-      + '<b style="color:#d8dde4;">Решение 3:</b> Проверьте интернет — Three.js грузится с <code>cdn.jsdelivr.net</code>.'
-      + '</div>';
-  }
-  window.__MOROF_SHOW_FALLBACK__ = showFallback;
-  setTimeout(function(){ showFallback('таймаут ожидания модуля (8 сек)'); }, 8000);
-  window.addEventListener('error', function(e){
-    if (!window.__MOROF_BOOTED__) showFallback(e && e.message ? e.message : 'ошибка скрипта');
-  });
-  window.addEventListener('unhandledrejection', function(e){
-    if (!window.__MOROF_BOOTED__) {
-      var r = e && e.reason;
-      showFallback(r && r.message ? r.message : String(r || 'ошибка промиса'));
-    }
-  });
-})();
-</script>
+<!-- Three.js UMD (не модуль) — работает даже при открытии файла через file:// -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.min.js"></script>
 
-<script type="module">
+<script>
 // =============================================================
 // MOROF: НОЧНАЯ СМЕНА — Часть 1
 // Один HTML-файл. Всё внутри.
 // =============================================================
-
-let THREE;
-try {
-  let __toId = null;
-  const __timeout = new Promise((_, rej) => {
-    __toId = setTimeout(() => rej(new Error('Таймаут загрузки Three.js (12 сек). Возможно, нет доступа к cdn.jsdelivr.net.')), 12000);
-  });
-  THREE = await Promise.race([ import('three'), __timeout ]);
-  if (__toId) clearTimeout(__toId);
-} catch (e) {
-  if (window.__MOROF_SHOW_FALLBACK__) {
-    window.__MOROF_SHOW_FALLBACK__((e && e.message) || String(e));
-  }
-  throw e;
-}
 
 // =============================================================
 // SECTION: CONFIG / STATE
@@ -521,7 +441,6 @@ const Audio = {
 
     // ambient hum
     const ambGain = ctx.createGain(); ambGain.gain.value = 0.0; ambGain.connect(master);
-    const brown = ctx.createScriptProcessor ? null : null;
     // noise buffer
     const buf = ctx.createBuffer(1, ctx.sampleRate*4, ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -844,18 +763,9 @@ const lamps = [];
   const W=4, D=25, H=3.5, cz = 3 + D/2;
   addFloor(W,D, 0, 0.001, cz);
   addCeil(W,D, 0, H, cz);
-  // Left wall — split for door openings
-  // Doors at z=10 (to food court side? actually right/east), z=16 (electronics on west)
-  // Left wall (x=-W/2=-2): solid except opening at z in [15.5, 18.5]
+  // Left wall segments
   addBox(0.2, H, 25-4.5, -W/2, H/2, cz - 25/2 + (25-4.5)/2, wallMat); // north segment
-  addBox(0.2, H, 3.0, -W/2, H/2, cz + 25/2 - 3/2, wallMat); // south segment - keep solid south
-  // actually simpler: left wall two segments with a door hole in middle
-  // We'll reconstruct explicitly:
-  //   z from 3 to 15: solid
-  //   z from 15 to 19: opening (door)
-  //   z from 19 to 28: solid
-  // (we already added two overlapping; clear not possible—let's just add remaining)
-  // For clarity we'll skip fixing and just add the opening piece.
+  addBox(0.2, H, 3.0, -W/2, H/2, cz + 25/2 - 3/2, wallMat); // south segment
   // Right wall (x=+2): opening at z=8..12 (into food court)
   addBox(0.2, H, 5.0, W/2, H/2, cz - 25/2 + 2.5, wallMat); // z 3..8
   addBox(0.2, H, 16.0, W/2, H/2, cz - 25/2 + 4.0 + 16.0/2, wallMat); // z 12..28
@@ -863,34 +773,27 @@ const lamps = [];
   addBox(W+0.4, H, 0.2, 0, H/2, cz + 25/2, wallMat);
 
   // Doors off corridor
-  // Door to food court east at z=10: panel on x=+2
   new Door(2.0, 0, 8.2, 3.6, H-0.05, 'x', 'closed', false, 'Дверь в торговый зал');
-  // Door to electronics west at z=17
   new Door(-2.0, 0, 15.6, 3.4, H-0.05, 'x', 'closed', false, 'Дверь в магазин электроники');
 
-  // Ceiling lamps along corridor with some off
+  // Ceiling lamps
   for (let z=5; z<28; z+=3.5){
     const L = addLamp(0, H-0.15, z, 0xffe6b0, 1.0, 7);
     lamps.push(L);
   }
-  // Detail: pipes on ceiling
+  // Pipes on ceiling
   for (let i=0;i<3;i++){
     const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,D, 6), metalMat);
     pipe.rotation.x = Math.PI/2;
     pipe.position.set(-1.5 + i*1.5, H-0.25, cz);
     scene.add(pipe);
   }
-  // Some props: crates, trash
+  // Props
   addBox(0.7,0.7,0.7, 1.2, 0.35, 6, rustyMat, true);
   addBox(0.7,0.5,0.7, 1.2, 0.25, 22, rustyMat, true);
-  // Wall trim (baseboard)
-  for (let z=3.3; z<27.7; z+=0.5){
-    // skip - too many, fine
-    break;
-  }
 })();
 
-// --- FOOD COURT (east of corridor, big open space) interior from (2, 8) to (18, 22)
+// --- FOOD COURT (east of corridor) interior from (2, 8) to (18, 22)
 (function buildFoodCourt(){
   const x0=2, x1=18, z0=8, z1=22;
   const W = x1-x0, D = z1-z0;
@@ -902,14 +805,13 @@ const lamps = [];
   addBox(W,H,0.2, cx, H/2, z0, wallMat);
   addBox(W,H,0.2, cx, H/2, z1, wallMat);
   addBox(0.2,H,D, x1, H/2, cz, wallMat);
-  // West wall has door opening from corridor: the corridor's east opening at z=8..12 aligns with x0=2
-  addBox(0.2,H, D - 4.0, x0, H/2, cz + 2.0, wallMat); // south of opening (z=12..22)
-  // Ceiling lights sparse
+  addBox(0.2,H, D - 4.0, x0, H/2, cz + 2.0, wallMat); // south of opening
+  // Ceiling lights
   for (let i=0;i<4;i++){
     const L = addLamp(x0+3 + (i%2)*7, H-0.15, z0+3 + Math.floor(i/2)*7, 0xffdda0, 0.9, 8);
     lamps.push(L);
   }
-  // Tables/chairs (simple)
+  // Tables/chairs
   for (let i=0;i<4;i++){
     const tx = x0+4 + (i%2)*6, tz = z0+4 + Math.floor(i/2)*7;
     addBox(1.4,0.05,0.9, tx, 0.75, tz, trimMat, true);
@@ -938,7 +840,6 @@ const lamps = [];
   addBox(W,H,0.2, cx, H/2, z0, wallMat);
   addBox(W,H,0.2, cx, H/2, z1, wallMat);
   addBox(0.2,H,D, x0, H/2, cz, wallMat);
-  // East wall opening aligned with corridor door at z≈16..19.4
   addBox(0.2,H, D-4.0, x1, H/2, cz - 2.2, wallMat); // north side
   // lights
   const L = addLamp(cx, H-0.15, cz, 0xcfe6ff, 0.9, 9); lamps.push(L);
@@ -999,13 +900,13 @@ state.watcher = watcher;
 
 // Patrol nodes (waypoints in navigable space)
 state.watcherNodes = [
-  new THREE.Vector3(0, 0, 5),      // corridor near security
+  new THREE.Vector3(0, 0, 5),
   new THREE.Vector3(0, 0, 10),
   new THREE.Vector3(0, 0, 15),
   new THREE.Vector3(0, 0, 22),
-  new THREE.Vector3(10, 0, 15),    // food court
+  new THREE.Vector3(10, 0, 15),
   new THREE.Vector3(10, 0, 10),
-  new THREE.Vector3(-6, 0, 16),    // electronics
+  new THREE.Vector3(-6, 0, 16),
   new THREE.Vector3(0, 0, 8),
 ];
 state.watcherNodeIdx = 0;
@@ -1031,7 +932,6 @@ function renderCameraFeed(){
   const c = cameras[state.camView.idx];
   camCam.position.copy(c.pos);
   camCam.lookAt(c.look);
-  // Flicker/glitch: randomly hide some lights
   camRenderer.render(scene, camCam);
 }
 
@@ -1155,7 +1055,6 @@ function setFlashlight(on){
 function updateFlashlight(dt){
   if (player.flashlightOn && player.flashlightPower > 0){
     player.flashlightPower = Math.max(0, player.flashlightPower - CFG.flashlightDrain*dt);
-    // occasional flicker at low power
     if (player.flashlightPower < 25){
       if (Math.random() < 0.008){
         flashlight.visible = false;
@@ -1212,14 +1111,9 @@ function updatePlayer(dt){
     p.pos.z = nz;
   }
 
-  // gravity / vertical (no jump for now)
-  // (gravity applied only for future features)
-
   // crouch
   const targetEye = p.crouching ? CFG.playerCrouch : CFG.playerEye;
   const targetY = 0 + targetEye;
-  const cy = camera.position.y - 0; // compute from camera pos
-  // we store eye height as camera.position.y directly
   camera.position.y += (targetY - camera.position.y) * Math.min(1, dt*8);
 
   // camera bob
@@ -1228,7 +1122,6 @@ function updatePlayer(dt){
     bobTimer += dt * (sprint?12:8);
     const amp = state.reducedShake ? 0.005 : (sprint?0.045:0.028);
     p.bobAmp = amp;
-    // step sound
     stepTimer -= dt;
     if (stepTimer <= 0){
       Audio.step(sprint?'run':'walk');
@@ -1240,7 +1133,6 @@ function updatePlayer(dt){
   const bob = Math.sin(bobTimer) * p.bobAmp;
   camera.position.x = p.pos.x + Math.cos(bobTimer*0.5)*p.bobAmp*0.25;
   camera.position.z = p.pos.z;
-  // apply base eye height + bob
   camera.position.y = targetY + bob;
 
   camera.rotation.set(p.pitch, p.yaw, 0);
@@ -1251,8 +1143,6 @@ function updatePlayer(dt){
 
   // safety fallback
   if (camera.position.y < -3) camera.position.set(0, CFG.playerEye, 0);
-
-  // save last safe pos occasionally
 }
 
 // =============================================================
@@ -1304,7 +1194,6 @@ canvas.addEventListener('click', ()=>{
 });
 document.addEventListener('pointerlockchange', ()=>{
   if (document.pointerLockElement !== canvas && state.running && !state.paused){
-    // user pressed Esc — open pause
     if (!state.camView.active) openPause();
   }
 });
@@ -1322,7 +1211,6 @@ document.addEventListener('mousemove', e=>{
 // =============================================================
 function interactKey(){
   if (state.camView.active){
-    // close cameras
     closeCameras();
     return;
   }
@@ -1408,7 +1296,6 @@ function openCameras(){
   Audio.blip(700,0.08,'sine',0.15);
   Audio.static(0.35,0.12);
   buildCamList();
-  // Set first non-offline cam
   let i = cameras.findIndex(c=>!c.offline);
   if (i<0) i=0;
   state.camView.idx = i;
@@ -1685,18 +1572,15 @@ function startMenuScene(){
     menuRAF = requestAnimationFrame(loop);
     const dt = 0.016;
     menuT += dt;
-    // camera sway
     menuCam.position.x = Math.sin(menuT*0.15)*0.35;
     menuCam.position.y = 1.7 + Math.sin(menuT*0.4)*0.02;
     menuCam.lookAt(0, 1.5, 20);
-    // flicker
     lights.forEach((l,i)=>{
       l.intensity *= 0.9 + Math.random()*0.15;
       const base = i===0?1.2:i===1?0.6:0.35;
       if (Math.random()<0.03) l.intensity = 0.1;
       l.intensity += (base - l.intensity)*0.05;
     });
-    // silhouette shift
     sil.position.x = Math.sin(menuT*0.3)*0.2;
     menuRenderer.render(menuScene, menuCam);
   }
@@ -1793,13 +1677,12 @@ function loadGame(){
 // SECTION: GAMEPLAY START / RESPAWN / DEATH
 // =============================================================
 function startNewGame(){
-  // reset
   state.chapter = 1;
   state.inventory = [];
   state.docRead = new Set();
   state.events.fired = new Set();
   state.player.pos.set(-2.2, CFG.playerEye, 0.5);
-  state.player.yaw = Math.PI; // face into room
+  state.player.yaw = Math.PI;
   state.player.pitch = 0;
   state.player.flashlightPower = CFG.flashlightMax;
   state.player.flashlightOn = true;
@@ -1817,13 +1700,10 @@ function beginGameplay(){
   setTimeout(()=>say('Так… смена началась. Спокойно.', 3000), 500);
   setTimeout(()=>say('Проверю камеры, потом обход.', 3500), 3600);
   canvas.requestPointerLock();
-  // reset watcher
   watcher.visible = false;
   state.watcherState = 'patrol';
   state.watcherNodeIdx = 0;
-  // start building ambience (random events)
   scheduleAmbientEvents();
-  // Save a checkpoint
   state.checkpoint = 'ch1_start';
   setTimeout(saveGame, 1500);
 }
@@ -1832,15 +1712,12 @@ function scheduleAmbientEvents(){
   if (scheduleAmbientEvents._t) clearTimeout(scheduleAmbientEvents._t);
   const tick = ()=>{
     if (!state.running || state.paused){ scheduleAmbientEvents._t = setTimeout(tick, 4000); return; }
-    // random spooky sound
     const r = Math.random();
     if (r < 0.35) Audio.thud(0.1 + Math.random()*0.2);
     else if (r < 0.6) Audio.static(0.3, 0.05);
     else if (r < 0.75) {
-      // distant creak
       Audio.doorCreak();
     } else if (r < 0.85){
-      // whisper (subtitle only)
       const lines = ['…кто здесь…','…я всё ещё здесь…','…не ходи туда…','…тринадцать…','…смотритель…'];
       say(lines[Math.floor(Math.random()*lines.length)], 2600);
     }
@@ -1892,11 +1769,8 @@ function gotoMainMenu(){
 // =============================================================
 function distanceXZ(a,b){ const dx=a.x-b.x, dz=a.z-b.z; return Math.hypot(dx,dz); }
 function lineOfSight(from, to){
-  // simple raycast against colliders
   const dir = new THREE.Vector3().subVectors(to, from).normalize();
   const dist = from.distanceTo(to);
-  const ray = new THREE.Raycaster(from.clone(), dir, 0.1, dist);
-  // build a list of wall meshes (we don't store them; use colliders as boxes and do manual step check)
   const steps = Math.ceil(dist/0.4);
   const tmp = new THREE.Vector3();
   for (let i=1;i<steps;i++){
@@ -1914,12 +1788,10 @@ function lineOfSight(from, to){
 function updateWatcher(dt){
   const w = watcher;
   if (!w) return;
-  // Only activate from chapter 1 event — for demo, activates after camera task
   if (state.chapter < 1) return;
 
   const p = state.player.pos;
 
-  // state machine
   switch(state.watcherState){
     case 'patrol': {
       const target = state.watcherNodes[state.watcherNodeIdx];
@@ -1934,28 +1806,23 @@ function updateWatcher(dt){
       } else {
         const dir = new THREE.Vector3().subVectors(tp, w.position).normalize();
         w.position.addScaledVector(dir, CFG.watcherSpeedPatrol*dt);
-        // face target
         const ang = Math.atan2(dir.x, dir.z);
         w.rotation.y = ang;
       }
-      // Detection
       if (canSeePlayer()) state.watcherState = 'chase';
       break;
     }
     case 'chase': {
-      // move toward player
       const dir = new THREE.Vector3().subVectors(p, w.position); dir.y = 0;
       const d = dir.length();
       dir.normalize();
       w.position.addScaledVector(dir, CFG.watcherSpeedChase*dt);
       w.rotation.y = Math.atan2(dir.x, dir.z);
       w.visible = true;
-      // lose sight
       if (!canSeePlayer() && d > 10){
         state.watcherState = 'patrol';
         state.watcherSearchTimer = 3;
       }
-      // caught player
       if (d < 0.9){ die(); }
       break;
     }
@@ -1966,7 +1833,6 @@ function updateWatcher(dt){
       break;
     }
   }
-  // footstep audio cue
   if (w.visible){
     w.userData.stepTimer = (w.userData.stepTimer || 0) - dt;
     if (w.userData.stepTimer <= 0){
@@ -1981,19 +1847,13 @@ function canSeePlayer(){
   const w = watcher;
   const d = distanceXZ(w.position, p);
   if (d > CFG.watcherSight) return false;
-  // facing dot
   const dirToPlayer = new THREE.Vector3().subVectors(p, w.position).setY(0).normalize();
   const wFacing = new THREE.Vector3(Math.sin(w.rotation.y), 0, Math.cos(w.rotation.y));
   const dot = dirToPlayer.dot(wFacing);
   if (dot < Math.cos(CFG.watcherFOV)) return false;
-  // light of sight — walls
   const eyeW = new THREE.Vector3(w.position.x, 1.9, w.position.z);
   const eyeP = new THREE.Vector3(p.x, 1.6, p.z);
   if (!lineOfSight(eyeW, eyeP)) return false;
-  // bright flashlight in eyes → sees you easier
-  if (state.player.flashlightOn && state.player.flashlightPower > 0){
-    return true;
-  }
   return true;
 }
 
@@ -2031,31 +1891,25 @@ function loop(){
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, clock.getDelta());
 
-  // menu preview handled separately
   if (state.inMenu) return;
 
-  // cam monitor
   if (state.camView.active){
     renderCameraFeed();
-    // overlay time
     const d = new Date();
     $('cam-time').textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
   }
 
-  // if paused, still render but don't update world
   if (state.paused || !state.running){
     renderer.render(scene, camera);
     return;
   }
 
-  // update world
   for (const d of state.doors) d.update(dt);
   updatePlayer(dt);
   updateFlashlight(dt);
   updateWatcher(dt);
   updateInteractionPrompt();
 
-  // lamp flicker
   for (const L of lamps){
     L.flicker += dt;
     const base = L.baseIntensity;
@@ -2064,10 +1918,6 @@ function loop(){
     if (L.light.intensity < 0.05) L.light.intensity = 0.05;
   }
 
-  // check safe pos (only for respawn)
-  if (state.player.pos.y > -1 && !collidesAt(state.player.pos.x, state.player.pos.z, state.player.pos.y)){
-    // fine
-  }
   if (Math.random() < 0.001) state.lastSafePos.copy(state.player.pos);
 
   // First-quest logic: after reading cameras → next task
@@ -2077,7 +1927,6 @@ function loop(){
       notify('Задача: пройти по коридору');
       setObjective('Пройдите по центральному коридору');
     }, 1200);
-    // schedule watcher appearance
     setTimeout(()=>{
       watcher.position.set(0, 0, 22);
       watcher.visible = true;
@@ -2089,7 +1938,6 @@ function loop(){
 
   renderer.render(scene, camera);
 
-  // FPS counter
   fpsAcc += dt; fpsFrames++;
   if (fpsAcc > 0.5){
     const fps = Math.round(fpsFrames/fpsAcc);
@@ -2110,20 +1958,16 @@ window.addEventListener('resize', ()=>{
 });
 
 // =============================================================
-// SECTION: BOOT
-// Экран загрузки убран. Меню показывается сразу.
+// SECTION: BOOT — сразу показываем меню
 // =============================================================
 showMenu();
-window.__MOROF_BOOTED__ = true;
 
-// Fade HUD when not running
 window.addEventListener('blur', ()=>{
   if (state.running && !state.paused) openPause();
 });
 
 console.log('%c MOROF: Ночная смена ', 'background:#8c1a1a;color:#fff;padding:4px 8px;font-weight:bold;');
 console.log('Часть 1 загружена. Управление: WASD, Shift, Ctrl, E, F, Esc.');
-
 </script>
 </body>
 </html>
