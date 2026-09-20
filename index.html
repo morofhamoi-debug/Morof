@@ -78,10 +78,10 @@
    ============================================================ */
 
 // ---------- ОСНОВНЫЕ КОНСТАНТЫ ДОМА ----------
-const T        = 0.30;   // толщина стен
-const F1       = 3.20;   // высота стен 1 этажа (= уровень пола 2 этажа)
-const SLAB_B   = 2.90;   // низ межэтажного перекрытия
-const F2       = 6.40;   // верх стен 2 этажа
+const T        = 0.30;
+const F1       = 3.20;
+const SLAB_B   = 2.90;
+const F2       = 6.40;
 const STAIR    = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
 
 // ---------- СЦЕНА ----------
@@ -116,14 +116,13 @@ const matWhite     = new THREE.MeshStandardMaterial({ color: 0xb9b6a8, roughness
 const matStone     = new THREE.MeshStandardMaterial({ color: 0x4a453e, roughness: 1.0 });
 
 // ---------- СИСТЕМЫ КОЛЛИЗИЙ ----------
-const colliders = [];    // {minX,maxX,minZ,maxZ,minY,maxY}
-const floorRects = [];   // {minX,maxX,minZ,maxZ,y}
+const colliders = [];
+const floorRects = [];
 
 function addCollider(minX, maxX, minZ, maxZ, minY, maxY) {
   colliders.push({ minX, maxX, minZ, maxZ, minY, maxY });
 }
 
-// Универсальный бокс: y — НИЗ бокса
 function box(w, h, d, mat, x, y, z, collide = true) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
   m.position.set(x, y + h / 2, z);
@@ -134,12 +133,10 @@ function box(w, h, d, mat, x, y, z, collide = true) {
   return m;
 }
 
-// Стена вдоль оси X (постоянный Z)
 function wallX(x1, x2, z, y0, y1, mat = matWall, collide = true) {
   if (x2 - x1 <= 0 || y1 - y0 <= 0) return;
   box(x2 - x1, y1 - y0, T, mat, (x1 + x2) / 2, y0, z, collide);
 }
-// Стена вдоль оси Z (постоянный X)
 function wallZ(z1, z2, x, y0, y1, mat = matWall, collide = true) {
   if (z2 - z1 <= 0 || y1 - y0 <= 0) return;
   box(T, y1 - y0, z2 - z1, mat, x, y0, (z1 + z2) / 2, collide);
@@ -147,10 +144,9 @@ function wallZ(z1, z2, x, y0, y1, mat = matWall, collide = true) {
 
 /* ============================================================
    ГЕОМЕТРИЯ ДОМА
-   Дом: X от -10 до 10, Z от -8 до 8
    ============================================================ */
 
-// ---------- ПОЛ 1 ЭТАЖА (основание) ----------
+// ---------- ПОЛ 1 ЭТАЖА ----------
 floorRects.push({ minX: -10, maxX: 10, minZ: -8, maxZ: 8, y: 0 });
 const groundMesh = new THREE.Mesh(new THREE.BoxGeometry(20.4, 0.4, 16.4), matWoodDark);
 groundMesh.position.set(0, -0.2, 0);
@@ -158,48 +154,41 @@ groundMesh.receiveShadow = true;
 scene.add(groundMesh);
 
 // ---------- ВНЕШНИЕ СТЕНЫ 1 ЭТАЖА ----------
-// Северная (z = -8), входной проём x: 1..3
 wallX(-10, 1, -8, 0, F1, matWallOuter);
 wallX(3, 10, -8, 0, F1, matWallOuter);
-wallX(1, 3, -8, 2.20, F1, matWallOuter, false);       // перемычка над входом
-// Южная (z = 8), чёрный ход x: 6..8
+wallX(1, 3, -8, 2.20, F1, matWallOuter, false);
 wallX(-10, 6, 8, 0, F1, matWallOuter);
 wallX(8, 10, 8, 0, F1, matWallOuter);
 wallX(6, 8, 8, 2.20, F1, matWallOuter, false);
-// Западная / Восточная
 wallZ(-8, 8, -10, 0, F1, matWallOuter);
 wallZ(-8, 8,  10, 0, F1, matWallOuter);
 
 // ---------- ВНУТРЕННИЕ СТЕНЫ 1 ЭТАЖА ----------
-// Стена x = 0 — проёмы z:-6..-4.5 (гостиная) и z:2..3.5 (кухня)
 wallZ(-8, -6, 0, 0, F1);
 wallZ(-4.5, 2, 0, 0, F1);
 wallZ(3.5, 8, 0, 0, F1);
 wallZ(-6, -4.5, 0, 2.20, F1, matWall, false);
 wallZ(2, 3.5, 0, 2.20, F1, matWall, false);
 
-// Стена z = 0 (гостиная / кухня), проём x:-3..-1.5
 wallX(-10, -3, 0, 0, F1);
 wallX(-1.5, 0, 0, 0, F1);
 wallX(-3, -1.5, 0, 2.20, F1, matWall, false);
 
-// Стена x = 4 (коридор / кладовая), проём z:-6..-4.5
 wallZ(-8, -6, 4, 0, F1);
 wallZ(-4.5, 0, 4, 0, F1);
 wallZ(-6, -4.5, 4, 2.20, F1, matWall, false);
 
-// Стена z = 0 от x=4 до 10 (кладовая / лестничный холл)
 wallX(4, 10, 0, 0, F1);
 
-// ---------- МЕЖЭТАЖНОЕ ПЕРЕКРЫТИЕ (с проёмом под лестницу) ----------
+// ---------- МЕЖЭТАЖНОЕ ПЕРЕКРЫТИЕ ----------
 function slab(x1, x2, z1, z2) {
   box(x2 - x1, F1 - SLAB_B, z2 - z1, matSlab, (x1 + x2) / 2, SLAB_B, (z1 + z2) / 2, false);
   floorRects.push({ minX: x1, maxX: x2, minZ: z1, maxZ: z2, y: F1 });
 }
-slab(-10, 5, -8, 8);      // основная часть (спальни + коридор + часть холла)
-slab(5, 8, -8, 1);        // перед лестничным проёмом
-slab(5, 8, 7, 8);         // площадка выхода с лестницы
-slab(8, 10, -8, 8);       // правая часть
+slab(-10, 5, -8, 8);
+slab(5, 8, -8, 1);
+slab(5, 8, 7, 8);
+slab(8, 10, -8, 8);
 
 // ---------- ВНЕШНИЕ СТЕНЫ 2 ЭТАЖА ----------
 wallX(-10, 10, -8, F1, F2, matWallOuter);
@@ -222,22 +211,18 @@ wallZ(-8, -6, 4, F1, F2);
 wallZ(-4.5, 0, 4, F1, F2);
 wallZ(-6, -4.5, 4, F1 + 2.20, F2, matWall, false);
 
-// Ванная / лестничная площадка
 wallX(4, 4.5, 0, F1, F2);
 wallX(6, 10, 0, F1, F2);
 wallX(4.5, 6, 0, F1 + 2.20, F2, matWall, false);
 
 // ---------- ЛЕСТНИЦА ----------
-// Боковые стены лестничной клетки (1 этаж)
 wallZ(STAIR.z1, STAIR.z2, 5, 0, F1, matWall);
 wallZ(STAIR.z1, STAIR.z2, 8, 0, F1, matWall);
 
-// Перила на 2 этаже вокруг проёма
 wallZ(STAIR.z1, STAIR.z2, 5, F1, F1 + 1.0, matWoodDark);
 wallZ(STAIR.z1, STAIR.z2, 8, F1, F1 + 1.0, matWoodDark);
 wallX(5, 8, STAIR.z1, F1, F1 + 1.0, matWoodDark);
 
-// Сама лестница (ступени)
 const STEPS = 16;
 const stepD = (STAIR.z2 - STAIR.z1) / STEPS;
 const stepH = STAIR.h / STEPS;
@@ -247,7 +232,6 @@ for (let i = 0; i < STEPS; i++) {
   box(STAIR.x2 - STAIR.x1, topY, stepD, matWood,
       (STAIR.x1 + STAIR.x2) / 2, 0, zA + stepD / 2, false);
 }
-// Подсветка ступеней — тонкие полоски по краю (для читаемости в темноте)
 for (let i = 0; i < STEPS; i++) {
   const zA = STAIR.z1 + i * stepD + stepD;
   const topY = (i + 1) * stepH;
@@ -260,14 +244,14 @@ for (let i = 0; i < STEPS; i++) {
   scene.add(edge);
 }
 
-// ---------- ПОТОЛОК 2 ЭТАЖА (крыша) ----------
+// ---------- ПОТОЛОК 2 ЭТАЖА ----------
 box(20, 0.35, 16, matWallOuter, 0, F2, 0, false);
 
 /* ============================================================
    МЕБЕЛЬ И ДЕКОР
    ============================================================ */
 
-// ---------- ГОСТИНАЯ (x -10..0, z -8..0) ----------
+// ГОСТИНАЯ
 box(3.2, 0.45, 1.15, matFabric, -6, 0, -6.5);
 box(3.2, 0.55, 0.25, matFabric, -6, 0.45, -7.0);
 box(0.25, 0.55, 1.15, matFabric, -7.7, 0.45, -6.5);
@@ -281,10 +265,9 @@ box(0.5, 2.0, 1.8, matWood, -9.6, 0, -5);
 box(0.4, 0.35, 0.35, matWoodDark, -9.6, 0.7, -5.6, false);
 box(0.4, 0.35, 0.35, matWoodDark, -9.6, 0.7, -5.0, false);
 box(0.4, 0.35, 0.35, matWoodDark, -9.6, 0.7, -4.4, false);
-// Ковёр
 box(3.0, 0.03, 2.0, matFabric, -6, 0.001, -5.4, false);
 
-// ---------- КУХНЯ (x -10..0, z 0..8) ----------
+// КУХНЯ
 box(0.7, 0.9, 4.0, matWood, -9.5, 0, 4);
 box(0.66, 0.06, 3.9, matStone, -9.5, 0.9, 4, false);
 box(0.85, 1.9, 0.85, matMetal, -9.4, 0, 7.2);
@@ -293,7 +276,7 @@ box(0.45, 0.9, 0.45, matWood, -5, 0, 2.9);
 box(0.45, 0.9, 0.45, matWood, -5, 0, 5.1);
 box(0.6, 0.15, 0.5, matMetal, -9.5, 0.96, 2.6, false);
 
-// ---------- КЛАДОВАЯ / КОМНАТА C (x 4..10, z -8..0) ----------
+// КЛАДОВАЯ
 box(0.5, 2.2, 3.0, matWood, 9.55, 0, -4);
 box(0.45, 0.06, 2.9, matWoodDark, 9.55, 1.1, -4, false);
 box(0.9, 0.9, 0.9, matWood, 6.0, 0, -6.2);
@@ -301,7 +284,7 @@ box(0.8, 0.8, 0.8, matWood, 6.1, 0.9, -6.1);
 box(0.7, 0.7, 0.7, matWood, 5.4, 0, -4.5);
 box(1.2, 1.0, 0.6, matWoodDark, 9.5, 0, -1.2);
 
-// ---------- СПАЛЬНЯ 1 (2 этаж, x -10..0, z -8..0) ----------
+// СПАЛЬНЯ 1
 box(1.5, 0.5, 2.1, matWood, -8.5, F1, -6);
 box(1.4, 0.28, 2.0, matWhite, -8.5, F1 + 0.5, -6);
 box(1.0, 0.16, 0.42, matWhite, -8.5, F1 + 0.78, -6.8);
@@ -309,7 +292,7 @@ box(1.6, 2.2, 0.6, matWood, -3, F1, -7.5);
 box(0.5, 0.55, 0.5, matWood, -7.4, F1, -7.2);
 box(1.4, 0.8, 0.7, matWood, -2.5, F1, -2.5);
 
-// ---------- СПАЛЬНЯ 2 (2 этаж, x -10..0, z 0..8) ----------
+// СПАЛЬНЯ 2
 box(1.5, 0.5, 2.1, matWood, -8.5, F1, 5);
 box(1.4, 0.28, 2.0, matWhite, -8.5, F1 + 0.5, 5);
 box(1.0, 0.16, 0.42, matWhite, -8.5, F1 + 0.78, 4.2);
@@ -317,7 +300,7 @@ box(1.6, 2.2, 0.6, matWood, -3, F1, 7.5);
 box(1.4, 0.75, 0.7, matWood, -8.5, F1, 1.4);
 box(0.5, 0.55, 0.5, matWood, -4.5, F1, 1.0);
 
-// ---------- ВАННАЯ (2 этаж, x 4..10, z -8..0) ----------
+// ВАННАЯ
 box(1.7, 0.6, 0.9, matWhite, 8.4, F1, -7.2);
 box(0.6, 0.2, 0.45, matWhite, 5.0, F1 + 0.85, -7.4);
 box(0.5, 0.85, 0.4, matWhite, 5.0, F1, -7.4);
@@ -326,12 +309,10 @@ box(0.5, 0.85, 0.4, matWhite, 5.0, F1, -7.4);
    СВЕТ
    ============================================================ */
 
-// Очень тусклый общий свет
 scene.add(new THREE.AmbientLight(0x1b2434, 0.30));
 const hemi = new THREE.HemisphereLight(0x1a2436, 0x060606, 0.18);
 scene.add(hemi);
 
-// Мерцающие лампы в комнатах
 const flickerLights = [];
 function addRoomLight(x, y, z, color, intensity, distance) {
   const l = new THREE.PointLight(color, intensity, distance, 2);
@@ -353,18 +334,18 @@ function addRoomLight(x, y, z, color, intensity, distance) {
   return l;
 }
 
-addRoomLight(-5.5, 2.55, -4.0, 0xff9a4a, 0.55, 9);    // гостиная
-addRoomLight(-5.5, 2.55,  4.5, 0xffc07a, 0.42, 8);    // кухня
-addRoomLight( 2.0, 2.55, -3.0, 0x6f8fbf, 0.30, 9);    // коридор 1
-addRoomLight( 2.0, 2.55,  4.0, 0x6f8fbf, 0.28, 9);    // коридор 2
-addRoomLight( 6.8, 2.55, -4.5, 0x8a7a5a, 0.22, 7);    // кладовая
-addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff9a4a, 0.45, 9); // спальня 1
-addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff9a4a, 0.40, 9); // спальня 2
-addRoomLight( 2.0, F1 + 2.55,  0.0, 0x6f8fbf, 0.28, 9); // коридор 2 этажа
-addRoomLight( 7.5, F1 + 2.55, -4.0, 0x88a0b8, 0.30, 7); // ванная
+addRoomLight(-5.5, 2.55, -4.0, 0xff9a4a, 0.55, 9);
+addRoomLight(-5.5, 2.55,  4.5, 0xffc07a, 0.42, 8);
+addRoomLight( 2.0, 2.55, -3.0, 0x6f8fbf, 0.30, 9);
+addRoomLight( 2.0, 2.55,  4.0, 0x6f8fbf, 0.28, 9);
+addRoomLight( 6.8, 2.55, -4.5, 0x8a7a5a, 0.22, 7);
+addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff9a4a, 0.45, 9);
+addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff9a4a, 0.40, 9);
+addRoomLight( 2.0, F1 + 2.55,  0.0, 0x6f8fbf, 0.28, 9);
+addRoomLight( 7.5, F1 + 2.55, -4.0, 0x88a0b8, 0.30, 7);
 
 /* ============================================================
-   ФОНАРИК (в руке)
+   ФОНАРИК
    ============================================================ */
 const flashlight = new THREE.SpotLight(0xfff0cf, 3.2, 34, Math.PI / 7.2, 0.42, 1.35);
 flashlight.castShadow = true;
@@ -380,12 +361,10 @@ flTarget.position.set(0.10, -0.10, -3.0);
 camera.add(flTarget);
 flashlight.target = flTarget;
 
-// Мягкая подсветка у самого фонаря (чтобы видеть руки/стену рядом)
 const flFill = new THREE.PointLight(0xffe3b8, 0.85, 4.0, 2);
 flFill.position.set(0.25, -0.15, -0.35);
 camera.add(flFill);
 
-// Модель фонаря в руке
 const handGroup = new THREE.Group();
 handGroup.position.set(0.30, -0.24, -0.42);
 handGroup.rotation.set(-0.06, 0.05, 0.0);
@@ -412,7 +391,6 @@ flLens.position.z = -0.212;
 flLens.rotation.y = Math.PI;
 handGroup.add(flLens);
 
-// Рука (грубый силуэт)
 const handMat = new THREE.MeshStandardMaterial({ color: 0x6b5744, roughness: 1.0 });
 const handMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.10, 0.20), handMat);
 handMesh.position.set(0.005, -0.035, 0.09);
@@ -434,7 +412,7 @@ function setFlashlight(on) {
 const player = {
   pos: new THREE.Vector3(2.0, 0, -5.0),
   feetY: 0,
-  yaw: Math.PI,       // смотрим вглубь дома (+Z)
+  yaw: Math.PI,
   pitch: 0,
   vy: 0,
   onGround: true,
@@ -463,8 +441,22 @@ document.addEventListener('keyup', (e) => {
 
 let pointerLocked = false;
 
-renderer.domElement.addEventListener('click', () => {
-  if (!pointerLocked) renderer.domElement.requestPointerLock();
+// === ИСПРАВЛЕНО: клик работает и по оверлею, и по канвасу ===
+function requestLock() {
+  if (pointerLocked) return;
+  try {
+    const p = renderer.domElement.requestPointerLock();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  } catch (e) {
+    console.warn('Не удалось захватить мышь:', e);
+  }
+}
+
+overlay.addEventListener('click', requestLock);
+renderer.domElement.addEventListener('click', requestLock);
+
+document.addEventListener('pointerlockerror', () => {
+  console.warn('Pointer Lock недоступен — подожди секунду и кликни снова');
 });
 
 document.addEventListener('pointerlockchange', () => {
@@ -484,8 +476,6 @@ document.addEventListener('mousemove', (e) => {
 /* ============================================================
    ФИЗИКА
    ============================================================ */
-
-// Высота пола под точкой (x, z) с учётом допустимого шага вверх
 function getGroundHeight(x, z, feetY) {
   let best = -Infinity;
   const limit = feetY + 0.62;
@@ -497,7 +487,6 @@ function getGroundHeight(x, z, feetY) {
     }
   }
 
-  // Лестница (наклонная поверхность)
   if (x >= STAIR.x1 && x <= STAIR.x2 && z >= STAIR.z1 && z <= STAIR.z2) {
     const t = (z - STAIR.z1) / (STAIR.z2 - STAIR.z1);
     const y = Math.min(1, Math.max(0, t)) * STAIR.h;
@@ -530,7 +519,6 @@ function resolveCollisions(pos, feetY) {
       pos.x += dx * push;
       pos.z += dz * push;
     } else {
-      // Центр внутри бокса — выталкиваем по минимальному проникновению
       const left  = pos.x - c.minX;
       const right = c.maxX - pos.x;
       const back  = pos.z - c.minZ;
@@ -545,7 +533,6 @@ function resolveCollisions(pos, feetY) {
 }
 
 function updatePlayer(dt) {
-  // --- Горизонтальное движение ---
   const sprint = keys['ShiftLeft'] || keys['ShiftRight'];
   const speed = sprint ? 5.2 : 2.7;
 
@@ -562,7 +549,6 @@ function updatePlayer(dt) {
     dx /= len; dz /= len;
   }
 
-  // Движение по небольшим шагам (антитуннель)
   const totalDist = speed * dt;
   const substeps = Math.max(1, Math.ceil(totalDist / 0.12));
   const stepDist = totalDist / substeps;
@@ -573,7 +559,6 @@ function updatePlayer(dt) {
     resolveCollisions(player.pos, player.feetY);
   }
 
-  // --- Вертикаль / гравитация ---
   player.vy -= GRAVITY * dt;
   player.feetY += player.vy * dt;
 
@@ -586,14 +571,12 @@ function updatePlayer(dt) {
     player.onGround = false;
   }
 
-  // Страховка от падения за пределы мира
   if (player.feetY < -5) {
     player.pos.set(2.0, 0, -5.0);
     player.feetY = 0;
     player.vy = 0;
   }
 
-  // --- Покачивание камеры ---
   const moving = (fwd !== 0 || strafe !== 0) && player.onGround;
   const targetBob = moving ? (sprint ? 1.5 : 1.0) : 0.0;
   player.bobAmount += (targetBob - player.bobAmount) * Math.min(1, dt * 8);
@@ -603,7 +586,6 @@ function updatePlayer(dt) {
   const bobY = Math.sin(player.bobTime * 2) * 0.030 * player.bobAmount;
   const bobX = Math.cos(player.bobTime) * 0.018 * player.bobAmount;
 
-  // --- Камера ---
   camera.position.set(
     player.pos.x + bobX * Math.cos(player.yaw),
     player.feetY + EYE_HEIGHT + bobY,
@@ -632,19 +614,17 @@ function animate() {
   requestAnimationFrame(animate);
 
   let dt = clock.getDelta();
-  if (dt > 0.05) dt = 0.05;   // защита от больших скачков
+  if (dt > 0.05) dt = 0.05;
   elapsed += dt;
 
   if (pointerLocked) {
     updatePlayer(dt);
   } else {
-    // Даже в паузе камера стоит на месте, но свет мерцает
     camera.position.set(player.pos.x, player.feetY + EYE_HEIGHT, player.pos.z);
     camera.rotation.y = player.yaw;
     camera.rotation.x = player.pitch;
   }
 
-  // --- Мерцание ламп ---
   for (let i = 0; i < flickerLights.length; i++) {
     const f = flickerLights[i];
     const t = elapsed * f.speed + f.phase;
@@ -652,7 +632,6 @@ function animate() {
           + 0.26 * Math.sin(t * 1.7)
           + 0.14 * Math.sin(t * 5.3 + 1.1)
           + 0.08 * Math.sin(t * 13.7);
-    // Редкие "просадки" — типично для хоррора
     if (Math.sin(t * 0.9 + f.phase) > 0.985) n *= 0.12;
     n = Math.max(0.0, n);
 
@@ -662,7 +641,6 @@ function animate() {
     );
   }
 
-  // --- Лёгкое дрожание фонаря ---
   if (flashlightOn) {
     const jitter = 0.012 * Math.sin(elapsed * 7.3) + 0.008 * Math.sin(elapsed * 17.1);
     flashlight.position.x = 0.18 + jitter;
