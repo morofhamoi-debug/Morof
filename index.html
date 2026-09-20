@@ -2,1686 +2,1441 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>КВАРТИРА № 13</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Бабушка: Последний дом</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#c8c8c8;font-family:"Courier New",monospace}
-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#ccc;font-family:monospace}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #hud{position:absolute;inset:0;pointer-events:none;z-index:2}
-#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.8) 100%)}
-#fear{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(80,0,0,.6) 100%);opacity:0;transition:opacity .6s}
-#cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border:1px solid rgba(220,220,220,.6);border-radius:50%;display:none}
-#cross.on{display:block}
-#prompt{position:absolute;left:50%;top:57%;transform:translateX(-50%);font-size:14px;color:#e0d0a8;background:rgba(0,0,0,.7);padding:6px 14px;border:1px solid rgba(150,120,70,.5);display:none;white-space:nowrap}
-#prompt.on{display:block}
-#obj{position:absolute;left:16px;top:14px;font-size:12px;color:#9a9080;max-width:300px;line-height:1.5;display:none}
-#obj.on{display:block}
-#obj b{color:#c8a868;display:block;font-size:10px;letter-spacing:.2em;margin-bottom:3px}
-#notes{position:absolute;left:50%;top:16%;transform:translateX(-50%);width:min(400px,86vw);display:flex;flex-direction:column;gap:5px;align-items:center}
-.note{background:rgba(10,10,12,.88);border-left:2px solid #b9924a;padding:6px 12px;font-size:12px;color:#d8c8a8;transition:opacity .6s;max-width:100%;text-align:center}
-#flash{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:130px;height:3px;background:rgba(255,255,255,.08);display:none}
-#flash.on{display:block}
-#flash i{display:block;height:100%;background:#a8894e;width:100%}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(10,10,12,.88),rgba(0,0,0,.98));z-index:10;padding:20px}
-.screen.on{display:flex}
-h1{font-size:clamp(26px,6vw,56px);letter-spacing:.18em;color:#b9a07a;text-align:center;font-weight:400;text-shadow:0 0 22px rgba(200,150,80,.3)}
-.sub{font-size:clamp(10px,2.3vw,13px);color:#6e6a5f;letter-spacing:.26em;margin-top:12px;text-align:center}
-.menu{display:flex;flex-direction:column;gap:10px;margin-top:40px;width:min(300px,80vw)}
-button{font-family:inherit;font-size:15px;letter-spacing:.12em;padding:12px 18px;background:rgba(20,20,22,.85);color:#b8b0a0;border:1px solid #3a3630;cursor:pointer;transition:.15s}
-button:hover:not(:disabled){background:rgba(60,50,40,.9);color:#e8d8b0;border-color:#7a6a4a}
-button:disabled{opacity:.32;cursor:not-allowed}
-.sm{font-size:12.5px;padding:8px 14px}
-.panel{background:rgba(8,8,10,.96);border:1px solid #33302a;padding:22px;width:min(560px,92vw);max-height:86vh;overflow:auto}
-.panel h2{font-size:15px;letter-spacing:.2em;color:#c8a868;margin-bottom:16px;font-weight:400}
-.panel p{font-size:13px;line-height:1.8;color:#a8a090;white-space:pre-line}
-.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1d1c1a;font-size:13px;color:#a8a090}
-.row:last-child{border-bottom:none}
-.row input[type=range]{width:160px;accent-color:#a8894e}
-.row input[type=checkbox]{accent-color:#a8894e}
-.item{padding:10px;border:1px solid #2a2824;margin-bottom:8px;background:rgba(20,20,22,.55)}
-.item b{color:#c8b890;font-size:13px}
-.item p{font-size:12px;color:#807a6e;margin-top:5px;line-height:1.5}
-.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);z-index:20;padding:20px}
-.overlay.on{display:flex}
-#hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.88);padding:18px 26px;border:1px solid #4a4030;color:#d8c8a8;font-size:14px;display:none;cursor:pointer;z-index:15;text-align:center}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.65) 100%)}
+#info{position:absolute;left:14px;bottom:14px;font-size:11px;color:#7a7268;letter-spacing:.06em;line-height:1.6;text-shadow:0 0 6px #000}
+#hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);padding:18px 28px;color:#d8c8a8;border:1px solid #4a4030;font-size:14px;text-align:center;display:none;cursor:pointer;z-index:10}
 #hint.on{display:block}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:220px;margin:14px auto}
-.keypad button{padding:10px;font-size:15px}
-#codeDisp{font-size:28px;letter-spacing:.8em;color:#c8b890;text-align:center;margin:12px 0;padding:10px 10px 10px 1.3em;border:1px solid #3a3630;background:#0e0e10;min-height:52px}
-#endText{max-width:min(600px,90vw);font-size:13.5px;line-height:1.85;color:#b8b0a0;margin:18px 0;white-space:pre-line;text-align:center}
-.mob{position:absolute;z-index:5;pointer-events:none;display:none}
-.mob.on{display:block}
-#joy{left:18px;bottom:18px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);pointer-events:auto;position:absolute}
-#joy i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(200,180,140,.4)}
-.mbtn{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#ddd;font-size:12px;display:flex;align-items:center;justify-content:center;pointer-events:auto;position:absolute}
-#mE{right:100px;bottom:100px}
-#mF{right:28px;bottom:100px}
-#mP{right:18px;top:18px;width:48px;height:48px;font-size:10px}
+#joy{position:absolute;left:20px;bottom:20px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);display:none;z-index:5}
+#joy.on{display:block}
+#joy i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(200,180,140,.42);border:1px solid rgba(200,180,140,.6)}
+#cam{position:absolute;right:0;top:0;width:50%;height:100%;display:none;z-index:5}
+#cam.on{display:block}
 </style>
 </head>
 <body>
 <canvas id="cv"></canvas>
-
-<div id="hud">
-  <div id="vig"></div>
-  <div id="fear"></div>
-  <div id="cross"></div>
-  <div id="prompt"></div>
-  <div id="obj"><b>ЦЕЛЬ</b><span id="objT">—</span></div>
-  <div id="notes"></div>
-  <div id="flash"><i></i></div>
-</div>
-
+<div id="hud"><div id="vig"></div></div>
 <div id="hint"></div>
-
-<div class="screen on" id="scMenu">
-  <h1>КВАРТИРА № 13</h1>
-  <div class="sub">НЕКОТОРЫЕ ДВЕРИ ЛУЧШЕ НЕ ОТКРЫВАТЬ</div>
-  <div class="menu">
-    <button id="btnNew" type="button">НАЧАТЬ ИГРУ</button>
-    <button id="btnCont" type="button" disabled>ПРОДОЛЖИТЬ</button>
-    <button id="btnSet" type="button">НАСТРОЙКИ</button>
-    <button id="btnCtrl" type="button">УПРАВЛЕНИЕ</button>
-    <button id="btnAbout" type="button">ОБ ИГРЕ</button>
-  </div>
-</div>
-
-<div class="screen" id="scCtrl">
-  <div class="panel">
-    <h2>УПРАВЛЕНИЕ</h2>
-    <div class="row"><span>Движение</span><span>W A S D</span></div>
-    <div class="row"><span>Бег</span><span>SHIFT</span></div>
-    <div class="row"><span>Присесть</span><span>CTRL</span></div>
-    <div class="row"><span>Взаимодействие</span><span>E</span></div>
-    <div class="row"><span>Фонарик</span><span>F</span></div>
-    <div class="row"><span>Инвентарь</span><span>I</span></div>
-    <div class="row"><span>Журнал</span><span>J</span></div>
-    <div class="row"><span>Пауза</span><span>ESC</span></div>
-    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackCtrl" type="button">НАЗАД</button></div>
-  </div>
-</div>
-
-<div class="screen" id="scAbout">
-  <div class="panel">
-    <h2>ОБ ИГРЕ</h2>
-    <p>Вы получили в наследство квартиру № 13 в старом доме. Она принадлежала Виктору Морозову — человеку, которого вы никогда не знали.
-
-Психологический хоррор от первого лица. Исследуйте квартиру, читайте записки, решайте головоломки и решите судьбу того, что здесь произошло.
-
-Все ресурсы созданы процедурно. Игра работает без интернета.</p>
-    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackAbout" type="button">НАЗАД</button></div>
-  </div>
-</div>
-
-<div class="screen" id="scSet">
-  <div class="panel">
-    <h2>НАСТРОЙКИ</h2>
-    <div class="row"><span>Общая громкость</span><input type="range" id="sMaster" min="0" max="100" value="70"></div>
-    <div class="row"><span>Звуки</span><input type="range" id="sSfx" min="0" max="100" value="80"></div>
-    <div class="row"><span>Чувствительность мыши</span><input type="range" id="sSens" min="20" max="300" value="100"></div>
-    <div class="row"><span>Инверсия оси Y</span><input type="checkbox" id="sInv"></div>
-    <div class="row"><span>Дальность прорисовки</span><input type="range" id="sDraw" min="12" max="45" value="28"></div>
-    <div class="row"><span>Яркость сцены</span><input type="range" id="sBright" min="60" max="180" value="100"></div>
-    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnBackSet" type="button">НАЗАД</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovPause">
-  <div class="panel" style="text-align:center">
-    <h2>ПАУЗА</h2>
-    <div class="menu" style="margin:20px auto 0">
-      <button id="btnResume" type="button">ПРОДОЛЖИТЬ</button>
-      <button id="btnPauseSet" type="button">НАСТРОЙКИ</button>
-      <button id="btnSave" type="button">СОХРАНИТЬ</button>
-      <button id="btnToMenu" type="button">ВЫЙТИ ИЗ ИГРЫ</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="ovInv">
-  <div class="panel">
-    <h2>ИНВЕНТАРЬ</h2>
-    <div id="invList"></div>
-    <div style="margin-top:16px;text-align:center"><button class="sm" id="btnCloseInv" type="button">ЗАКРЫТЬ</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovJ">
-  <div class="panel">
-    <h2>ЖУРНАЛ</h2>
-    <div id="jList"></div>
-    <div style="margin-top:16px;text-align:center"><button class="sm" id="btnCloseJ" type="button">ЗАКРЫТЬ</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovRead">
-  <div class="panel">
-    <h2 id="rdT">ЗАПИСКА</h2>
-    <p id="rdB"></p>
-    <div style="margin-top:18px;text-align:center"><button class="sm" id="btnCloseRead" type="button">ЗАКРЫТЬ</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovCode">
-  <div class="panel" style="text-align:center">
-    <h2>КОДОВЫЙ ЗАМОК</h2>
-    <p style="font-size:12px;color:#8a8270">Введите код из четырёх цифр</p>
-    <div id="codeDisp">____</div>
-    <div class="keypad">
-      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
-      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
-      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
-      <button type="button" data-k="C">C</button><button type="button" data-k="0">0</button><button type="button" data-k="OK">OK</button>
-    </div>
-    <div style="margin-top:12px"><button class="sm" id="btnCloseCode" type="button">ОТОЙТИ</button></div>
-  </div>
-</div>
-
-<div class="overlay" id="ovEnd">
-  <div class="panel" style="text-align:center;width:min(700px,94vw)">
-    <h2 id="endT"></h2>
-    <div id="endText"></div>
-    <div class="menu" style="margin:0 auto">
-      <button id="btnEndMenu" type="button">В ГЛАВНОЕ МЕНЮ</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="ovDeath">
-  <div class="panel" style="text-align:center">
-    <h2 style="color:#a04040">ВЫ ПОГИБЛИ</h2>
-    <p id="deathT" style="font-size:13px;color:#8a8070;margin:14px 0;line-height:1.7">Что-то нашло вас во тьме.</p>
-    <div class="menu" style="margin:14px auto 0">
-      <button id="btnRetry" type="button">ПОПРОБОВАТЬ СНОВА</button>
-      <button id="btnDeathMenu" type="button">ГЛАВНОЕ МЕНЮ</button>
-    </div>
-  </div>
-</div>
-
-<div class="mob" id="mobile">
-  <div id="joy"><i></i></div>
-  <div class="mbtn" id="mE">E</div>
-  <div class="mbtn" id="mF">F</div>
-  <div class="mbtn" id="mP">ESC</div>
-</div>
+<div id="joy"><i></i></div>
+<div id="cam"></div>
+<div id="info">WASD — движение · Мышь — обзор · ESC — курсор</div>
 
 <script>
 "use strict";
-/* =============== МАТЕМАТИКА =============== */
+
+/* ============================================================
+   МАТЕМАТИКА
+   ============================================================ */
 function mat4(){ return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); }
-function mPersp(fov, asp, n, f){
+function perspective(fov, asp, n, f){
   const t = 1/Math.tan(fov/2), o = mat4();
   o[0]=t/asp; o[5]=t; o[10]=(f+n)/(n-f); o[11]=-1; o[14]=(2*f*n)/(n-f); o[15]=0;
   return o;
 }
-function mLook(ex,ey,ez, cx,cy,cz){
+function lookAt(ex,ey,ez, cx,cy,cz){
   let zx=ex-cx, zy=ey-cy, zz=ez-cz;
   let l=Math.hypot(zx,zy,zz)||1; zx/=l; zy/=l; zz/=l;
   let xx=1*zz, xy=0, xz=-1*zx;
   l=Math.hypot(xx,xy,xz)||1; xx/=l; xy/=l; xz/=l;
   const yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
   const o = mat4();
-  o[0]=xx; o[1]=yx; o[2]=zx; o[3]=0;
-  o[4]=xy; o[5]=yy; o[6]=zy; o[7]=0;
-  o[8]=xz; o[9]=yz; o[10]=zz; o[11]=0;
+  o[0]=xx; o[1]=yx; o[2]=zx;
+  o[4]=xy; o[5]=yy; o[6]=zy;
+  o[8]=xz; o[9]=yz; o[10]=zz;
   o[12]=-(xx*ex+xy*ey+xz*ez);
   o[13]=-(yx*ex+yy*ey+yz*ez);
   o[14]=-(zx*ex+zy*ey+zz*ez);
-  o[15]=1;
   return o;
-}
-function mModel(x,y,z, sx,sy,sz, ry){
-  const c = Math.cos(ry||0), s = Math.sin(ry||0);
-  return new Float32Array([
-    c*sx, 0, -s*sx, 0,
-    0, sy, 0, 0,
-    s*sz, 0, c*sz, 0,
-    x, y, z, 1
-  ]);
 }
 const clamp = (v,a,b)=>v<a?a:(v>b?b:v);
 
-/* =============== ТЕКСТУРЫ =============== */
-const texCache = {};
+/* ============================================================
+   ПРОЦЕДУРНЫЕ ТЕКСТУРЫ
+   ============================================================ */
+const TEXS = {};
+function nz(x,y,s){ const n=Math.sin(x*12.9898+y*78.233+s*43.3)*43758.5453; return n-Math.floor(n); }
 function makeTex(name, w, h, fn){
-  if(texCache[name]) return texCache[name];
-  const c = document.createElement('canvas'); c.width=w; c.height=h;
-  const ctx = c.getContext('2d');
-  const img = ctx.createImageData(w,h);
-  const d = img.data;
-  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-    const col = fn(x,y,w,h);
-    const i = (y*w+x)*4;
+  if(TEXS[name]) return TEXS[name];
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx=c.getContext('2d');
+  const img=ctx.createImageData(w,h);
+  const d=img.data;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const col=fn(x,y,w,h);
+    const i=(y*w+x)*4;
     d[i]=col[0]|0; d[i+1]=col[1]|0; d[i+2]=col[2]|0; d[i+3]=255;
   }
   ctx.putImageData(img,0,0);
-  texCache[name]=c;
+  TEXS[name]=c;
   return c;
 }
-function nz(x,y,s){ const n = Math.sin(x*12.9898+y*78.233+s*43.3)*43758.5453; return n-Math.floor(n); }
-const TEX = {
-  get wall(){ return makeTex('wall',128,128,(x,y,w,h)=>{
-    const n = nz(x*.3,y*.3,1)*14;
-    const st = Math.sin(x*.2)*.5+.5;
-    const gr = 1-(y/h)*.25;
-    return [(112+st*10+n)*gr, (98+st*8+n)*gr, (74+st*6+n)*gr];
-  }); },
-  get wallG(){ return makeTex('wallG',128,128,(x,y,w,h)=>{
-    const n = nz(x*.35,y*.35,3)*12;
-    const gr = 1-(y/h)*.22;
-    return [(72+n)*gr, (86+n)*gr, (68+n)*gr];
-  }); },
-  get floor(){ return makeTex('floor',128,128,(x,y,w,h)=>{
-    const yy = y*.3 + Math.sin(x*.2)*3;
-    const wv = (Math.sin(yy*.7)*.5+.5);
-    let r=88+wv*34, g=64+wv*24, b=44+wv*16;
-    if((y%26)<1){ r*=.6; g*=.6; b*=.6; }
-    const n = nz(x,y,9)*10;
-    return [r+n,g+n,b+n];
-  }); },
-  get tile(){ return makeTex('tile',128,128,(x,y,w,h)=>{
-    const b = (x%32)<2 || (y%32)<2;
-    const n = nz(x*.5,y*.5,5)*12;
-    return b ? [56+n,58+n,52+n] : [168+n,170+n,162+n];
-  }); },
-  get conc(){ return makeTex('conc',128,128,(x,y,w,h)=>{
-    const n = nz(x*.5,y*.5,6)*22 + nz(x*.12,y*.12,13)*18;
-    return [108+n,106+n,100+n];
-  }); },
-  get wood(){ return makeTex('wood',128,128,(x,y,w,h)=>{
-    const yy = y*.25 + Math.sin(x*.14)*3;
-    const wv = (Math.sin(yy*.6)*.5+.5);
-    let r=78+wv*26, g=52+wv*18, b=34+wv*12;
-    const n = nz(x,y,17)*8;
-    return [r+n,g+n,b+n];
-  }); },
-  get door(){ return makeTex('door',64,128,(x,y,w,h)=>{
-    const p = x>8 && x<56 && ((y>12&&y<56)||(y>72&&y<116));
-    const base = p?72:86;
-    const n = nz(x*.6,y*.6,21)*10;
-    return [base+n, base*.78+n, base*.56+n];
-  }); },
-  get metal(){ return makeTex('metal',64,64,(x,y,w,h)=>{
-    const n = nz(x*.9,y*.9,8)*16;
-    return [88+n, 90+n, 94+n];
-  }); },
-  get rug(){ return makeTex('rug',64,64,(x,y,w,h)=>{
-    const n = nz(x*1.2,y*1.2,12)*14;
-    const r = ((x>>2)+(y>>2))%2;
-    return r ? [98+n,36+n,36+n] : [72+n,28+n,28+n];
-  }); }
-};
 
-/* =============== WEBGL =============== */
-const VS = `attribute vec3 aP; attribute vec3 aN; attribute vec2 aU;
-uniform mat4 uP, uV, uM; uniform mat3 uNM;
-varying vec3 vN; varying vec3 vW; varying vec2 vU;
-void main(){ vec4 wp = uM * vec4(aP,1.0);
-  vW = wp.xyz; vN = normalize(uNM * aN); vU = aU;
-  gl_Position = uP * uV * wp; }`;
-const FS = `precision mediump float;
-varying vec3 vN; varying vec3 vW; varying vec2 vU;
-uniform vec3 uC; uniform sampler2D uT; uniform float uUseT;
-uniform vec3 uCam; uniform vec3 uAmb;
-uniform vec3 uLP[6]; uniform vec3 uLC[6]; uniform float uLR[6]; uniform int uNL;
-uniform vec3 uFDir; uniform float uFOn; uniform vec3 uFC; uniform float uFR;
-uniform float uFN; uniform float uFF; uniform vec3 uFogC;
-uniform float uBri;
+// Обои светло-бежевые (коридор, кухня)
+function texWallBeige(){ return makeTex('wb',256,256,(x,y,w,h)=>{
+  const n = nz(x*.4,y*.4,1)*14 + nz(x*.08,y*.08,2)*8;
+  const streak = Math.sin(x*.16)*.5+.5;
+  const gr = 1-(y/h)*.28;
+  let r=(178+streak*12+n)*gr, g=(162+streak*10+n)*gr, b=(128+streak*8+n)*gr;
+  const sp = nz(x*.06,y*.06,7);
+  if(sp>.88){ r-=28; g-=28; b-=22; }
+  if(sp<.05){ r+=12; g+=10; b+=8; }
+  if(nz(x*.3,y*.3,9)>.95){ r-=.15*r; g-=.15*g; b-=.15*b; }
+  return [r,g,b];
+});}
+
+// Обои цветочные (спальня бабушки) — коричневато-розовые
+function texWallFloral(){ return makeTex('wf',256,256,(x,y,w,h)=>{
+  const n = nz(x*.5,y*.5,3)*12;
+  const gr = 1-(y/h)*.25;
+  let r=(146+n)*gr, g=(118+n)*gr, b=(96+n)*gr;
+  // Flowers pattern
+  const fx = x%40-20, fy = y%40-20;
+  const d = Math.hypot(fx,fy);
+  if(d<10){
+    const fl = (d<3)?0.4:0.85;
+    r*=fl; g*=fl; b*=fl;
+    r+=30; g+=20; b+=10;
+  }
+  if(d<6 && d>4){
+    r=Math.min(255,r+40); g=Math.min(255,g+20); b=Math.min(255,b+10);
+  }
+  // Dark spots
+  if(nz(x*.07,y*.07,11)>.93){ r-=.25*r; g-=.25*g; b-=.25*b; }
+  return [r,g,b];
+});}
+
+// Обои светлые (спальня игрока)
+function texWallLight(){ return makeTex('wl',256,256,(x,y,w,h)=>{
+  const n = nz(x*.45,y*.45,4)*12;
+  const gr = 1-(y/h)*.18;
+  return [(206+n)*gr, (198+n)*gr, (176+n)*gr];
+});}
+
+// Обои выцветшие (гостиная)
+function texWallFaded(){ return makeTex('wfd',256,256,(x,y,w,h)=>{
+  const n = nz(x*.5,y*.5,5)*14;
+  const gr = 1-(y/h)*.22;
+  // Very subtle vertical pattern
+  const p = Math.sin(x*.1)*.5+.5;
+  let r=(190+p*8+n)*gr, g=(178+p*8+n)*gr, b=(154+p*6+n)*gr;
+  if(nz(x*.09,y*.09,6)>.9){ r-=.2*r; g-=.2*g; b-=.18*b; }
+  return [r,g,b];
+});}
+
+// Обои старые серо-коричневые (кладовка)
+function texWallOld(){ return makeTex('wo',256,256,(x,y,w,h)=>{
+  const n = nz(x*.6,y*.6,6)*16;
+  const gr = 1-(y/h)*.3;
+  return [(120+n)*gr, (110+n)*gr, (96+n)*gr];
+});}
+
+// Плитка (ванная, кухонный фартук)
+function texTile(){ return makeTex('tile',256,256,(x,y,w,h)=>{
+  const bx = (x%64)<3 || (y%64)<3;
+  const n = nz(x*.8,y*.8,8)*14;
+  if(bx) return [92+n,96+n,92+n];
+  // Slight yellowing
+  const grime = 1 - nz(x*.1,y*.1,9)*.15;
+  return [(228+n)*grime, (224+n)*grime, (206+n)*grime];
+});}
+
+// Бетон (подвал)
+function texConcrete(){ return makeTex('conc',256,256,(x,y,w,h)=>{
+  const n = nz(x*.7,y*.7,10)*22 + nz(x*.2,y*.2,11)*20 + nz(x*.05,y*.05,12)*18;
+  const gr = 1-(y/h)*.35;
+  return [(128+n)*gr, (122+n)*gr, (110+n)*gr];
+});}
+
+// Старые доски (чердак)
+function texPlanks(){ return makeTex('plank',256,256,(x,y,w,h)=>{
+  const plankH = 32;
+  const py = y%plankH;
+  const pi = Math.floor(y/plankH);
+  const shift = (pi%2)*40;
+  const xx = (x+shift)%256;
+  const grain = Math.sin((xx*.14)+(py*.05))*0.5+0.5;
+  const n = nz(xx*.9,py*.9,13)*16;
+  let base = 96 + grain*30 + n;
+  if(py<1){ base *= .35; } // plank gap
+  const plankShade = 1 - ((pi*7)%5)*0.05;
+  return [base*plankShade*1.05, base*.72*plankShade, base*.48*plankShade];
+});}
+
+// Ламинат коричневый
+function texLaminate(){ return makeTex('lam',256,256,(x,y,w,h)=>{
+  const rowH = 42;
+  const ry = y%rowH;
+  const rowIdx = Math.floor(y/rowH);
+  const shift = (rowIdx%2)*80;
+  const xx = (x+shift)%256;
+  const g = Math.sin(xx*.09)*.5+.5;
+  const n = nz(xx*.7,ry*.7,14)*12;
+  let r=112+g*24+n, gg=78+g*16+n, b=52+g*10+n;
+  // Segment separators
+  if((xx%128)<1.5) { r*=.5; gg*=.5; b*=.5; }
+  if(ry<1.2) { r*=.45; gg*=.45; b*=.45; }
+  // Different shade per row
+  const sh = 1 - (rowIdx%7)*0.03;
+  return [r*sh, gg*sh, b*sh];
+});}
+
+// Ковёр
+function texRug(){ return makeTex('rug',128,128,(x,y,w,h)=>{
+  const n = nz(x*1.5,y*1.5,15)*14;
+  const r = ((x>>3)+(y>>3))%2;
+  return r ? [96+n,38+n,34+n] : [72+n,30+n,26+n];
+});}
+
+// Дерево (для мебели — тёмное)
+function texWood(){ return makeTex('wood',128,128,(x,y,w,h)=>{
+  const yy = y*.6 + Math.sin(x*.14)*4;
+  const g = (Math.sin(yy*.5)*.5+.5);
+  let r=98+g*36, gv=68+g*22, b=44+g*14;
+  const n = nz(x*.9,y*.9,16)*10;
+  if(nz(x*.2,y*.2,17)>.94){ r-=.18*r; gv-=.18*gv; b-=.18*b; }
+  return [r+n, gv+n, b+n];
+});}
+
+// Обивка (диван, кресла)
+function texFabric(){ return makeTex('fab',64,64,(x,y,w,h)=>{
+  const n = nz(x*1.6,y*1.6,18)*14;
+  const weave = ((x+y)%5<1?1:0)*7;
+  return [78+n+weave, 68+n+weave, 54+n+weave];
+});}
+
+// Металл
+function texMetal(){ return makeTex('met',64,64,(x,y,w,h)=>{
+  const n = nz(x*1.2,y*1.2,19)*14;
+  const band = Math.sin(y*.5)*8;
+  return [112+n+band, 114+n+band, 116+n+band];
+});}
+
+/* ============================================================
+   WEBGL
+   ============================================================ */
+const cv = document.getElementById('cv');
+let gl = cv.getContext('webgl', {antialias:true, alpha:false, powerPreference:'high-performance'})
+       || cv.getContext('experimental-webgl');
+if(!gl){
+  document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c8c8c8;font-family:monospace">WebGL не поддерживается вашим браузером.</div>';
+  throw new Error('no webgl');
+}
+
+const VERT = `
+attribute vec3 aPos;
+attribute vec3 aNrm;
+attribute vec2 aUV;
+uniform mat4 uProj, uView, uModel;
+uniform mat3 uNrmMat;
+varying vec3 vNrm;
+varying vec3 vWorld;
+varying vec2 vUV;
 void main(){
-  vec3 base = uC;
-  if(uUseT > 0.5){ vec4 t = texture2D(uT, vU); base *= t.rgb; }
-  vec3 N = normalize(vN);
-  vec3 col = uAmb * base * uBri;
+  vec4 wp = uModel * vec4(aPos,1.0);
+  vWorld = wp.xyz;
+  vNrm = normalize(uNrmMat * aNrm);
+  vUV = aUV;
+  gl_Position = uProj * uView * wp;
+}`;
+const FRAG = `
+precision mediump float;
+varying vec3 vNrm; varying vec3 vWorld; varying vec2 vUV;
+uniform vec3 uColor;
+uniform sampler2D uTex;
+uniform float uUseTex;
+uniform vec3 uCamPos;
+uniform vec3 uAmbient;
+uniform vec3 uLightPos[6];
+uniform vec3 uLightColor[6];
+uniform float uLightRange[6];
+uniform int uNumLights;
+uniform float uFogNear;
+uniform float uFogFar;
+uniform vec3 uFogColor;
+void main(){
+  vec3 base = uColor;
+  if(uUseTex > 0.5){
+    vec4 t = texture2D(uTex, vUV);
+    base *= t.rgb;
+  }
+  vec3 N = normalize(vNrm);
+  vec3 col = uAmbient * base;
   for(int i=0;i<6;i++){
-    if(i>=uNL) break;
-    vec3 L = uLP[i] - vW; float d = length(L);
+    if(i>=uNumLights) break;
+    vec3 L = uLightPos[i] - vWorld;
+    float d = length(L);
     if(d < 0.001) continue;
     L = L/d;
     float diff = max(dot(N,L),0.0);
-    float att = clamp(1.0 - d/uLR[i], 0.0, 1.0);
-    col += base * uLC[i] * diff * att * att * uBri;
+    float att = clamp(1.0 - d/uLightRange[i], 0.0, 1.0);
+    att = att*att;
+    col += base * uLightColor[i] * diff * att;
   }
-  if(uFOn > 0.5){
-    vec3 L = uCam - vW; float d = length(L);
-    if(d > 0.001){
-      L=L/d;
-      float diff = max(dot(N,L),0.2);
-      vec3 tf = normalize(vW - uCam);
-      float spot = smoothstep(0.85, 0.97, dot(tf, uFDir));
-      float att = clamp(1.0 - d/uFR, 0.0, 1.0);
-      col += base * uFC * diff * spot * att * att * 1.5 * uBri;
-    }
-  }
-  float dd = length(uCam - vW);
-  float f = clamp((dd - uFN)/(uFF - uFN), 0.0, 1.0);
-  col = mix(col, uFogC, f);
+  float dist = length(uCamPos - vWorld);
+  float f = clamp((dist - uFogNear)/(uFogFar - uFogNear), 0.0, 1.0);
+  col = mix(col, uFogColor, f);
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-const R = {
-  gl:null, cv:null, prog:null, u:{}, m:{}, aP:0, aN:0, aU:0,
-  init(cv){
-    this.cv = cv;
-    let gl = cv.getContext('webgl', {antialias:false, alpha:false}) || cv.getContext('experimental-webgl');
-    if(!gl) return false;
-    this.gl = gl;
-    const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs,VS); gl.compileShader(vs);
-    if(!gl.getShaderParameter(vs,gl.COMPILE_STATUS)){ console.error('VS:', gl.getShaderInfoLog(vs)); return false; }
-    const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs,FS); gl.compileShader(fs);
-    if(!gl.getShaderParameter(fs,gl.COMPILE_STATUS)){ console.error('FS:', gl.getShaderInfoLog(fs)); return false; }
-    const p = gl.createProgram(); gl.attachShader(p,vs); gl.attachShader(p,fs); gl.linkProgram(p);
-    if(!gl.getProgramParameter(p,gl.LINK_STATUS)){ console.error('Link:', gl.getProgramInfoLog(p)); return false; }
-    this.prog = p; gl.useProgram(p);
-    const names = ['uP','uV','uM','uNM','uC','uT','uUseT','uCam','uAmb','uLP','uLC','uLR','uNL','uFDir','uFOn','uFC','uFR','uFN','uFF','uFogC','uBri'];
-    for(const n of names) this.u[n] = gl.getUniformLocation(p,n);
-    this.aP = gl.getAttribLocation(p,'aP');
-    this.aN = gl.getAttribLocation(p,'aN');
-    this.aU = gl.getAttribLocation(p,'aU');
-    this.buildMeshes();
-    this.resize();
-    gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
-    gl.clearColor(0.02,0.02,0.025,1);
-    return true;
-  },
-  createMesh(V,I){
-    const gl=this.gl;
-    const vb = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(V), gl.STATIC_DRAW);
-    let ib = null;
-    if(I){
-      ib = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(I), gl.STATIC_DRAW);
-    }
-    return {vb, ib, count: I?I.length:V.length/8};
-  },
-  buildMeshes(){
-    const V=[], I=[];
-    const faces = [
-      {n:[1,0,0], v:[[.5,-.5,.5],[.5,-.5,-.5],[.5,.5,-.5],[.5,.5,.5]]},
-      {n:[-1,0,0],v:[[-.5,-.5,-.5],[-.5,-.5,.5],[-.5,.5,.5],[-.5,.5,-.5]]},
-      {n:[0,1,0], v:[[-.5,.5,.5],[.5,.5,.5],[.5,.5,-.5],[-.5,.5,-.5]]},
-      {n:[0,-1,0],v:[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,-.5,.5],[-.5,-.5,.5]]},
-      {n:[0,0,1], v:[[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]]},
-      {n:[0,0,-1],v:[[.5,-.5,-.5],[-.5,-.5,-.5],[-.5,.5,-.5],[.5,.5,-.5]]}
-    ];
-    let vi=0;
-    for(const f of faces){
-      const uv = [[0,1],[1,1],[1,0],[0,0]];
-      for(let k=0;k<4;k++){
-        V.push(f.v[k][0],f.v[k][1],f.v[k][2], f.n[0],f.n[1],f.n[2], uv[k][0],uv[k][1]);
-      }
-      I.push(vi,vi+1,vi+2, vi,vi+2,vi+3); vi+=4;
-    }
-    this.m.cube = this.createMesh(V,I);
-    this.m.plane = this.createMesh([
-      -.5,0,-.5, 0,1,0, 0,1,   .5,0,-.5, 0,1,0, 1,1,
-       .5,0, .5, 0,1,0, 1,0,  -.5,0, .5, 0,1,0, 0,0
-    ], [0,1,2, 0,2,3]);
-  },
-  resize(){
-    const dpr = Math.min(window.devicePixelRatio||1, 1.5);
-    const w = Math.max(320, Math.floor(window.innerWidth*dpr));
-    const h = Math.max(240, Math.floor(window.innerHeight*dpr));
-    if(this.cv.width !== w || this.cv.height !== h){ this.cv.width = w; this.cv.height = h; }
-    this.gl.viewport(0,0,w,h);
-  },
-  begin(proj, view, cam){
-    const gl = this.gl;
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(this.prog);
-    gl.uniformMatrix4fv(this.u.uP, false, proj);
-    gl.uniformMatrix4fv(this.u.uV, false, view);
-    gl.uniform3fv(this.u.uCam, cam);
-    gl.uniform3fv(this.u.uAmb, [0.16, 0.16, 0.20]);
-    gl.uniform3fv(this.u.uFogC, [0.03, 0.03, 0.04]);
-    gl.uniform1f(this.u.uFN, 4.0);
-    gl.uniform1f(this.u.uFF, SET.draw || 28);
-    gl.uniform1f(this.u.uBri, (SET.bright || 100)/100);
-  },
-  setLights(lights){
-    const gl = this.gl;
-    const n = Math.min(lights.length, 6);
-    const P = new Float32Array(18), C = new Float32Array(18), Rg = new Float32Array(6);
-    for(let i=0;i<n;i++){
-      const L = lights[i];
-      P[i*3]=L.x; P[i*3+1]=L.y; P[i*3+2]=L.z;
-      C[i*3]=L.r; C[i*3+1]=L.g; C[i*3+2]=L.b;
-      Rg[i]=L.range;
-    }
-    gl.uniform3fv(this.u.uLP, P);
-    gl.uniform3fv(this.u.uLC, C);
-    gl.uniform1fv(this.u.uLR, Rg);
-    gl.uniform1i(this.u.uNL, n);
-  },
-  setFlash(on, dir, color, range){
-    const gl = this.gl;
-    gl.uniform1f(this.u.uFOn, on?1:0);
-    gl.uniform3fv(this.u.uFDir, dir);
-    gl.uniform3fv(this.u.uFC, color);
-    gl.uniform1f(this.u.uFR, range);
-  },
-  draw(obj){
-    const gl = this.gl;
-    const mesh = obj.mesh === 'plane' ? this.m.plane : this.m.cube;
-    gl.uniformMatrix4fv(this.u.uM, false, obj.matrix);
-    gl.uniform3fv(this.u.uC, obj.color || [1,1,1]);
-    if(obj.tex){
-      gl.activeTexture(gl.TEXTURE0);
-      if(!obj._glTex){
-        obj._glTex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, obj._glTex);
-        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,obj.tex);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-      } else gl.bindTexture(gl.TEXTURE_2D, obj._glTex);
-      gl.uniform1i(this.u.uT, 0);
-      gl.uniform1f(this.u.uUseT, 1);
-    } else gl.uniform1f(this.u.uUseT, 0);
-    const m = obj.matrix;
-    gl.uniformMatrix3fv(this.u.uNM, false, new Float32Array([m[0],m[1],m[2], m[4],m[5],m[6], m[8],m[9],m[10]]));
-    gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vb);
-    gl.enableVertexAttribArray(this.aP); gl.vertexAttribPointer(this.aP,3,gl.FLOAT,false,32,0);
-    gl.enableVertexAttribArray(this.aN); gl.vertexAttribPointer(this.aN,3,gl.FLOAT,false,32,12);
-    gl.enableVertexAttribArray(this.aU); gl.vertexAttribPointer(this.aU,2,gl.FLOAT,false,32,24);
-    if(mesh.ib){
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.ib);
-      gl.drawElements(gl.TRIANGLES, mesh.count, gl.UNSIGNED_SHORT, 0);
-    } else gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
+function compileShader(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+    console.error(gl.getShaderInfoLog(s));
+    return null;
   }
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+
+const U = {};
+['uProj','uView','uModel','uNrmMat','uColor','uTex','uUseTex','uCamPos','uAmbient',
+ 'uLightPos','uLightColor','uLightRange','uNumLights','uFogNear','uFogFar','uFogColor']
+.forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+const A = {
+  pos: gl.getAttribLocation(prog, 'aPos'),
+  nrm: gl.getAttribLocation(prog, 'aNrm'),
+  uv:  gl.getAttribLocation(prog, 'aUV')
 };
 
-/* =============== ЗВУК =============== */
-const Snd = {
-  ctx:null, ready:false, master:null, sfx:null,
-  init(){
-    if(this.ready) return;
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if(!AC) return;
-      this.ctx = new AC();
-      this.master = this.ctx.createGain(); this.master.gain.value = (SET.master||70)/100;
-      this.master.connect(this.ctx.destination);
-      this.sfx = this.ctx.createGain(); this.sfx.gain.value = (SET.sfx||80)/100;
-      this.sfx.connect(this.master);
-      this.ready = true;
-    } catch(e){}
-  },
-  resume(){ if(this.ctx && this.ctx.state === 'suspended') try{ this.ctx.resume(); }catch(e){} },
-  vol(){ if(this.ready){ this.master.gain.value = SET.master/100; this.sfx.gain.value = SET.sfx/100; } },
-  nbuf(sec){
-    const len = Math.floor(this.ctx.sampleRate * sec);
-    const b = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-    const d = b.getChannelData(0);
-    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
-    return b;
-  },
-  noise(dur, freq, q, gain, type){
-    if(!this.ready) return;
-    try {
-      const t = this.ctx.currentTime;
-      const s = this.ctx.createBufferSource(); s.buffer = this.nbuf(dur+0.05);
-      const f = this.ctx.createBiquadFilter(); f.type = type||'bandpass';
-      f.frequency.value = freq; f.Q.value = q||1;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(gain, t+0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
-      s.connect(f); f.connect(g); g.connect(this.sfx);
-      s.start(t); s.stop(t+dur+0.05);
-    } catch(e){}
-  },
-  tone(freq, dur, type, gain, slide){
-    if(!this.ready) return;
-    try {
-      const t = this.ctx.currentTime;
-      const o = this.ctx.createOscillator();
-      o.type = type||'sine'; o.frequency.value = freq;
-      if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, slide), t+dur);
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(gain, t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
-      o.connect(g); g.connect(this.sfx);
-      o.start(t); o.stop(t+dur+0.05);
-    } catch(e){}
-  },
-  step(){ this.noise(0.08, 240+Math.random()*150, 1.4, 0.09, 'lowpass'); },
-  door(){ this.noise(0.45, 180, 3, 0.12, 'bandpass'); this.tone(85, 0.35, 'sine', 0.05, 50); },
-  lock(){ this.noise(0.05, 1400, 3, 0.1, 'bandpass'); },
-  pick(){ this.tone(660, 0.12, 'triangle', 0.07); setTimeout(()=>this.tone(880,0.13,'triangle',0.06), 70); },
-  note(){ this.noise(0.2, 900, 4, 0.05, 'highpass'); },
-  click(){ this.noise(0.03, 1500, 4, 0.07, 'bandpass'); },
-  scare(){ this.noise(0.9, 80, 1, 0.25, 'lowpass'); this.tone(55, 0.9, 'sawtooth', 0.13, 28); },
-  hurt(){ this.noise(0.4, 70, 1, 0.3, 'lowpass'); this.tone(48, 0.7, 'sawtooth', 0.18, 22); }
-};
+gl.enable(gl.DEPTH_TEST);
+gl.disable(gl.CULL_FACE);
+gl.clearColor(0.02, 0.02, 0.025, 1);
 
-/* =============== НАСТРОЙКИ =============== */
-const SET = {
-  master:70, sfx:80, sens:100, inv:false, draw:28, bright:100,
-  load(){
-    try {
-      const s = JSON.parse(localStorage.getItem('apt13_set')||'{}');
-      if(s && typeof s === 'object') Object.assign(this, s);
-    } catch(e){}
-  },
-  save(){
-    try { localStorage.setItem('apt13_set', JSON.stringify({
-      master:this.master, sfx:this.sfx, sens:this.sens, inv:this.inv,
-      draw:this.draw, bright:this.bright
-    })); } catch(e){}
-  }
-};
+/* ============================================================
+   ГЕОМЕТРИЯ
+   ============================================================ */
+// Каждая запись — { verts: Float32Array, idxs: Uint16Array, tex: HTMLCanvasElement|null, color:[r,g,b] }
+const BATCHES = {};
 
-/* =============== СОСТОЯНИЕ =============== */
-const G = {
-  state:'menu',
-  flags:{},
-  notes:[],
-  inv:{},
-  puzzles:{clock:false, code:false},
-  P: { x:0, y:1.6, z:2.6, yaw:Math.PI, pitch:0, vx:0, vz:0,
-        bob:0, crouch:false, running:false, stamina:1,
-        flashlight:false, flashCharge:1 },
-  fear:0,
-  ending:null
-};
-
-/* =============== МИР =============== */
-const W = {
-  objects:[], colliders:[], interactables:[], doors:[], lights:[],
-  enemy:null,
-
-  init(){
-    this.objects.length = 0;
-    this.colliders.length = 0;
-    this.interactables.length = 0;
-    this.doors.length = 0;
-    this.lights.length = 0;
-    this.enemy = null;
-    buildApartment();
-  },
-
-  obj(x,y,z, sx,sy,sz, color, tex, ry){
-    const o = { mesh:'cube', matrix:mModel(x,y,z,sx,sy,sz,ry||0), color:color||[1,1,1], tex:tex||null };
-    this.objects.push(o);
-    return o;
-  },
-  floor(x1,z1,x2,z2, tex, color){
-    const cx=(x1+x2)/2, cz=(z1+z2)/2;
-    this.objects.push({ mesh:'plane', matrix:mModel(cx,0,cz, Math.abs(x2-x1),1,Math.abs(z2-z1), 0),
-                        color:color||[1,1,1], tex:tex||TEX.floor });
-  },
-  ceil(x1,z1,x2,z2, tex, color){
-    const cx=(x1+x2)/2, cz=(z1+z2)/2;
-    const m = mModel(cx, 2.7, cz, Math.abs(x2-x1),1,Math.abs(z2-z1), 0);
-    m[5] = -1;
-    this.objects.push({ mesh:'plane', matrix:m, color:color||[0.6,0.58,0.55], tex:tex||TEX.conc });
-  },
-  wall(x1,z1,x2,z2, tex, color, h){
-    h = h || 2.7;
-    const len = Math.hypot(x2-x1, z2-z1);
-    const mx = (x1+x2)/2, mz = (z1+z2)/2;
-    const ang = Math.atan2(x2-x1, z2-z1);
-    this.obj(mx, h/2, mz, 0.12, h, len, color||[0.55,0.5,0.42], tex||TEX.wall, ang);
-    const t = 0.1;
-    this.colliders.push({ minX:Math.min(x1,x2)-t, maxX:Math.max(x1,x2)+t,
-                          minZ:Math.min(z1,z2)-t, maxZ:Math.max(z1,z2)+t, tag:'wall' });
-  },
-  wallGap(axis, fixed, from, to, ga, gb, tex, color){
-    if(ga > from) this.wall(
-      axis==='x'?from:fixed, axis==='x'?fixed:from,
-      axis==='x'?ga:fixed, axis==='x'?fixed:ga, tex, color);
-    if(to > gb) this.wall(
-      axis==='x'?gb:fixed, axis==='x'?fixed:gb,
-      axis==='x'?to:fixed, axis==='x'?fixed:to, tex, color);
-  },
-  collider(x1,z1,x2,z2,tag){
-    this.colliders.push({ minX:Math.min(x1,x2), maxX:Math.max(x1,x2),
-                          minZ:Math.min(z1,z2), maxZ:Math.max(z1,z2), tag:tag||'prop' });
-  },
-  door(id, hx, hz, w, openAngle, opts){
-    opts = opts || {};
-    const h = 2.1;
-    const d = {
-      id, hx, hz, w, h,
-      angle:0, target:0, openAngle,
-      locked: opts.locked||false,
-      keyId: opts.keyId||null,
-      meshObj: { mesh:'cube', matrix:mat4(), color:[0.72,0.58,0.42], tex:TEX.door },
-      collider: { minX:0,maxX:0,minZ:0,maxZ:0, tag:'door' }
+function batchKey(matName){
+  return matName;
+}
+function getBatch(matName, texCanvas, color){
+  if(!BATCHES[matName]){
+    BATCHES[matName] = {
+      verts: [],
+      idxs: [],
+      tex: texCanvas || null,
+      color: color || [1,1,1],
+      glBuf: null,
+      glIdx: null,
+      glTex: null,
+      count: 0
     };
-    this.objects.push(d.meshObj);
-    this.colliders.push(d.collider);
-    this.doors.push(d);
-    updateDoorMatrix(d);
-    return d;
-  },
-  interact(id, aabb, prompt, onUse, opts){
-    opts = opts || {};
-    this.interactables.push({ id, aabb, prompt, onUse, once: !!opts.once,
-                              hideOnUse: !!opts.hideOnUse, obj: opts.obj || null, used:false });
-  },
-  prop(id, x,y,z, sx,sy,sz, color, tex, opts){
-    opts = opts || {};
-    const o = this.obj(x,y,z,sx,sy,sz, color, tex, opts.ry||0);
-    if(opts.collide) this.collider(x-sx/2, z-sz/2, x+sx/2, z+sz/2, 'prop');
-    if(opts.interact){
-      const aabb = { minX:x-sx/2, maxX:x+sx/2, minY:y-sy/2, maxY:y+sy/2, minZ:z-sz/2, maxZ:z+sz/2 };
-      this.interact(id, aabb, opts.prompt||'E — осмотреть', opts.onUse, opts);
-      const it = this.interactables[this.interactables.length-1];
-      it.obj = o;
+  }
+  return BATCHES[matName];
+}
+
+// texScale = сколько метров на одну текстуру
+function addBox(matName, cx, cy, cz, sx, sy, sz, texScale, texCanvas, color){
+  texScale = texScale || 1.5;
+  const b = getBatch(matName, texCanvas, color);
+  const base = b.verts.length / 8;
+  const hx = sx/2, hy = sy/2, hz = sz/2;
+  const x0=cx-hx, x1=cx+hx, y0=cy-hy, y1=cy+hy, z0=cz-hz, z1=cz+hz;
+
+  // Each face: 4 verts (pos, normal, uv)
+  // uv scaled by dimension / texScale
+
+  // +X
+  pushQuad(b,
+    [x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],
+    [1,0,0], sz/texScale, sy/texScale);
+  // -X
+  pushQuad(b,
+    [x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],
+    [-1,0,0], sz/texScale, sy/texScale);
+  // +Y
+  pushQuad(b,
+    [x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0],
+    [0,1,0], sx/texScale, sz/texScale);
+  // -Y
+  pushQuad(b,
+    [x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],
+    [0,-1,0], sx/texScale, sz/texScale);
+  // +Z
+  pushQuad(b,
+    [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],
+    [0,0,1], sx/texScale, sy/texScale);
+  // -Z
+  pushQuad(b,
+    [x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],
+    [0,0,-1], sx/texScale, sy/texScale);
+}
+
+function pushQuad(b, v0, v1, v2, v3, n, uS, vS){
+  const base = b.verts.length / 8;
+  const verts = [v0, v1, v2, v3];
+  const uvs = [[0,vS],[uS,vS],[uS,0],[0,0]];
+  for(let i=0;i<4;i++){
+    const v = verts[i], u = uvs[i];
+    b.verts.push(v[0], v[1], v[2], n[0], n[1], n[2], u[0], u[1]);
+  }
+  b.idxs.push(base, base+1, base+2, base, base+2, base+3);
+}
+
+// Горизонтальная поверхность (пол/потолок) как plane
+function addFloorPlane(matName, x1, z1, x2, z2, y, texScale, texCanvas, color, flipY){
+  texScale = texScale || 1.5;
+  const b = getBatch(matName, texCanvas, color);
+  const w = Math.abs(x2-x1), d = Math.abs(z2-z1);
+  const xa = Math.min(x1,x2), za = Math.min(z1,z2);
+  const xb = Math.max(x1,x2), zb = Math.max(z1,z2);
+  const base = b.verts.length / 8;
+  const uS = w / texScale, vS = d / texScale;
+  const n = flipY ? [0,-1,0] : [0,1,0];
+  let verts, uvs;
+  if(!flipY){
+    verts = [[xa,y,zb],[xb,y,zb],[xb,y,za],[xa,y,za]];
+    uvs = [[0,0],[uS,0],[uS,vS],[0,vS]];
+  } else {
+    verts = [[xa,y,za],[xb,y,za],[xb,y,zb],[xa,y,zb]];
+    uvs = [[0,vS],[uS,vS],[uS,0],[0,0]];
+  }
+  for(let i=0;i<4;i++){
+    b.verts.push(verts[i][0], verts[i][1], verts[i][2], n[0], n[1], n[2], uvs[i][0], uvs[i][1]);
+  }
+  b.idxs.push(base, base+1, base+2, base, base+2, base+3);
+}
+
+// Финальная загрузка батчей в GPU
+function uploadBatches(){
+  for(const k in BATCHES){
+    const b = BATCHES[k];
+    if(b.verts.length === 0) continue;
+    b.glBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, b.glBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(b.verts), gl.STATIC_DRAW);
+    b.glIdx = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.glIdx);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(b.idxs), gl.STATIC_DRAW);
+    b.count = b.idxs.length;
+    if(b.tex){
+      b.glTex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, b.glTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, b.tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     }
-    return o;
-  },
-  light(x,y,z, r,g,b, range){ this.lights.push({x,y,z,r,g,b,range}); }
+  }
+}
+
+/* ============================================================
+   КОЛЛИЗИИ
+   ============================================================ */
+const COLLIDERS = []; // {minX, minY, minZ, maxX, maxY, maxZ}
+function addCollider(cx, cy, cz, sx, sy, sz){
+  COLLIDERS.push({
+    minX: cx - sx/2, maxX: cx + sx/2,
+    minY: cy - sy/2, maxY: cy + sy/2,
+    minZ: cz - sz/2, maxZ: cz + sz/2
+  });
+}
+
+/* ============================================================
+   ПЛАНИРОВКА ДОМА
+   ============================================================
+   Оси: +X восток, +Z север, -Z юг, -X запад.
+   1-й этаж: Y=0..2.9
+   Подвал: Y=-3.0..-0.3
+   Чердак: Y=2.9..~5.5 (крыша)
+
+   Комнаты 1-го этажа (внутренние границы):
+     Спальня игрока  X=-8..-3   Z=-6..-3   (юго-запад)
+     Гостиная        X=-8..-3   Z=-3..2    (запад, центр)
+     Спальня бабушки X=-8..-3   Z=2..6     (северо-запад)
+     Коридор         X=-3..3    Z=-6..2    (центр, от юга до севера)
+     Кухня           X=-3..3    Z=2..6     (север, центр)
+     Ванная          X=3..6     Z=2..6     (северо-восток)
+     Кладовая        X=3..6     Z=-3..2    (восток, центр)
+     Лестничная зона X=3..6     Z=-6..-3   (юго-восток)
+   ============================================================ */
+const H = 2.9;        // высота 1-го этажа
+const HB = 2.7;       // высота подвала
+const WT = 0.25;      // толщина наружных стен
+const WT_IN = 0.15;   // толщина внутренних стен
+
+const mats = {
+  wallBeige:   texWallBeige(),
+  wallFloral:  texWallFloral(),
+  wallLight:   texWallLight(),
+  wallFaded:   texWallFaded(),
+  wallOld:     texWallOld(),
+  tile:        texTile(),
+  concrete:    texConcrete(),
+  planks:      texPlanks(),
+  laminate:    texLaminate(),
+  rug:         texRug(),
+  wood:        texWood(),
+  fabric:      texFabric(),
+  metal:       texMetal()
 };
 
-function updateDoorMatrix(d){
-  const c = Math.cos(d.angle), s = Math.sin(d.angle);
-  const mx = d.hx + s * (d.w/2);
-  const mz = d.hz + c * (d.w/2);
-  d.meshObj.matrix = mModel(mx, d.h/2, mz, 0.07, d.h, d.w, d.angle);
-  const ax = d.hx, az = d.hz;
-  const bx = d.hx + s*d.w, bz = d.hz + c*d.w;
-  const t = 0.14;
-  d.collider.minX = Math.min(ax,bx)-t; d.collider.maxX = Math.max(ax,bx)+t;
-  d.collider.minZ = Math.min(az,bz)-t; d.collider.maxZ = Math.max(az,bz)+t;
-  if(Math.abs(d.angle) > 1.0){
-    d.collider.minX = 1e9; d.collider.maxX = -1e9;
-    d.collider.minZ = 1e9; d.collider.maxZ = -1e9;
+/* ---- Стена с проёмами --------------------------------------
+   Ось 'x' — стена идёт вдоль X (нормаль ±Z), пролёты задаются по X.
+   Ось 'z' — стена идёт вдоль Z (нормаль ±X), пролёты задаются по Z.
+   Пролёты: массив {a, b} в координатах вдоль оси.
+   ------------------------------------------------------------ */
+function addWallSeg(matName, axis, fixed, from, to, yBase, height, texScale, isOuter){
+  const thickness = isOuter ? WT : WT_IN;
+  if(to <= from) return;
+  const mid = (from + to) / 2;
+  const len = to - from;
+  if(axis === 'x'){
+    // Wall runs along X: extend along X, thin in Z
+    addBox(matName, mid, yBase + height/2, fixed, len, height, thickness, texScale);
+  } else {
+    // Wall runs along Z
+    addBox(matName, fixed, yBase + height/2, mid, thickness, height, len, texScale);
   }
 }
-function updateDoors(dt){
-  for(const d of W.doors){
-    if(Math.abs(d.angle - d.target) > 0.001){
-      const dir = d.target > d.angle ? 1 : -1;
-      d.angle += dir * dt * 3.5;
-      if((dir>0 && d.angle>d.target) || (dir<0 && d.angle<d.target)) d.angle = d.target;
-      updateDoorMatrix(d);
+function addWallWithOpenings(matName, axis, fixed, from, to, openings, yBase, height, texScale, isOuter){
+  openings = (openings || []).slice().sort((p,q)=>p.a - q.a);
+  let cur = from;
+  for(const o of openings){
+    if(o.a > cur) addWallSeg(matName, axis, fixed, cur, o.a, yBase, height, texScale, isOuter);
+    // Door lintel (above the opening)
+    if(o.top !== undefined && o.top < yBase + height){
+      const thickness = isOuter ? WT : WT_IN;
+      const mid = (o.a + o.b) / 2;
+      const len = o.b - o.a;
+      const lintelH = yBase + height - o.top;
+      if(axis === 'x'){
+        addBox(matName, mid, o.top + lintelH/2, fixed, len, lintelH, thickness, texScale);
+      } else {
+        addBox(matName, fixed, o.top + lintelH/2, mid, thickness, lintelH, len, texScale);
+      }
     }
+    cur = o.b;
   }
+  if(cur < to) addWallSeg(matName, axis, fixed, cur, to, yBase, height, texScale, isOuter);
 }
 
-/* =============== ПОСТРОЕНИЕ КВАРТИРЫ =============== */
-function buildApartment(){
-  const wallCol = [0.68,0.62,0.52], wallGCol = [0.52,0.6,0.48];
+/* ============================================================
+   ПОСТРОЕНИЕ МИРА
+   ============================================================ */
+function buildFirstFloor(){
+  const mat = mats;
 
-  // Полы
-  W.floor(-1.5,-6, 1.5,4, TEX.floor, [0.88,0.85,0.75]);
-  W.floor(-6,0, -1.5,4, TEX.floor, [0.95,0.86,0.72]);
-  W.floor(-6,-6, -1.5,0, TEX.floor, [0.85,0.75,0.62]);
-  W.floor(1.5,0, 6,4, TEX.tile, [1.05,1.05,1.0]);
-  W.floor(1.5,-6, 6,0, TEX.tile, [1.05,1.08,1.05]);
-
-  // Потолки
-  W.ceil(-1.5,-6, 1.5,4);
-  W.ceil(-6,0, -1.5,4);
-  W.ceil(-6,-6, -1.5,0);
-  W.ceil(1.5,0, 6,4);
-  W.ceil(1.5,-6, 6,0);
-
-  // Внешние стены
-  W.wallGap('x', 4, -6, 6, -0.6, 0.6, TEX.wall, wallCol);
-  W.wall(-6,-6, 6,-6, TEX.wall, wallCol);
-  W.wall(-6,-6, -6,4, TEX.wall, wallCol);
-  W.wall(6,-6, 6,4, TEX.wall, wallCol);
-
-  // Внутренние
-  W.wallGap('z', -1.5, -6, 0, -3, -2, TEX.wallG, wallGCol);
-  W.wallGap('z', -1.5, 0, 4, 1.5, 2.5, TEX.wallG, wallGCol);
-  W.wallGap('z', 1.5, -6, 0, -3, -2, TEX.wallG, wallGCol);
-  W.wallGap('z', 1.5, 0, 4, 1.5, 2.5, TEX.wallG, wallGCol);
-  W.wall(-6,0, -1.5,0, TEX.wall, wallCol);
-  W.wall(1.5,0, 6,0, TEX.tile, [0.72,0.72,0.66]);
-
-  // Двери
-  W.door('door_entry', -0.6, 4, 1.2, -1.55);
-  W.door('door_living', -1.5, 2.5, 1.0, 1.5);
-  W.door('door_bedroom', -1.5, -2.0, 1.0, 1.5);
-  W.door('door_kitchen', 1.5, 2.5, 1.0, -1.5);
-  W.door('door_bath', 1.5, -2.0, 1.0, -1.5);
-
-  // Мебель — прихожая
-  W.prop('hallstand', 0.75, 0.55, 3.4, 0.7, 1.1, 0.35, [0.45,0.32,0.22], TEX.wood, {collide:true});
-  W.prop('coatRack', -0.9, 1.6, 3.6, 0.08, 0.8, 0.9, [0.44,0.38,0.3], TEX.metal);
-  W.prop('hallRug', 0, 0.005, 2.6, 1.4, 0.01, 1.0, [0.55,0.4,0.35], TEX.rug);
-
+  // ===== ПОЛЫ =====
+  // Спальня игрока
+  addFloorPlane('lam_player', -8, -6, -3, -3, 0, 1.6, mat.laminate);
   // Гостиная
-  W.prop('sofa', -4.7, 0.42, 1.2, 2.2, 0.8, 0.85, [0.48,0.42,0.34], TEX.wood, {collide:true});
-  W.prop('sofaBack', -4.7, 0.72, 1.55, 2.2, 0.5, 0.2, [0.42,0.36,0.28], TEX.wood, {collide:true});
-  W.prop('cofTable', -4.7, 0.24, 2.6, 1.1, 0.48, 0.6, [0.46,0.32,0.2], TEX.wood, {collide:true});
-  W.prop('tvStand', -4.7, 0.28, 3.5, 1.1, 0.56, 0.4, [0.4,0.3,0.2], TEX.wood, {collide:true});
-  W.prop('tv', -4.7, 0.95, 3.5, 1.0, 0.6, 0.15, [0.06,0.06,0.07], null, {collide:true});
-  W.prop('shelf', -5.7, 1.3, 0.6, 0.4, 2.2, 1.8, [0.46,0.34,0.22], TEX.wood, {collide:true});
-  W.prop('rug1', -4.7, 0.005, 2.2, 2.3, 0.01, 1.5, [0.72,0.32,0.32], TEX.rug);
-
-  // Спальня
-  W.prop('bed', -4.5, 0.3, -3, 2.0, 0.6, 2.1, [0.46,0.36,0.28], TEX.wood, {collide:true});
-  W.prop('matress', -4.5, 0.68, -3, 2.0, 0.16, 2.1, [0.7,0.66,0.56], TEX.wood);
-  W.prop('pillow', -4.5, 0.84, -3.9, 1.7, 0.16, 0.4, [0.86,0.82,0.72], TEX.wood);
-  W.prop('wardrobe', -5.6, 1.05, -4.4, 0.9, 2.1, 1.4, [0.44,0.32,0.22], TEX.wood, {collide:true});
-  W.prop('nightstd', -3.1, 0.32, -3.9, 0.5, 0.64, 0.45, [0.5,0.4,0.28], TEX.wood, {collide:true});
-
+  addFloorPlane('lam_living', -8, -3, -3, 2, 0, 1.6, mat.laminate);
+  // Спальня бабушки
+  addFloorPlane('lam_grandma', -8, 2, -3, 6, 0, 1.6, mat.laminate);
+  // Коридор
+  addFloorPlane('lam_corr', -3, -6, 3, 2, 0, 1.6, mat.laminate);
   // Кухня
-  W.prop('counter', 2.4, 0.45, 0.5, 1.8, 0.9, 0.55, [0.7,0.62,0.5], TEX.wood, {collide:true});
-  W.prop('counter2', 5.5, 0.45, 3.6, 0.55, 0.9, 0.6, [0.7,0.62,0.5], TEX.wood, {collide:true});
-  W.prop('kSink', 2.4, 0.92, 0.5, 0.8, 0.04, 0.5, [0.86,0.88,0.88], TEX.metal);
-  W.prop('fridge', 5.5, 0.8, 2.4, 0.65, 1.6, 0.65, [0.9,0.9,0.88], TEX.metal, {collide:true});
-  W.prop('kTable', 3.9, 0.4, 3, 1.2, 0.06, 0.85, [0.52,0.38,0.22], TEX.wood, {collide:true});
-  W.prop('kTableL', 3.9, 0.2, 3, 1.15, 0.4, 0.8, [0.42,0.3,0.18], TEX.wood, {collide:true});
-  W.prop('kChair1', 3.2, 0.45, 3, 0.42, 0.06, 0.42, [0.46,0.32,0.2], TEX.wood, {collide:true});
-  W.prop('kChair2', 4.6, 0.45, 3, 0.42, 0.06, 0.42, [0.46,0.32,0.2], TEX.wood, {collide:true});
-
+  addFloorPlane('floor_kitchen', -3, 2, 3, 6, 0, 1.2, mat.tile);
   // Ванная
-  W.prop('bath', 4.8, 0.35, -1.2, 1.6, 0.7, 0.75, [0.95,0.95,0.92], TEX.tile, {collide:true});
-  W.prop('toilet', 2.4, 0.4, -4.5, 0.5, 0.8, 0.55, [1.0,1.0,0.98], TEX.tile, {collide:true});
-  W.prop('sink', 5.4, 0.85, -5.4, 0.6, 0.14, 0.45, [1.0,1.0,0.98], TEX.tile);
-  W.prop('sinkPed', 5.4, 0.42, -5.4, 0.3, 0.85, 0.3, [0.95,0.95,0.92], TEX.tile);
+  addFloorPlane('floor_bath', 3, 2, 6, 6, 0, 1.0, mat.tile);
+  // Кладовая
+  addFloorPlane('floor_storage', 3, -3, 6, 2, 0, 1.4, mat.wallOld);
+  // Лестничная зона
+  addFloorPlane('floor_stairs', 3, -6, 6, -3, 0, 1.4, mat.laminate);
 
-  // ===== ИНТЕРАКТИВ =====
-  W.prop('note1', 0.75, 1.1, 3.4, 0.22, 0.02, 0.3, [0.95,0.92,0.8], null, {
-    interact:true, once:true, hideOnUse:true,
-    prompt:'E — прочитать письмо',
-    onUse: () => readNote('ПИСЬМО НОТАРИУСА',
-`«Уважаемый гражданин.
+  // ===== ПОТОЛКИ 1-ГО ЭТАЖА (кроме мест лестниц) =====
+  addFloorPlane('ceil_player', -8, -6, -3, -3, H, 1.8, mat.wallLight, [0.75,0.72,0.68], true);
+  addFloorPlane('ceil_living', -8, -3, -3, 2, H, 1.8, mat.wallFaded, [0.75,0.72,0.68], true);
+  addFloorPlane('ceil_grandma', -8, 2, -3, 6, H, 1.8, mat.wallFaded, [0.75,0.72,0.68], true);
+  addFloorPlane('ceil_corr', -3, -6, 3, 2, H, 1.8, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_kitchen', -3, 2, 3, 6, H, 1.4, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_bath', 3, 2, 6, 6, H, 1.2, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_storage', 3, -3, 6, 2, H, 1.4, mat.wallOld, [0.6,0.58,0.55], true);
+  // Лестничная зона: оставляем отверстие для подъёма на чердак
+  // Потолок вокруг отверстия (X=3..6, Z=-6..-3, отверстие X=3.5..5, Z=-5.5..-3.3)
+  addFloorPlane('ceil_stairs_1', 3, -6, 3.5, -3, H, 1.4, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_stairs_2', 5, -6, 6, -3, H, 1.4, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_stairs_3', 3.5, -6, 5, -5.5, H, 1.4, mat.wallBeige, [0.72,0.7,0.66], true);
+  addFloorPlane('ceil_stairs_4', 3.5, -3.3, 5, -3, H, 1.4, mat.wallBeige, [0.72,0.7,0.66], true);
 
-Согласно завещанию Виктора Андреевича Морозова, скончавшегося 13 ноября 1990 года, квартира № 13 по улице Заводской переходит в вашу собственность.
+  // ===== НАРУЖНЫЕ СТЕНЫ =====
+  const wallMat = 'wall_outer';
+  // Южная (Z=-6.5) — со входной дверью в спальню игрока (X=-5..-3.5)
+  addWallWithOpenings(wallMat, 'x', -6.5, -8.25, 6.25,
+    [{a:-5, b:-3.5, top:2.2}], 0, H, 2.0, true);
+  // Северная (Z=6.5) — окна
+  addWallWithOpenings(wallMat, 'x', 6.5, -8.25, 6.25,
+    [{a:-6.5, b:-5, top:2.4}, {a:-1, b:1, top:2.4}, {a:4, b:5.5, top:2.4}], 0, H, 2.0, true);
+  // Западная (X=-8.25) — окна
+  addWallWithOpenings(wallMat, 'z', -8.25, -6.5, 6.5,
+    [{a:-5, b:-4, top:2.4}, {a:-1, b:0, top:2.4}, {a:3, b:4, top:2.4}], 0, H, 2.0, true);
+  // Восточная (X=6.25)
+  addWallWithOpenings(wallMat, 'z', 6.25, -6.5, 6.5,
+    [{a:3, b:4, top:2.4}], 0, H, 2.0, true);
 
-Ключ прилагается. Виктор не оставил пояснений, почему выбрал именно вас.
+  // ===== ВНУТРЕННИЕ СТЕНЫ =====
+  // Стена X=-3 (между западными комнатами и коридором)
+  addWallWithOpenings('wall_corr_w', 'z', -3, -6.5, 6.5, [
+    {a:-5.2, b:-4.2, top:2.15},   // дверь в спальню игрока
+    {a:0.3, b:1.3, top:2.15},     // дверь в гостиную
+    {a:3.7, b:4.7, top:2.15}      // дверь в спальню бабушки
+  ], 0, H, 1.6, false);
 
-Примите соболезнования.»`, 'intro')
-  });
+  // Стена X=3 (между коридором и восточными помещениями)
+  addWallWithOpenings('wall_corr_e', 'z', 3, -6.5, 6.5, [
+    {a:-5.2, b:-4.2, top:2.15},   // дверь в лестничную зону
+    {a:-1.3, b:-0.3, top:2.15},   // дверь в кладовку
+    {a:3.5, b:4.5, top:2.15}      // дверь в ванную
+  ], 0, H, 1.6, false);
 
-  W.prop('flashlight', 0.9, 1.1, 3.4, 0.09, 0.09, 0.24, [0.28,0.28,0.3], TEX.metal, {
-    interact:true, once:true, hideOnUse:true,
-    prompt:'E — взять фонарик',
-    onUse: () => {
-      addItem('flashlight', 'Фонарик', 'Старый рабочий фонарик.');
-      addNote('Найден фонарик — F для включения');
-      G.P.flashlight = true; G.P.flashCharge = 1;
-      Snd.pick(); updateHUD(); autoSave();
-    }
-  });
+  // Стена Z=2 (гостиная/спальня бабушки и коридор/кухня)
+  // Западная часть: X=-8..-3 (без двери, соединяется только через коридор)
+  addWallSeg('wall_z2_w', 'x', 2, -8, -3, 0, H, 1.6, false);
+  // Центральная часть (коридор → кухня): широкий проход X=-1.5..1.5
+  addWallWithOpenings('wall_z2_c', 'x', 2, -3, 3, [{a:-1.5, b:1.5, top:2.3}], 0, H, 1.6, false);
+  // Восточная часть: X=3..6 (между кладовкой и ванной, без двери)
+  addWallSeg('wall_z2_e', 'x', 2, 3, 6, 0, H, 1.6, false);
 
-  // Часы (головоломка)
-  W.prop('clockBody', -1.6, 1.9, 0.7, 0.06, 0.5, 0.4, [0.46,0.3,0.18], TEX.wood);
-  W.interact('clockIt',
-    { minX:-1.75, maxX:-1.5, minY:1.5, maxY:2.2, minZ:0.4, maxZ:1.0 },
-    'E — осмотреть часы', openClock, { once:false });
+  // Стена Z=-3 (спальня игрока/гостиная и лестн.зона/кладовка)
+  // Западная часть: X=-8..-3 (без двери)
+  addWallSeg('wall_z3_w', 'x', -3, -8, -3, 0, H, 1.6, false);
+  // Восточная часть: X=3..6 (без двери, соединяется через коридор)
+  addWallSeg('wall_z3_e', 'x', -3, 3, 6, 0, H, 1.6, false);
 
-  W.prop('note2', -4.7, 0.51, 2.6, 0.22, 0.02, 0.3, [0.95,0.92,0.8], null, {
-    interact:true, once:true, hideOnUse:true,
-    prompt:'E — прочитать записку',
-    onUse: () => readNote('ЗАПИСКА (1)',
-`«Я слышу шаги в коридоре каждую ночь. Ровно в 2:13.
-Сначала я думал — соседи. Но соседей нет.
+  // ===== ВХОДНАЯ ДВЕРЬ =====
+  // Дверное полотно у входа в спальню игрока (на южной стене)
+  addBox('door', -4.25, 1.1, -6.35, 1.5, 2.2, 0.08, 1.0);
+  // Ручка
+  addBox('metal', -3.6, 1.05, -6.25, 0.08, 0.08, 0.12, 0.3);
 
-Часы остановились именно тогда.
-Я не могу их завести обратно.
+  // ===== ОКОННЫЕ СТЕКЛА =====
+  // Просто полупрозрачные/светлые вставки в проёмах
+  // Север, окно кухни
+  addBox('glass_sky', 0, 1.7, 6.4, 2, 1.5, 0.05, 1);
+  // Север, окно спальни бабушки
+  addBox('glass_sky', -5.75, 1.7, 6.4, 1.5, 1.5, 0.05, 1);
+  // Север, окно ванной
+  addBox('glass_sky', 4.75, 1.7, 6.4, 1.5, 1.5, 0.05, 1);
+  // Запад, окна
+  addBox('glass_sky', -8.15, 1.7, -4.5, 0.05, 1.5, 1);
+  addBox('glass_sky', -8.15, 1.7, -0.5, 0.05, 1.5, 1);
+  addBox('glass_sky', -8.15, 1.7, 3.5, 0.05, 1.5, 1);
+  // Восток
+  addBox('glass_sky', 6.15, 1.7, 3.5, 0.05, 1.5, 1);
 
-Стрелки нужно поставить на то самое время.
-2:13. Ночь на 13 ноября.»`, 'clock_hint')
-  });
+  // ===== ПЛИНТУСЫ (тонкие полоски вдоль стен) =====
+  // Не критично для геймплея, добавляю только основные
 
-  W.prop('note3', -3.1, 0.68, -3.9, 0.2, 0.02, 0.28, [0.95,0.92,0.8], null, {
-    interact:true, once:true, hideOnUse:true,
-    prompt:'E — прочитать дневник',
-    onUse: () => readNote('ДНЕВНИК ВИКТОРА',
-`«Моя дочь пропала в ночь на 13 ноября 1990 года.
-Ей было двенадцать.
-
-Я оставил её одну на полчаса. Вернулся — квартира пустая.
-Дверь была заперта изнутри. Окна закрыты.
-
-Дело закрыли через месяц: "ушла сама".
-
-Она не могла уйти сама. Дверь была заперта ИЗНУТРИ.
-
-С тех пор я не могу уехать. Что-то держит меня здесь.
-
-Ключ от сейфа — в записке.»`, 'diary')
-  });
-
-  W.prop('note4', 3.9, 0.44, 3, 0.22, 0.02, 0.3, [0.95,0.92,0.8], null, {
-    interact:true, once:true, hideOnUse:true,
-    prompt:'E — прочитать записку',
-    onUse: () => readNote('ЗАПИСКА (2)',
-`«В зеркале я вижу то, чего нет.
-
-Однажды я увидел отражение комнаты, которой не помню.
-Там стоял шкаф. На шкафу лежал ключ.
-
-Код от сейфа — день, когда всё закончилось.
-Тринадцатое ноября. Одиннадцатый месяц.
-1311. Четыре цифры.»`, 'code_hint')
-  });
-
-  W.prop('safe', -5.6, 0.6, -2.4, 0.5, 0.5, 0.5, [0.36,0.36,0.38], TEX.metal, {
-    interact:true, once:false, collide:true,
-    prompt:'E — открыть сейф',
-    onUse: openCode
-  });
-
-  // ===== СВЕТ =====
-  // Яркость значительно усилена для читаемости сцены.
-  W.light(0, 2.55, 2.6, 0.9, 0.78, 0.55, 6.0);    // прихожая
-  W.light(-4.7, 2.55, 2.0, 0.95, 0.78, 0.5, 6.5); // гостиная
-  W.light(-4.5, 2.55, -3.0, 0.85, 0.72, 0.5, 6.0); // спальня
-  W.light(3.9, 2.55, 2.0, 1.0, 0.88, 0.6, 6.5);   // кухня
-  W.light(4.5, 2.55, -3.0, 0.9, 0.88, 0.72, 6.0); // ванная
-  W.light(0, 2.5, -4.5, 0.55, 0.5, 0.4, 4.5);     // дальний коридор (темнее)
+  // ===== ДЕКОР: дверные коробки =====
+  // (уже включены в стены через lintel)
 }
 
-/* =============== ВВОД =============== */
-const In = {
-  keys:{},
-  locked:false,
-  hovered:null,
-  stepT:0,
+/* --------------------------------------------------------------
+   МЕБЕЛЬ
+   -------------------------------------------------------------- */
+function buildFurniture(){
+  const wood = 'wood';
+  const wood2 = 'wood2';
+  const fab = 'fabric';
+  const met = 'metal';
+  const conc = 'concrete';
 
-  init(){
-    window.addEventListener('keydown', e => {
-      if(G.state !== 'play') return;
-      this.keys[e.code] = true;
-      if(['KeyW','KeyA','KeyS','KeyD','KeyE','KeyF','KeyI','KeyJ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))
-        e.preventDefault();
-      if(e.code === 'KeyE') doInteract();
-      if(e.code === 'KeyF') toggleFlashlight();
-      if(e.code === 'KeyI') togglePanel('inv');
-      if(e.code === 'KeyJ') togglePanel('j');
-      if(e.code === 'Escape') pauseGame();
-    });
-    window.addEventListener('keyup', e => { this.keys[e.code] = false; });
-    window.addEventListener('blur', () => { this.keys = {}; });
+  // ---------- СПАЛЬНЯ ИГРОКА ----------
+  // Кровать: каркас, матрас, подушка, одеяло
+  // Кровать вдоль западной стены, изголовье у юга
+  addBox(wood, -7.2, 0.15, -5.0, 1.6, 0.3, 2.2, 1.0);      // каркас
+  addBox(wood, -7.2, 0.05, -5.0, 1.7, 0.1, 2.3, 1.0);      // ножки/рама низ
+  addBox('fabric_w', -7.2, 0.42, -5.0, 1.5, 0.24, 2.1, 1.0); // матрас
+  addBox('fabric_w', -7.2, 0.55, -5.6, 1.1, 0.12, 0.5, 0.6); // подушка
+  addBox('fabric_g', -7.2, 0.58, -4.3, 1.5, 0.14, 1.4, 0.6); // одеяло
+  // Изголовье
+  addBox(wood, -7.2, 0.55, -6.05, 1.7, 0.9, 0.1, 1.0);
+  // Прикроватная тумбочка
+  addBox(wood, -6.15, 0.3, -5.9, 0.5, 0.6, 0.5, 0.8);
+  addBox(wood, -6.15, 0.63, -5.9, 0.55, 0.05, 0.55, 0.8);
+  // Настольная лампа на тумбочке
+  addBox(met, -6.15, 0.75, -5.9, 0.15, 0.2, 0.15, 0.3);
+  addBox('light_warm', -6.15, 0.9, -5.9, 0.2, 0.15, 0.2, 0.3, null, [1,0.85,0.6]);
+  // Шкаф у восточной стены
+  addBox(wood, -3.9, 1.05, -4.7, 0.7, 2.1, 1.5, 1.2);
+  addBox(met, -3.55, 1.05, -4.7, 0.03, 0.15, 0.05, 0.2); // ручка
+  // Стул
+  addBox(wood, -5.5, 0.45, -3.6, 0.45, 0.05, 0.45, 0.6);
+  addBox(wood, -5.5, 0.7, -3.85, 0.45, 0.5, 0.05, 0.6);
+  // Стол у окна (южная стена) — маленький
+  addBox(wood, -6.8, 0.75, -3.3, 0.7, 0.05, 0.5, 0.6);
+  addBox(wood, -6.8, 0.4, -3.3, 0.65, 0.7, 0.45, 0.6);
+  // Ковёр
+  addBox('rug_w', -5.5, 0.01, -4.5, 2.2, 0.015, 1.6, 1.2);
+  // Книги на столе
+  addBox('light_warm', -6.75, 0.81, -3.3, 0.25, 0.06, 0.18, 0.3, null, [0.65,0.28,0.24]);
 
-    document.addEventListener('mousemove', e => {
-      if(G.state !== 'play' || !this.locked) return;
-      const s = 0.0022 * (SET.sens/100);
-      G.P.yaw += e.movementX * s;
-      G.P.pitch = clamp(G.P.pitch + e.movementY * s * (SET.inv ? 1 : -1), -1.35, 1.35);
-    });
+  // ---------- ГОСТИНАЯ ----------
+  // Диван у западной стены (спинка к стене)
+  // Основание
+  addBox(fab, -7.4, 0.35, -0.5, 1.0, 0.5, 2.0, 1.0);
+  // Спинка
+  addBox(fab, -7.75, 0.75, -0.5, 0.3, 0.8, 2.0, 0.8);
+  // Подлокотники
+  addBox(fab, -7.4, 0.7, -1.55, 1.0, 0.6, 0.2, 0.8);
+  addBox(fab, -7.4, 0.7, 0.55, 1.0, 0.6, 0.2, 0.8);
+  // Подушки дивана
+  addBox('fabric_g', -7.4, 0.65, -1.1, 0.7, 0.15, 0.5, 0.5);
+  addBox('fabric_g', -7.4, 0.65, 0.1, 0.7, 0.15, 0.5, 0.5);
 
-    document.addEventListener('pointerlockchange', () => {
-      this.locked = (document.pointerLockElement === R.cv);
-      if(G.state === 'play' && !this.locked){
-        showHint('НАЖМИТЕ, ЧТОБЫ ВЕРНУТЬ УПРАВЛЕНИЕ', () => requestLock());
-      } else hideHint();
-    });
+  // Кресло 1
+  addBox(fab, -6.5, 0.35, 0.8, 0.9, 0.5, 0.9, 0.9);
+  addBox(fab, -6.5, 0.75, 0.4, 0.9, 0.8, 0.15, 0.7);
+  addBox(fab, -6.95, 0.7, 0.8, 0.15, 0.6, 0.9, 0.7);
+  addBox(fab, -6.05, 0.7, 0.8, 0.15, 0.6, 0.9, 0.7);
 
-    R.cv.addEventListener('click', () => {
-      if(G.state === 'play' && !this.locked) requestLock();
-    });
+  // Кресло 2
+  addBox(fab, -6.5, 0.35, -1.8, 0.9, 0.5, 0.9, 0.9);
+  addBox(fab, -6.5, 0.75, -2.2, 0.9, 0.8, 0.15, 0.7);
+  addBox(fab, -6.95, 0.7, -1.8, 0.15, 0.6, 0.9, 0.7);
+  addBox(fab, -6.05, 0.7, -1.8, 0.15, 0.6, 0.9, 0.7);
 
-    // Мобильное
-    if(('ontouchstart' in window) && window.innerWidth < 900){
-      document.getElementById('mobile').classList.add('on');
-      const joy = document.getElementById('joy');
-      const knob = joy.querySelector('i');
-      let jx=0, jy=0, active=false;
-      const setK = (x,y)=>{
-        const r=55;
-        const L=Math.hypot(x,y)||1, cl=Math.min(L,r);
-        const nx=(x/L)*cl, ny=(y/L)*cl;
-        knob.style.transform = 'translate('+nx+'px,'+ny+'px)';
-        const dx=nx/r, dy=ny/r;
-        this.keys['KeyW'] = dy < -0.3;
-        this.keys['KeyS'] = dy > 0.3;
-        this.keys['KeyA'] = dx < -0.3;
-        this.keys['KeyD'] = dx > 0.3;
-      };
-      joy.addEventListener('touchstart', e => {
-        e.preventDefault();
-        const r = joy.getBoundingClientRect();
-        jx = r.left + r.width/2; jy = r.top + r.height/2;
-        active = true; const t = e.touches[0]; setK(t.clientX-jx, t.clientY-jy);
-      }, {passive:false});
-      joy.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if(!active) return;
-        const t = e.touches[0]; setK(t.clientX-jx, t.clientY-jy);
-      }, {passive:false});
-      joy.addEventListener('touchend', e => {
-        e.preventDefault();
-        active = false; knob.style.transform = '';
-        this.keys['KeyW']=this.keys['KeyA']=this.keys['KeyS']=this.keys['KeyD']=false;
-      }, {passive:false});
+  // Журнальный столик
+  addBox(wood, -5.5, 0.4, -0.5, 1.2, 0.06, 0.7, 0.7);
+  addBox(wood, -5.5, 0.2, -0.5, 1.1, 0.4, 0.6, 0.6);
 
-      let camId = null, lastX = 0, lastY = 0;
-      document.addEventListener('touchstart', e => {
-        if(G.state !== 'play') return;
-        for(const t of e.changedTouches){
-          if(t.clientX > window.innerWidth*0.4 && camId === null){
-            camId = t.identifier; lastX = t.clientX; lastY = t.clientY;
-          }
-        }
-      }, {passive:false});
-      document.addEventListener('touchmove', e => {
-        if(G.state !== 'play') return;
-        for(const t of e.changedTouches){
-          if(t.identifier === camId){
-            const dx = t.clientX-lastX, dy = t.clientY-lastY;
-            lastX = t.clientX; lastY = t.clientY;
-            const s = 0.005 * (SET.sens/100);
-            G.P.yaw += dx*s;
-            G.P.pitch = clamp(G.P.pitch + dy*s*(SET.inv?1:-1), -1.35, 1.35);
-          }
-        }
-      }, {passive:false});
-      document.addEventListener('touchend', e => {
-        for(const t of e.changedTouches){
-          if(t.identifier === camId) camId = null;
-        }
-      }, {passive:false});
+  // ТВ-тумба у северной стены
+  addBox(wood, -6.5, 0.25, 1.75, 1.4, 0.5, 0.5, 0.9);
+  // Телевизор
+  addBox('tv', -6.5, 0.85, 1.75, 1.0, 0.65, 0.15, 0.8, null, [0.15,0.13,0.12]);
+  addBox('metal', -6.5, 1.22, 1.75, 0.5, 0.05, 0.1, 0.3);
 
-      document.getElementById('mE').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') doInteract(); });
-      document.getElementById('mF').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') toggleFlashlight(); });
-      document.getElementById('mP').addEventListener('touchstart', e => { e.preventDefault(); if(G.state==='play') pauseGame(); });
-    }
+  // Книжный шкаф у южной стены
+  addBox(wood, -4.2, 1.1, -2.75, 1.4, 2.2, 0.4, 1.2);
+  // Полки внутри
+  addBox(wood, -4.2, 0.6, -2.55, 1.3, 0.04, 0.3, 0.3);
+  addBox(wood, -4.2, 1.1, -2.55, 1.3, 0.04, 0.3, 0.3);
+  addBox(wood, -4.2, 1.6, -2.55, 1.3, 0.04, 0.3, 0.3);
+  // Книги
+  addBox('light_warm', -4.6, 0.75, -2.55, 0.1, 0.25, 0.3, 0.3, null, [0.55,0.2,0.15]);
+  addBox('light_warm', -4.45, 0.75, -2.55, 0.1, 0.28, 0.3, 0.3, null, [0.35,0.45,0.25]);
+  addBox('light_warm', -4.3, 0.75, -2.55, 0.08, 0.22, 0.3, 0.3, null, [0.3,0.3,0.5]);
+  addBox('light_warm', -3.7, 1.25, -2.55, 0.12, 0.25, 0.3, 0.3, null, [0.55,0.45,0.2]);
+  addBox('light_warm', -4.2, 1.75, -2.55, 0.4, 0.28, 0.3, 0.3, null, [0.2,0.35,0.4]);
+
+  // Столик с лампой (в углу)
+  addBox(wood, -3.4, 0.4, 1.5, 0.5, 0.8, 0.5, 0.6);
+  addBox('light_warm', -3.4, 0.95, 1.5, 0.25, 0.2, 0.25, 0.3, null, [1,0.8,0.5]);
+
+  // Напольная ваза в углу
+  addBox('light_warm', -7.5, 0.4, 1.5, 0.4, 0.8, 0.4, 0.5, null, [0.4,0.28,0.18]);
+
+  // Ковёр
+  addBox('rug_l', -5.8, 0.01, -0.5, 3.2, 0.015, 2.4, 1.5);
+
+  // ---------- СПАЛЬНЯ БАБУШКИ ----------
+  // Большая кровать
+  addBox(wood, -6.8, 0.15, 3.8, 1.8, 0.3, 2.2, 1.0);
+  addBox(wood, -6.8, 0.05, 3.8, 1.9, 0.1, 2.3, 1.0);
+  addBox('fabric_g', -6.8, 0.45, 3.8, 1.7, 0.3, 2.1, 1.0);
+  // Тяжёлое одеяло
+  addBox('fabric_gr', -6.8, 0.62, 4.3, 1.75, 0.2, 1.3, 0.8);
+  // Подушки
+  addBox('fabric_w', -7.3, 0.65, 3.0, 0.7, 0.15, 0.4, 0.5);
+  addBox('fabric_w', -6.3, 0.65, 3.0, 0.7, 0.15, 0.4, 0.5);
+  // Изголовье (спинка)
+  addBox(wood, -6.8, 0.7, 2.75, 1.9, 1.1, 0.1, 1.0);
+
+  // Тумбочки с двух сторон
+  addBox(wood, -7.9, 0.3, 3.0, 0.45, 0.6, 0.45, 0.7);
+  addBox(wood, -5.7, 0.3, 3.0, 0.45, 0.6, 0.45, 0.7);
+  // Лампа на тумбочке
+  addBox('light_warm', -7.9, 0.75, 3.0, 0.2, 0.2, 0.2, 0.3, null, [1,0.8,0.55]);
+
+  // Большой шкаф у западной стены
+  addBox(wood, -7.7, 1.1, 4.8, 0.7, 2.2, 1.6, 1.4);
+  addBox(met, -7.35, 1.1, 4.5, 0.03, 0.15, 0.05, 0.2);
+  addBox(met, -7.35, 1.1, 5.1, 0.03, 0.15, 0.05, 0.2);
+
+  // Комод у восточной стены
+  addBox(wood, -3.9, 0.7, 4.7, 0.6, 1.4, 1.3, 1.1);
+  addBox(met, -3.6, 0.9, 4.2, 0.03, 0.08, 0.15, 0.2);
+  addBox(met, -3.6, 0.9, 4.7, 0.03, 0.08, 0.15, 0.2);
+  addBox(met, -3.6, 0.9, 5.2, 0.03, 0.08, 0.15, 0.2);
+  addBox(met, -3.6, 1.15, 4.2, 0.03, 0.08, 0.15, 0.2);
+  addBox(met, -3.6, 1.15, 4.7, 0.03, 0.08, 0.15, 0.2);
+  addBox(met, -3.6, 1.15, 5.2, 0.03, 0.08, 0.15, 0.2);
+
+  // Старый стул
+  addBox(wood, -5.5, 0.45, 2.6, 0.45, 0.05, 0.45, 0.6);
+  addBox(wood, -5.5, 0.7, 2.35, 0.45, 0.5, 0.05, 0.6);
+
+  // Зеркало на восточной стене
+  addBox('metal', -3.2, 1.6, 3.8, 0.05, 1.2, 0.7, 0.6);
+  // Часы на северной стене
+  addBox(wood, -5, 2.1, 6.15, 0.4, 0.5, 0.05, 0.4);
+  addBox('light_warm', -5, 2.1, 6.12, 0.35, 0.4, 0.02, 0.3, null, [0.9,0.85,0.7]);
+
+  // Ковёр
+  addBox('rug_g', -5.7, 0.01, 4, 3.2, 0.015, 2.2, 1.4);
+
+  // ---------- КУХНЯ ----------
+  // Кухонный гарнитур вдоль северной стены (от X=-2.7 до X=1.5)
+  // Нижние шкафы
+  addBox(wood, -1, 0.45, 5.6, 3.2, 0.9, 0.55, 1.0);
+  // Верхние шкафы
+  addBox(wood, -1, 1.9, 5.75, 3.2, 0.7, 0.35, 1.0);
+  // Стойка/столешница
+  addBox('metal', -1, 0.92, 5.6, 3.25, 0.05, 0.6, 0.8);
+  // Раковина
+  addBox('metal', -1, 0.87, 5.6, 0.7, 0.06, 0.45, 0.6, null, [0.7,0.72,0.72]);
+  // Кран
+  addBox('metal', -1, 1.1, 5.75, 0.05, 0.35, 0.05, 0.2);
+
+  // Западный гарнитур
+  addBox(wood, -2.6, 0.45, 4.5, 0.55, 0.9, 2.0, 1.0);
+  addBox('metal', -2.6, 0.92, 4.5, 0.6, 0.05, 2.05, 0.8);
+
+  // Верхние шкафы запад
+  addBox(wood, -2.6, 1.9, 4.5, 0.4, 0.7, 2.0, 1.0);
+
+  // Холодильник у восточной стены
+  addBox('fridge', 2.55, 0.85, 3.2, 0.7, 1.7, 0.7, 1.0, null, [0.85,0.85,0.82]);
+  addBox('metal', 2.85, 1.0, 3.2, 0.03, 0.2, 0.05, 0.15);
+  addBox('metal', 2.85, 0.6, 3.2, 0.03, 0.2, 0.05, 0.15);
+
+  // Плита
+  addBox('metal', 1.4, 0.92, 5.6, 0.6, 0.06, 0.6, 0.6, null, [0.15,0.15,0.15]);
+  // Ручки
+  addBox('metal', 0.15, 0.55, 5.9, 0.05, 0.05, 0.03, 0.15);
+  addBox('metal', 0.4, 0.55, 5.9, 0.05, 0.05, 0.03, 0.15);
+  addBox('metal', -0.5, 0.55, 5.9, 0.05, 0.05, 0.03, 0.15);
+  addBox('metal', -0.75, 0.55, 5.9, 0.05, 0.05, 0.03, 0.15);
+
+  // Обеденный стол в центре кухни
+  addBox(wood, 0, 0.75, 3.5, 1.3, 0.06, 0.9, 0.9);
+  addBox(wood, 0, 0.38, 3.5, 1.2, 0.7, 0.8, 0.8);
+
+  // 3 стула
+  // Стул 1 — запад
+  addBox(wood, -1.2, 0.45, 3.5, 0.42, 0.05, 0.42, 0.5);
+  addBox(wood, -1.4, 0.7, 3.5, 0.05, 0.5, 0.42, 0.5);
+  // Стул 2 — восток
+  addBox(wood, 1.2, 0.45, 3.5, 0.42, 0.05, 0.42, 0.5);
+  addBox(wood, 1.4, 0.7, 3.5, 0.05, 0.5, 0.42, 0.5);
+  // Стул 3 — юг
+  addBox(wood, 0, 0.45, 4.5, 0.42, 0.05, 0.42, 0.5);
+  addBox(wood, 0, 0.7, 4.7, 0.42, 0.5, 0.05, 0.5);
+
+  // Посуда на столе
+  addBox('light_warm', 0.2, 0.8, 3.5, 0.2, 0.04, 0.2, 0.3, null, [0.9,0.9,0.88]);
+  addBox('light_warm', -0.3, 0.82, 3.4, 0.1, 0.15, 0.1, 0.3, null, [0.8,0.82,0.85]);
+  addBox('light_warm', 0.4, 0.82, 3.5, 0.08, 0.14, 0.08, 0.3, null, [0.85,0.82,0.7]);
+
+  // Настенные часы
+  addBox(wood, 2.7, 2.1, 4.0, 0.05, 0.4, 0.35, 0.4);
+  addBox('light_warm', 2.67, 2.1, 4.0, 0.02, 0.35, 0.3, 0.3, null, [0.9,0.85,0.7]);
+
+  // Коврик у раковины
+  addBox('rug_k', -1, 0.01, 5.1, 1.6, 0.015, 0.6, 0.8);
+
+  // ---------- ВАННАЯ ----------
+  // Ванна у восточной стены
+  addBox('bath', 5.4, 0.35, 4.5, 1.6, 0.7, 0.9, 1.0);
+  addBox('bath_inner', 5.4, 0.62, 4.5, 1.4, 0.06, 0.7, 0.8, null, [0.65,0.68,0.7]);
+
+  // Раковина
+  addBox('tile', 3.5, 0.85, 3.5, 0.6, 0.15, 0.45, 0.5);
+  addBox('tile', 3.5, 0.42, 3.5, 0.3, 0.85, 0.3, 0.5);
+  // Зеркало
+  addBox('metal', 3.15, 1.55, 3.5, 0.03, 0.9, 0.7, 0.5);
+
+  // Унитаз
+  addBox('bath', 5.3, 0.35, 5.4, 0.5, 0.7, 0.55, 0.6);
+  addBox('metal', 5.3, 0.75, 5.65, 0.4, 0.25, 0.15, 0.4);
+
+  // Стиральная машина
+  addBox('metal', 3.6, 0.4, 5.3, 0.7, 0.8, 0.7, 0.9, null, [0.72,0.72,0.75]);
+
+  // Шкафчик
+  addBox(wood, 3.4, 1.9, 5.6, 0.7, 0.6, 0.35, 0.5);
+
+  // ---------- КЛАДОВАЯ ----------
+  // Полки вдоль северной стены
+  addBox(wood, 4.5, 0.5, 1.7, 2.5, 0.05, 0.35, 0.8);
+  addBox(wood, 4.5, 1.1, 1.7, 2.5, 0.05, 0.35, 0.8);
+  addBox(wood, 4.5, 1.7, 1.7, 2.5, 0.05, 0.35, 0.8);
+  // Коробки
+  addBox('cardboard', 3.8, 0.2, 1.7, 0.5, 0.4, 0.35, 0.4, null, [0.65,0.5,0.32]);
+  addBox('cardboard', 4.4, 0.2, 1.7, 0.5, 0.4, 0.35, 0.4, null, [0.6,0.45,0.28]);
+  addBox('cardboard', 5.0, 0.2, 1.7, 0.5, 0.4, 0.35, 0.4, null, [0.68,0.52,0.35]);
+  addBox('cardboard', 5.5, 0.2, 1.7, 0.5, 0.4, 0.35, 0.4, null, [0.62,0.48,0.3]);
+
+  // Банки на полке
+  addBox('jar', 4.0, 1.15, 1.7, 0.15, 0.25, 0.15, 0.3, null, [0.5,0.55,0.35]);
+  addBox('jar', 4.2, 1.15, 1.7, 0.15, 0.25, 0.15, 0.3, null, [0.5,0.55,0.35]);
+  addBox('jar', 5.4, 1.15, 1.7, 0.15, 0.25, 0.15, 0.3, null, [0.55,0.4,0.3]);
+
+  // Ведро
+  addBox('metal', 3.5, 0.2, 0.5, 0.3, 0.4, 0.3, 0.4, null, [0.7,0.7,0.72]);
+
+  // Складной стул
+  addBox(wood, 4.5, 0.45, -0.5, 0.4, 0.05, 0.4, 0.5);
+  addBox(wood, 4.3, 0.7, -0.5, 0.05, 0.5, 0.4, 0.5);
+
+  // ---------- ЛЕСТНИЧНАЯ ЗОНА ----------
+  // Лестница на чердак (поднимается с севера на юг)
+  buildStairsAttic(3.5, 5.0, -3.5, -5.5, H);
+  // Лестница в подвал (спускается с юга на север)
+  buildStairsBasement(3.5, 5.0, -5.0, -3.5, -2.7);
+
+  // ---- Подвал ----
+  buildBasement();
+  // ---- Чердак ----
+  buildAttic();
+}
+
+/* ---- Лестница на чердак (ступени) ---- */
+function buildStairsAttic(x0, x1, zStart, zEnd, topY){
+  const steps = 12;
+  const stepH = topY / steps;
+  const totalZ = zStart - zEnd;
+  const stepD = totalZ / steps;
+  for(let i=0;i<steps;i++){
+    const cz = zStart - (i+0.5)*stepD;
+    const cy = (i+1)*stepH;
+    addBox('stairs', x0 + (x1-x0)/2, cy - stepH/2, cz, (x1-x0), stepH, stepD, 0.8);
   }
+  // Перила (простая планка)
+  addBox('metal', x0-0.05, topY/2 + 0.5, (zStart+zEnd)/2, 0.05, 0.8, totalZ, 0.6);
+  addBox('metal', x1+0.05, topY/2 + 0.5, (zStart+zEnd)/2, 0.05, 0.8, totalZ, 0.6);
+  // Подъём на чердак — проём
+}
+
+/* ---- Лестница в подвал ---- */
+function buildStairsBasement(x0, x1, zStart, zEnd, bottomY){
+  const steps = 12;
+  const drop = -bottomY;
+  const stepH = drop / steps;
+  const totalZ = zStart - zEnd;
+  const stepD = totalZ / steps;
+  for(let i=0;i<steps;i++){
+    const cz = zStart - (i+0.5)*stepD;
+    const cy = -(i+1)*stepH + stepH/2;
+    addBox('stairs', x0 + (x1-x0)/2, cy, cz, (x1-x0), stepH, stepD, 0.8);
+  }
+  addBox('metal', x0-0.05, -drop/2 + 0.6, (zStart+zEnd)/2, 0.05, 1.2, totalZ, 0.6);
+  addBox('metal', x1+0.05, -drop/2 + 0.6, (zStart+zEnd)/2, 0.05, 1.2, totalZ, 0.6);
+}
+
+/* ---- ПОДВАЛ ---- */
+function buildBasement(){
+  const BY = -2.7;      // уровень пола подвала
+  const CEIL = -0.3;    // потолок подвала
+  const h = CEIL - BY;  // высота
+  const bx1 = -6, bz1 = -5, bx2 = 2, bz2 = 1;
+
+  // Пол
+  addFloorPlane('floor_bsmt', bx1, bz1, bx2, bz2, BY, 1.6, mats.concrete);
+  // Потолок
+  addFloorPlane('ceil_bsmt', bx1, bz1, bx2, bz2, CEIL, 1.6, mats.concrete, [0.55,0.53,0.5], true);
+
+  // Стены подвала
+  addBox('wall_bsmt', (bx1+bx2)/2, BY + h/2, bz1, bx2-bx1, h, 0.3, 2.0);
+  addBox('wall_bsmt', (bx1+bx2)/2, BY + h/2, bz2, bx2-bx1, h, 0.3, 2.0);
+  addBox('wall_bsmt', bx1, BY + h/2, (bz1+bz2)/2, 0.3, h, bz2-bz1, 2.0);
+  addBox('wall_bsmt', bx2, BY + h/2, (bz1+bz2)/2, 0.3, h, bz2-bz1, 2.0);
+  // Восточная стена с проёмом в лестничную шахту (юго-восток)
+  // ...упрощаем: добавим небольшой соединительный коридор к лестнице
+
+  // Соединительный коридор от лестницы (X=3.5..5, Z=-5..-3) до подвала
+  // Коридор идёт на запад от подвала к лестнице
+  // Стены небольшого коридорчика X=2..3.5, Z=-5..-4
+  addBox('wall_bsmt', 2.75, BY + h/2, -5.15, 1.5, h, 0.3, 1.6);
+  addBox('wall_bsmt', 2.75, BY + h/2, -3.85, 1.5, h, 0.3, 1.6);
+  addFloorPlane('floor_bsmt2', 2, -5, 3.5, -4, BY, 1.6, mats.concrete);
+  addFloorPlane('ceil_bsmt2', 2, -5, 3.5, -4, CEIL, 1.6, mats.concrete, [0.55,0.53,0.5], true);
+
+  // Балки на потолке
+  for(let i=0;i<4;i++){
+    const bx = bx1 + 1 + i * 2;
+    addBox('wood', bx, CEIL - 0.1, (bz1+bz2)/2, 0.25, 0.2, bz2-bz1-0.5, 1.2);
+  }
+
+  // Полки у стен
+  addBox('wood', bx1 + 0.5, BY + 1.0, -3, 0.7, 0.1, 3.0, 1.0);
+  addBox('wood', bx1 + 0.5, BY + 1.6, -3, 0.7, 0.1, 3.0, 1.0);
+
+  // Бочки
+  addBox('barrel', 0, BY + 0.4, -3.5, 0.7, 0.8, 0.7, 0.8, null, [0.4,0.32,0.22]);
+  addBox('barrel', -1.0, BY + 0.4, -3.2, 0.7, 0.8, 0.7, 0.8, null, [0.42,0.34,0.22]);
+  addBox('barrel', 0.9, BY + 0.4, -4.2, 0.7, 0.8, 0.7, 0.8, null, [0.38,0.3,0.2]);
+
+  // Ящики
+  addBox('cardboard', -4.5, BY + 0.25, -4.3, 0.6, 0.5, 0.5, 0.6, null, [0.55,0.4,0.26]);
+  addBox('cardboard', -4.5, BY + 0.75, -4.3, 0.55, 0.5, 0.5, 0.6, null, [0.5,0.36,0.24]);
+  addBox('cardboard', -3.8, BY + 0.25, -4.4, 0.55, 0.5, 0.5, 0.6, null, [0.58,0.42,0.28]);
+
+  // Старый верстак
+  addBox('wood', -4.5, BY + 0.8, 0, 2.0, 0.1, 0.8, 1.0);
+  addBox('wood', -4.5, BY + 0.4, 0, 1.9, 0.7, 0.7, 0.8);
+
+  // Металлические трубы по потолку
+  addBox('metal', (bx1+bx2)/2, CEIL - 0.3, bz1 + 0.5, bx2-bx1, 0.1, 0.1, 0.5);
+  addBox('metal', (bx1+bx2)/2, CEIL - 0.3, bz2 - 0.5, bx2-bx1, 0.1, 0.1, 0.5);
+
+  // Лампа
+  addBox('light_warm', 0, CEIL - 0.3, -2, 0.3, 0.15, 0.3, 0.3, null, [1,0.85,0.55]);
+
+  // Коллайдер: пол подвала
+  // (пол уже коллизия? Нет — нам нужно обработать падение. Сейчас мы не делаем гравитацию,
+  //  поэтому игрок находится на заданном уровне. Это будет проще.)
+}
+
+/* ---- ЧЕРДАК ---- */
+function buildAttic(){
+  const AY = 2.9;   // уровень пола чердака
+  const ax1 = -4, az1 = -4, ax2 = 6, az2 = 4;
+  const wallH = 1.4;      // высота стен (до начала крыши)
+  const peakH = 2.6;      // высота конька над полом
+
+  // Пол чердака
+  addFloorPlane('floor_attic', ax1, az1, ax2, az2, AY, 1.2, mats.planks);
+
+  // Наклонная крыша — упрощённо два ската
+  // Южный скат
+  addFloorPlane('roof_s', ax1, az1, ax2, (az1+az2)/2, AY + 1.9, 2.0, mats.planks, [0.5,0.45,0.38], true);
+  // Северный скат
+  addFloorPlane('roof_n', ax1, (az1+az2)/2, ax2, az2, AY + 1.9, 2.0, mats.planks, [0.5,0.45,0.38], true);
+
+  // Балки на потолке (горизонтальные)
+  for(let i=0;i<6;i++){
+    const bx = ax1 + 1 + i * 1.7;
+    addBox('wood', bx, AY + peakH, (az1+az2)/2, 0.15, 0.15, az2-az1, 1.5);
+  }
+
+  // Торцевые стены
+  addBox('planks_w', ax1, AY + wallH/2, (az1+az2)/2, 0.2, wallH, az2-az1, 1.5);
+  addBox('planks_w', ax2, AY + wallH/2, (az1+az2)/2, 0.2, wallH, az2-az1, 1.5);
+
+  // Сундук
+  addBox('wood', 3, AY + 0.35, 1, 1.2, 0.7, 0.7, 0.8);
+  addBox('metal', 3, AY + 0.72, 1, 1.15, 0.06, 0.65, 0.5, null, [0.5,0.4,0.25]);
+
+  // Коробки
+  addBox('cardboard', -1, AY + 0.25, -2, 0.55, 0.5, 0.55, 0.6, null, [0.55,0.4,0.26]);
+  addBox('cardboard', -1, AY + 0.75, -2, 0.5, 0.5, 0.5, 0.6, null, [0.5,0.36,0.24]);
+  addBox('cardboard', 0, AY + 0.25, -2.5, 0.6, 0.5, 0.6, 0.6, null, [0.6,0.45,0.3]);
+  addBox('cardboard', 5, AY + 0.25, 3, 0.6, 0.5, 0.6, 0.6, null, [0.55,0.4,0.26]);
+
+  // Сломанный стул
+  addBox('wood', -3, AY + 0.4, 1.5, 0.4, 0.05, 0.4, 0.5);
+  addBox('wood', -3.1, AY + 0.65, 1.3, 0.05, 0.5, 0.4, 0.5);
+
+  // Старые книги
+  addBox('light_warm', -2.8, AY + 0.06, 1.5, 0.3, 0.1, 0.25, 0.3, null, [0.4,0.3,0.2]);
+  addBox('light_warm', -2.5, AY + 0.06, 1.5, 0.25, 0.08, 0.2, 0.3, null, [0.35,0.4,0.25]);
+
+  // Маленькое окно на восточной стороне
+  addBox('glass_sky', ax2 - 0.05, AY + 1.0, 0, 0.05, 0.7, 0.7, 1);
+
+  // Слабая лампа
+  addBox('light_warm', 0, AY + peakH - 0.3, 0, 0.15, 0.1, 0.15, 0.3, null, [0.85,0.75,0.55]);
+}
+
+/* ============================================================
+   СВЕТ
+   ============================================================ */
+const LIGHTS = [
+  // 1-й этаж
+  {x:-5.5, y:2.5, z:-4.5, r:0.55, g:0.5, b:0.4, range:5.0},   // спальня игрока
+  {x:-5.5, y:2.5, z:-0.5, r:0.55, g:0.5, b:0.4, range:5.0},   // гостиная
+  {x:-5.5, y:2.5, z:4.0, r:0.55, g:0.5, b:0.4, range:5.0},    // спальня бабушки
+  {x:0, y:2.5, z:-2.0, r:0.45, g:0.4, b:0.32, range:5.5},     // коридор
+  {x:0, y:2.5, z:4.0, r:0.55, g:0.5, b:0.4, range:5.0},       // кухня
+  {x:4.5, y:2.5, z:4.0, r:0.5, g:0.48, b:0.42, range:4.0}     // ванная
+];
+// Подвал и чердак добавляем как отдельные источники, если у них есть лампа
+const LIGHTS_EXTRA = [
+  {x:0, y:-0.6, z:-2, r:0.5, g:0.42, b:0.3, range:6.0},   // подвал
+  {x:0, y:4.5, z:0, r:0.35, g:0.3, b:0.25, range:5.0}     // чердак
+];
+
+function getLightsForPoint(px, py, pz){
+  // Возвращаем ближайшие 6 источников
+  const all = py < -0.5 ? LIGHTS_EXTRA : (py > 2.0 ? LIGHTS_EXTRA : LIGHTS);
+  // Просто сортируем по расстоянию
+  const arr = all.map(L => ({L, d: Math.hypot(L.x-px, L.y-py, L.z-pz)}));
+  arr.sort((a,b) => a.d - b.d);
+  return arr.slice(0, 6).map(o => o.L);
+}
+
+/* ============================================================
+   ИГРОК
+   ============================================================ */
+const player = {
+  x: -5.5, y: 1.7, z: -4.5,   // внутри спальни игрока
+  yaw: 0,                      // смотрим на север (0 = смотрим в -Z по умолчанию)
+  pitch: 0,
+  vx: 0, vz: 0,
+  radius: 0.35,
+  eyeH: 1.7
 };
+
+/* ============================================================
+   ВВОД
+   ============================================================ */
+const keys = {};
+let pointerLocked = false;
+const hint = document.getElementById('hint');
+const joy = document.getElementById('joy');
+const cam = document.getElementById('cam');
+
+const isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+if(isMobile){
+  joy.classList.add('on');
+  cam.classList.add('on');
+  document.getElementById('info').style.display = 'none';
+}
 
 function requestLock(){
-  try { if(R.cv.requestPointerLock) R.cv.requestPointerLock(); } catch(e){}
+  if(!isMobile && cv.requestPointerLock) cv.requestPointerLock();
+}
+cv.addEventListener('click', () => {
+  if(!isMobile && !pointerLocked) requestLock();
+});
+
+document.addEventListener('pointerlockchange', () => {
+  pointerLocked = (document.pointerLockElement === cv);
+  if(!pointerLocked && !isMobile){
+    hint.textContent = 'НАЖМИТЕ, ЧТОБЫ ПРОДОЛЖИТЬ';
+    hint.classList.add('on');
+  } else {
+    hint.classList.remove('on');
+  }
+});
+hint.addEventListener('click', () => { hint.classList.remove('on'); requestLock(); });
+
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+window.addEventListener('blur', () => { for(const k in keys) keys[k] = false; });
+
+document.addEventListener('mousemove', e => {
+  if(!pointerLocked) return;
+  player.yaw += e.movementX * 0.0022;
+  player.pitch = clamp(player.pitch - e.movementY * 0.0022, -1.3, 1.3);
+});
+
+// Мобильное: джойстик
+let joyActive = false, joyCX = 0, joyCY = 0;
+let joyDX = 0, joyDY = 0;
+if(isMobile){
+  const knob = joy.querySelector('i');
+  const setJoy = (cx, cy) => {
+    const dx = cx - joyCX, dy = cy - joyCY;
+    const r = 55;
+    const L = Math.hypot(dx, dy) || 1;
+    const cl = Math.min(L, r);
+    const nx = (dx/L)*cl, ny = (dy/L)*cl;
+    knob.style.transform = `translate(${nx}px,${ny}px)`;
+    joyDX = nx / r;
+    joyDY = ny / r;
+  };
+  joy.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const r = joy.getBoundingClientRect();
+    joyCX = r.left + r.width/2;
+    joyCY = r.top + r.height/2;
+    joyActive = true;
+    setJoy(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:false});
+  joy.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if(joyActive) setJoy(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:false});
+  joy.addEventListener('touchend', e => {
+    e.preventDefault();
+    joyActive = false;
+    knob.style.transform = '';
+    joyDX = joyDY = 0;
+  }, {passive:false});
+
+  // Камера
+  let camTouchId = null, lastCX = 0, lastCY = 0;
+  cam.addEventListener('touchstart', e => {
+    e.preventDefault();
+    for(const t of e.changedTouches){
+      if(camTouchId === null){
+        camTouchId = t.identifier;
+        lastCX = t.clientX; lastCY = t.clientY;
+      }
+    }
+  }, {passive:false});
+  cam.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for(const t of e.changedTouches){
+      if(t.identifier === camTouchId){
+        const dx = t.clientX - lastCX;
+        const dy = t.clientY - lastCY;
+        lastCX = t.clientX; lastCY = t.clientY;
+        player.yaw += dx * 0.006;
+        player.pitch = clamp(player.pitch - dy * 0.006, -1.3, 1.3);
+      }
+    }
+  }, {passive:false});
+  cam.addEventListener('touchend', e => {
+    for(const t of e.changedTouches){
+      if(t.identifier === camTouchId) camTouchId = null;
+    }
+  }, {passive:false});
 }
 
-/* =============== ИГРОК =============== */
-const Player = {
-  r: 0.28,
-  update(dt){
-    const p = G.P;
-    const k = In.keys;
-    const crouch = !!(k['ControlLeft']||k['ControlRight']||k['KeyC']);
-    p.crouch = crouch;
-
-    let fx=0, fz=0;
-    if(k['KeyW']||k['ArrowUp']) fz -= 1;
-    if(k['KeyS']||k['ArrowDown']) fz += 1;
-    if(k['KeyA']||k['ArrowLeft']) fx -= 1;
-    if(k['KeyD']||k['ArrowRight']) fx += 1;
-    const len = Math.hypot(fx, fz);
-    if(len > 0){ fx/=len; fz/=len; }
-
-    const wfx = Math.sin(p.yaw), wfz = -Math.cos(p.yaw);
-    const wrx = Math.cos(p.yaw), wrz = Math.sin(p.yaw);
-    const wishX = wfx * (-fz) + wrx * fx;
-    const wishZ = wfz * (-fz) + wrz * fx;
-
-    p.running = (k['ShiftLeft']||k['ShiftRight']) && !p.crouch && p.stamina > 0.05;
-    const spd = p.crouch ? 1.2 : (p.running ? 4.4 : 2.6);
-
-    const acc = (len > 0.01 ? 14 : 12) * dt;
-    p.vx += clamp(wishX*spd - p.vx, -acc*3, acc*3);
-    p.vz += clamp(wishZ*spd - p.vz, -acc*3, acc*3);
-
-    if(p.running && Math.hypot(p.vx,p.vz) > 0.5) p.stamina = clamp(p.stamina - dt*0.35, 0, 1);
-    else p.stamina = clamp(p.stamina + dt*0.22, 0, 1);
-
-    const nx = p.x + p.vx*dt;
-    const nz = p.z + p.vz*dt;
-    if(!collides(nx, p.z, this.r)) p.x = nx; else p.vx = 0;
-    if(!collides(p.x, nz, this.r)) p.z = nz; else p.vz = 0;
-
-    p.x = clamp(p.x, -6.4, 6.4);
-    p.z = clamp(p.z, -6.4, 4.6);
-
-    const spdMag = Math.hypot(p.vx, p.vz);
-    if(spdMag > 0.2) p.bob += dt * (p.running ? 12 : 8);
-    else p.bob += dt * 1.2;
-
-    In.stepT -= dt;
-    if(spdMag > 0.5 && In.stepT <= 0){ Snd.step(); In.stepT = p.running ? 0.28 : 0.42; }
-  },
-  eyeY(){
-    const p = G.P;
-    const base = p.crouch ? 1.0 : 1.6;
-    const spdMag = Math.hypot(p.vx,p.vz);
-    const bobAmt = p.crouch ? 0.012 : (p.running ? 0.045 : 0.028);
-    return base + Math.sin(p.bob) * bobAmt * Math.min(1, spdMag/2);
-  },
-  fwd(){
-    const p = G.P;
-    const cp = Math.cos(p.pitch);
-    return [Math.sin(p.yaw)*cp, Math.sin(p.pitch), -Math.cos(p.yaw)*cp];
-  }
-};
-
-function collides(x, z, r){
-  for(const c of W.colliders){
-    if(x + r > c.minX && x - r < c.maxX && z + r > c.minZ && z - r < c.maxZ) return true;
+/* ============================================================
+   ФИЗИКА
+   ============================================================ */
+function collidesAt(x, y, z, r){
+  for(const c of COLLIDERS){
+    // Проверяем только если по Y есть пересечение с игроком (упрощённо — плоскость чуть выше пола)
+    if(y + 0.1 < c.minY || y - 1.5 > c.maxY) continue;
+    if(x + r > c.minX && x - r < c.maxX && z + r > c.minZ && z - r < c.maxZ){
+      return true;
+    }
   }
   return false;
 }
 
-/* =============== ВЗАИМОДЕЙСТВИЕ =============== */
-function rayAABB(o, d, a){
-  let tmin = 0, tmax = 1e9;
-  const mins = [a.minX, a.minY, a.minZ];
-  const maxs = [a.maxX, a.maxY, a.maxZ];
-  for(let i=0;i<3;i++){
-    if(Math.abs(d[i]) < 1e-6){
-      if(o[i] < mins[i] || o[i] > maxs[i]) return null;
-    } else {
-      let t1 = (mins[i]-o[i])/d[i];
-      let t2 = (maxs[i]-o[i])/d[i];
-      if(t1 > t2){ const tmp = t1; t1 = t2; t2 = tmp; }
-      if(t1 > tmin) tmin = t1;
-      if(t2 < tmax) tmax = t2;
-      if(tmin > tmax) return null;
+function movePlayer(dt){
+  const spd = 2.8;
+  let mx = 0, mz = 0;
+  if(keys['KeyW'] || keys['ArrowUp']){ mx += Math.sin(player.yaw); mz += -Math.cos(player.yaw); }
+  if(keys['KeyS'] || keys['ArrowDown']){ mx -= Math.sin(player.yaw); mz -= -Math.cos(player.yaw); }
+  if(keys['KeyA'] || keys['ArrowLeft']){ mx += Math.cos(player.yaw); mz += Math.sin(player.yaw); }
+  if(keys['KeyD'] || keys['ArrowRight']){ mx -= Math.cos(player.yaw); mz -= Math.sin(player.yaw); }
+  // Мобильный джойстик
+  if(joyActive){
+    const f = -joyDY, r = joyDX;
+    mx += Math.sin(player.yaw) * f + Math.cos(player.yaw) * r;
+    mz += -Math.cos(player.yaw) * f + Math.sin(player.yaw) * r;
+  }
+  const L = Math.hypot(mx, mz);
+  if(L > 0.01){
+    mx /= L; mz /= L;
+    const tx = mx * spd * dt;
+    const tz = mz * spd * dt;
+    // Раздельно по осям для скольжения
+    if(!collidesAt(player.x + tx, player.y, player.z, player.radius)){
+      player.x += tx;
+    }
+    if(!collidesAt(player.x, player.y, player.z + tz, player.radius)){
+      player.z += tz;
     }
   }
-  return tmin >= 0 ? tmin : null;
 }
 
-function findHovered(){
-  const p = G.P;
-  const cam = [p.x, Player.eyeY(), p.z];
-  const fwd = Player.fwd();
-  let best = null, bestT = 2.6;
-  for(const it of W.interactables){
-    if(it.used && it.once) continue;
-    const t = rayAABB(cam, fwd, it.aabb);
-    if(t !== null && t < bestT){ bestT = t; best = it; }
-  }
-  for(const d of W.doors){
-    const s = Math.sin(d.angle), c = Math.cos(d.angle);
-    const bx = d.hx + s*d.w, bz = d.hz + c*d.w;
-    const aabb = {
-      minX: Math.min(d.hx,bx)-0.15, maxX: Math.max(d.hx,bx)+0.15,
-      minY: 0, maxY: d.h,
-      minZ: Math.min(d.hz,bz)-0.15, maxZ: Math.max(d.hz,bz)+0.15
-    };
-    const t = rayAABB(cam, fwd, aabb);
-    if(t !== null && t < bestT){
-      bestT = t;
-      const prompt = d.locked
-        ? (d.keyId && hasItem(d.keyId) ? 'E — открыть ключом' : 'Заперто')
-        : (Math.abs(d.angle) < 0.15 ? 'E — открыть' : 'E — закрыть');
-      best = { isDoor:true, doorRef:d, prompt };
-    }
-  }
-  return best;
-}
-function updatePrompt(){
-  const el = document.getElementById('prompt');
-  if(G.state !== 'play'){ el.classList.remove('on'); In.hovered = null; return; }
-  const h = findHovered();
-  In.hovered = h;
-  if(h){
-    el.textContent = h.prompt;
-    el.classList.add('on');
-  } else el.classList.remove('on');
-}
-function doInteract(){
-  const h = In.hovered;
-  if(!h) return;
-  if(h.isDoor){
-    const d = h.doorRef;
-    if(d.locked){
-      if(d.keyId && hasItem(d.keyId)){
-        d.locked = false;
-        Snd.lock();
-        addNote('Дверь открыта ключом.');
-        d.target = d.openAngle;
-        setTimeout(()=>Snd.door(), 200);
-        autoSave();
-      } else {
-        Snd.lock();
-        addNote('Заперто. Нужен ключ.');
-      }
-      return;
-    }
-    d.target = (Math.abs(d.angle) < 0.2) ? d.openAngle : 0;
-    Snd.door();
-    return;
-  }
-  if(h.onUse){
-    h.used = true;
-    if(h.hideOnUse && h.obj){
-      h.obj.color = [0,0,0];
-      h.obj._hidden = true;
-    }
-    h.onUse();
-  }
-}
-function toggleFlashlight(){
-  const p = G.P;
-  if(!hasItem('flashlight')){ addNote('Нет фонарика'); return; }
-  p.flashlight = !p.flashlight;
-  Snd.click();
-  updateHUD();
-}
-
-/* =============== ИНВЕНТАРЬ / ЖУРНАЛ =============== */
-function hasItem(id){ return !!G.inv[id]; }
-function addItem(id, name, desc){ G.inv[id] = {name, desc}; }
-function addNote(text){
-  const notes = document.getElementById('notes');
-  const el = document.createElement('div');
-  el.className = 'note';
-  el.textContent = text;
-  notes.appendChild(el);
-  setTimeout(()=>{ el.style.opacity = '0'; setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 700); }, 3000);
-}
-function setObjective(text){
-  document.getElementById('objT').textContent = text;
-  document.getElementById('obj').classList.add('on');
-}
-function updateHUD(){
-  const fl = document.getElementById('flash');
-  if(G.P.flashlight){
-    fl.classList.add('on');
-    fl.querySelector('i').style.width = Math.round(G.P.flashCharge*100) + '%';
-  } else fl.classList.remove('on');
-  document.getElementById('cross').classList.toggle('on', G.state === 'play');
-}
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function togglePanel(which){
-  if(G.state !== 'play') return;
-  if(which === 'inv'){
-    renderInv();
-    document.getElementById('ovInv').classList.add('on');
-    G.state = 'overlay'; In.keys = {};
-  } else {
-    renderJ();
-    document.getElementById('ovJ').classList.add('on');
-    G.state = 'overlay'; In.keys = {};
-  }
-}
-function renderInv(){
-  const el = document.getElementById('invList');
-  const ids = Object.keys(G.inv);
-  if(!ids.length){ el.innerHTML = '<p style="color:#6a6050">Пусто.</p>'; return; }
-  el.innerHTML = ids.map(id => {
-    const it = G.inv[id];
-    return '<div class="item"><b>'+esc(it.name)+'</b><p>'+esc(it.desc)+'</p></div>';
-  }).join('');
-}
-function renderJ(){
-  const el = document.getElementById('jList');
-  if(!G.notes.length){ el.innerHTML = '<p style="color:#6a6050">Журнал пуст.</p>'; return; }
-  el.innerHTML = G.notes.map(n =>
-    '<div class="item"><b>'+esc(n.title)+'</b><p>'+esc(n.body)+'</p></div>'
-  ).join('');
-}
-function readNote(title, body, flag){
-  document.getElementById('rdT').textContent = title;
-  document.getElementById('rdB').textContent = body;
-  document.getElementById('ovRead').classList.add('on');
-  G.state = 'overlay'; In.keys = {};
-  Snd.note();
-  if(!G.notes.find(n => n.title === title)) G.notes.push({title, body});
-  if(flag && !G.flags[flag]) G.flags[flag] = true;
-  autoSave();
-}
-
-/* =============== ГОЛОВОЛОМКИ =============== */
-let clockH = 12, clockM = 0;
-function updateClockUI(){
-  document.getElementById('hVal').textContent = String(clockH).padStart(2,'0');
-  document.getElementById('mVal').textContent = String(clockM).padStart(2,'0');
-  document.getElementById('hHour').style.transform = 'rotate('+((clockH%12)*30 + clockM*0.5)+'deg)';
-  document.getElementById('hMin').style.transform = 'rotate('+(clockM*6)+'deg)';
-}
-function openClock(){
-  document.getElementById('ovClock').classList.add('on');
-  G.state = 'overlay'; In.keys = {};
-  updateClockUI();
-}
-function submitClock(){
-  if(clockH === 2 && clockM === 13){
-    if(!G.puzzles.clock){
-      G.puzzles.clock = true;
-      addNote('За часами что-то щёлкнуло.');
-      Snd.lock();
-      W.prop('key_secret_pickup', -1.85, 0.6, 0.7, 0.1, 0.04, 0.2, [0.95,0.9,0.55], TEX.metal, {
-        interact:true, once:true, hideOnUse:true,
-        prompt:'E — взять ключ',
-        onUse: () => {
-          addItem('key_secret', 'Ключ от дальней комнаты', 'Металлический ключ с гравировкой "13".');
-          addNote('Получен ключ.');
-          Snd.pick();
-          setObjective('Найдите запертую дверь');
-          autoSave();
-        }
-      });
-      setObjective('Заберите ключ из-за часов');
-      autoSave();
-    }
-    document.getElementById('ovClock').classList.remove('on');
-    G.state = 'play';
-  } else {
-    addNote('Стрелки не двигаются. Это не то время.');
-    Snd.click();
-  }
-}
-
-let codeBuf = '';
-function openCode(){
-  codeBuf = '';
-  document.getElementById('codeDisp').textContent = '____';
-  document.getElementById('ovCode').classList.add('on');
-  G.state = 'overlay'; In.keys = {};
-}
-function handleCodeKey(k){
-  if(k === 'C'){ codeBuf = ''; }
-  else if(k === 'OK'){
-    if(codeBuf === '1311'){
-      if(!G.puzzles.code){
-        G.puzzles.code = true;
-        addItem('revolver', 'Старый револьвер', 'Тяжёлый. Холодный. Без патронов.');
-        G.notes.push({
-          title:'ЗАПИСКА ИЗ СЕЙФА',
-          body:'«Если ты читаешь это, значит, ты тоже видел. Я не смог остановить это. Уйти, узнать правду или остаться — выбирай сам.»'
-        });
-        addNote('В сейфе — револьвер и записка.');
-        Snd.pick();
-        autoSave();
-      }
-      document.getElementById('ovCode').classList.remove('on');
-      G.state = 'play';
-      codeBuf = '';
-      return;
-    } else {
-      addNote('Неверный код');
-      Snd.click();
-      codeBuf = '';
-    }
-  } else if(k >= '0' && k <= '9'){
-    if(codeBuf.length < 4) codeBuf += k;
-  }
-  document.getElementById('codeDisp').textContent = (codeBuf + '____').slice(0,4);
-}
-
-/* =============== МОНСТР =============== */
-function spawnEnemy(){
-  if(W.enemy) return;
-  const mk = (x,y,z,sx,sy,sz,c) => {
-    const o = { mesh:'cube', matrix:mModel(x,y,z,sx,sy,sz,0), color:c, tex:null };
-    W.objects.push(o); return o;
-  };
-  const body = mk(0, 1.0, -4, 0.55, 1.6, 0.35, [0.05,0.04,0.06]);
-  const head = mk(0, 2.05, -4, 0.36, 0.42, 0.36, [0.07,0.05,0.08]);
-  const armL = mk(-0.42, 1.05, -4, 0.14, 1.6, 0.14, [0.05,0.04,0.06]);
-  const armR = mk( 0.42, 1.05, -4, 0.14, 1.6, 0.14, [0.05,0.04,0.06]);
-  const eyeL = mk(-0.09, 2.08, -3.82, 0.06, 0.06, 0.03, [0.85,0.08,0.08]);
-  const eyeR = mk( 0.09, 2.08, -3.82, 0.06, 0.06, 0.03, [0.85,0.08,0.08]);
-  W.enemy = {
-    x:0, z:-4, body, head, armL, armR, eyeL, eyeR,
-    state:'patrol', ppIdx:0,
-    patrolPts: [{x:-4,z:-4},{x:-4,z:-1},{x:0,z:0},{x:3,z:1},{x:3,z:3}],
-    lastSeen:0
-  };
-  addNote('Что-то ходит по квартире...');
-  Snd.scare();
-}
-function updateEnemy(dt){
-  const e = W.enemy;
-  if(!e || G.state !== 'play') return;
-  const p = G.P;
-  const dist = Math.hypot(p.x - e.x, p.z - e.z);
-
-  if(dist < 5.5 && dist > 0.9){
-    e.state = 'chase';
-    e.lastSeen = 2.5;
-  } else {
-    e.lastSeen -= dt;
-    if(e.lastSeen <= 0) e.state = 'patrol';
-  }
-
-  let tx, tz, spd;
-  if(e.state === 'chase'){
-    tx = p.x; tz = p.z; spd = 2.9;
-    if(dist < 0.75){ playerDied('Оно догнало вас в темноте.'); return; }
-  } else {
-    const pt = e.patrolPts[e.ppIdx];
-    tx = pt.x; tz = pt.z; spd = 1.7;
-    if(Math.hypot(tx-e.x, tz-e.z) < 0.5) e.ppIdx = (e.ppIdx+1) % e.patrolPts.length;
-  }
-
-  const ddx = tx - e.x, ddz = tz - e.z;
-  const d = Math.hypot(ddx, ddz) || 1;
-  e.x += (ddx/d) * spd * dt;
-  e.z += (ddz/d) * spd * dt;
-
-  const bo = Math.sin(performance.now()*0.007) * 0.05;
-  const ap = Math.sin(performance.now()*0.005) * 0.12;
-  e.body.matrix = mModel(e.x, 1.0+bo, e.z, 0.55, 1.6, 0.35, 0);
-  e.head.matrix = mModel(e.x, 2.05+bo, e.z, 0.36, 0.42, 0.36, 0);
-  e.armL.matrix = mModel(e.x-0.42, 1.05+bo+ap, e.z, 0.14, 1.6, 0.14, 0);
-  e.armR.matrix = mModel(e.x+0.42, 1.05+bo-ap, e.z, 0.14, 1.6, 0.14, 0);
-  e.eyeL.matrix = mModel(e.x-0.09, 2.08+bo, e.z-0.19, 0.06, 0.06, 0.03, 0);
-  e.eyeR.matrix = mModel(e.x+0.09, 2.08+bo, e.z-0.19, 0.06, 0.06, 0.03, 0);
-
-  if(dist < 4) G.fear = Math.min(1, G.fear + dt*0.18);
-  document.getElementById('fear').style.opacity = (G.fear*0.7).toString();
-}
-function playerDied(reason){
-  if(G.state !== 'play') return;
-  G.state = 'dead';
-  In.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  document.getElementById('deathT').textContent = reason;
-  document.getElementById('ovDeath').classList.add('on');
-  Snd.hurt();
-}
-
-/* =============== ФИНАЛЫ =============== */
-function showEnding(title, body, id){
-  G.ending = id;
-  G.state = 'ending';
-  In.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  document.getElementById('endT').textContent = title;
-  document.getElementById('endText').textContent = body;
-  document.getElementById('ovEnd').classList.add('on');
-  Snd.tone(70, 3.0, 'sine', 0.12, 40);
-  autoSave();
-}
-
-/* =============== СОХРАНЕНИЕ =============== */
-function autoSave(){
-  try {
-    localStorage.setItem('apt13_save', JSON.stringify({
-      v:1, flags:G.flags, notes:G.notes, inv:G.inv, puzzles:G.puzzles,
-      player: { x:G.P.x, z:G.P.z, yaw:G.P.yaw, pitch:G.P.pitch, flashlight:G.P.flashlight },
-      t: Date.now()
-    }));
-    updateContinueBtn();
-  } catch(e){}
-}
-function loadSave(){
-  try {
-    const raw = localStorage.getItem('apt13_save');
-    if(!raw) return false;
-    const s = JSON.parse(raw);
-    if(!s || s.v !== 1) return false;
-    G.flags = s.flags||{};
-    G.notes = s.notes||[];
-    G.inv = s.inv||{};
-    G.puzzles = s.puzzles||{clock:false,code:false};
-    if(s.player){
-      G.P.x = s.player.x; G.P.z = s.player.z;
-      G.P.yaw = s.player.yaw; G.P.pitch = s.player.pitch;
-      G.P.flashlight = !!s.player.flashlight;
-    }
-    return true;
-  } catch(e){ return false; }
-}
-function hasSave(){ try { return !!localStorage.getItem('apt13_save'); } catch(e){ return false; } }
-function updateContinueBtn(){
-  const b = document.getElementById('btnCont');
-  if(b) b.disabled = !hasSave();
-}
-
-/* =============== ЭКРАНЫ =============== */
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  if(id) document.getElementById(id).classList.add('on');
-}
-function hideAllOverlays(){
-  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('on'));
-}
-function showHint(text, cb){
-  const h = document.getElementById('hint');
-  h.textContent = text;
-  h.classList.add('on');
-  h.onclick = () => { h.classList.remove('on'); h.onclick = null; if(cb) cb(); };
-}
-function hideHint(){
-  const h = document.getElementById('hint');
-  h.classList.remove('on');
-  h.onclick = null;
-}
-
-// Откуда открыли настройки: 'menu' или 'pause'
-let _setFrom = 'menu';
-
-function openSettings(from){
-  _setFrom = from || 'menu';
-  // Синхронизация UI с текущими настройками
-  document.getElementById('sMaster').value = SET.master;
-  document.getElementById('sSfx').value = SET.sfx;
-  document.getElementById('sSens').value = SET.sens;
-  document.getElementById('sInv').checked = SET.inv;
-  document.getElementById('sDraw').value = SET.draw;
-  document.getElementById('sBright').value = SET.bright;
-  showScreen('scSet');
-}
-function closeSettings(){
-  if(_setFrom === 'pause'){
-    showScreen(null);
-    document.getElementById('ovPause').classList.add('on');
-  } else {
-    showScreen('scMenu');
-  }
-}
-
-/* =============== ИГРА =============== */
-function startNewGame(){
-  Snd.init(); Snd.resume();
-  G.flags = {}; G.notes = []; G.inv = {};
-  G.puzzles = {clock:false, code:false};
-  G.P.x = 0; G.P.z = 2.6; G.P.yaw = Math.PI; G.P.pitch = 0;
-  G.P.vx = G.P.vz = 0; G.P.flashlight = false; G.P.flashCharge = 1;
-  G.fear = 0;
-  clockH = 12; clockM = 0; codeBuf = '';
-  hideAllOverlays();
-  showScreen(null);
-  W.init();
-  setObjective('Осмотрите квартиру. Найдите, что произошло.');
-  G.state = 'play';
-  updateHUD();
-  _lastT = 0;
-  requestLock();
-  addNote('Квартира № 13. Владелец — Виктор Морозов.');
-  setTimeout(() => { if(G.state === 'play' && !W.enemy) spawnEnemy(); }, 20000);
-}
-function continueGame(){
-  Snd.init(); Snd.resume();
-  if(!loadSave()){ addNote('Сохранение повреждено — начинаем заново.'); startNewGame(); return; }
-  hideAllOverlays();
-  showScreen(null);
-  W.init();
-  setObjective('Продолжайте исследование.');
-  G.state = 'play';
-  updateHUD();
-  _lastT = 0;
-  requestLock();
-  setTimeout(() => { if(G.state === 'play' && !W.enemy) spawnEnemy(); }, 5000);
-}
-function pauseGame(){
-  if(G.state !== 'play') return;
-  G.state = 'paused';
-  In.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  hideHint();
-  document.getElementById('ovPause').classList.add('on');
-}
-function resumeGame(){
-  hideAllOverlays();
-  showScreen(null);
-  G.state = 'play';
-  In.keys = {};
-  _lastT = 0;
-  requestLock();
-}
-function exitToMenu(){
-  // Автосохранение перед выходом
-  autoSave();
-  G.state = 'menu';
-  In.keys = {};
-  if(document.pointerLockElement) document.exitPointerLock();
-  hideHint();
-  hideAllOverlays();
-  showScreen('scMenu');
-  updateContinueBtn();
-  updateHUD();
-}
-
-/* =============== ИГРОВОЙ ЦИКЛ =============== */
+/* ============================================================
+   РЕНДЕР
+   ============================================================ */
 let _lastT = 0;
-function gameLoop(t){
-  if(!_lastT) _lastT = t;
-  let dt = (t - _lastT) / 1000;
-  _lastT = t;
+function renderFrame(){
+  const now = performance.now();
+  let dt = (now - _lastT) / 1000;
+  _lastT = now;
   if(dt > 0.1) dt = 0.1;
 
-  if(G.state === 'play'){
-    Player.update(dt);
-    updateDoors(dt);
-    updateEnemy(dt);
-    updatePrompt();
-    if(!W.enemy) G.fear = Math.max(0, G.fear - dt*0.05);
-    if(G.P.flashlight) G.P.flashCharge = clamp(G.P.flashCharge - dt*0.003, 0, 1);
-    updateHUD();
-  } else {
-    // На паузе/в оверлее мышь не двигает камеру, шаги не звучат
-    In.keys = {};
-  }
-  render();
-  requestAnimationFrame(gameLoop);
-}
-function render(){
-  if(!R.gl) return;
-  const p = G.P;
-  const aspect = R.cv.width / R.cv.height;
-  const proj = mPersp(Math.PI/3, aspect, 0.05, 60);
-  const eyeY = Player.eyeY();
-  const cp = Math.cos(p.pitch);
-  const fx = Math.sin(p.yaw)*cp;
-  const fy = Math.sin(p.pitch);
-  const fz = -Math.cos(p.yaw)*cp;
-  const view = mLook(p.x, eyeY, p.z, p.x+fx, eyeY+fy, p.z+fz);
-  const camPos = [p.x, eyeY, p.z];
-
-  R.begin(proj, view, camPos);
-  R.setLights(W.lights);
-  R.setFlash(p.flashlight, [fx, fy, fz], [1.0, 0.94, 0.78], 10.0);
-
-  const drawD = (SET.draw||28) + 4;
-  const d2 = drawD*drawD;
-  for(const o of W.objects){
-    if(o._hidden) continue;
-    const m = o.matrix;
-    const ox = m[12], oy = m[13], oz = m[14];
-    const dx = ox-p.x, dy = oy-eyeY, dz = oz-p.z;
-    if(dx*dx+dy*dy+dz*dz > d2*4) continue;
-    R.draw(o);
-  }
-}
-
-/* =============== ПРИВЯЗКА UI =============== */
-function bindUI(){
-  const $ = id => document.getElementById(id);
-
-  // ===== ГЛАВНОЕ МЕНЮ =====
-  $('btnNew').addEventListener('click', () => { Snd.click(); startNewGame(); });
-  $('btnCont').addEventListener('click', () => { Snd.click(); continueGame(); });
-  $('btnSet').addEventListener('click', () => { Snd.click(); openSettings('menu'); });
-  $('btnCtrl').addEventListener('click', () => { Snd.click(); showScreen('scCtrl'); });
-  $('btnAbout').addEventListener('click', () => { Snd.click(); showScreen('scAbout'); });
-
-  // ===== НАЗАД =====
-  $('btnBackSet').addEventListener('click', () => { Snd.click(); closeSettings(); });
-  $('btnBackCtrl').addEventListener('click', () => { Snd.click(); showScreen('scMenu'); });
-  $('btnBackAbout').addEventListener('click', () => { Snd.click(); showScreen('scMenu'); });
-
-  // ===== НАСТРОЙКИ =====
-  const sm = $('sMaster'), ss = $('sSfx'), sn = $('sSens'), si = $('sInv'), sd = $('sDraw'), sb = $('sBright');
-  sm.addEventListener('input', () => { SET.master = +sm.value; Snd.vol(); SET.save(); });
-  ss.addEventListener('input', () => { SET.sfx = +ss.value; Snd.vol(); SET.save(); });
-  sn.addEventListener('input', () => { SET.sens = +sn.value; SET.save(); });
-  si.addEventListener('change', () => { SET.inv = si.checked; SET.save(); });
-  sd.addEventListener('input', () => { SET.draw = +sd.value; SET.save(); });
-  sb.addEventListener('input', () => { SET.bright = +sb.value; SET.save(); });
-
-  // ===== ПАУЗА =====
-  $('btnResume').addEventListener('click', () => { Snd.click(); resumeGame(); });
-  $('btnPauseSet').addEventListener('click', () => {
-    Snd.click();
-    document.getElementById('ovPause').classList.remove('on');
-    openSettings('pause');
-  });
-  $('btnSave').addEventListener('click', () => { Snd.click(); autoSave(); addNote('Игра сохранена.'); });
-  $('btnToMenu').addEventListener('click', () => { Snd.click(); exitToMenu(); });
-
-  // ===== ИНВЕНТАРЬ / ЖУРНАЛ / ЗАПИСКА =====
-  $('btnCloseInv').addEventListener('click', () => {
-    document.getElementById('ovInv').classList.remove('on');
-    if(G.state === 'overlay') G.state = 'play';
-  });
-  $('btnCloseJ').addEventListener('click', () => {
-    document.getElementById('ovJ').classList.remove('on');
-    if(G.state === 'overlay') G.state = 'play';
-  });
-  $('btnCloseRead').addEventListener('click', () => {
-    document.getElementById('ovRead').classList.remove('on');
-    if(G.state === 'overlay') G.state = 'play';
-  });
-
-  // ===== ЧАСЫ =====
-  $('hUp').addEventListener('click', () => { clockH = (clockH%12)+1; updateClockUI(); Snd.click(); });
-  $('hDown').addEventListener('click', () => { clockH = clockH>1?clockH-1:12; updateClockUI(); Snd.click(); });
-  $('mUp').addEventListener('click', () => { clockM = (clockM+1)%60; updateClockUI(); Snd.click(); });
-  $('mDown').addEventListener('click', () => { clockM = (clockM+59)%60; updateClockUI(); Snd.click(); });
-  $('clockConfirm').addEventListener('click', () => { Snd.click(); submitClock(); });
-  $('clockClose').addEventListener('click', () => {
-    document.getElementById('ovClock').classList.remove('on');
-    if(G.state === 'overlay') G.state = 'play';
-  });
-
-  // ===== КОД =====
-  document.querySelectorAll('.keypad button').forEach(b => {
-    b.addEventListener('click', () => { Snd.click(); handleCodeKey(b.getAttribute('data-k')); });
-  });
-  $('btnCloseCode').addEventListener('click', () => {
-    document.getElementById('ovCode').classList.remove('on');
-    if(G.state === 'overlay') G.state = 'play';
-  });
-
-  // ===== ФИНАЛ / СМЕРТЬ =====
-  $('btnEndMenu').addEventListener('click', () => { Snd.click(); exitToMenu(); });
-  $('btnRetry').addEventListener('click', () => { Snd.click(); startNewGame(); });
-  $('btnDeathMenu').addEventListener('click', () => { Snd.click(); exitToMenu(); });
-
-  // ESC в состоянии paused — выйти из паузы
-  document.addEventListener('keydown', e => {
-    if(e.code === 'Escape' && G.state === 'paused') resumeGame();
-  });
-}
-
-/* =============== СТАРТ =============== */
-function init(){
-  try { SET.load(); } catch(e){}
-
-  const ok = R.init(document.getElementById('cv'));
-  if(!ok){
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;padding:20px;text-align:center;color:#c8c8c8;font-family:monospace;font-size:15px">WebGL недоступен в вашем браузере.<br>Пожалуйста, используйте современный браузер с поддержкой WebGL.</div>';
-    return;
+  if(!isMobile || pointerLocked || joyActive || !hint.classList.contains('on')){
+    movePlayer(dt);
   }
 
-  bindUI();
-  updateContinueBtn();
-  updateHUD();
-  In.init();
-  window.addEventListener('resize', () => R.resize());
+  const asp = cv.width / cv.height;
+  const proj = perspective(Math.PI/3, asp, 0.05, 60);
 
-  W.init();
-  requestAnimationFrame(gameLoop);
+  const eyeY = player.y;
+  const cp = Math.cos(player.pitch);
+  const fx = Math.sin(player.yaw) * cp;
+  const fy = Math.sin(player.pitch);
+  const fz = -Math.cos(player.yaw) * cp;
+  const view = lookAt(player.x, eyeY, player.z,
+                      player.x + fx, eyeY + fy, player.z + fz);
+
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.useProgram(prog);
+  gl.uniformMatrix4fv(U.uProj, false, proj);
+  gl.uniformMatrix4fv(U.uView, false, view);
+  gl.uniform3f(U.uCamPos, player.x, eyeY, player.z);
+  gl.uniform3f(U.uAmbient, 0.22, 0.22, 0.24);
+  gl.uniform3f(U.uFogColor, 0.03, 0.03, 0.04);
+  gl.uniform1f(U.uFogNear, 6.0);
+  gl.uniform1f(U.uFogFar, 28.0);
+
+  // Свет
+  const lights = getLightsForPoint(player.x, eyeY, player.z);
+  const pos = new Float32Array(18), col = new Float32Array(18), rng = new Float32Array(6);
+  for(let i=0;i<lights.length;i++){
+    pos[i*3] = lights[i].x; pos[i*3+1] = lights[i].y; pos[i*3+2] = lights[i].z;
+    col[i*3] = lights[i].r; col[i*3+1] = lights[i].g; col[i*3+2] = lights[i].b;
+    rng[i] = lights[i].range;
+  }
+  gl.uniform3fv(U.uLightPos, pos);
+  gl.uniform3fv(U.uLightColor, col);
+  gl.uniform1fv(U.uLightRange, rng);
+  gl.uniform1i(U.uNumLights, lights.length);
+
+  // Идентификационная матрица модели (всё запечено в мировые координаты)
+  const identity = mat4();
+  gl.uniformMatrix4fv(U.uModel, false, identity);
+  const nrmMat = new Float32Array([1,0,0, 0,1,0, 0,0,1]);
+  gl.uniformMatrix3fv(U.uNrmMat, false, nrmMat);
+
+  // Рисуем все батчи
+  for(const k in BATCHES){
+    const b = BATCHES[k];
+    if(!b.glBuf || !b.count) continue;
+    gl.uniform3fv(U.uColor, b.color);
+    if(b.glTex){
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, b.glTex);
+      gl.uniform1i(U.uTex, 0);
+      gl.uniform1f(U.uUseTex, 1);
+    } else {
+      gl.uniform1f(U.uUseTex, 0);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, b.glBuf);
+    gl.enableVertexAttribArray(A.pos);
+    gl.vertexAttribPointer(A.pos, 3, gl.FLOAT, false, 32, 0);
+    gl.enableVertexAttribArray(A.nrm);
+    gl.vertexAttribPointer(A.nrm, 3, gl.FLOAT, false, 32, 12);
+    gl.enableVertexAttribArray(A.uv);
+    gl.vertexAttribPointer(A.uv, 2, gl.FLOAT, false, 32, 24);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.glIdx);
+    gl.drawElements(gl.TRIANGLES, b.count, gl.UNSIGNED_SHORT, 0);
+  }
+
+  requestAnimationFrame(renderFrame);
 }
 
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ============================================================ */
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  cv.width = Math.max(320, Math.floor(window.innerWidth * dpr));
+  cv.height = Math.max(240, Math.floor(window.innerHeight * dpr));
+  gl.viewport(0, 0, cv.width, cv.height);
 }
-</script>
-</body>
-</html>
+window.addEventListener('resize', resize);
+resize();
+
+// Дополнительные цвета материалов для батчей (не текстуры)
+function ensureColorBatches(){
+  // Стекло неба — светло-голубое, слегка прозрачное (не реализуем прозрачность, просто светлое)
+  if(!BATCHES['glass_sky']){
+    BATCHES['glass_sky'] = {verts:[], idxs:[], tex:null, color:[0.75,0.82,0.9], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['light_warm']){
+    BATCHES['light_warm'] = {verts:[], idxs:[], tex:null, color:[1,0.85,0.6], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['tv']){
+    BATCHES['tv'] = {verts:[], idxs:[], tex:null, color:[0.15,0.13,0.12], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['bath']){
+    BATCHES['bath'] = {verts:[], idxs:[], tex:null, color:[0.9,0.9,0.88], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['bath_inner']){
+    BATCHES['bath_inner'] = {verts:[], idxs:[], tex:null, color:[0.65,0.68,0.7], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['fridge']){
+    BATCHES['fridge'] = {verts:[], idxs:[], tex:null, color:[0.85,0.85,0.82], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['cardboard']){
+    BATCHES['cardboard'] = {verts:[], idxs:[], tex:null, color:[0.6,0.45,0.3], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['barrel']){
+    BATCHES['barrel'] = {verts:[], idxs:[], tex:null, color:[0.4,0.32,0.22], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+  if(!BATCHES['jar']){
+    BATCHES['jar'] = {verts:[], idxs:[], tex:null, color:[0.5,0.55,0.35], glBuf:null, glIdx:null, glTex:null, count:0};
+  }
+}
+
+// Каждый материал-обёртка
+function registerMaterials(){
+  // Обои и текстурированные поверхности — свой batch на каждый материал
+  const texBatches = {
+    'wall_outer':   mats.wallBeige,
+    'wall_corr_w':  mats.wallBeige,
+    'wall_corr_e':  mats.wallBeige,
+    'wall_z2_w':    mats.wallFaded,
+    'wall_z2_c':    mats.wallBeige,
+    'wall_z2_e':    mats.wallBeige,
+    'wall_z3_w':    mats.wallFaded,
+    'wall_z3_e':    mats.wallOld,
+    'wall_bsmt':    mats.concrete,
+    'lam_player':   mats.laminate,
+    'lam_living':   mats.laminate,
+    'lam_grandma':  mats.laminate,
+    'lam_corr':     mats.laminate,
+    'floor_kitchen':mats.tile,
+    'floor_bath':   mats.tile,
+    'floor_storage':mats.wallOld,
+    'floor_stairs': mats.laminate,
+    'floor_bsmt':   mats.concrete,
+    'floor_bsmt2':  mats.concrete,
+    'floor_attic':  mats.planks,
+    'ceil_player':  mats.wallLight,
+    'ceil_living':  mats.wallFaded,
+    'ceil_grandma': mats.wallFaded,
+    'ceil_corr':    mats.wallBeige,
+    'ceil_kitchen': mats.wallBeige,
+    'ceil_bath':    mats.wallBeige,
+    'ceil_storage': mats.wallOld,
+    'ceil_stairs_1':mats.wallBeige,
+    'ceil_stairs_2':mats.wallBeige,
+    'ceil_stairs_3':mats.wallBeige,
+    'ceil_stairs_4':mats.wallBeige,
+    'ceil_bsmt':    mats.concrete,
+    'ceil_bsmt2':   mats.concrete,
+    'wood':         mats.wood,
+    'wood2':        mats.wood,
+    'fabric':       mats.fabric,
+    'fabric_w':     mats.fabric,
+    'fabric_g':     mats.fabric,
+    'fabric_gr':    mats.fabric,
+    'rug_w':        mats.rug,
+    'rug_l':        mats.rug,
+    'rug_g':        mats.rug,
+    'rug_k':        mats.rug,
+    'metal':        mats.metal,
+    'tile':         mats.tile,
+    'planks_w':     mats.planks,
+    'stairs':       mats.planks,
+    'door':         mats.wood,
+    'light_warm':   null,
+    'glass_sky':    null,
+    'tv':           null,
+    'bath':         null,
+    'bath_inner':   null,
+    'fridge':       null,
+    'cardboard':    null,
+    'barrel':       null,
+    'jar':          null
+  };
+  for(const k in texBatches){
+    if(!BATCHES[k]){
+      BATCHES[k] = {verts:[], idxs:[], tex:texBatches[k], color:[1,1,1],
+                    glBuf:null, glIdx:null, glTex:null, count:0};
+    }
+  }
+}
+
+// Коллизии стен — упрощённые боксы
+function buildColliders(){
+  const t = 0.2;
+  // Наружные стены
+  addCollider(0, H/2, -6.5, 16.5, H, t*2);       // ю
