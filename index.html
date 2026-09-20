@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Тёмный Дом</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -16,6 +16,7 @@
     background: radial-gradient(circle at 50% 40%, rgba(25,14,8,0.92), rgba(0,0,0,0.99));
     color:#c9b48a; text-align:center; padding:20px;
     transition: opacity .3s;
+    touch-action: none;
   }
   #overlay h1 {
     font-size: clamp(28px, 6vw, 54px);
@@ -36,6 +37,12 @@
     color:#8a7a5a; font-size:12px; letter-spacing:1px;
     text-shadow:0 0 8px #000;
   }
+  body.mobile #hud {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    font-size: 11px;
+    left: 16px;
+  }
   #crosshair {
     position:fixed; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
     background:rgba(255,255,255,0.30); border-radius:50%; z-index:5; pointer-events:none;
@@ -55,13 +62,94 @@
     opacity:0.05;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
   }
+
+  /* ===== МОБИЛЬНЫЕ КОНТРОЛЫ ===== */
+  #mobile-controls {
+    position: fixed; inset: 0; z-index: 8;
+    pointer-events: none; display: none;
+  }
+  #mobile-controls.active { display: block; }
+
+  #move-zone {
+    position: absolute; left: 0; top: 0;
+    width: 45%; height: 100%;
+    pointer-events: auto; touch-action: none;
+  }
+  #look-zone {
+    position: absolute; right: 0; top: 0;
+    width: 55%; height: 100%;
+    pointer-events: auto; touch-action: none;
+  }
+
+  #joystick {
+    position: fixed;
+    width: 130px; height: 130px;
+    margin-left: -65px; margin-top: -65px;
+    border-radius: 50%;
+    border: 2px solid rgba(200, 180, 140, 0.35);
+    background: radial-gradient(circle, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.4) 100%);
+    display: none;
+    z-index: 9;
+    pointer-events: none;
+    box-shadow: 0 0 24px rgba(0,0,0,0.55) inset;
+  }
+  #joystick-stick {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 56px; height: 56px;
+    margin-left: -28px; margin-top: -28px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(240, 220, 180, 0.6), rgba(160, 130, 90, 0.35));
+    border: 2px solid rgba(220, 200, 160, 0.7);
+    box-shadow: 0 0 14px rgba(255, 200, 120, 0.25);
+    pointer-events: none;
+  }
+
+  #flashlight-btn {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(18, 14, 10, 0.6);
+    border: 2px solid rgba(120, 100, 70, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 12;
+    pointer-events: auto;
+    touch-action: none;
+    color: #6a5a3a;
+    box-shadow: 0 0 16px rgba(0,0,0,0.6);
+    transition: background 0.15s, box-shadow 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #flashlight-btn.active {
+    display: flex;
+  }
+  #flashlight-btn svg {
+    width: 34px;
+    height: 34px;
+    display: block;
+  }
+  #flashlight-btn.on {
+    color: #ffd27a;
+    background: rgba(50, 35, 15, 0.78);
+    border-color: rgba(255, 200, 120, 0.7);
+    box-shadow: 0 0 22px rgba(255, 180, 80, 0.55), 0 0 8px rgba(255, 200, 120, 0.4) inset;
+  }
+  #flashlight-btn:active {
+    transform: scale(0.93);
+  }
 </style>
 </head>
 <body>
 
 <div id="overlay">
   <h1>ТЁМНЫЙ ДОМ</h1>
-  <p>
+  <p id="overlay-help">
     <span class="key">W A S D</span> — движение<br>
     <span class="key">МЫШЬ</span> — осмотреться<br>
     <span class="key">SHIFT</span> — бежать<br>
@@ -77,11 +165,36 @@
 <div id="crosshair"></div>
 <div id="hud">ФОНАРИК: ВКЛ &nbsp;|&nbsp; ЭТАЖ: 1</div>
 
+<!-- Мобильные контролы -->
+<div id="mobile-controls">
+  <div id="move-zone"></div>
+  <div id="look-zone"></div>
+</div>
+<div id="joystick"><div id="joystick-stick"></div></div>
+
+<!-- Кнопка фонарика (SVG-контур) -->
+<div id="flashlight-btn" aria-label="Фонарик">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 5 L17 5 L15 9 L15 20 L9 20 L9 9 Z"/>
+    <line x1="9" y1="12.5" x2="15" y2="12.5"/>
+    <line x1="9" y1="16.5" x2="15" y2="16.5"/>
+    <line x1="8" y1="3" x2="6.5" y2="1.5"/>
+    <line x1="12" y1="3" x2="12" y2="1"/>
+    <line x1="16" y1="3" x2="17.5" y2="1.5"/>
+  </svg>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
    ТЁМНЫЙ ДОМ — мрачная хоррор-прогулка по двухэтажному дому
+   + Мобильные контролы / кнопка фонарика / мерцание без фонаря
    ============================================================ */
+
+// ---------- ОПРЕДЕЛЕНИЕ МОБИЛЬНОГО УСТРОЙСТВА ----------
+const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
+              || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
+if (isMobile) document.body.classList.add('mobile');
 
 // ---------- ОСНОВНЫЕ КОНСТАНТЫ ДОМА ----------
 const T        = 0.30;
@@ -99,9 +212,9 @@ const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.05, 2
 camera.rotation.order = 'YXZ';
 scene.add(camera);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, powerPreference: 'high-performance' });
 renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.5 : 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -141,7 +254,6 @@ function addNoise(ctx, w, h, amount) {
 
 // --- ТЁМНЫЕ ОБОИ С УЗОРОМ (для внутренних стен) ---
 function drawWallpaper(ctx, w, h) {
-  // базовый градиент — выцветшие обои
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0,    '#463125');
   g.addColorStop(0.45, '#39271c');
@@ -149,7 +261,6 @@ function drawWallpaper(ctx, w, h) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
 
-  // вертикальные тонкие полосы
   for (let x = 0; x < w; x += 32) {
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.fillRect(x, 0, 2, h);
@@ -157,7 +268,6 @@ function drawWallpaper(ctx, w, h) {
     ctx.fillRect(x + 2, 0, 1, h);
   }
 
-  // узор — ромбы/дамаск
   const cell = 64;
   for (let y = 0; y < h; y += cell) {
     for (let x = 0; x < w; x += cell) {
@@ -165,7 +275,6 @@ function drawWallpaper(ctx, w, h) {
       ctx.save();
       ctx.translate(x + off, y);
 
-      // внешний ромб
       ctx.strokeStyle = 'rgba(110, 70, 45, 0.55)';
       ctx.lineWidth = 1.6;
       ctx.beginPath();
@@ -176,7 +285,6 @@ function drawWallpaper(ctx, w, h) {
       ctx.closePath();
       ctx.stroke();
 
-      // внутренний ромб
       ctx.strokeStyle = 'rgba(140, 95, 60, 0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -187,13 +295,11 @@ function drawWallpaper(ctx, w, h) {
       ctx.closePath();
       ctx.stroke();
 
-      // центральная точка
       ctx.fillStyle = 'rgba(160, 110, 65, 0.4)';
       ctx.beginPath();
       ctx.arc(cell/2, cell/2, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // мелкие листики по углам
       ctx.fillStyle = 'rgba(90, 55, 35, 0.35)';
       for (let a = 0; a < 4; a++) {
         const ax = (a % 2) * cell;
@@ -206,7 +312,6 @@ function drawWallpaper(ctx, w, h) {
     }
   }
 
-  // пятна сырости / грязи
   for (let i = 0; i < 40; i++) {
     const x = Math.random() * w;
     const y = Math.random() * h;
@@ -221,7 +326,6 @@ function drawWallpaper(ctx, w, h) {
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
 
-  // подтёки сверху
   for (let i = 0; i < 15; i++) {
     const x = Math.random() * w;
     const len = 40 + Math.random() * 180;
@@ -240,7 +344,6 @@ function drawConcrete(ctx, w, h) {
   ctx.fillStyle = '#332f2a';
   ctx.fillRect(0, 0, w, h);
 
-  // крупные разводы
   for (let i = 0; i < 80; i++) {
     const x = Math.random() * w;
     const y = Math.random() * h;
@@ -255,7 +358,6 @@ function drawConcrete(ctx, w, h) {
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
 
-  // трещины
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
   for (let i = 0; i < 10; i++) {
     ctx.lineWidth = 0.5 + Math.random() * 1.2;
@@ -272,7 +374,6 @@ function drawConcrete(ctx, w, h) {
     ctx.stroke();
   }
 
-  // тёмные подтёки
   for (let i = 0; i < 25; i++) {
     const x = Math.random() * w;
     const len = 30 + Math.random() * 120;
@@ -293,12 +394,10 @@ function drawWoodFloor(ctx, w, h) {
 
   const plankH = 48;
   for (let y = 0; y < h; y += plankH) {
-    // оттенок доски
     const shade = 25 + Math.random() * 25;
     ctx.fillStyle = `rgb(${shade + 15}, ${shade + 2}, ${shade - 6})`;
     ctx.fillRect(0, y, w, plankH - 2);
 
-    // волокна
     for (let i = 0; i < 30; i++) {
       ctx.strokeStyle = `rgba(0, 0, 0, ${0.04 + Math.random() * 0.16})`;
       ctx.lineWidth = 0.4 + Math.random() * 1.0;
@@ -311,7 +410,6 @@ function drawWoodFloor(ctx, w, h) {
       ctx.stroke();
     }
 
-    // светлые волокна
     for (let i = 0; i < 6; i++) {
       ctx.strokeStyle = `rgba(110, 70, 40, ${0.04 + Math.random() * 0.08})`;
       ctx.lineWidth = 0.5;
@@ -324,11 +422,9 @@ function drawWoodFloor(ctx, w, h) {
       ctx.stroke();
     }
 
-    // щель между досками
     ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
     ctx.fillRect(0, y + plankH - 2, w, 2);
 
-    // поперечные стыки
     const offset = Math.random() * 200;
     for (let x = offset; x < w; x += 130 + Math.random() * 160) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -336,7 +432,6 @@ function drawWoodFloor(ctx, w, h) {
     }
   }
 
-  // потёртости / грязь
   for (let i = 0; i < 25; i++) {
     const x = Math.random() * w;
     const y = Math.random() * h;
@@ -370,7 +465,6 @@ function drawCeiling(ctx, w, h) {
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
 
-  // трещины
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
   for (let i = 0; i < 12; i++) {
     ctx.lineWidth = 0.5 + Math.random() * 1.3;
@@ -448,7 +542,6 @@ function drawTile(ctx, w, h) {
       const shade = 45 + Math.random() * 25;
       ctx.fillStyle = `rgb(${shade}, ${shade - 3}, ${shade - 8})`;
       ctx.fillRect(x + 2, y + 2, s - 4, s - 4);
-      // грязь в швах
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(x, y, s, 2);
       ctx.fillRect(x, y, 2, s);
@@ -631,7 +724,6 @@ for (let i = 0; i < STEPS; i++) {
   box(STAIR.x2 - STAIR.x1, topY, stepD, matWood,
       (STAIR.x1 + STAIR.x2) / 2, 0, zA + stepD / 2, false);
 }
-// Тонкая тёмная кромка на ступенях
 for (let i = 0; i < STEPS; i++) {
   const zA = STAIR.z1 + i * stepD + stepD;
   const topY = (i + 1) * stepH;
@@ -709,7 +801,8 @@ box(0.5, 0.85, 0.4, matWhite, 5.0, F1, -7.4);
    СВЕТ
    ============================================================ */
 
-scene.add(new THREE.AmbientLight(0x141c2c, 0.22));
+const ambient = new THREE.AmbientLight(0x141c2c, 0.22);
+scene.add(ambient);
 const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.14);
 scene.add(hemi);
 
@@ -749,7 +842,7 @@ addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.30, 7);
    ============================================================ */
 const flashlight = new THREE.SpotLight(0xfff0cf, 3.4, 34, Math.PI / 7.0, 0.42, 1.35);
 flashlight.castShadow = true;
-flashlight.shadow.mapSize.set(1024, 1024);
+flashlight.shadow.mapSize.set(isMobile ? 512 : 1024, isMobile ? 512 : 1024);
 flashlight.shadow.camera.near = 0.15;
 flashlight.shadow.camera.far = 40;
 flashlight.shadow.bias = -0.0009;
@@ -798,12 +891,20 @@ handGroup.add(handMesh);
 
 let flashlightOn = true;
 
+const flBtnEl = document.getElementById('flashlight-btn');
+
+function updateFlashlightButton() {
+  if (flashlightOn) flBtnEl.classList.add('on');
+  else flBtnEl.classList.remove('on');
+}
+
 function setFlashlight(on) {
   flashlightOn = on;
   flashlight.visible = on;
   flFill.visible = on;
   flLensMat.color.setHex(on ? 0xfff3d0 : 0x2a2620);
   updateHUD();
+  updateFlashlightButton();
 }
 
 /* ============================================================
@@ -820,7 +921,7 @@ const player = {
   bobAmount: 0
 };
 
-const PLAYER_RADIUS = 0.34;
+const PLAYER_RADIUS = 0.36;   // чуть больше — чтобы не проскакивать углы мебели
 const EYE_HEIGHT    = 1.68;
 const GRAVITY       = 24.0;
 
@@ -831,6 +932,7 @@ const keys = {};
 const overlay = document.getElementById('overlay');
 const hudEl = document.getElementById('hud');
 
+// ---- Клавиатура (ПК) ----
 document.addEventListener('keydown', (e) => {
   keys[e.code] = true;
   if (e.code === 'KeyF') setFlashlight(!flashlightOn);
@@ -839,7 +941,10 @@ document.addEventListener('keyup', (e) => {
   keys[e.code] = false;
 });
 
+// ---- Мышь / Pointer Lock (ПК) ----
 let pointerLocked = false;
+let gameActive = false;
+let started = false;
 
 function requestLock() {
   if (pointerLocked) return;
@@ -851,25 +956,163 @@ function requestLock() {
   }
 }
 
-overlay.addEventListener('click', requestLock);
-renderer.domElement.addEventListener('click', requestLock);
-
 document.addEventListener('pointerlockerror', () => {
   console.warn('Pointer Lock недоступен — подожди секунду и кликни снова');
 });
 
 document.addEventListener('pointerlockchange', () => {
   pointerLocked = (document.pointerLockElement === renderer.domElement);
-  overlay.style.display = pointerLocked ? 'none' : 'flex';
+  if (!isMobile) {
+    gameActive = pointerLocked;
+    overlay.style.display = pointerLocked ? 'none' : 'flex';
+  }
 });
 
 document.addEventListener('mousemove', (e) => {
-  if (!pointerLocked) return;
+  if (!pointerLocked || isMobile) return;
   const sens = 0.0022;
   player.yaw   -= e.movementX * sens;
   player.pitch -= e.movementY * sens;
   const lim = Math.PI / 2 - 0.02;
   player.pitch = Math.max(-lim, Math.min(lim, player.pitch));
+});
+
+// ---- Запуск игры ----
+function startGame() {
+  if (isMobile) {
+    if (gameActive) return;
+    gameActive = true;
+    started = true;
+    overlay.style.display = 'none';
+    document.getElementById('mobile-controls').classList.add('active');
+    flBtnEl.classList.add('active');
+  } else {
+    requestLock();
+  }
+}
+
+overlay.addEventListener('click', startGame);
+overlay.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  startGame();
+}, { passive: false });
+
+renderer.domElement.addEventListener('click', () => {
+  if (!isMobile && !pointerLocked) requestLock();
+});
+
+/* ============================================================
+   МОБИЛЬНЫЕ КОНТРОЛЫ (тач)
+   ============================================================ */
+const moveZoneEl = document.getElementById('move-zone');
+const lookZoneEl = document.getElementById('look-zone');
+const joystickEl = document.getElementById('joystick');
+const joystickStick = document.getElementById('joystick-stick');
+
+const JOY_RADIUS = 65;
+const moveVec = { x: 0, y: 0 };   // x: вправо (+), y: вниз (+). Вверх = -y → вперёд.
+
+let moveTouchId = null;
+const moveTouchOrigin = { x: 0, y: 0 };
+
+let lookTouchId = null;
+const lookTouchLast = { x: 0, y: 0 };
+
+// --- Левый стик (движение) ---
+moveZoneEl.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (moveTouchId !== null) return;
+  const t = e.changedTouches[0];
+  moveTouchId = t.identifier;
+  moveTouchOrigin.x = t.clientX;
+  moveTouchOrigin.y = t.clientY;
+  joystickEl.style.left = t.clientX + 'px';
+  joystickEl.style.top  = t.clientY + 'px';
+  joystickEl.style.display = 'block';
+  joystickStick.style.transform = 'translate(0px, 0px)';
+}, { passive: false });
+
+moveZoneEl.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const t = e.changedTouches[i];
+    if (t.identifier !== moveTouchId) continue;
+    let dx = t.clientX - moveTouchOrigin.x;
+    let dy = t.clientY - moveTouchOrigin.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > JOY_RADIUS) {
+      dx = dx / dist * JOY_RADIUS;
+      dy = dy / dist * JOY_RADIUS;
+    }
+    moveVec.x = dx / JOY_RADIUS;
+    moveVec.y = dy / JOY_RADIUS;
+    joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+}, { passive: false });
+
+function endMoveTouch(e) {
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const t = e.changedTouches[i];
+    if (t.identifier !== moveTouchId) continue;
+    moveTouchId = null;
+    moveVec.x = 0;
+    moveVec.y = 0;
+    joystickEl.style.display = 'none';
+  }
+}
+moveZoneEl.addEventListener('touchend', endMoveTouch);
+moveZoneEl.addEventListener('touchcancel', endMoveTouch);
+
+// --- Правая зона (обзор) ---
+lookZoneEl.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (lookTouchId !== null) return;
+  const t = e.changedTouches[0];
+  lookTouchId = t.identifier;
+  lookTouchLast.x = t.clientX;
+  lookTouchLast.y = t.clientY;
+}, { passive: false });
+
+lookZoneEl.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const t = e.changedTouches[i];
+    if (t.identifier !== lookTouchId) continue;
+    const dx = t.clientX - lookTouchLast.x;
+    const dy = t.clientY - lookTouchLast.y;
+    lookTouchLast.x = t.clientX;
+    lookTouchLast.y = t.clientY;
+    const sens = 0.0045;
+    player.yaw   -= dx * sens;
+    player.pitch -= dy * sens;
+    const lim = Math.PI / 2 - 0.02;
+    player.pitch = Math.max(-lim, Math.min(lim, player.pitch));
+  }
+}, { passive: false });
+
+function endLookTouch(e) {
+  for (let i = 0; i < e.changedTouches.length; i++) {
+    const t = e.changedTouches[i];
+    if (t.identifier !== lookTouchId) continue;
+    lookTouchId = null;
+  }
+}
+lookZoneEl.addEventListener('touchend', endLookTouch);
+lookZoneEl.addEventListener('touchcancel', endLookTouch);
+
+// --- Кнопка фонарика ---
+let lastFlTouch = 0;
+flBtnEl.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  lastFlTouch = Date.now();
+  setFlashlight(!flashlightOn);
+}, { passive: false });
+flBtnEl.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (Date.now() - lastFlTouch < 500) return; // защита от двойного срабатывания
+  setFlashlight(!flashlightOn);
 });
 
 /* ============================================================
@@ -932,20 +1175,25 @@ function resolveCollisions(pos, feetY) {
 }
 
 function updatePlayer(dt) {
-  const sprint = keys['ShiftLeft'] || keys['ShiftRight'];
+  // Бег: Shift на ПК или почти полное отклонение стика на мобиле
+  const touchMag = Math.hypot(moveVec.x, moveVec.y);
+  const sprint = keys['ShiftLeft'] || keys['ShiftRight'] || (isMobile && touchMag > 0.88);
   const speed = sprint ? 5.2 : 2.7;
 
-  const fwd    = (keys['KeyW'] ? 1 : 0) - (keys['KeyS'] ? 1 : 0);
-  const strafe = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0);
+  // Объединяем клавиатуру и тач
+  let fwd    = (keys['KeyW'] ? 1 : 0) - (keys['KeyS'] ? 1 : 0) - moveVec.y;
+  let strafe = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0) + moveVec.x;
 
   let dx = 0, dz = 0;
-  if (fwd !== 0 || strafe !== 0) {
+  const mag = Math.hypot(fwd, strafe);
+  if (mag > 0.001) {
     const sy = Math.sin(player.yaw);
     const cy = Math.cos(player.yaw);
-    dx = -sy * fwd + cy * strafe;
-    dz = -cy * fwd - sy * strafe;
-    const len = Math.hypot(dx, dz);
-    dx /= len; dz /= len;
+    const nx = (-sy * fwd + cy * strafe) / mag;
+    const nz = (-cy * fwd - sy * strafe) / mag;
+    const speedMul = Math.min(1, mag); // аналоговое управление для стика
+    dx = nx * speedMul;
+    dz = nz * speedMul;
   }
 
   const totalDist = speed * dt;
@@ -1016,7 +1264,7 @@ function animate() {
   if (dt > 0.05) dt = 0.05;
   elapsed += dt;
 
-  if (pointerLocked) {
+  if (gameActive) {
     updatePlayer(dt);
   } else {
     camera.position.set(player.pos.x, player.feetY + EYE_HEIGHT, player.pos.z);
@@ -1024,6 +1272,7 @@ function animate() {
     camera.rotation.x = player.pitch;
   }
 
+  // Мерцание лампочек
   for (let i = 0; i < flickerLights.length; i++) {
     const f = flickerLights[i];
     const t = elapsed * f.speed + f.phase;
@@ -1040,11 +1289,35 @@ function animate() {
     );
   }
 
+  // ----- ФОНАРИК: дрожание луча -----
   if (flashlightOn) {
     const jitter = 0.012 * Math.sin(elapsed * 7.3) + 0.008 * Math.sin(elapsed * 17.1);
     flashlight.position.x = 0.18 + jitter;
     flashlight.position.y = -0.12 + jitter * 0.7;
     flFill.position.x = 0.25 + jitter;
+  }
+
+  // ----- СВЕТ ПРИ ВЫКЛЮЧЕННОМ ФОНАРИКЕ -----
+  // Тускло, чуть ярче чем обычно, и мерцает (как будто глаза привыкли к темноте).
+  if (!flashlightOn) {
+    const t = elapsed;
+    let flick = 0.82
+      + 0.14 * Math.sin(t * 2.7)
+      + 0.09 * Math.sin(t * 7.1 + 1.7)
+      + 0.06 * Math.sin(t * 17.3 + 0.4);
+    // редкие «просадки»
+    if (Math.sin(t * 0.63 + 1.3) > 0.965) flick *= 0.55;
+    flick = Math.max(0.30, flick);
+
+    ambient.intensity = 0.36 * flick;   // было 0.22
+    hemi.intensity    = 0.24 * flick;   // было 0.14
+    ambient.color.setHex(0x1a2338);
+    hemi.color.setHex(0x1a2338);
+  } else {
+    ambient.intensity = 0.22;
+    hemi.intensity    = 0.14;
+    ambient.color.setHex(0x141c2c);
+    hemi.color.setHex(0x151c2c);
   }
 
   updateHUD();
@@ -1059,6 +1332,17 @@ addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
+
+/* ============================================================
+   АДАПТАЦИЯ ТЕКСТА ПОД МОБИЛЬНЫЙ
+   ============================================================ */
+if (isMobile) {
+  document.getElementById('overlay-help').innerHTML = `
+    <span class="key">ЛЕВАЯ ПОЛОВИНА</span> — стик движения<br>
+    <span class="key">ПРАВАЯ ПОЛОВИНА</span> — осмотреться<br>
+    <span class="key">КНОПКА ↖</span> — фонарик вкл / выкл
+  `;
+}
 
 /* ============================================================
    СТАРТ
