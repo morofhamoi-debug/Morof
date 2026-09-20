@@ -19,7 +19,7 @@
   #app{position:fixed;inset:0;}
   #game-canvas-wrap{position:absolute;inset:0;}
 
-  /* --- LOADING --- */
+  /* --- LOADING (оставлено для резервного сообщения об ошибке) --- */
   #loading{
     position:fixed;inset:0;background:#000;color:#889;display:flex;
     align-items:center;justify-content:center;flex-direction:column;z-index:1000;
@@ -262,11 +262,7 @@
   </div>
   <div id="fps">FPS 60</div>
 
-  <!-- LOADING -->
-  <div id="loading">
-    <div class="dot"></div>
-    <div class="txt">ЗАГРУЗКА MOROF</div>
-  </div>
+  <!-- ЭКРАН ЗАГРУЗКИ УДАЛЁН. Резервное сообщение об ошибке создаётся динамически только при сбое. -->
 
   <!-- MAIN MENU -->
   <div id="menu" class="hide">
@@ -373,8 +369,10 @@
 </div>
 
 <!-- =============================================================
-     ИЗМЕНЕНИЕ №1: резервный НЕ-модульный скрипт.
-     Показывает понятную ошибку, если модуль не запустился.
+     Резервный НЕ-модульный скрипт — срабатывает только при сбое
+     (file:// блокировка модулей, ошибка CDN, таймаут).
+     Экран загрузки при нормальном запуске не показывается вовсе;
+     если что-то пойдёт не так — здесь будет создано сообщение.
      ============================================================= -->
 <script>
 (function(){
@@ -383,12 +381,17 @@
     if (shown || window.__MOROF_BOOTED__) return;
     shown = true;
     var el = document.getElementById('loading');
-    if (!el) return;
+    if (!el){
+      el = document.createElement('div');
+      el.id = 'loading';
+      el.style.cssText = 'position:fixed;inset:0;background:#000;color:#889;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:2000;padding:20px;font-family:system-ui,-apple-system,sans-serif;';
+      document.body.appendChild(el);
+    }
     el.style.display = 'flex';
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
     var safe = reason ? String(reason).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
-    el.innerHTML = '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:560px;font-family:system-ui,-apple-system,sans-serif;">'
+    el.innerHTML = '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:560px;">'
       + '<b style="color:#e33;font-size:16px;">Игра не смогла загрузиться.</b><br><br>'
       + (safe ? '<span style="color:#666;font-size:12px;">Причина: ' + safe + '</span><br><br>' : '')
       + 'Скорее всего, браузер блокирует ES-модули при открытии через <code>file://</code>.<br><br>'
@@ -421,7 +424,6 @@
 
 let THREE;
 try {
-  // ИЗМЕНЕНИЕ №2: таймаут на загрузку Three.js, чтобы не висело бесконечно.
   let __toId = null;
   const __timeout = new Promise((_, rej) => {
     __toId = setTimeout(() => rej(new Error('Таймаут загрузки Three.js (12 сек). Возможно, нет доступа к cdn.jsdelivr.net.')), 12000);
@@ -431,13 +433,6 @@ try {
 } catch (e) {
   if (window.__MOROF_SHOW_FALLBACK__) {
     window.__MOROF_SHOW_FALLBACK__((e && e.message) || String(e));
-  } else {
-    document.getElementById('loading').innerHTML =
-      '<div style="padding:30px;text-align:center;color:#c88;font-size:14px;line-height:1.7;max-width:520px;">' +
-      '<b style="color:#e33;font-size:16px;">Не удалось загрузить 3D-движок.</b><br><br>' +
-      'Проверьте подключение к интернету или запустите файл через локальный сервер ' +
-      '(в VS Code: правая кнопка по index.html → «Open with Live Server»).<br><br>' +
-      '<span style="color:#666;font-size:12px;">Техническая информация: ' + (e && e.message || e) + '</span></div>';
   }
   throw e;
 }
@@ -2116,20 +2111,15 @@ window.addEventListener('resize', ()=>{
 
 // =============================================================
 // SECTION: BOOT
+// Экран загрузки убран. Меню показывается сразу.
 // =============================================================
-setTimeout(()=>{
-  $('loading').classList.add('hide');
-  setTimeout(()=>{ $('loading').style.display='none'; }, 900);
-  showMenu();
-}, 600);
+showMenu();
+window.__MOROF_BOOTED__ = true;
 
 // Fade HUD when not running
 window.addEventListener('blur', ()=>{
   if (state.running && !state.paused) openPause();
 });
-
-// ИЗМЕНЕНИЕ №3: сообщаем резервному скрипту, что модуль загрузился успешно.
-window.__MOROF_BOOTED__ = true;
 
 console.log('%c MOROF: Ночная смена ', 'background:#8c1a1a;color:#fff;padding:4px 8px;font-weight:bold;');
 console.log('Часть 1 загружена. Управление: WASD, Shift, Ctrl, E, F, Esc.');
