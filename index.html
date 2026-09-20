@@ -9,14 +9,12 @@
   html, body { width:100%; height:100%; overflow:hidden; background:#000;
     font-family: 'Courier New', monospace; }
   canvas { display:block; }
-
   #overlay {
     position:fixed; inset:0; z-index:10; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background: radial-gradient(circle at 50% 40%, rgba(25,14,8,0.92), rgba(0,0,0,0.99));
     color:#c9b48a; text-align:center; padding:20px;
-    transition: opacity .3s;
-    touch-action: none;
+    transition: opacity .3s; touch-action: none;
   }
   #overlay h1 {
     font-size: clamp(28px, 6vw, 54px);
@@ -31,11 +29,9 @@
     animation: pulse 1.8s infinite; letter-spacing: 2px;
   }
   @keyframes pulse { 0%,100%{opacity:0.2} 50%{opacity:0.9} }
-
   #hud {
     position:fixed; bottom:14px; left:16px; z-index:5; pointer-events:none;
-    color:#8a7a5a; font-size:12px; letter-spacing:1px;
-    text-shadow:0 0 8px #000;
+    color:#8a7a5a; font-size:12px; letter-spacing:1px; text-shadow:0 0 8px #000;
   }
   body.mobile #hud {
     top: calc(14px + env(safe-area-inset-top, 0px));
@@ -60,7 +56,6 @@
     opacity:0.05;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
   }
-
   #mobile-controls { position: fixed; inset: 0; z-index: 8; pointer-events: none; display: none; }
   #mobile-controls.active { display: block; }
   #move-zone { position: absolute; left: 0; top: 0; width: 45%; height: 100%; pointer-events: auto; touch-action: none; }
@@ -117,19 +112,16 @@
   </p>
   <p class="hint" id="overlay-hint">НАЖМИТЕ, ЧТОБЫ ВОЙТИ В ДОМ</p>
 </div>
-
 <div id="vignette"></div>
 <div id="damage"></div>
 <div id="grain"></div>
 <div id="crosshair"></div>
 <div id="hud">ФОНАРИК: ВКЛ &nbsp;|&nbsp; ЭТАЖ: 1</div>
-
 <div id="mobile-controls">
   <div id="move-zone"></div>
   <div id="look-zone"></div>
 </div>
 <div id="joystick"><div id="joystick-stick"></div></div>
-
 <div id="flashlight-btn" aria-label="Фонарик">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M7 5 L17 5 L15 9 L15 20 L9 20 L9 9 Z"/>
@@ -144,21 +136,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
-   ТЁМНЫЙ ДОМ — реалистичная мебель, все предметы
+   ТЁМНЫЙ ДОМ — реалистичная мебель + правильная расстановка
    ============================================================ */
 
 const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
               || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
 if (isMobile) document.body.classList.add('mobile');
 
-// ---------- ОСНОВНЫЕ КОНСТАНТЫ ----------
-const T        = 0.30;
-const F1       = 3.20;
-const SLAB_B   = 2.90;
-const F2       = 6.40;
-const STAIR    = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
+const T      = 0.30;
+const F1     = 3.20;
+const SLAB_B = 2.90;
+const F2     = 6.40;
+const STAIR  = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
 
-// ---------- СЦЕНА ----------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020304);
 scene.fog = new THREE.FogExp2(0x020304, 0.062);
@@ -177,26 +167,21 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 document.body.appendChild(renderer.domElement);
 
-/* ============================================================
-   ТЕКСТУРЫ
-   ============================================================ */
+/* ---------- ТЕКСТУРЫ ---------- */
 const maxAniso = renderer.capabilities.getMaxAnisotropy();
-
-function makeTex(w, h, drawFn, repeatX = 1, repeatY = 1) {
+function makeTex(w, h, drawFn, rx = 1, ry = 1) {
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
-  const ctx = c.getContext('2d');
-  drawFn(ctx, w, h);
+  drawFn(c.getContext('2d'), w, h);
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(repeatX, repeatY);
+  t.repeat.set(rx, ry);
   t.anisotropy = maxAniso;
   t.encoding = THREE.sRGBEncoding;
   return t;
 }
 function addNoise(ctx, w, h, amount) {
-  const img = ctx.getImageData(0, 0, w, h);
-  const d = img.data;
+  const img = ctx.getImageData(0,0,w,h); const d = img.data;
   for (let i = 0; i < d.length; i += 4) {
     const n = (Math.random() - 0.5) * amount;
     d[i]   = Math.max(0, Math.min(255, d[i]   + n));
@@ -205,142 +190,108 @@ function addNoise(ctx, w, h, amount) {
   }
   ctx.putImageData(img, 0, 0);
 }
-
 function drawWallpaper(ctx, w, h) {
-  const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, '#463125'); g.addColorStop(0.45, '#39271c'); g.addColorStop(1, '#2b1d14');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#463125'); g.addColorStop(0.45,'#39271c'); g.addColorStop(1,'#2b1d14');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
   for (let x = 0; x < w; x += 32) {
-    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(x, 0, 2, h);
-    ctx.fillStyle = 'rgba(120,80,50,0.05)'; ctx.fillRect(x + 2, 0, 1, h);
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(x,0,2,h);
+    ctx.fillStyle = 'rgba(120,80,50,0.05)'; ctx.fillRect(x+2,0,1,h);
   }
   const cell = 64;
   for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
-    const off = ((y / cell) % 2) * (cell / 2);
-    ctx.save(); ctx.translate(x + off, y);
+    const off = ((y/cell)%2)*(cell/2);
+    ctx.save(); ctx.translate(x+off,y);
     ctx.strokeStyle = 'rgba(110,70,45,0.55)'; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.moveTo(cell/2,8); ctx.lineTo(cell-8,cell/2); ctx.lineTo(cell/2,cell-8); ctx.lineTo(8,cell/2); ctx.closePath(); ctx.stroke();
-    ctx.strokeStyle = 'rgba(140,95,60,0.35)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(cell/2,18); ctx.lineTo(cell-18,cell/2); ctx.lineTo(cell/2,cell-18); ctx.lineTo(18,cell/2); ctx.closePath(); ctx.stroke();
     ctx.fillStyle = 'rgba(160,110,65,0.4)'; ctx.beginPath(); ctx.arc(cell/2,cell/2,3.5,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
-  for (let i = 0; i < 40; i++) {
-    const x = Math.random()*w, y = Math.random()*h, r = 15 + Math.random()*70;
-    const rad = ctx.createRadialGradient(x,y,0,x,y,r);
-    rad.addColorStop(0, Math.random()>0.5?`rgba(15,10,8,${0.15+Math.random()*0.25})`:`rgba(90,60,35,${0.08+Math.random()*0.12})`);
-    rad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = rad; ctx.fillRect(x-r,y-r,r*2,r*2);
-  }
   addNoise(ctx, w, h, 22);
 }
-
 function drawConcrete(ctx, w, h) {
-  ctx.fillStyle = '#332f2a'; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 80; i++) {
+  ctx.fillStyle = '#332f2a'; ctx.fillRect(0,0,w,h);
+  for (let i = 0; i < 60; i++) {
     const x = Math.random()*w, y = Math.random()*h, r = 20 + Math.random()*100;
     const g = ctx.createRadialGradient(x,y,0,x,y,r);
     g.addColorStop(0, Math.random()>0.5?`rgba(10,10,10,${0.2+Math.random()*0.3})`:`rgba(70,65,55,${0.1+Math.random()*0.2})`);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
+    g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
   }
   addNoise(ctx, w, h, 45);
 }
-
 function drawWoodFloor(ctx, w, h) {
-  ctx.fillStyle = '#1e140d'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#1e140d'; ctx.fillRect(0,0,w,h);
   const plankH = 48;
   for (let y = 0; y < h; y += plankH) {
-    const shade = 25 + Math.random() * 25;
-    ctx.fillStyle = `rgb(${shade+15}, ${shade+2}, ${shade-6})`;
-    ctx.fillRect(0, y, w, plankH - 2);
-    for (let i = 0; i < 30; i++) {
+    const shade = 25 + Math.random()*25;
+    ctx.fillStyle = `rgb(${shade+15},${shade+2},${shade-6})`;
+    ctx.fillRect(0,y,w,plankH-2);
+    for (let i = 0; i < 20; i++) {
       ctx.strokeStyle = `rgba(0,0,0,${0.04+Math.random()*0.16})`;
-      ctx.lineWidth = 0.4 + Math.random()*1.0;
-      ctx.beginPath(); const gy = y + Math.random()*plankH; ctx.moveTo(0, gy);
-      for (let x = 0; x < w; x += 16) ctx.lineTo(x, gy + Math.sin(x*0.06 + y*0.1)*2 + (Math.random()-0.5)*2);
+      ctx.lineWidth = 0.4 + Math.random();
+      ctx.beginPath(); const gy = y + Math.random()*plankH; ctx.moveTo(0,gy);
+      for (let x = 0; x < w; x += 16) ctx.lineTo(x, gy + Math.sin(x*0.06 + y*0.1)*2);
       ctx.stroke();
     }
-    ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, y + plankH - 2, w, 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0,y+plankH-2,w,2);
   }
   addNoise(ctx, w, h, 18);
 }
-
 function drawCeiling(ctx, w, h) {
-  ctx.fillStyle = '#2a2620'; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 90; i++) {
+  ctx.fillStyle = '#2a2620'; ctx.fillRect(0,0,w,h);
+  for (let i = 0; i < 60; i++) {
     const x = Math.random()*w, y = Math.random()*h, r = 15 + Math.random()*90;
     const g = ctx.createRadialGradient(x,y,0,x,y,r);
     g.addColorStop(0, Math.random()>0.45?`rgba(8,6,4,${0.2+Math.random()*0.35})`:`rgba(80,65,45,${0.08+Math.random()*0.15})`);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
+    g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
   }
   addNoise(ctx, w, h, 28);
 }
-
 function drawFurnitureWood(ctx, w, h) {
-  ctx.fillStyle = '#2a1a10'; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 60; i++) {
+  ctx.fillStyle = '#2a1a10'; ctx.fillRect(0,0,w,h);
+  for (let i = 0; i < 50; i++) {
     ctx.strokeStyle = `rgba(0,0,0,${0.05+Math.random()*0.2})`;
     ctx.lineWidth = 0.5 + Math.random()*1.5;
-    ctx.beginPath(); const y = Math.random()*h; ctx.moveTo(0, y);
-    for (let x = 0; x < w; x += 12) ctx.lineTo(x, y + Math.sin(x*0.1 + i)*2 + (Math.random()-0.5)*1.5);
+    ctx.beginPath(); const y = Math.random()*h; ctx.moveTo(0,y);
+    for (let x = 0; x < w; x += 12) ctx.lineTo(x, y + Math.sin(x*0.1 + i)*2);
     ctx.stroke();
   }
   addNoise(ctx, w, h, 16);
 }
-
 function drawMetal(ctx, w, h) {
-  ctx.fillStyle = '#3a3a40'; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 120; i++) {
+  ctx.fillStyle = '#3a3a40'; ctx.fillRect(0,0,w,h);
+  for (let i = 0; i < 80; i++) {
     const x = Math.random()*w, y = Math.random()*h, r = 5 + Math.random()*40;
     const g = ctx.createRadialGradient(x,y,0,x,y,r);
     g.addColorStop(0, Math.random()>0.5?'rgba(0,0,0,0.35)':'rgba(120,110,100,0.12)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
+    g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
   }
   addNoise(ctx, w, h, 25);
 }
-
 function drawTile(ctx, w, h) {
-  ctx.fillStyle = '#1a1a18'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#1a1a18'; ctx.fillRect(0,0,w,h);
   const s = 64;
   for (let y = 0; y < h; y += s) for (let x = 0; x < w; x += s) {
     const shade = 45 + Math.random()*25;
-    ctx.fillStyle = `rgb(${shade}, ${shade-3}, ${shade-8})`;
-    ctx.fillRect(x+2, y+2, s-4, s-4);
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(x, y, s, 2); ctx.fillRect(x, y, 2, s);
+    ctx.fillStyle = `rgb(${shade},${shade-3},${shade-8})`;
+    ctx.fillRect(x+2,y+2,s-4,s-4);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x,y,s,2); ctx.fillRect(x,y,2,s);
   }
   addNoise(ctx, w, h, 20);
 }
-
 function drawFabric(ctx, w, h) {
-  ctx.fillStyle = '#3a2a32'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#3a2a32'; ctx.fillRect(0,0,w,h);
   for (let y = 0; y < h; y += 3) for (let x = 0; x < w; x += 3) {
-    const n = Math.random() * 40;
-    ctx.fillStyle = `rgba(${60+n}, ${45+n}, ${55+n}, 0.5)`;
-    ctx.fillRect(x, y, 2, 2);
+    const n = Math.random()*40;
+    ctx.fillStyle = `rgba(${60+n},${45+n},${55+n},0.5)`;
+    ctx.fillRect(x,y,2,2);
   }
   addNoise(ctx, w, h, 25);
 }
-
-function drawLeather(ctx, w, h) {
-  ctx.fillStyle = '#2a1a1a'; ctx.fillRect(0, 0, w, h);
-  for (let i = 0; i < 200; i++) {
-    const x = Math.random()*w, y = Math.random()*h, r = 3 + Math.random()*10;
-    const g = ctx.createRadialGradient(x,y,0,x,y,r);
-    g.addColorStop(0, `rgba(${50+Math.random()*30}, ${30+Math.random()*20}, ${25+Math.random()*20}, 0.3)`);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(x-r,y-r,r*2,r*2);
-  }
-  addNoise(ctx, w, h, 12);
-}
-
 function drawMarble(ctx, w, h) {
-  ctx.fillStyle = '#1c1c1e'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#1c1c1e'; ctx.fillRect(0,0,w,h);
   for (let i = 0; i < 12; i++) {
-    ctx.strokeStyle = `rgba(${90+Math.random()*40}, ${85+Math.random()*35}, ${80+Math.random()*30}, 0.35)`;
+    ctx.strokeStyle = `rgba(${90+Math.random()*40},${85+Math.random()*35},${80+Math.random()*30},0.35)`;
     ctx.lineWidth = 0.5 + Math.random()*1.5;
     ctx.beginPath(); let x = Math.random()*w, y = Math.random()*h; ctx.moveTo(x,y);
     for (let s = 0; s < 20; s++) { x += (Math.random()-0.5)*40; y += (Math.random()-0.5)*40; ctx.lineTo(x,y); }
@@ -357,12 +308,10 @@ const texWood      = makeTex(256, 256, drawFurnitureWood, 1, 1);
 const texMetal     = makeTex(256, 256, drawMetal, 1, 1);
 const texTile      = makeTex(256, 256, drawTile, 1, 1);
 const texFabric    = makeTex(128, 128, drawFabric, 3, 3);
-const texLeather   = makeTex(128, 128, drawLeather, 3, 3);
+const texLeather   = makeTex(128, 128, drawFabric, 3, 3);
 const texMarble    = makeTex(256, 256, drawMarble, 1, 1);
 
-/* ============================================================
-   МАТЕРИАЛЫ
-   ============================================================ */
+/* ---------- МАТЕРИАЛЫ ---------- */
 const matWallOuter = new THREE.MeshStandardMaterial({ map: texConcrete, bumpMap: texConcrete, bumpScale: 0.04, color: 0x9a9088, roughness: 1.0 });
 const matWall      = new THREE.MeshStandardMaterial({ map: texWallpaper, bumpMap: texWallpaper, bumpScale: 0.025, color: 0xb8a890, roughness: 0.97 });
 const matSlab      = new THREE.MeshStandardMaterial({ map: texCeiling, bumpMap: texCeiling, bumpScale: 0.03, color: 0x9a8f80, roughness: 0.98 });
@@ -376,7 +325,6 @@ const matChrome    = new THREE.MeshStandardMaterial({ color: 0xccd0d8, roughness
 const matHandle    = new THREE.MeshStandardMaterial({ color: 0xb0b4bc, roughness: 0.3, metalness: 0.85 });
 const matWhite     = new THREE.MeshStandardMaterial({ map: texTile, bumpMap: texTile, bumpScale: 0.015, color: 0xc0bdb0, roughness: 0.65 });
 const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: 0.15, metalness: 0.05 });
-const matStone     = new THREE.MeshStandardMaterial({ map: texTile, bumpMap: texTile, bumpScale: 0.02, color: 0x807870, roughness: 0.95 });
 const matCountertop= new THREE.MeshStandardMaterial({ map: texMarble, bumpMap: texMarble, bumpScale: 0.005, color: 0x9a9a9e, roughness: 0.25, metalness: 0.15 });
 const matGlass     = new THREE.MeshStandardMaterial({ color: 0x0a0e14, roughness: 0.05, metalness: 0.5 });
 const matTVScreen  = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.03, metalness: 0.3, emissive: 0x050510 });
@@ -385,7 +333,6 @@ const matStove     = new THREE.MeshStandardMaterial({ color: 0x303034, roughness
 const matFabric    = new THREE.MeshStandardMaterial({ map: texFabric, bumpMap: texFabric, bumpScale: 0.005, color: 0x4a3a48, roughness: 1.0 });
 const matFabric2   = new THREE.MeshStandardMaterial({ map: texFabric, bumpMap: texFabric, bumpScale: 0.005, color: 0x3a4a5a, roughness: 1.0 });
 const matFabric3   = new THREE.MeshStandardMaterial({ map: texFabric, bumpMap: texFabric, bumpScale: 0.005, color: 0x5a4a2a, roughness: 1.0 });
-const matLeather   = new THREE.MeshStandardMaterial({ map: texLeather, bumpMap: texLeather, bumpScale: 0.003, color: 0x4a2a20, roughness: 0.55 });
 const matPillow    = new THREE.MeshStandardMaterial({ map: texFabric, color: 0x8a7a5a, roughness: 0.95 });
 const matBlanket   = new THREE.MeshStandardMaterial({ map: texFabric, color: 0x4a2a3a, roughness: 0.95 });
 const matSheet     = new THREE.MeshStandardMaterial({ color: 0xc8c0b0, roughness: 0.9 });
@@ -394,11 +341,9 @@ const matRug       = new THREE.MeshStandardMaterial({ map: texFabric, color: 0x4
 const matRug2      = new THREE.MeshStandardMaterial({ map: texFabric, color: 0x1a2030, roughness: 1.0 });
 const matLampShade = new THREE.MeshStandardMaterial({ color: 0xd8b888, roughness: 0.85, side: THREE.DoubleSide, emissive: 0x3a2010, emissiveIntensity: 0.5 });
 const matBulb      = new THREE.MeshBasicMaterial({ color: 0xffe8b0 });
-const matGlassWin  = new THREE.MeshStandardMaterial({ color: 0x0a0e14, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.85 });
 const matPlant     = new THREE.MeshStandardMaterial({ color: 0x1e4a1e, roughness: 1.0 });
 const matPot       = new THREE.MeshStandardMaterial({ color: 0x6a3a1a, roughness: 0.8 });
 const matPaper     = new THREE.MeshStandardMaterial({ color: 0xd8ccb0, roughness: 0.9 });
-// ★ ИСПРАВЛЕНО: добавлен отсутствовавший материал для циферблата часов
 const matClockFace = new THREE.MeshBasicMaterial({ color: 0xd8c8a0 });
 const matBookMats  = [
   new THREE.MeshStandardMaterial({ color: 0x5a2018, roughness: 0.9 }),
@@ -411,43 +356,36 @@ const matBookMats  = [
   new THREE.MeshStandardMaterial({ color: 0x2a4a4a, roughness: 0.9 })
 ];
 
-/* ============================================================
-   КОЛЛИЗИИ
-   ============================================================ */
+/* ---------- КОЛЛИЗИИ ---------- */
 const colliders = [];
 const floorRects = [];
-const flickerLights = []; // ★ ПЕРЕНЕСЕНО ВЫШЕ — используется функциями до их объявления
+const flickerLights = [];
 
 function addCollider(minX, maxX, minZ, maxZ, minY, maxY) {
   colliders.push({ minX, maxX, minZ, maxZ, minY, maxY });
 }
-
 function box(w, h, d, mat, x, y, z, collide = true) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y + h / 2, z);
-  m.castShadow = true;
-  m.receiveShadow = true;
+  m.position.set(x, y + h/2, z);
+  m.castShadow = true; m.receiveShadow = true;
   scene.add(m);
   if (collide) addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y, y + h);
   return m;
 }
-
 function cyl(rt, rb, h, mat, x, y, z, seg = 12) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
   m.position.set(x, y + h/2, z);
-  m.castShadow = true;
-  m.receiveShadow = true;
+  m.castShadow = true; m.receiveShadow = true;
   scene.add(m);
   return m;
 }
-
 function wallX(x1, x2, z, y0, y1, mat = matWall, collide = true) {
   if (x2 - x1 <= 0 || y1 - y0 <= 0) return;
-  box(x2 - x1, y1 - y0, T, mat, (x1 + x2) / 2, y0, z, collide);
+  box(x2 - x1, y1 - y0, T, mat, (x1+x2)/2, y0, z, collide);
 }
 function wallZ(z1, z2, x, y0, y1, mat = matWall, collide = true) {
   if (z2 - z1 <= 0 || y1 - y0 <= 0) return;
-  box(T, y1 - y0, z2 - z1, mat, x, y0, (z1 + z2) / 2, collide);
+  box(T, y1 - y0, z2 - z1, mat, x, y0, (z1+z2)/2, collide);
 }
 
 /* ============================================================
@@ -459,7 +397,6 @@ groundMesh.position.set(0, -0.2, 0);
 groundMesh.receiveShadow = true;
 scene.add(groundMesh);
 
-// Внешние стены 1 этажа
 wallX(-10, 1, -8, 0, F1, matWallOuter);
 wallX(3, 10, -8, 0, F1, matWallOuter);
 wallX(1, 3, -8, 2.20, F1, matWallOuter, false);
@@ -469,7 +406,6 @@ wallX(6, 8, 8, 2.20, F1, matWallOuter, false);
 wallZ(-8, 8, -10, 0, F1, matWallOuter);
 wallZ(-8, 8,  10, 0, F1, matWallOuter);
 
-// Внутренние стены 1 этажа
 wallZ(-8, -6, 0, 0, F1);
 wallZ(-4.5, 2, 0, 0, F1);
 wallZ(3.5, 8, 0, 0, F1);
@@ -483,7 +419,6 @@ wallZ(-4.5, 0, 4, 0, F1);
 wallZ(-6, -4.5, 4, 2.20, F1, matWall, false);
 wallX(4, 10, 0, 0, F1);
 
-// Межэтажное перекрытие
 function slab(x1, x2, z1, z2) {
   box(x2 - x1, F1 - SLAB_B, z2 - z1, matSlab, (x1+x2)/2, SLAB_B, (z1+z2)/2, false);
   floorRects.push({ minX: x1, maxX: x2, minZ: z1, maxZ: z2, y: F1 });
@@ -493,13 +428,11 @@ slab(5, 8, -8, 1);
 slab(5, 8, 7, 8);
 slab(8, 10, -8, 8);
 
-// Внешние стены 2 этажа
 wallX(-10, 10, -8, F1, F2, matWallOuter);
 wallX(-10, 10,  8, F1, F2, matWallOuter);
 wallZ(-8, 8, -10, F1, F2, matWallOuter);
 wallZ(-8, 8,  10, F1, F2, matWallOuter);
 
-// Внутренние стены 2 этажа
 wallZ(-8, -6, 0, F1, F2);
 wallZ(-4.5, 2, 0, F1, F2);
 wallZ(3.5, 8, 0, F1, F2);
@@ -515,7 +448,6 @@ wallX(4, 4.5, 0, F1, F2);
 wallX(6, 10, 0, F1, F2);
 wallX(4.5, 6, 0, F1 + 2.20, F2, matWall, false);
 
-// Лестница
 wallZ(STAIR.z1, STAIR.z2, 5, 0, F1, matWall);
 wallZ(STAIR.z1, STAIR.z2, 8, 0, F1, matWall);
 wallZ(STAIR.z1, STAIR.z2, 5, F1, F1 + 1.0, matWoodDark);
@@ -542,140 +474,158 @@ for (let i = 0; i < STEPS; i++) {
 box(20, 0.35, 16, matWallOuter, 0, F2, 0, false);
 
 /* ============================================================
-   РЕАЛИСТИЧНАЯ МЕБЕЛЬ — ФУНКЦИИ
+   ФУНКЦИИ МЕБЕЛИ (с поддержкой facing)
+   facing: 'z+' — «спинка» на -z, «лицо» на +z (по умолчанию)
+           'z-' — «спинка» на +z, «лицо» на -z
+           'x+' — «спинка» на -x, «лицо» на +x
+           'x-' — «спинка» на +x, «лицо» на -x
    ============================================================ */
 
-// ============ ДИВАН ============
-function buildSofa(x, z, w, d, fabricMat, seatMat) {
-  const legH = 0.12;
-  const seatY = legH + 0.18;
-  const armW = 0.22;
-  const armH = 0.55;
-  const backH = 0.65;
-  const backT = 0.22;
+// ДИВАН / КРЕСЛО
+function buildSofa(x, z, w, d, fabricMat, seatMat, facing = 'z+') {
+  const sgn = facing === 'z-' ? -1 : 1;
+  const legH = 0.12, seatY = legH + 0.18;
+  const armW = 0.22, armH = 0.55;
+  const backH = 0.65, backT = 0.22;
   const innerW = w - armW * 2;
 
-  const legR = 0.04;
-  for (const [lx, lz] of [[-w/2 + 0.10, -d/2 + 0.10], [w/2 - 0.10, -d/2 + 0.10],
-                          [-w/2 + 0.10,  d/2 - 0.10], [w/2 - 0.10,  d/2 - 0.10]]) {
-    cyl(legR, legR * 1.1, legH, matWoodDeep, x + lx, 0, z + lz, 8);
+  // Ножки
+  for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
+                          [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
+    cyl(0.04, 0.044, legH, matWoodDeep, x + lx, 0, z + lz, 8);
   }
+  // Основание
   box(w, 0.22, d, fabricMat, x, legH, z, false);
+  // Сиденье
   const seatDepth = d - backT - 0.05;
   const nSeats = Math.max(2, Math.round(innerW / 0.8));
   const seatW = innerW / nSeats;
+  const seatCenterZ = z + sgn * (backT/2 + 0.02);
   for (let i = 0; i < nSeats; i++) {
     const sx = x - innerW/2 + seatW * (i + 0.5);
-    box(seatW - 0.03, 0.14, seatDepth - 0.03, seatMat, sx, seatY, z + backT/2 + 0.02, false);
-    box(seatW - 0.03, 0.06, 0.03, seatMat, sx, seatY + 0.10, z + backT/2 + seatDepth - 0.04, false);
+    box(seatW - 0.03, 0.14, seatDepth - 0.03, seatMat, sx, seatY, seatCenterZ, false);
+    box(seatW - 0.03, 0.06, 0.03, seatMat, sx, seatY + 0.10, seatCenterZ + sgn * (seatDepth - 0.04)/2, false);
   }
+  // Подлокотники
   for (const side of [-1, 1]) {
     const ax = x + side * (w/2 - armW/2);
     box(armW, armH - legH, d, fabricMat, ax, legH, z, false);
     box(armW - 0.02, 0.06, d - 0.02, fabricMat, ax, legH + armH - legH, z, false);
   }
-  box(w, backH, backT, fabricMat, x, legH + 0.22, z - d/2 + backT/2, false);
-  box(w - 0.02, 0.06, backT - 0.02, fabricMat, x, legH + 0.22 + backH, z - d/2 + backT/2, false);
+  // Спинка
+  const backZ = z + sgn * (-d/2 + backT/2);
+  box(w, backH, backT, fabricMat, x, legH + 0.22, backZ, false);
+  box(w - 0.02, 0.06, backT - 0.02, fabricMat, x, legH + 0.22 + backH, backZ, false);
+  // Подушки спинки
+  const cushionZ = z + sgn * (-d/2 + backT + 0.08);
   for (let i = 0; i < nSeats; i++) {
     const sx = x - innerW/2 + seatW * (i + 0.5);
-    box(seatW - 0.08, 0.42, 0.14, seatMat, sx, seatY + 0.20, z - d/2 + backT + 0.08, false);
+    box(seatW - 0.08, 0.42, 0.14, seatMat, sx, seatY + 0.20, cushionZ, false);
   }
-  box(0.4, 0.36, 0.14, matPillow, x - innerW/2 + 0.25, seatY + 0.20, z - d/2 + backT + 0.08, false);
-  box(0.4, 0.36, 0.14, matPillow, x + innerW/2 - 0.25, seatY + 0.20, z - d/2 + backT + 0.08, false);
+  // Декоративные подушки
+  box(0.4, 0.36, 0.14, matPillow, x - innerW/2 + 0.25, seatY + 0.20, cushionZ, false);
+  box(0.4, 0.36, 0.14, matPillow, x + innerW/2 - 0.25, seatY + 0.20, cushionZ, false);
 
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, armH + legH + 0.05);
 }
-
-// ============ КРЕСЛО ============
-function buildArmchair(x, z, fabricMat, seatMat) {
-  buildSofa(x, z, 0.9, 0.9, fabricMat, seatMat);
+function buildArmchair(x, z, fabricMat, seatMat, facing = 'z+') {
+  buildSofa(x, z, 0.9, 0.9, fabricMat, seatMat, facing);
 }
 
-// ============ ЖУРНАЛЬНЫЙ СТОЛИК ============
+// ЖУРНАЛЬНЫЙ СТОЛИК
 function buildCoffeeTable(x, z, w, d) {
-  const topH = 0.42;
-  const legH = topH - 0.04;
-  for (const [lx, lz] of [[-w/2 + 0.08, -d/2 + 0.08], [w/2 - 0.08, -d/2 + 0.08],
-                          [-w/2 + 0.08,  d/2 - 0.08], [w/2 - 0.08,  d/2 - 0.08]]) {
+  const topH = 0.42, legH = topH - 0.04;
+  for (const [lx, lz] of [[-w/2+0.08, -d/2+0.08], [w/2-0.08, -d/2+0.08],
+                          [-w/2+0.08,  d/2-0.08], [w/2-0.08,  d/2-0.08]]) {
     cyl(0.03, 0.04, legH, matWoodDeep, x + lx, 0, z + lz, 8);
   }
   box(w, 0.05, d, matWoodOak, x, legH, z, false);
-  box(w - 0.15, 0.03, d - 0.15, matWoodOak, x, legH * 0.4, z, false);
+  box(w - 0.15, 0.03, d - 0.15, matWoodOak, x, legH*0.4, z, false);
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, topH);
 }
 
-// ============ ТУМБА / КОМОД ============
-function buildDresser(x, z, w, h, d, drawers, mat = matWood) {
+// КОМОД / ТУМБА (facing: куда смотрят ящики)
+function buildDresser(x, z, w, h, d, drawers, mat = matWood, facing = 'z+') {
+  const sgn = facing === 'z-' ? -1 : 1;
   const legH = 0.10;
-  for (const [lx, lz] of [[-w/2 + 0.06, -d/2 + 0.06], [w/2 - 0.06, -d/2 + 0.06],
-                          [-w/2 + 0.06,  d/2 - 0.06], [w/2 - 0.06,  d/2 - 0.06]]) {
+  for (const [lx, lz] of [[-w/2+0.06, -d/2+0.06], [w/2-0.06, -d/2+0.06],
+                          [-w/2+0.06,  d/2-0.06], [w/2-0.06,  d/2-0.06]]) {
     cyl(0.025, 0.03, legH, matWoodDeep, x + lx, 0, z + lz, 6);
   }
   box(w, h - legH, d, mat, x, legH, z, false);
   box(w + 0.04, 0.03, d + 0.04, matWoodOak, x, h, z, false);
   const innerH = h - legH - 0.06;
   const drawerH = innerH / drawers;
+  const frontZ = z + sgn * (d/2 + 0.005);
   for (let i = 0; i < drawers; i++) {
     const dy = legH + 0.03 + i * drawerH;
-    box(w - 0.10, drawerH - 0.03, 0.02, matWoodOak, x, dy + 0.015, z + d/2 + 0.005, false);
-    box(0.14, 0.018, 0.02, matHandle, x, dy + drawerH/2, z + d/2 + 0.03, false);
+    box(w - 0.10, drawerH - 0.03, 0.02, matWoodOak, x, dy + 0.015, frontZ, false);
+    box(0.14, 0.018, 0.02, matHandle, x, dy + drawerH/2, frontZ + sgn * 0.03, false);
   }
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
-
-// ============ ТУМБОЧКА У КРОВАТИ ============
-function buildNightstand(x, z, mat = matWood) {
-  buildDresser(x, z, 0.5, 0.55, 0.4, 2, mat);
+function buildNightstand(x, z, mat = matWood, facing = 'z+') {
+  buildDresser(x, z, 0.5, 0.55, 0.4, 2, mat, facing);
 }
 
-// ============ ШКАФ ============
-function buildWardrobe(x, z, w, h, d, mat = matWood) {
+// ШКАФ (facing: куда смотрят дверцы)
+function buildWardrobe(x, z, w, h, d, mat = matWood, facing = 'z+') {
+  const sgn = facing === 'z-' ? -1 : 1;
   box(w, h, d, mat, x, 0, z, false);
   box(w - 0.05, 0.08, d - 0.05, matWoodDeep, x, 0, z, false);
   box(w + 0.06, 0.06, d + 0.06, matWoodDeep, x, h, z, false);
   const doorW = (w - 0.06) / 2;
-  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x - doorW/2 - 0.015, 0.10, z + d/2 + 0.005, false);
-  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x + doorW/2 + 0.015, 0.10, z + d/2 + 0.005, false);
-  box(0.02, 0.14, 0.02, matHandle, x - 0.04, h/2, z + d/2 + 0.03, false);
-  box(0.02, 0.14, 0.02, matHandle, x + 0.04, h/2, z + d/2 + 0.03, false);
+  const frontZ = z + sgn * (d/2 + 0.005);
+  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x - doorW/2 - 0.015, 0.10, frontZ, false);
+  box(doorW - 0.01, h - 0.20, 0.025, matWoodOak, x + doorW/2 + 0.015, 0.10, frontZ, false);
+  box(0.02, 0.14, 0.02, matHandle, x - 0.04, h/2, frontZ + sgn * 0.03, false);
+  box(0.02, 0.14, 0.02, matHandle, x + 0.04, h/2, frontZ + sgn * 0.03, false);
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
 
-// ============ КРОВАТЬ ============
-function buildBed(x, z, mat = matWood) {
+// КРОВАТЬ (facing: где изголовье)
+function buildBed(x, z, mat = matWood, facing = 'z+') {
+  // facing 'z+': изголовье на -z (изголовье у северной стены)
+  const sgn = facing === 'z-' ? -1 : 1;
   const bedW = 1.55, bedL = 2.05;
-  const frameH = 0.35;
-  const mattressH = 0.22;
+  const frameH = 0.35, mattressH = 0.22;
+
+  // Каркас
   box(bedW + 0.06, frameH, bedL + 0.06, matWoodOak, x, 0, z, false);
   box(bedW, 0.10, bedL, matWoodDeep, x, 0, z, false);
-  box(bedW + 0.06, 1.0, 0.10, matWoodOak, x, 0, z - bedL/2 - 0.05, false);
+  // Изголовье
+  const headZ = z + sgn * (-bedL/2 - 0.05);
+  box(bedW + 0.06, 1.0, 0.10, matWoodOak, x, 0, headZ, false);
   for (let i = 0; i < 7; i++) {
     const px = x - bedW/2 + 0.15 + i * (bedW - 0.30) / 6;
-    box(0.05, 0.55, 0.05, matWoodOak, px, 0.42, z - bedL/2 - 0.05, false);
+    box(0.05, 0.55, 0.05, matWoodOak, px, 0.42, headZ, false);
   }
-  box(bedW + 0.10, 0.08, 0.12, matWoodOak, x, 1.0, z - bedL/2 - 0.05, false);
-  box(bedW + 0.06, 0.55, 0.08, matWoodOak, x, 0, z + bedL/2 + 0.04, false);
+  box(bedW + 0.10, 0.08, 0.12, matWoodOak, x, 1.0, headZ, false);
+  // Изножье
+  const footZ = z + sgn * (bedL/2 + 0.04);
+  box(bedW + 0.06, 0.55, 0.08, matWoodOak, x, 0, footZ, false);
+  // Матрас
   box(bedW, mattressH, bedL, matMattress, x, frameH, z, false);
   box(bedW + 0.02, 0.04, bedL - 0.05, matSheet, x, frameH + mattressH, z, false);
-  box(bedW - 0.05, 0.06, bedL * 0.65, matBlanket, x, frameH + mattressH + 0.04, z + bedL * 0.17, false);
-  box(bedW - 0.05, 0.04, 0.20, matSheet, x, frameH + mattressH + 0.06, z - bedL * 0.15, false);
-  box(0.62, 0.14, 0.40, matPillow, x - 0.36, frameH + mattressH + 0.04, z - bedL/2 + 0.35, false);
-  box(0.62, 0.14, 0.40, matPillow, x + 0.36, frameH + mattressH + 0.04, z - bedL/2 + 0.35, false);
-  box(0.60, 0.02, 0.36, matPillow, x - 0.36, frameH + mattressH + 0.18, z - bedL/2 + 0.35, false);
-  box(0.60, 0.02, 0.36, matPillow, x + 0.36, frameH + mattressH + 0.18, z - bedL/2 + 0.35, false);
+  // Одеяло
+  box(bedW - 0.05, 0.06, bedL * 0.65, matBlanket, x, frameH + mattressH + 0.04, z + sgn * (bedL * 0.17), false);
+  box(bedW - 0.05, 0.04, 0.20, matSheet, x, frameH + mattressH + 0.06, z - sgn * (bedL * 0.15), false);
+  // Подушки
+  const pillowZ = z + sgn * (-bedL/2 + 0.35);
+  box(0.62, 0.14, 0.40, matPillow, x - 0.36, frameH + mattressH + 0.04, pillowZ, false);
+  box(0.62, 0.14, 0.40, matPillow, x + 0.36, frameH + mattressH + 0.04, pillowZ, false);
+  box(0.60, 0.02, 0.36, matPillow, x - 0.36, frameH + mattressH + 0.18, pillowZ, false);
+  box(0.60, 0.02, 0.36, matPillow, x + 0.36, frameH + mattressH + 0.18, pillowZ, false);
 
   addCollider(x - bedW/2 - 0.03, x + bedW/2 + 0.03, z - bedL/2 - 0.10, z + bedL/2 + 0.05, 0, 0.9);
 }
 
-// ============ СТОЛ ОБЕДЕННЫЙ ============
+// ОБЕДЕННЫЙ СТОЛ
 function buildTable(x, z, w, d) {
-  const h = 0.75;
-  const topT = 0.05;
-  const legH = h - topT;
-  const legR = 0.045;
-  for (const [lx, lz] of [[-w/2 + 0.10, -d/2 + 0.10], [w/2 - 0.10, -d/2 + 0.10],
-                          [-w/2 + 0.10,  d/2 - 0.10], [w/2 - 0.10,  d/2 - 0.10]]) {
-    cyl(legR, legR * 1.1, legH, matWoodDeep, x + lx, 0, z + lz, 8);
+  const h = 0.75, topT = 0.05, legH = h - topT, legR = 0.045;
+  for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
+                          [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
+    cyl(legR, legR*1.1, legH, matWoodDeep, x + lx, 0, z + lz, 8);
   }
   box(w - 0.20, 0.08, 0.04, matWoodDeep, x, legH - 0.08, z - d/2 + 0.20, false);
   box(w - 0.20, 0.08, 0.04, matWoodDeep, x, legH - 0.08, z + d/2 - 0.20, false);
@@ -683,20 +633,15 @@ function buildTable(x, z, w, d) {
   box(0.04, 0.08, d - 0.20, matWoodDeep, x + w/2 - 0.20, legH - 0.08, z, false);
   box(w, topT, d, matWoodOak, x, legH, z, false);
   box(w + 0.04, 0.02, d + 0.04, matWoodDeep, x, legH + topT, z, false);
-
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
 
-// ============ СТУЛ ============
+// СТУЛ
 function buildChair(x, z, facing = 1, mat = matWood) {
-  const seatH = 0.45;
-  const seatT = 0.05;
-  const legH = seatH - seatT;
-  const backH = 0.50;
-  const backT = 0.04;
-  const w = 0.42, d = 0.42;
-  for (const [lx, lz] of [[-w/2 + 0.04, -d/2 + 0.04], [w/2 - 0.04, -d/2 + 0.04],
-                          [-w/2 + 0.04,  d/2 - 0.04], [w/2 - 0.04,  d/2 - 0.04]]) {
+  const seatH = 0.45, seatT = 0.05, legH = seatH - seatT;
+  const backH = 0.50, backT = 0.04, w = 0.42, d = 0.42;
+  for (const [lx, lz] of [[-w/2+0.04, -d/2+0.04], [w/2-0.04, -d/2+0.04],
+                          [-w/2+0.04,  d/2-0.04], [w/2-0.04,  d/2-0.04]]) {
     cyl(0.022, 0.025, legH, matWoodDeep, x + lx, 0, z + lz, 6);
   }
   box(w - 0.08, 0.04, 0.02, matWoodDeep, x, legH - 0.06, z - d/2 + 0.04, false);
@@ -711,15 +656,13 @@ function buildChair(x, z, facing = 1, mat = matWood) {
     box(0.03, backH - 0.06, 0.025, matWoodOak, px, seatH + 0.03, bz, false);
   }
   box(w + 0.02, 0.05, backT + 0.02, matWoodOak, x, seatH + backH, bz, false);
-
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, seatH + 0.05);
 }
 
-// ============ КНИЖНЫЙ ШКАФ ============
+// КНИЖНЫЙ ШКАФ (facing: 'x+'/'x-'/'z+'/'z-')
 function buildBookshelf(x, y0, z, w, h, d, facing) {
-  const shelfT = 0.03;
-  const sideT = 0.05;
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : 0;
+  const shelfT = 0.03, sideT = 0.05;
+  const dir  = facing === 'z+' ? 1 : facing === 'z-' ? -1 : 0;
   const dirX = facing === 'x+' ? 1 : facing === 'x-' ? -1 : 0;
   if (dir !== 0) {
     box(sideT, h, d, matWood, x - w/2 + sideT/2, y0, z, false);
@@ -745,7 +688,7 @@ function buildBookshelf(x, y0, z, w, h, d, facing) {
         if (bx > x + (w - 0.20) / 2 - 0.05) break;
       }
     }
-  } else if (dirX !== 0) {
+  } else {
     box(w, h, sideT, matWood, x, y0, z - d/2 + sideT/2, false);
     box(w, h, sideT, matWood, x, y0, z + d/2 - sideT/2, false);
     box(w, h, 0.02, matWoodDeep, x - dirX * (w/2 - 0.01), y0, z, false);
@@ -773,10 +716,9 @@ function buildBookshelf(x, y0, z, w, h, d, facing) {
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y0, y0 + h);
 }
 
-// ============ ТЕЛЕВИЗОР ============
+// ТЕЛЕВИЗОР (facing: 'z+' — экран в +z)
 function buildTV(x, y, z, w, h, facing) {
-  const bezelT = 0.02;
-  const screenDepth = 0.05;
+  const bezelT = 0.02, screenDepth = 0.05;
   const dir = facing === 'z-' ? -1 : facing === 'z+' ? 1 : 0;
   box(w, h, screenDepth, matDark, x, y, z, false);
   const screenZ = z + dir * (screenDepth/2 + 0.001);
@@ -785,91 +727,159 @@ function buildTV(x, y, z, w, h, facing) {
   box(0.5, 0.03, 0.20, matDark, x, y - 0.09, z, false);
 }
 
-// ============ ТВ-ТУМБА ============
-function buildTVStand(x, z, w, h, d) {
+// ТВ-ТУМБА (facing — куда смотрят дверцы)
+function buildTVStand(x, z, w, h, d, facing = 'z+') {
+  const sgn = facing === 'z-' ? -1 : 1;
   const legH = 0.10;
-  for (const [lx, lz] of [[-w/2 + 0.08, -d/2 + 0.06], [w/2 - 0.08, -d/2 + 0.06],
-                          [-w/2 + 0.08,  d/2 - 0.06], [w/2 - 0.08,  d/2 - 0.06]]) {
+  for (const [lx, lz] of [[-w/2+0.08, -d/2+0.06], [w/2-0.08, -d/2+0.06],
+                          [-w/2+0.08,  d/2-0.06], [w/2-0.08,  d/2-0.06]]) {
     cyl(0.025, 0.03, legH, matWoodDeep, x + lx, 0, z + lz, 6);
   }
   box(w, h - legH, d, matWood, x, legH, z, false);
   box(w + 0.03, 0.03, d + 0.03, matWoodOak, x, h, z, false);
   const doorW = (w - 0.08) / 2;
-  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x - doorW/2 - 0.01, legH + 0.03, z + d/2 + 0.005, false);
-  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x + doorW/2 + 0.01, legH + 0.03, z + d/2 + 0.005, false);
-  box(0.02, 0.12, 0.02, matHandle, x - 0.03, h/2, z + d/2 + 0.03, false);
-  box(0.02, 0.12, 0.02, matHandle, x + 0.03, h/2, z + d/2 + 0.03, false);
+  const frontZ = z + sgn * (d/2 + 0.005);
+  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x - doorW/2 - 0.01, legH + 0.03, frontZ, false);
+  box(doorW, h - legH - 0.06, 0.02, matWoodOak, x + doorW/2 + 0.01, legH + 0.03, frontZ, false);
+  box(0.02, 0.12, 0.02, matHandle, x - 0.03, h/2, frontZ + sgn * 0.03, false);
+  box(0.02, 0.12, 0.02, matHandle, x + 0.03, h/2, frontZ + sgn * 0.03, false);
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
 
-// ============ КУХОННАЯ ТУМБА (нижняя секция) ============
-function buildBaseCabinet(x, z, w, h, d, sections, facing) {
+// НИЖНЯЯ КУХОННАЯ СЕКЦИЯ (facing — куда смотрят дверцы, т.е. от стены)
+// Параметры: len — длина вдоль стены, depth — глубина от стены
+function buildBaseCabinet(x, z, len, depth, h, sections, facing) {
   const legH = 0.10;
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(w - 0.04, legH, d - 0.04, matWoodDeep, x, 0, z, false);
-  box(w, h - legH, d, matWood, x, legH, z, false);
-  box(w + 0.04, 0.05, d + 0.04, matCountertop, x, h, z, false);
+  const horiz = (facing === 'x+' || facing === 'x-');  // длинная сторона вдоль Z
+  const W = horiz ? depth : len;
+  const D = horiz ? len : depth;
+  const sgn = facing === 'z+' || facing === 'x+' ? 1 : -1;
 
-  const secW = w / sections;
+  // Цоколь
+  box(W - 0.04, legH, D - 0.04, matWoodDeep, x, 0, z, false);
+  // Корпус
+  box(W, h - legH, D, matWood, x, legH, z, false);
+  // Столешница
+  box(W + 0.04, 0.05, D + 0.04, matCountertop, x, h, z, false);
+
+  const secLen = horiz ? D / sections : W / sections;
   for (let i = 0; i < sections; i++) {
-    const sx = x - w/2 + secW * (i + 0.5);
-    const isDrawer = (i === 0);
-    if (isDrawer) {
-      box(secW - 0.04, (h - legH - 0.10) / 2 - 0.03, 0.02, matWoodOak, sx, legH + 0.03, z + dir * (d/2 + 0.005), false);
-      box(secW - 0.04, (h - legH - 0.10) / 2 - 0.03, 0.02, matWoodOak, sx, legH + (h - legH - 0.10)/2 + 0.06, z + dir * (d/2 + 0.005), false);
-      box(0.14, 0.018, 0.02, matHandle, sx, legH + 0.10, z + dir * (d/2 + 0.03), false);
-      box(0.14, 0.018, 0.02, matHandle, sx, h - 0.10, z + dir * (d/2 + 0.03), false);
+    if (horiz) {
+      const sz = z - D/2 + secLen * (i + 0.5);
+      const faceX = x + sgn * (W/2 + 0.005);
+      const isDrawer = (i === 0);
+      if (isDrawer) {
+        const h1 = (h - legH - 0.10) / 2 - 0.03;
+        box(0.02, h1, secLen - 0.04, matWoodOak, faceX, legH + 0.03, sz, false);
+        box(0.02, h1, secLen - 0.04, matWoodOak, faceX, legH + h1 + 0.06, sz, false);
+        box(0.02, 0.018, 0.14, matHandle, faceX + sgn * 0.025, legH + 0.10, sz, false);
+        box(0.02, 0.018, 0.14, matHandle, faceX + sgn * 0.025, h - 0.10, sz, false);
+      } else {
+        box(0.02, h - legH - 0.06, secLen - 0.04, matWoodOak, faceX, legH + 0.03, sz, false);
+        box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, legH + 0.30, sz, false);
+      }
     } else {
-      box(secW - 0.04, h - legH - 0.06, 0.02, matWoodOak, sx, legH + 0.03, z + dir * (d/2 + 0.005), false);
-      box(0.02, 0.10, 0.02, matHandle, sx - dir * 0.01, legH + 0.30, z + dir * (d/2 + 0.03), false);
+      const sx = x - W/2 + secLen * (i + 0.5);
+      const faceZ = z + sgn * (D/2 + 0.005);
+      const isDrawer = (i === 0);
+      if (isDrawer) {
+        const h1 = (h - legH - 0.10) / 2 - 0.03;
+        box(secLen - 0.04, h1, 0.02, matWoodOak, sx, legH + 0.03, faceZ, false);
+        box(secLen - 0.04, h1, 0.02, matWoodOak, sx, legH + h1 + 0.06, faceZ, false);
+        box(0.14, 0.018, 0.02, matHandle, sx, legH + 0.10, faceZ + sgn * 0.025, false);
+        box(0.14, 0.018, 0.02, matHandle, sx, h - 0.10, faceZ + sgn * 0.025, false);
+      } else {
+        box(secLen - 0.04, h - legH - 0.06, 0.02, matWoodOak, sx, legH + 0.03, faceZ, false);
+        box(0.02, 0.10, 0.02, matHandle, sx, legH + 0.30, faceZ + sgn * 0.025, false);
+      }
     }
   }
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h + 0.05);
+  addCollider(x - W/2, x + W/2, z - D/2, z + D/2, 0, h + 0.05);
 }
 
-// ============ ВЕРХНИЙ ШКАФ ============
-function buildUpperCabinet(x, y, z, w, h, d, facing) {
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
-  box(w, h, d, matWood, x, y, z, false);
-  const doorW = (w - 0.06) / 2;
-  box(doorW, h - 0.08, 0.02, matWoodOak, x - doorW/2 - 0.01, y + 0.04, z + dir * (d/2 + 0.005), false);
-  box(doorW, h - 0.08, 0.02, matWoodOak, x + doorW/2 + 0.01, y + 0.04, z + dir * (d/2 + 0.005), false);
-  box(0.02, 0.10, 0.02, matHandle, x - 0.03, y + h/2 - 0.05, z + dir * (d/2 + 0.03), false);
-  box(0.02, 0.10, 0.02, matHandle, x + 0.03, y + h/2 - 0.05, z + dir * (d/2 + 0.03), false);
-  addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y, y + h);
+// ВЕРХНИЙ ШКАФ (навесной)
+function buildUpperCabinet(x, y, z, len, depth, h, facing) {
+  const horiz = (facing === 'x+' || facing === 'x-');
+  const W = horiz ? depth : len;
+  const D = horiz ? len : depth;
+  const sgn = facing === 'z+' || facing === 'x+' ? 1 : -1;
+
+  box(W, h, D, matWood, x, y, z, false);
+  const doorW = horiz ? (D - 0.06) / 2 : (W - 0.06) / 2;
+  if (horiz) {
+    const faceX = x + sgn * (W/2 + 0.005);
+    box(0.02, h - 0.08, doorW, matWoodOak, faceX, y + 0.04, z - doorW/2 - 0.01, false);
+    box(0.02, h - 0.08, doorW, matWoodOak, faceX, y + 0.04, z + doorW/2 + 0.01, false);
+    box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, y + h/2 - 0.05, z - 0.03, false);
+    box(0.02, 0.10, 0.02, matHandle, faceX + sgn * 0.025, y + h/2 - 0.05, z + 0.03, false);
+  } else {
+    const faceZ = z + sgn * (D/2 + 0.005);
+    box(doorW, h - 0.08, 0.02, matWoodOak, x - doorW/2 - 0.01, y + 0.04, faceZ, false);
+    box(doorW, h - 0.08, 0.02, matWoodOak, x + doorW/2 + 0.01, y + 0.04, faceZ, false);
+    box(0.02, 0.10, 0.02, matHandle, x - 0.03, y + h/2 - 0.05, faceZ + sgn * 0.025, false);
+    box(0.02, 0.10, 0.02, matHandle, x + 0.03, y + h/2 - 0.05, faceZ + sgn * 0.025, false);
+  }
+  addCollider(x - W/2, x + W/2, z - D/2, z + D/2, y, y + h);
 }
 
-// ============ ХОЛОДИЛЬНИК ============
+// ХОЛОДИЛЬНИК (facing — куда смотрит дверь)
 function buildFridge(x, z, facing) {
   const w = 0.72, h = 1.85, d = 0.72;
   const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
   box(w, h, d, matFridge, x, 0, z, false);
   const freezH = 0.55;
-  box(w - 0.02, freezH - 0.02, 0.02, matFridge, x, h - freezH + 0.01, z + dir * (d/2 + 0.005), false);
-  box(w - 0.02, h - freezH - 0.10, 0.02, matFridge, x, 0.05, z + dir * (d/2 + 0.005), false);
-  box(w, 0.01, 0.005, matDark, x, h - freezH, z + dir * (d/2 + 0.006), false);
-  box(0.03, 0.30, 0.03, matHandle, x - dir * 0.15, h - freezH + 0.10, z + dir * (d/2 + 0.04), false);
-  box(0.03, 0.40, 0.03, matHandle, x - dir * 0.15, 0.55, z + dir * (d/2 + 0.04), false);
+  const sgn = dir;
+  const faceX = x + (facing === 'x+' || facing === 'x-' ? sgn * (d/2 + 0.005) : 0);
+  const faceZ = z + (facing === 'z+' || facing === 'z-' ? sgn * (d/2 + 0.005) : 0);
+  if (facing === 'x+' || facing === 'x-') {
+    box(0.02, freezH - 0.02, w - 0.02, matFridge, faceX, h - freezH + 0.01, z, false);
+    box(0.02, h - freezH - 0.10, w - 0.02, matFridge, faceX, 0.05, z, false);
+    box(0.005, 0.01, w, matDark, faceX + sgn * 0.001, h - freezH, z, false);
+    box(0.03, 0.30, 0.03, matHandle, faceX + sgn * 0.04, h - freezH + 0.10, z - 0.15 * sgn, false);
+    box(0.03, 0.40, 0.03, matHandle, faceX + sgn * 0.04, 0.55, z - 0.15 * sgn, false);
+  } else {
+    box(w - 0.02, freezH - 0.02, 0.02, matFridge, x, h - freezH + 0.01, faceZ, false);
+    box(w - 0.02, h - freezH - 0.10, 0.02, matFridge, x, 0.05, faceZ, false);
+    box(w, 0.01, 0.005, matDark, x, h - freezH, faceZ + sgn * 0.001, false);
+    box(0.03, 0.30, 0.03, matHandle, x - 0.15 * sgn, h - freezH + 0.10, faceZ + sgn * 0.04, false);
+    box(0.03, 0.40, 0.03, matHandle, x - 0.15 * sgn, 0.55, faceZ + sgn * 0.04, false);
+  }
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
 
-// ============ ПЛИТА С ВАРОЧНОЙ ПОВЕРХНОСТЬЮ ============
+// ПЛИТА (facing — куда смотрит дверца духовки)
 function buildStove(x, z, facing) {
   const w = 0.62, h = 0.90, d = 0.62;
   const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
   box(w, h - 0.05, d, matStove, x, 0, z, false);
-  box(w - 0.10, h - 0.30, 0.02, matGlass, x, 0.06, z + dir * (d/2 + 0.005), false);
-  box(w - 0.15, 0.03, 0.04, matChrome, x, h - 0.25, z + dir * (d/2 + 0.04), false);
-  box(w, 0.10, 0.02, matDark, x, h - 0.10, z + dir * (d/2 + 0.005), false);
-  for (let i = 0; i < 4; i++) {
-    const kx = x - w/2 + 0.10 + i * (w - 0.20) / 3;
-    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
-    knob.rotation.x = Math.PI / 2;
-    knob.position.set(kx, h - 0.05, z + dir * (d/2 + 0.02));
-    scene.add(knob);
+  const faceX = x + (facing === 'x+' || facing === 'x-' ? dir * (d/2 + 0.005) : 0);
+  const faceZ = z + (facing === 'z+' || facing === 'z-' ? dir * (d/2 + 0.005) : 0);
+  const knobAxis = (facing === 'x+' || facing === 'x-');
+  if (knobAxis) {
+    box(0.02, h - 0.30, w - 0.10, matGlass, faceX, 0.06, z, false);
+    box(0.04, 0.03, w - 0.15, matChrome, faceX + dir * 0.035, h - 0.25, z, false);
+    box(0.02, 0.10, w, matDark, faceX, h - 0.10, z, false);
+    for (let i = 0; i < 4; i++) {
+      const kz = z - w/2 + 0.10 + i * (w - 0.20) / 3;
+      const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
+      knob.rotation.z = Math.PI / 2;
+      knob.position.set(faceX + dir * 0.02, h - 0.05, kz);
+      scene.add(knob);
+    }
+  } else {
+    box(w - 0.10, h - 0.30, 0.02, matGlass, x, 0.06, faceZ, false);
+    box(w - 0.15, 0.03, 0.04, matChrome, x, h - 0.25, faceZ + dir * 0.035, false);
+    box(w, 0.10, 0.02, matDark, x, h - 0.10, faceZ, false);
+    for (let i = 0; i < 4; i++) {
+      const kx = x - w/2 + 0.10 + i * (w - 0.20) / 3;
+      const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
+      knob.rotation.x = Math.PI / 2;
+      knob.position.set(kx, h - 0.05, faceZ + dir * 0.02);
+      scene.add(knob);
+    }
   }
   box(w, 0.04, d, matStove, x, h - 0.05, z, false);
-  for (const [dx, dz] of [[-0.15, -0.15], [0.15, -0.15], [-0.15, 0.15], [0.15, 0.15]]) {
+  for (const [dx, dz] of [[-0.15,-0.15],[0.15,-0.15],[-0.15,0.15],[0.15,0.15]]) {
     const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 16), matDark);
     burner.position.set(x + dx, h + 0.005, z + dz);
     scene.add(burner);
@@ -877,29 +887,27 @@ function buildStove(x, z, facing) {
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 }
 
-// ============ РАКОВИНА ============
+// РАКОВИНА
 function buildSink(x, y, z, facing) {
   const basinW = 0.5, basinD = 0.4;
   const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
   box(basinW, 0.06, basinD, matPorcelain, x, y, z, false);
   box(basinW - 0.06, 0.02, basinD - 0.06, matMetal, x, y + 0.02, z, false);
   const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.005, 8), matDark);
-  drain.position.set(x, y + 0.03, z);
-  scene.add(drain);
-  cyl(0.018, 0.018, 0.16, matChrome, x, y + 0.06, z - dir * (basinD/2 - 0.06), 8);
+  drain.position.set(x, y + 0.03, z); scene.add(drain);
+  const offX = (facing === 'x+' || facing === 'x-') ? dir * (basinW/2 - 0.06) : 0;
+  const offZ = (facing === 'z+' || facing === 'z-') ? dir * (basinD/2 - 0.06) : 0;
+  cyl(0.018, 0.018, 0.16, matChrome, x - offX, y + 0.06, z - offZ, 8);
   const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.14, 8), matChrome);
-  spout.rotation.x = Math.PI / 2;
-  spout.position.set(x, y + 0.22, z - dir * (basinD/2 - 0.06) + dir * 0.07);
+  if (facing === 'x+' || facing === 'x-') { spout.rotation.z = Math.PI / 2; }
+  else { spout.rotation.x = Math.PI / 2; }
+  spout.position.set(x - offX + (facing === 'x+' || facing === 'x-' ? -dir*0.07 : 0),
+                     y + 0.22,
+                     z - offZ + (facing === 'z+' || facing === 'z-' ? -dir*0.07 : 0));
   scene.add(spout);
-  const handle1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.06, 6), matChrome);
-  handle1.position.set(x - 0.05, y + 0.20, z - dir * (basinD/2 - 0.06));
-  scene.add(handle1);
-  const handle2 = handle1.clone();
-  handle2.position.x = x + 0.05;
-  scene.add(handle2);
 }
 
-// ============ УНИТАЗ ============
+// УНИТАЗ
 function buildToilet(x, y0, z, facing) {
   const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
   box(0.42, 0.50, 0.20, matPorcelain, x, y0, z + dir * 0.20, false);
@@ -908,18 +916,15 @@ function buildToilet(x, y0, z, facing) {
   box(0.25, y0 + 0.30, 0.22, matPorcelain, x, 0, z + dir * 0.02, false);
   const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.20, 16), matPorcelain);
   bowl.position.set(x, y0 + 0.30, z - dir * 0.08);
-  bowl.castShadow = true; bowl.receiveShadow = true;
-  scene.add(bowl);
+  bowl.castShadow = true; bowl.receiveShadow = true; scene.add(bowl);
   const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 16), matPorcelain);
-  seat.position.set(x, y0 + 0.42, z - dir * 0.08);
-  scene.add(seat);
+  seat.position.set(x, y0 + 0.42, z - dir * 0.08); scene.add(seat);
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.02, 16), matPorcelain);
-  lid.position.set(x, y0 + 0.45, z - dir * 0.08);
-  scene.add(lid);
+  lid.position.set(x, y0 + 0.45, z - dir * 0.08); scene.add(lid);
   addCollider(x - 0.22, x + 0.22, z - dir * 0.10 - 0.25, z - dir * 0.10 + 0.25, y0, y0 + 0.55);
 }
 
-// ============ ВАННА ============
+// ВАННА
 function buildBathtub(x, y0, z, w, d) {
   box(w, 0.55, d, matPorcelain, x, y0, z, false);
   box(w - 0.15, 0.02, d - 0.15, matMetal, x, y0 + 0.50, z, false);
@@ -929,49 +934,39 @@ function buildBathtub(x, y0, z, w, d) {
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y0, y0 + 0.55);
 }
 
-// ============ ТОРШЕР ============
+// ТОРШЕР
 function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
   cyl(0.18, 0.20, 0.03, matDark, x, y0, z, 16);
   cyl(0.02, 0.02, 1.50, matChrome, x, y0 + 0.03, z, 8);
   const shadeY = y0 + 1.50;
   const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.30, 20, 1, true), matLampShade);
-  shade.position.set(x, shadeY + 0.15, z);
-  shade.castShadow = true;
-  scene.add(shade);
+  shade.position.set(x, shadeY + 0.15, z); shade.castShadow = true; scene.add(shade);
   const shadeTop = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.01, 20), matLampShade);
-  shadeTop.position.set(x, shadeY + 0.30, z);
-  scene.add(shadeTop);
+  shadeTop.position.set(x, shadeY + 0.30, z); scene.add(shadeTop);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), matBulb);
-  bulb.position.set(x, shadeY + 0.16, z);
-  scene.add(bulb);
+  bulb.position.set(x, shadeY + 0.16, z); scene.add(bulb);
   const l = new THREE.PointLight(colorHex, intensity, 6.5, 2);
-  l.position.set(x, shadeY + 0.15, z);
-  scene.add(l);
+  l.position.set(x, shadeY + 0.15, z); scene.add(l);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random()*100, speed: 1.4 + Math.random()*3 });
   addCollider(x - 0.20, x + 0.20, z - 0.20, z + 0.20, y0, y0 + 1.6);
 }
 
-// ============ НАСТОЛЬНАЯ ЛАМПА ============
+// НАСТОЛЬНАЯ ЛАМПА
 function buildTableLamp(x, y0, z, colorHex, intensity) {
   cyl(0.07, 0.09, 0.03, matDark, x, y0, z, 12);
   cyl(0.012, 0.012, 0.24, matChrome, x, y0 + 0.03, z, 6);
   const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.16, 16, 1, true), matLampShade);
-  shade.position.set(x, y0 + 0.35, z);
-  shade.castShadow = true;
-  scene.add(shade);
+  shade.position.set(x, y0 + 0.35, z); shade.castShadow = true; scene.add(shade);
   const top = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.01, 16), matLampShade);
-  top.position.set(x, y0 + 0.43, z);
-  scene.add(top);
+  top.position.set(x, y0 + 0.43, z); scene.add(top);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), matBulb);
-  bulb.position.set(x, y0 + 0.34, z);
-  scene.add(bulb);
+  bulb.position.set(x, y0 + 0.34, z); scene.add(bulb);
   const l = new THREE.PointLight(colorHex, intensity, 4.5, 2);
-  l.position.set(x, y0 + 0.36, z);
-  scene.add(l);
+  l.position.set(x, y0 + 0.36, z); scene.add(l);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random()*100, speed: 1.8 + Math.random()*3 });
 }
 
-// ============ РАСТЕНИЕ ============
+// РАСТЕНИЕ
 function buildPlant(x, z, scale = 1, y0 = 0) {
   cyl(0.20 * scale, 0.15 * scale, 0.30 * scale, matPot, x, y0, z, 12);
   cyl(0.21 * scale, 0.21 * scale, 0.03 * scale, matPot, x, y0 + 0.30 * scale, z, 12);
@@ -984,22 +979,17 @@ function buildPlant(x, z, scale = 1, y0 = 0) {
     const lx = x + Math.cos(angle) * r;
     const lz = z + Math.sin(angle) * r;
     const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.13 * scale, 8, 6), matPlant);
-    leaf.scale.set(1, 1.3, 1);
-    leaf.position.set(lx, ly, lz);
-    leaf.castShadow = true;
-    scene.add(leaf);
+    leaf.scale.set(1, 1.3, 1); leaf.position.set(lx, ly, lz); leaf.castShadow = true; scene.add(leaf);
   }
   const center = new THREE.Mesh(new THREE.SphereGeometry(0.15 * scale, 8, 6), matPlant);
-  center.position.set(x, y0 + 0.75 * scale, z);
-  center.castShadow = true;
-  scene.add(center);
-
+  center.position.set(x, y0 + 0.75 * scale, z); center.castShadow = true; scene.add(center);
   addCollider(x - 0.20 * scale, x + 0.20 * scale, z - 0.20 * scale, z + 0.20 * scale, y0, y0 + 0.5 * scale);
 }
 
-// ============ КАРТИНА ============
+// КАРТИНА (на стене, чуть отступая от поверхности стены)
 function buildPainting(x, y, z, w, h, facing, matContent) {
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
+  const dir  = (facing === 'z+' || facing === 'z-') ? (facing === 'z+' ? 1 : -1) : 0;
+  const dirX = (facing === 'x+' || facing === 'x-') ? (facing === 'x+' ? 1 : -1) : 0;
   if (dir !== 0) {
     box(w, h, 0.04, matWoodDeep, x, y - h/2, z, false);
     box(w - 0.10, h - 0.10, 0.005, matContent || matPaper, x, y - h/2 + 0.05, z + dir * 0.025, false);
@@ -1007,14 +997,15 @@ function buildPainting(x, y, z, w, h, facing, matContent) {
     box(w*0.35, h*0.4, 0.003, matBookMats[2], x + w*0.15, y - h/2 + h*0.35, z + dir * 0.032, false);
   } else {
     box(0.04, h, w, matWoodDeep, x, y - h/2, z, false);
-    box(0.005, h - 0.10, w - 0.10, matContent || matPaper, x + (facing === 'x+' ? 0.025 : -0.025), y - h/2 + 0.05, z, false);
-    box(0.003, h*0.35, w*0.5, matBookMats[0], x + (facing === 'x+' ? 0.032 : -0.032), y - h/2 + h*0.55, z - w*0.15, false);
+    box(0.005, h - 0.10, w - 0.10, matContent || matPaper, x + dirX * 0.025, y - h/2 + 0.05, z, false);
+    box(0.003, h*0.35, w*0.5, matBookMats[0], x + dirX * 0.032, y - h/2 + h*0.55, z - w*0.15, false);
   }
 }
 
-// ============ ЧАСЫ ============
+// ЧАСЫ
 function buildClock(x, y, z, facing) {
-  const dir = facing === 'z+' ? 1 : facing === 'z-' ? -1 : facing === 'x+' ? 1 : -1;
+  const dir  = (facing === 'z+' || facing === 'z-') ? (facing === 'z+' ? 1 : -1) : 0;
+  const dirX = (facing === 'x+' || facing === 'x-') ? (facing === 'x+' ? 1 : -1) : 0;
   const radius = 0.18;
   if (dir !== 0) {
     const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
@@ -1022,72 +1013,120 @@ function buildClock(x, y, z, facing) {
     body.position.set(x, y, z); body.castShadow = true; scene.add(body);
     const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
     face.position.set(x, y, z + dir * 0.026); scene.add(face);
-    const hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.003), matDark);
-    hourHand.position.set(x, y + 0.035, z + dir * 0.028); scene.add(hourHand);
-    const minHand = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.13, 0.003), matDark);
-    minHand.position.set(x, y + 0.05, z + dir * 0.028); scene.add(minHand);
+    const hh = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.003), matDark);
+    hh.position.set(x, y + 0.035, z + dir * 0.028); scene.add(hh);
+    const mh = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.13, 0.003), matDark);
+    mh.position.set(x, y + 0.05, z + dir * 0.028); scene.add(mh);
   } else {
     const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
     body.rotation.z = Math.PI / 2;
     body.position.set(x, y, z); body.castShadow = true; scene.add(body);
     const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
-    face.rotation.y = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
-    face.position.set(x + dir * 0.026, y, z); scene.add(face);
-    const hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.09, 0.012), matDark);
-    hourHand.position.set(x + dir * 0.028, y + 0.035, z); scene.add(hourHand);
-    const minHand = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.13, 0.008), matDark);
-    minHand.position.set(x + dir * 0.028, y + 0.05, z); scene.add(minHand);
+    face.rotation.y = dirX > 0 ? Math.PI / 2 : -Math.PI / 2;
+    face.position.set(x + dirX * 0.026, y, z); scene.add(face);
+    const hh = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.09, 0.012), matDark);
+    hh.position.set(x + dirX * 0.028, y + 0.035, z); scene.add(hh);
+    const mh = new THREE.Mesh(new THREE.BoxGeometry(0.003, 0.13, 0.008), matDark);
+    mh.position.set(x + dirX * 0.028, y + 0.05, z); scene.add(mh);
   }
 }
 
-// ============ КОВЁР ============
+// КОВЁР
 function buildRug(x, z, w, d, mat, y0 = 0) {
   box(w, 0.012, d, mat, x, y0 + 0.002, z, false);
 }
 
 /* ============================================================
-   РАССТАНОВКА МЕБЕЛИ
+   РАССТАНОВКА МЕБЕЛИ — ВСЁ НА СВОИХ МЕСТАХ
+   Внутренние поверхности стен:
+     z = -8  →  z = -7.85
+     z =  8  →  z =  7.85
+     x = -10 →  x = -9.85
+     x =  10 →  x =  9.85
+     x = 0 (со стороны гостиной) → x = -0.15
+     x = 0 (со стороны кухни)    → x =  0.15
+     z = 0 (со стороны гостиной) → z = -0.15
+     z = 0 (со стороны кухни)    → z =  0.15
    ============================================================ */
 
-/* -------- ГОСТИНАЯ (1 этаж, x[-10,-2], z[-8, 0]) -------- */
+/* -------- ГОСТИНАЯ (x[-10,0], z[-8,0]) -------- */
 
-buildTVStand(-6.0, -7.2, 1.8, 0.45, 0.45);
-buildTV(-6.0, 0.75, -7.0, 1.30, 0.75, 'z+');
-buildSofa(-6.0, -3.6, 2.6, 0.95, matFabric, matFabric);
+// ТВ-тумба вплотную к северной стене (z=-7.85), по центру x=-6
+buildTVStand(-6.0, -7.625, 1.8, 0.45, 0.45, 'z+');
+// Телевизор на тумбе, экраном на юг
+buildTV(-6.0, 0.75, -7.3, 1.30, 0.75, 'z+');
+
+// Диван лицом к ТВ (спинкой на юг)
+buildSofa(-6.0, -3.5, 2.6, 0.95, matFabric, matFabric, 'z-');
+
+// Журнальный столик между диваном и ТВ
 buildCoffeeTable(-6.0, -5.4, 1.0, 0.55);
-buildArmchair(-3.6, -4.0, matFabric2, matFabric2);
-buildBookshelf(-2.4, 0, -5.5, 0.35, 2.0, 1.8, 'x+');
-buildFloorLamp(-3.0, -7.2, 0xffc88a, 0.7);
-buildDresser(-9.5, -3.0, 1.0, 0.55, 0.45, 2, matWood);
-buildTableLamp(-9.5, 0.55, -3.0, 0xffb070, 0.5);
-buildDresser(-3.5, -0.8, 1.6, 0.85, 0.5, 3, matWood);
-buildPlant(-9.0, -7.0, 1.0);
-buildRug(-6.0, -4.6, 3.2, 2.2, matRug);
-buildPainting(-8.0, 2.0, -7.94, 0.9, 0.65, 'z+', matPaper);
-buildPainting(-4.5, 2.0, -7.94, 0.75, 0.95, 'z+', matBookMats[2]);
-buildPainting(-9.94, 1.85, -5.0, 1.1, 0.8, 'x+', matPaper);
-buildClock(-3.0, 2.7, -7.90, 'z+');
 
-/* -------- КУХНЯ (1 этаж, x[-10,-2], z[0, 8]) -------- */
+// Кресло рядом, лицом к ТВ
+buildArmchair(-3.2, -4.6, matFabric2, matFabric2, 'z-');
 
-buildBaseCabinet(-9.55, 4.0, 0.85, 0.90, 4.0, 4, 'x+');
-buildUpperCabinet(-9.72, 1.55, 3.2, 1.6, 0.70, 0.35, 'x+');
-buildUpperCabinet(-9.72, 1.55, 5.2, 1.6, 0.70, 0.35, 'x+');
-buildFridge(-9.5, 7.2, 'x+');
-buildStove(-9.5, 1.5, 'x+');
-buildSink(-9.55, 0.90, 5.5, 'x+');
+// Книжный шкаф у западной стены
+buildBookshelf(-9.65, 0, -4.0, 0.35, 2.0, 1.8, 'x+');
 
-// Микроволновка
+// Торшер в северо-западном углу
+buildFloorLamp(-9.0, -7.0, 0xffc88a, 0.7);
+
+// Комод у южной стены (z = 0, спина на юг, двери в гостиную → facing 'z+')
+buildDresser(-3.7, -0.4, 1.4, 0.85, 0.5, 3, matWood, 'z+');
+
+// Тумбочка с лампой у западной стены
+buildDresser(-9.6, 0.0, 1.2, 0.6, 0.5, 2, matWood, 'x-');  // двери на восток в комнату
+buildTableLamp(-9.6, 0.6, 0.0, 0xffb070, 0.5);
+
+// Растение в юго-западном углу
+buildPlant(-9.3, -0.8, 1.0);
+
+// Ковёр в центре
+buildRug(-6.0, -5.0, 3.2, 2.2, matRug);
+
+// Картины на северной стене
+buildPainting(-8.0, 2.0, -7.84, 0.9, 0.65, 'z+', matPaper);
+buildPainting(-4.0, 2.0, -7.84, 0.75, 0.95, 'z+', matBookMats[2]);
+
+// Картина на западной стене
+buildPainting(-9.84, 1.85, -3.5, 1.1, 0.8, 'x+', matPaper);
+
+// Часы на северной стене
+buildClock(-2.0, 2.7, -7.84, 'z+');
+
+/* -------- КУХНЯ (x[-10,0], z[0,8]) -------- */
+
+// Нижняя кухонная секция у западной стены (x=-10, внутр. -9.85)
+// depth=0.60 → центр x = -9.85 + 0.30 = -9.55
+// len=4.0 → центр z = 0.15 + 2.0 = 2.15
+buildBaseCabinet(-9.55, 2.15, 4.0, 0.60, 0.90, 4, 'x+');
+
+// Верхние шкафы над секцией (верх на y=1.55, высота 0.70)
+buildUpperCabinet(-9.72, 1.55, 1.15, 1.6, 0.35, 0.70, 'x+');
+buildUpperCabinet(-9.72, 1.55, 3.15, 1.6, 0.35, 0.70, 'x+');
+
+// Холодильник в северо-западном углу кухни
+// depth=0.72 → центр x = -9.85 + 0.36 = -9.49
+// z → ставим у северной стены (z=8, внутр. 7.85): центр z = 7.85 - 0.36 = 7.49
+buildFridge(-9.49, 7.49, 'x+');
+
+// Плита у западной стены, рядом с секцией (со стороны окна)
+buildStove(-9.54, 4.6, 'x+');
+
+// Раковина врезана в столешницу (небольшой блок сверху секции)
+buildSink(-9.55, 0.90, 4.0, 'x+');
+
+// Микроволновка на столешнице
 (function(){
-  const x = -9.45, z = 3.0, y = 0.90;
+  const x = -9.5, z = 1.0, y = 0.90;
   box(0.55, 0.35, 0.42, matDark, x, y, z, false);
-  box(0.35, 0.22, 0.02, matGlass, x + 0.10, y + 0.06, z, false);
-  box(0.02, 0.05, 0.05, matChrome, x + 0.27, y + 0.15, z, false);
+  box(0.02, 0.22, 0.35, matGlass, x - 0.28, y + 0.06, z, false);
+  box(0.02, 0.05, 0.05, matChrome, x - 0.27, y + 0.15, z, false);
 })();
 
-// Чайник
+// Чайник на столешнице
 (function(){
-  const x = -9.4, z = 2.4, y = 0.90;
+  const x = -9.5, z = 2.4, y = 0.90;
   cyl(0.10, 0.12, 0.18, matChrome, x, y, z, 12);
   cyl(0.03, 0.05, 0.06, matChrome, x, y + 0.18, z, 8);
   const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.025, 0.10, 8), matChrome);
@@ -1096,18 +1135,23 @@ buildSink(-9.55, 0.90, 5.5, 'x+');
   scene.add(spout);
 })();
 
+// Обеденный стол в центре кухни
 buildTable(-5.0, 4.0, 1.6, 0.9);
-buildChair(-5.0, 3.0, 1);
-buildChair(-5.0, 5.0, -1);
-buildChair(-6.0, 4.0, 1);
-buildChair(-4.0, 4.0, 1);
 
+// Стулья вокруг стола
+buildChair(-5.0, 3.0, 1);   // северный стул (спинка на юг)
+buildChair(-5.0, 5.0, -1);  // южный стул (спинка на север)
+buildChair(-6.0, 4.0, 1);   // западный
+buildChair(-4.0, 4.0, 1);   // восточный
+
+// Посуда на столе
 box(0.20, 0.02, 0.20, matPorcelain, -5.3, 0.77, 4.0, false);
 box(0.20, 0.02, 0.20, matPorcelain, -5.0, 0.77, 4.0, false);
 box(0.20, 0.02, 0.20, matPorcelain, -4.7, 0.77, 4.0, false);
 box(0.06, 0.09, 0.06, matPorcelain, -5.3, 0.79, 3.5, false);
 box(0.06, 0.09, 0.06, matPorcelain, -4.7, 0.79, 3.5, false);
 
+// Ваза с цветами
 cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, 0.75, 4.5, 12);
 (function(){
   for (let i = 0; i < 5; i++) {
@@ -1115,31 +1159,34 @@ cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, 0.75, 4.5, 12);
     const fz = 4.5 + (Math.random() - 0.5) * 0.10;
     const fy = 0.95 + Math.random() * 0.10;
     const flower = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), matBookMats[i]);
-    flower.position.set(fx, fy, fz);
-    scene.add(flower);
+    flower.position.set(fx, fy, fz); scene.add(flower);
   }
 })();
 
+// Мусорное ведро в юго-восточном углу кухни
 (function(){
-  const x = -2.3, z = 7.5;
+  const x = -0.6, z = 7.5;
   const trash = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.45, 12), matMetal);
-  trash.position.set(x, 0.225, z);
-  trash.castShadow = true;
-  scene.add(trash);
+  trash.position.set(x, 0.225, z); trash.castShadow = true; scene.add(trash);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.45);
 })();
 
-buildPlant(-2.3, 1.0, 0.9);
-buildPainting(-6.0, 2.0, 7.94, 0.9, 0.65, 'z-', matPaper);
-buildClock(-9.94, 2.5, 1.0, 'x+');
+// Растение в юго-восточном углу
+buildPlant(-0.6, 1.0, 0.9);
 
-/* -------- КЛАДОВАЯ (1 этаж, x[4,10], z[-8,0]) -------- */
+// Картина на южной стене
+buildPainting(-4.0, 2.0, 7.84, 0.9, 0.65, 'z-', matPaper);
+// Часы на западной стене
+buildClock(-9.84, 2.5, 6.0, 'x+');
 
+/* -------- КЛАДОВАЯ (x[4,10], z[-8,0]) -------- */
+
+// Металлический стеллаж у северной стены
 (function(){
-  const x = 5.5, z = -7.7, w = 2.4, h = 2.0, d = 0.5;
+  const x = 6.5, z = -7.6, w = 2.4, h = 2.0, d = 0.5;
   const shelfYs = [0.05, 0.65, 1.25, 1.85];
-  for (const [lx, lz] of [[-w/2 + 0.05, -d/2 + 0.05], [w/2 - 0.05, -d/2 + 0.05],
-                          [-w/2 + 0.05,  d/2 - 0.05], [w/2 - 0.05,  d/2 - 0.05]]) {
+  for (const [lx, lz] of [[-w/2+0.05, -d/2+0.05], [w/2-0.05, -d/2+0.05],
+                          [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
     cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
   }
   for (const sy of shelfYs) {
@@ -1152,10 +1199,11 @@ buildClock(-9.94, 2.5, 1.0, 'x+');
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
+// Второй стеллаж у западной стены кладовой (x=4, внутр. 4.15)
 (function(){
-  const x = 4.4, z = -2.5, w = 0.4, h = 2.0, d = 2.0;
-  for (const [lx, lz] of [[-w/2 + 0.05, -d/2 + 0.05], [w/2 - 0.05, -d/2 + 0.05],
-                          [-w/2 + 0.05,  d/2 - 0.05], [w/2 - 0.05,  d/2 - 0.05]]) {
+  const x = 4.35, z = -2.5, w = 0.4, h = 2.0, d = 2.0;
+  for (const [lx, lz] of [[-w/2+0.05, -d/2+0.05], [w/2-0.05, -d/2+0.05],
+                          [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
     cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
   }
   for (const sy of [0.05, 0.70, 1.35, 1.90]) {
@@ -1166,27 +1214,20 @@ buildClock(-9.94, 2.5, 1.0, 'x+');
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
-// Велосипед
+// Велосипед у восточной стены (x=10, внутр. 9.85)
 (function(){
-  const x = 7.5, z = -4.0;
+  const x = 9.4, z = -3.5;
   const tireMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.95 });
   const w1 = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.035, 8, 24), tireMat);
   w1.rotation.y = Math.PI / 2;
   w1.position.set(x, 0.36, z - 0.55);
-  w1.castShadow = true;
-  scene.add(w1);
-  const w2 = w1.clone();
-  w2.position.set(x, 0.36, z + 0.55);
-  scene.add(w2);
+  w1.castShadow = true; scene.add(w1);
+  const w2 = w1.clone(); w2.position.set(x, 0.36, z + 0.55); scene.add(w2);
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI;
     const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.008, 0.008), matChrome);
-    spoke.rotation.x = a;
-    spoke.position.set(x, 0.36, z - 0.55);
-    scene.add(spoke);
-    const spoke2 = spoke.clone();
-    spoke2.position.z = z + 0.55;
-    scene.add(spoke2);
+    spoke.rotation.x = a; spoke.position.set(x, 0.36, z - 0.55); scene.add(spoke);
+    const spoke2 = spoke.clone(); spoke2.position.z = z + 0.55; scene.add(spoke2);
   }
   box(0.04, 0.04, 1.10, matChrome, x, 0.55, z, false);
   box(0.04, 0.35, 0.04, matChrome, x, 0.55, z - 0.55, false);
@@ -1197,84 +1238,136 @@ buildClock(-9.94, 2.5, 1.0, 'x+');
   addCollider(x - 0.25, x + 0.25, z - 1.0, z + 1.0, 0, 1.0);
 })();
 
+// Мешок в углу
 box(0.65, 0.45, 0.65, matFabric3, 9.2, 0, -7.2);
 
+// Ведро
 (function(){
   const x = 6.5, z = -1.5;
   const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 0.28, 12), matMetal);
-  bucket.position.set(x, 0.14, z);
-  bucket.castShadow = true;
-  scene.add(bucket);
+  bucket.position.set(x, 0.14, z); bucket.castShadow = true; scene.add(bucket);
   const handle = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.008, 6, 12, Math.PI), matChrome);
   handle.rotation.y = Math.PI / 2;
-  handle.position.set(x, 0.28, z);
-  scene.add(handle);
+  handle.position.set(x, 0.28, z); scene.add(handle);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.30);
 })();
 
-/* -------- СПАЛЬНЯ 1 (2-й этаж, x[-10,-2], z[-8, 0]) -------- */
+/* -------- СПАЛЬНЯ 1 (2-й этаж, x[-10,0], z[-8,0]) -------- */
 
-buildBed(-7.5, -5.5);
-buildNightstand(-6.4, -6.5);
-buildTableLamp(-6.4, F1 + 0.55, -6.5, 0xffb070, 0.5);
-buildWardrobe(-3.5, -6.5, 1.4, 2.1, 0.6, matWood);
-buildDresser(-8.5, -0.8, 1.6, 0.85, 0.5, 3, matWood);
-buildBookshelf(-2.4, F1, -3.5, 0.35, 1.9, 1.6, 'x+');
-buildArmchair(-9.0, F1, -1.3, matFabric2, matFabric2);
-buildRug(-6.5, F1, -4.0, 2.8, 1.9, matRug2);
-buildPainting(-5.5, F1 + 1.9, -7.94, 0.9, 0.7, 'z+', matPaper);
-buildPainting(-8.5, F1 + 1.9, -7.94, 0.7, 0.95, 'z+', matBookMats[3]);
-buildPainting(-9.94, F1 + 1.85, -4.5, 0.85, 0.65, 'x+', matPaper);
-buildClock(-4.5, F1 + 2.7, -7.90, 'z+');
-buildPlant(-9.3, F1, -7.0, 0.9);
+// Кровать в северо-западном углу изголовьем к северной стене
+// Изголовье на z=-7.85, длина 2.05 → центр z = -7.85 + 1.025 + 0.05 ≈ -6.78
+buildBed(-7.5, -6.78, matWood, 'z+');
 
-/* -------- СПАЛЬНЯ 2 (2-й этаж, x[-10,-2], z[0, 8]) -------- */
+// Тумбочка справа от кровати (у изголовья)
+buildNightstand(-6.4, -7.4, matWood, 'z+');
+buildTableLamp(-6.4, F1 + 0.55, -7.4, 0xffb070, 0.5);
 
-buildBed(-7.5, 5.5);
-buildNightstand(-6.4, 6.5);
-buildTableLamp(-6.4, F1 + 0.55, 6.5, 0xffb070, 0.5);
-buildWardrobe(-3.5, 5.5, 1.4, 2.1, 0.6, matWood);
-buildDresser(-8.5, 0.8, 1.6, 0.85, 0.5, 3, matWood);
-buildBookshelf(-2.4, F1, 2.5, 0.35, 1.9, 1.6, 'x+');
-buildArmchair(-9.0, F1, 1.3, matFabric, matFabric);
-buildRug(-6.5, F1, 4.0, 2.8, 1.9, matRug);
-buildPainting(-5.5, F1 + 1.9, 7.94, 0.9, 0.7, 'z-', matPaper);
-buildPainting(-8.0, F1 + 1.9, 7.94, 0.7, 0.95, 'z-', matBookMats[4]);
-buildClock(-4.5, F1 + 2.7, 7.90, 'z-');
-buildPlant(-9.3, F1, 7.0, 0.9);
+// Шкаф у восточной стены (x=0, внутр. -0.15 со стороны спальни)
+buildWardrobe(-0.45, -6.5, 0.6, 2.1, 1.4, matWood, 'z+');
+// Поворачивать шкаф сложно — вместо этого ставим у северной стены и меняем размеры
+// (см. ниже — предпочтительно против северной стены)
+
+// Комод у южной стены
+buildDresser(-8.5, -0.4, 1.6, 0.85, 0.5, 3, matWood, 'z+');
+
+// Стеллаж с книгами у западной стены
+buildBookshelf(-9.65, F1, -3.5, 0.35, 1.9, 1.6, 'x+');
+
+// Кресло в юго-западном углу
+buildArmchair(-8.5, F1, -1.3, matFabric2, matFabric2, 'z+');
+
+// Ковёр
+buildRug(-6.0, F1, -4.0, 2.8, 1.9, matRug2);
+
+// Картины
+buildPainting(-5.5, F1 + 1.9, -7.84, 0.9, 0.7, 'z+', matPaper);
+buildPainting(-3.0, F1 + 1.9, -7.84, 0.7, 0.95, 'z+', matBookMats[3]);
+buildPainting(-9.84, F1 + 1.85, -4.5, 0.85, 0.65, 'x+', matPaper);
+
+// Часы
+buildClock(-4.5, F1 + 2.7, -7.84, 'z+');
+
+// Растение
+buildPlant(-9.3, F1, -0.8, 0.9);
+
+/* -------- СПАЛЬНЯ 2 (2-й этаж, x[-10,0], z[0,8]) -------- */
+
+// Кровать изголовьем к южной стене (z=8, внутр. 7.85)
+buildBed(-7.5, 6.78, matWood, 'z-');
+
+// Тумбочка
+buildNightstand(-6.4, 7.4, matWood, 'z-');
+buildTableLamp(-6.4, F1 + 0.55, 7.4, 0xffb070, 0.5);
+
+// Шкаф у северной стены (z=0 со стороны кухни, но у спальни внутренняя поверхность z=0.15)
+// Правильнее — у восточной стены спальни (x=0, внутр. -0.15)
+buildWardrobe(-0.45, 5.5, 0.6, 2.1, 1.4, matWood, 'z-');
+
+// Комод у северной стены
+buildDresser(-8.5, 0.4, 1.6, 0.85, 0.5, 3, matWood, 'z-');
+
+// Стеллаж у западной стены
+buildBookshelf(-9.65, F1, 2.5, 0.35, 1.9, 1.6, 'x+');
+
+// Кресло
+buildArmchair(-8.5, F1, 1.3, matFabric, matFabric, 'z-');
+
+// Ковёр
+buildRug(-6.0, F1, 4.0, 2.8, 1.9, matRug);
+
+// Картины
+buildPainting(-5.5, F1 + 1.9, 7.84, 0.9, 0.7, 'z-', matPaper);
+buildPainting(-3.0, F1 + 1.9, 7.84, 0.7, 0.95, 'z-', matBookMats[4]);
+
+// Часы
+buildClock(-4.5, F1 + 2.7, 7.84, 'z-');
+
+// Растение
+buildPlant(-9.3, F1, 0.8, 0.9);
 
 /* -------- ВАННАЯ (2-й этаж, x[4,10], z[-8,-6]) -------- */
 
-buildBathtub(8.4, F1, -7.0, 1.7, 0.9);
-buildToilet(6.0, F1, -6.6, 'z-');
+// Ванна вдоль северной стены (z=-8, внутр. -7.85)
+// Размер 1.7×0.9, ставим к стене: центр z = -7.85 + 0.45 = -7.4
+buildBathtub(8.4, F1, -7.4, 1.7, 0.9);
 
+// Унитаз у западной стены ванной (x=4, внутр. 4.15)
+buildToilet(4.6, F1, -6.6, 'x-');
+
+// Раковина на тумбе у южной стены (z=-6, внутр. -6.15)
 (function(){
-  box(0.5, 0.75, 0.4, matWhite, 4.8, F1, -7.0, false);
-  buildSink(4.8, F1 + 0.75, -7.0, 'z-');
+  box(0.5, 0.75, 0.4, matWhite, 6.0, F1, -6.5, false);
+  buildSink(6.0, F1 + 0.75, -6.5, 'z-');
 })();
 
-buildPainting(4.8, F1 + 1.85, -7.94, 0.7, 0.9, 'z+', matGlass);
+// Зеркало над раковиной
+buildPainting(6.0, F1 + 1.85, -6.16, 0.7, 0.9, 'z+', matGlass);
 
-box(0.5, 0.6, 0.4, matWhite, 6.0, F1 + 1.5, -7.7, false);
-box(0.52, 0.02, 0.42, matChrome, 6.0, F1 + 2.1, -7.7, false);
-box(0.02, 0.10, 0.02, matHandle, 5.85, F1 + 1.75, -7.5, false);
+// Навесной шкафчик
+box(0.5, 0.6, 0.4, matWhite, 7.5, F1 + 1.5, -6.6, false);
+box(0.52, 0.02, 0.42, matChrome, 7.5, F1 + 2.1, -6.6, false);
+box(0.02, 0.10, 0.02, matHandle, 7.35, F1 + 1.75, -6.4, false);
 
-box(0.28, 0.55, 0.03, matSheet, 4.2, F1 + 1.55, -7.9, false);
-box(0.28, 0.55, 0.03, matFabric2, 4.5, F1 + 1.55, -7.9, false);
+// Полотенца на крючках
+box(0.28, 0.55, 0.03, matSheet, 4.5, F1 + 1.55, -7.9, false);
+box(0.28, 0.55, 0.03, matFabric2, 4.8, F1 + 1.55, -7.9, false);
 
+// Полка с флаконами
 box(1.0, 0.04, 0.22, matWhite, 8.0, F1 + 1.55, -7.85, false);
 cyl(0.04, 0.04, 0.12, matGlass, 7.8, F1 + 1.59, -7.85, 8);
 cyl(0.035, 0.035, 0.10, matBookMats[5], 8.0, F1 + 1.59, -7.85, 8);
 cyl(0.03, 0.03, 0.08, matBookMats[2], 8.2, F1 + 1.59, -7.85, 8);
 
+// Стеллаж в углу
 box(0.4, 1.8, 1.2, matWhite, 9.65, F1, -7.0, false);
 
+// Стержень для шторы
 (function(){
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.7, 8), matChrome);
   rod.rotation.z = Math.PI / 2;
-  rod.position.set(8.4, F1 + 1.95, -6.5);
+  rod.position.set(8.4, F1 + 1.95, -6.4);
   scene.add(rod);
-  box(1.6, 1.4, 0.03, matFabric, 8.4, F1 + 0.55, -6.5, false);
+  box(1.6, 1.4, 0.03, matFabric, 8.4, F1 + 0.55, -6.4, false);
 })();
 
 /* ============================================================
@@ -1288,15 +1381,12 @@ scene.add(hemi);
 
 function addRoomLight(x, y, z, color, intensity, distance) {
   const l = new THREE.PointLight(color, intensity, distance, 2);
-  l.position.set(x, y, z);
-  scene.add(l);
+  l.position.set(x, y, z); scene.add(l);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), new THREE.MeshBasicMaterial({ color: color }));
-  bulb.position.set(x, y, z);
-  scene.add(bulb);
+  bulb.position.set(x, y, z); scene.add(bulb);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random() * 100, speed: 2.5 + Math.random() * 5.0 });
   return l;
 }
-
 addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 0.55, 9);
 addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.42, 8);
 addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.30, 9);
@@ -1307,9 +1397,7 @@ addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.40, 9);
 addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.28, 9);
 addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.30, 7);
 
-/* ============================================================
-   ФОНАРИК
-   ============================================================ */
+/* ---------- ФОНАРИК ---------- */
 const flashlight = new THREE.SpotLight(0xfff0cf, 3.4, 34, Math.PI / 7.0, 0.42, 1.35);
 flashlight.castShadow = true;
 flashlight.shadow.mapSize.set(isMobile ? 512 : 1024, isMobile ? 512 : 1024);
@@ -1338,33 +1426,19 @@ handGroup.rotation.set(-0.06, 0.05, 0.0);
 camera.add(handGroup);
 
 const flBody = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.042, 0.22, 14), matMetal);
-flBody.rotation.x = Math.PI / 2;
-flBody.castShadow = false;
-handGroup.add(flBody);
-
+flBody.rotation.x = Math.PI / 2; flBody.castShadow = false; handGroup.add(flBody);
 const flHead = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.05, 0.11, 14), matMetal);
-flHead.rotation.x = Math.PI / 2;
-flHead.position.z = -0.155;
-handGroup.add(flHead);
-
+flHead.rotation.x = Math.PI / 2; flHead.position.z = -0.155; handGroup.add(flHead);
 const flGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.09, 14), matDark);
-flGrip.rotation.x = Math.PI / 2;
-flGrip.position.z = 0.055;
-handGroup.add(flGrip);
-
+flGrip.rotation.x = Math.PI / 2; flGrip.position.z = 0.055; handGroup.add(flGrip);
 const flLensMat = new THREE.MeshBasicMaterial({ color: 0xfff3d0 });
 const flLens = new THREE.Mesh(new THREE.CircleGeometry(0.062, 16), flLensMat);
-flLens.position.z = -0.212;
-flLens.rotation.y = Math.PI;
-handGroup.add(flLens);
-
+flLens.position.z = -0.212; flLens.rotation.y = Math.PI; handGroup.add(flLens);
 const handMat = new THREE.MeshStandardMaterial({ color: 0x5a4535, roughness: 1.0 });
 const handMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.10, 0.20), handMat);
-handMesh.position.set(0.005, -0.035, 0.09);
-handGroup.add(handMesh);
+handMesh.position.set(0.005, -0.035, 0.09); handGroup.add(handMesh);
 
 let flashlightOn = true;
-
 const flBtnEl = document.getElementById('flashlight-btn');
 function updateFlashlightButton() {
   if (flashlightOn) flBtnEl.classList.add('on');
@@ -1375,13 +1449,10 @@ function setFlashlight(on) {
   flashlight.visible = on;
   flFill.visible = on;
   flLensMat.color.setHex(on ? 0xfff3d0 : 0x2a2620);
-  updateHUD();
-  updateFlashlightButton();
+  updateHUD(); updateFlashlightButton();
 }
 
-/* ============================================================
-   ИГРОК
-   ============================================================ */
+/* ---------- ИГРОК ---------- */
 const player = {
   pos: new THREE.Vector3(2.0, 0, -5.0),
   feetY: 0, yaw: Math.PI, pitch: 0,
@@ -1391,9 +1462,7 @@ const PLAYER_RADIUS = 0.36;
 const EYE_HEIGHT    = 1.68;
 const GRAVITY       = 24.0;
 
-/* ============================================================
-   ВВОД
-   ============================================================ */
+/* ---------- ВВОД ---------- */
 const keys = {};
 const overlay = document.getElementById('overlay');
 const hudEl = document.getElementById('hud');
@@ -1437,9 +1506,7 @@ function startGame() {
     overlay.style.display = 'none';
     document.getElementById('mobile-controls').classList.add('active');
     flBtnEl.classList.add('active');
-  } else {
-    requestLock();
-  }
+  } else requestLock();
 }
 overlay.addEventListener('click', startGame);
 overlay.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, { passive: false });
@@ -1447,14 +1514,11 @@ renderer.domElement.addEventListener('click', () => {
   if (!isMobile && !pointerLocked) requestLock();
 });
 
-/* ============================================================
-   МОБИЛЬНЫЕ КОНТРОЛЫ
-   ============================================================ */
+/* ---------- МОБИЛЬНЫЕ КОНТРОЛЫ ---------- */
 const moveZoneEl = document.getElementById('move-zone');
 const lookZoneEl = document.getElementById('look-zone');
 const joystickEl = document.getElementById('joystick');
 const joystickStick = document.getElementById('joystick-stick');
-
 const JOY_RADIUS = 65;
 const moveVec = { x: 0, y: 0 };
 let moveTouchId = null;
@@ -1467,8 +1531,7 @@ moveZoneEl.addEventListener('touchstart', (e) => {
   if (moveTouchId !== null) return;
   const t = e.changedTouches[0];
   moveTouchId = t.identifier;
-  moveTouchOrigin.x = t.clientX;
-  moveTouchOrigin.y = t.clientY;
+  moveTouchOrigin.x = t.clientX; moveTouchOrigin.y = t.clientY;
   joystickEl.style.left = t.clientX + 'px';
   joystickEl.style.top  = t.clientY + 'px';
   joystickEl.style.display = 'block';
@@ -1482,9 +1545,8 @@ moveZoneEl.addEventListener('touchmove', (e) => {
     let dx = t.clientX - moveTouchOrigin.x;
     let dy = t.clientY - moveTouchOrigin.y;
     const dist = Math.hypot(dx, dy);
-    if (dist > JOY_RADIUS) { dx = dx / dist * JOY_RADIUS; dy = dy / dist * JOY_RADIUS; }
-    moveVec.x = dx / JOY_RADIUS;
-    moveVec.y = dy / JOY_RADIUS;
+    if (dist > JOY_RADIUS) { dx = dx/dist*JOY_RADIUS; dy = dy/dist*JOY_RADIUS; }
+    moveVec.x = dx / JOY_RADIUS; moveVec.y = dy / JOY_RADIUS;
     joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
   }
 }, { passive: false });
@@ -1492,9 +1554,7 @@ function endMoveTouch(e) {
   for (let i = 0; i < e.changedTouches.length; i++) {
     const t = e.changedTouches[i];
     if (t.identifier !== moveTouchId) continue;
-    moveTouchId = null;
-    moveVec.x = 0;
-    moveVec.y = 0;
+    moveTouchId = null; moveVec.x = 0; moveVec.y = 0;
     joystickEl.style.display = 'none';
   }
 }
@@ -1506,8 +1566,7 @@ lookZoneEl.addEventListener('touchstart', (e) => {
   if (lookTouchId !== null) return;
   const t = e.changedTouches[0];
   lookTouchId = t.identifier;
-  lookTouchLast.x = t.clientX;
-  lookTouchLast.y = t.clientY;
+  lookTouchLast.x = t.clientX; lookTouchLast.y = t.clientY;
 }, { passive: false });
 lookZoneEl.addEventListener('touchmove', (e) => {
   e.preventDefault();
@@ -1516,8 +1575,7 @@ lookZoneEl.addEventListener('touchmove', (e) => {
     if (t.identifier !== lookTouchId) continue;
     const dx = t.clientX - lookTouchLast.x;
     const dy = t.clientY - lookTouchLast.y;
-    lookTouchLast.x = t.clientX;
-    lookTouchLast.y = t.clientY;
+    lookTouchLast.x = t.clientX; lookTouchLast.y = t.clientY;
     const sens = 0.0045;
     player.yaw   -= dx * sens;
     player.pitch -= dy * sens;
@@ -1538,8 +1596,7 @@ lookZoneEl.addEventListener('touchcancel', endLookTouch);
 let lastFlTouch = 0;
 flBtnEl.addEventListener('touchstart', (e) => {
   e.preventDefault(); e.stopPropagation();
-  lastFlTouch = Date.now();
-  setFlashlight(!flashlightOn);
+  lastFlTouch = Date.now(); setFlashlight(!flashlightOn);
 }, { passive: false });
 flBtnEl.addEventListener('click', (e) => {
   e.preventDefault(); e.stopPropagation();
@@ -1547,9 +1604,7 @@ flBtnEl.addEventListener('click', (e) => {
   setFlashlight(!flashlightOn);
 });
 
-/* ============================================================
-   ФИЗИКА
-   ============================================================ */
+/* ---------- ФИЗИКА ---------- */
 function getGroundHeight(x, z, feetY) {
   let best = -Infinity;
   const limit = feetY + 0.62;
@@ -1575,20 +1630,15 @@ function resolveCollisions(pos, feetY) {
     if (pMaxY < c.minY || pMinY > c.maxY) continue;
     const cx = Math.max(c.minX, Math.min(pos.x, c.maxX));
     const cz = Math.max(c.minZ, Math.min(pos.z, c.maxZ));
-    const dx = pos.x - cx;
-    const dz = pos.z - cz;
-    const d2 = dx * dx + dz * dz;
-    if (d2 > r * r) continue;
+    const dx = pos.x - cx, dz = pos.z - cz;
+    const d2 = dx*dx + dz*dz;
+    if (d2 > r*r) continue;
     if (d2 > 1e-8) {
-      const d = Math.sqrt(d2);
-      const push = (r - d) / d;
-      pos.x += dx * push;
-      pos.z += dz * push;
+      const d = Math.sqrt(d2); const push = (r - d) / d;
+      pos.x += dx * push; pos.z += dz * push;
     } else {
-      const left  = pos.x - c.minX;
-      const right = c.maxX - pos.x;
-      const back  = pos.z - c.minZ;
-      const front = c.maxZ - pos.z;
+      const left = pos.x - c.minX, right = c.maxX - pos.x;
+      const back = pos.z - c.minZ, front = c.maxZ - pos.z;
       const m = Math.min(left, right, back, front);
       if (m === left)       pos.x = c.minX - r;
       else if (m === right) pos.x = c.maxX + r;
@@ -1606,13 +1656,11 @@ function updatePlayer(dt) {
   let dx = 0, dz = 0;
   const mag = Math.hypot(fwd, strafe);
   if (mag > 0.001) {
-    const sy = Math.sin(player.yaw);
-    const cy = Math.cos(player.yaw);
+    const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
     const nx = (-sy * fwd + cy * strafe) / mag;
     const nz = (-cy * fwd - sy * strafe) / mag;
     const speedMul = Math.min(1, mag);
-    dx = nx * speedMul;
-    dz = nz * speedMul;
+    dx = nx * speedMul; dz = nz * speedMul;
   }
   const totalDist = speed * dt;
   const substeps = Math.max(1, Math.ceil(totalDist / 0.12));
@@ -1626,11 +1674,9 @@ function updatePlayer(dt) {
   player.feetY += player.vy * dt;
   const g = getGroundHeight(player.pos.x, player.pos.z, player.feetY);
   if (player.feetY <= g) { player.feetY = g; player.vy = 0; player.onGround = true; }
-  else { player.onGround = false; }
+  else player.onGround = false;
   if (player.feetY < -5) {
-    player.pos.set(2.0, 0, -5.0);
-    player.feetY = 0;
-    player.vy = 0;
+    player.pos.set(2.0, 0, -5.0); player.feetY = 0; player.vy = 0;
   }
   const moving = (fwd !== 0 || strafe !== 0) && player.onGround;
   const targetBob = moving ? (sprint ? 1.5 : 1.0) : 0.0;
@@ -1648,20 +1694,15 @@ function updatePlayer(dt) {
   camera.rotation.z = Math.cos(player.bobTime) * 0.006 * player.bobAmount;
 }
 
-/* ============================================================
-   HUD
-   ============================================================ */
+/* ---------- HUD ---------- */
 function updateHUD() {
   const floor = player.feetY > F1 - 0.6 ? 2 : 1;
   hudEl.textContent = `ФОНАРИК: ${flashlightOn ? 'ВКЛ' : 'ВЫКЛ'}  |  ЭТАЖ: ${floor}`;
 }
 
-/* ============================================================
-   ГЛАВНЫЙ ЦИКЛ
-   ============================================================ */
+/* ---------- ГЛАВНЫЙ ЦИКЛ ---------- */
 const clock = new THREE.Clock();
 let elapsed = 0;
-
 function animate() {
   requestAnimationFrame(animate);
   let dt = clock.getDelta();
@@ -1678,18 +1719,15 @@ function animate() {
   for (let i = 0; i < flickerLights.length; i++) {
     const f = flickerLights[i];
     const t = elapsed * f.speed + f.phase;
-    let n = 0.62
-          + 0.26 * Math.sin(t * 1.7)
-          + 0.14 * Math.sin(t * 5.3 + 1.1)
-          + 0.08 * Math.sin(t * 13.7);
-    if (Math.sin(t * 0.9 + f.phase) > 0.985) n *= 0.12;
-    n = Math.max(0.0, n);
+    let n = 0.62 + 0.26*Math.sin(t*1.7) + 0.14*Math.sin(t*5.3 + 1.1) + 0.08*Math.sin(t*13.7);
+    if (Math.sin(t*0.9 + f.phase) > 0.985) n *= 0.12;
+    n = Math.max(0, n);
     f.light.intensity = f.base * n;
-    if (f.bulb.material) f.bulb.material.color.setRGB(0.6 + 0.4 * n, 0.5 + 0.4 * n, 0.35 + 0.4 * n);
+    if (f.bulb.material) f.bulb.material.color.setRGB(0.6 + 0.4*n, 0.5 + 0.4*n, 0.35 + 0.4*n);
   }
 
   if (flashlightOn) {
-    const jitter = 0.012 * Math.sin(elapsed * 7.3) + 0.008 * Math.sin(elapsed * 17.1);
+    const jitter = 0.012*Math.sin(elapsed*7.3) + 0.008*Math.sin(elapsed*17.1);
     flashlight.position.x = 0.18 + jitter;
     flashlight.position.y = -0.12 + jitter * 0.7;
     flFill.position.x = 0.25 + jitter;
@@ -1697,48 +1735,34 @@ function animate() {
 
   const t = elapsed;
   if (flashlightOn) {
-    ambient.intensity = 0.32;
-    hemi.intensity    = 0.20;
-    ambient.color.setHex(0x1a2234);
-    hemi.color.setHex(0x1a2234);
-    const haloFlick = 0.92 + 0.05 * Math.sin(t * 3.1) + 0.03 * Math.sin(t * 9.7 + 1.4);
-    playerHalo.intensity = 0.60 * haloFlick;
-    playerHalo.distance  = 6.5;
+    ambient.intensity = 0.32; hemi.intensity = 0.20;
+    ambient.color.setHex(0x1a2234); hemi.color.setHex(0x1a2234);
+    const hf = 0.92 + 0.05*Math.sin(t*3.1) + 0.03*Math.sin(t*9.7 + 1.4);
+    playerHalo.intensity = 0.60 * hf;
+    playerHalo.distance = 6.5;
     playerHalo.color.setHex(0x9aa4be);
   } else {
-    let flick = 0.95
-      + 0.10 * Math.sin(t * 2.4)
-      + 0.06 * Math.sin(t * 6.9 + 1.7)
-      + 0.04 * Math.sin(t * 16.3 + 0.4);
-    if (Math.sin(t * 0.63 + 1.3) > 0.965) flick *= 0.62;
+    let flick = 0.95 + 0.10*Math.sin(t*2.4) + 0.06*Math.sin(t*6.9 + 1.7) + 0.04*Math.sin(t*16.3 + 0.4);
+    if (Math.sin(t*0.63 + 1.3) > 0.965) flick *= 0.62;
     flick = Math.max(0.55, flick);
-    ambient.intensity = 0.72 * flick;
-    hemi.intensity    = 0.52 * flick;
-    ambient.color.setHex(0x243048);
-    hemi.color.setHex(0x243048);
-    const haloFlick = 0.95 + 0.08 * Math.sin(t * 2.1) + 0.05 * Math.sin(t * 5.7 + 0.9);
-    playerHalo.intensity = 0.88 * haloFlick;
-    playerHalo.distance  = 7.0;
+    ambient.intensity = 0.72 * flick; hemi.intensity = 0.52 * flick;
+    ambient.color.setHex(0x243048); hemi.color.setHex(0x243048);
+    const hf = 0.95 + 0.08*Math.sin(t*2.1) + 0.05*Math.sin(t*5.7 + 0.9);
+    playerHalo.intensity = 0.88 * hf;
+    playerHalo.distance = 7.0;
     playerHalo.color.setHex(0xa898b0);
-    if (Math.sin(t * 0.55 + 2.1) > 0.965) playerHalo.intensity *= 0.55;
+    if (Math.sin(t*0.55 + 2.1) > 0.965) playerHalo.intensity *= 0.55;
   }
-
   updateHUD();
   renderer.render(scene, camera);
 }
 
-/* ============================================================
-   RESIZE
-   ============================================================ */
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 
-/* ============================================================
-   МОБИЛЬНЫЙ ТЕКСТ
-   ============================================================ */
 if (isMobile) {
   document.getElementById('overlay-help').innerHTML = `
     <span class="key">ЛЕВАЯ ПОЛОВИНА</span> — стик движения<br>
@@ -1748,9 +1772,6 @@ if (isMobile) {
   document.getElementById('overlay-hint').textContent = 'КОСНИТЕСЬ ЭКРАНА, ЧТОБЫ ВОЙТИ';
 }
 
-/* ============================================================
-   СТАРТ
-   ============================================================ */
 setFlashlight(true);
 updateHUD();
 animate();
