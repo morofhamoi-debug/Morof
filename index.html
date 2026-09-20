@@ -7,13 +7,11 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Courier New', monospace; }
-  canvas { display:block; }
-  #overlay {
-    position:fixed; inset:0; z-index:10; cursor:pointer;
+  canvas { display:block; cursor:crosshair; }
+  #overlay { position:fixed; inset:0; z-index:10; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background: radial-gradient(circle at 50% 40%, rgba(25,14,8,0.92), rgba(0,0,0,0.99));
-    color:#c9b48a; text-align:center; padding:20px; transition: opacity .3s; touch-action: none;
-  }
+    color:#c9b48a; text-align:center; padding:20px; transition: opacity .3s; touch-action: none; }
   #overlay h1 { font-size: clamp(28px, 6vw, 54px); letter-spacing: 8px; margin-bottom: 18px;
     text-shadow: 0 0 24px rgba(255,80,20,0.5), 0 0 4px #000; color:#e0c48a; }
   #overlay p { font-size: 15px; line-height: 2.0; opacity: 0.85; }
@@ -24,13 +22,26 @@
     color:#8a7a5a; font-size:12px; letter-spacing:1px; text-shadow:0 0 8px #000; }
   body.mobile #hud { top: calc(14px + env(safe-area-inset-top, 0px)); bottom: auto; font-size: 11px; left: 16px; }
   #crosshair { position:fixed; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
-    background:rgba(255,255,255,0.30); border-radius:50%; z-index:5; pointer-events:none; box-shadow: 0 0 6px rgba(0,0,0,0.8); }
+    background:rgba(255,255,255,0.30); border-radius:50%; z-index:5; pointer-events:none; box-shadow: 0 0 6px rgba(0,0,0,0.8); transition: background .2s, transform .2s; }
+  #crosshair.active { background: rgba(255,200,120,0.95); transform: scale(1.8); box-shadow: 0 0 12px rgba(255,180,80,0.9); }
   #vignette { position:fixed; inset:0; pointer-events:none; z-index:4;
     background: radial-gradient(ellipse at center, rgba(0,0,0,0) 25%, rgba(0,0,0,0.92) 100%); }
   #damage { position:fixed; inset:0; pointer-events:none; z-index:3;
     background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(30,0,0,0.35) 100%); mix-blend-mode: multiply; }
   #grain { position:fixed; inset:0; pointer-events:none; z-index:2; opacity:0.05;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>"); }
+  #interact-hint { position:fixed; left:50%; top:56%; transform:translateX(-50%);
+    color:#ffd27a; font-size:14px; z-index:6; pointer-events:none; opacity:0;
+    transition: opacity .2s; text-shadow: 0 0 8px #000, 0 0 4px #000; letter-spacing: 2px;
+    background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 4px; border: 1px solid rgba(255,200,120,0.35); }
+  #interact-hint.show { opacity: 1; }
+  #tv-ui { position:fixed; inset:0; z-index:20; display:none; pointer-events:none; }
+  #tv-ui.active { display: block; }
+  #tv-exit { position: fixed; top: 20px; right: 20px; padding: 10px 20px;
+    background: rgba(30,20,15,0.85); color:#ffd27a; border: 1px solid rgba(255,200,120,0.5);
+    border-radius: 6px; cursor: pointer; pointer-events: auto; font-family: 'Courier New', monospace;
+    font-size: 14px; letter-spacing: 1px; }
+  #tv-exit:hover { background: rgba(60,40,25,0.95); }
   #mobile-controls { position: fixed; inset: 0; z-index: 8; pointer-events: none; display: none; }
   #mobile-controls.active { display: block; }
   #move-zone { position: absolute; left: 0; top: 0; width: 45%; height: 100%; pointer-events: auto; touch-action: none; }
@@ -55,6 +66,15 @@
     border-color: rgba(255, 200, 120, 0.7);
     box-shadow: 0 0 22px rgba(255, 180, 80, 0.55), 0 0 8px rgba(255, 200, 120, 0.4) inset; }
   #flashlight-btn:active { transform: scale(0.93); }
+  #action-btn { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+    right: calc(30px + env(safe-area-inset-right, 0px));
+    width: 70px; height: 70px; border-radius: 50%; background: rgba(80, 60, 30, 0.55);
+    border: 2px solid rgba(255, 200, 120, 0.6); display: none; align-items: center; justify-content: center;
+    z-index: 12; pointer-events: auto; color: #ffd27a;
+    box-shadow: 0 0 20px rgba(255, 180, 80, 0.4); font-size: 11px; font-weight: bold;
+    letter-spacing: 1px; -webkit-tap-highlight-color: transparent; user-select: none; text-align:center; line-height:1.2;}
+  #action-btn.active { display: flex; }
+  #action-btn:active { transform: scale(0.92); background: rgba(120, 90, 40, 0.7); }
 </style>
 </head>
 <body>
@@ -66,6 +86,7 @@
     <span class="key">МЫШЬ</span> — осмотреться<br>
     <span class="key">SHIFT</span> — бежать<br>
     <span class="key">F</span> — фонарик вкл / выкл<br>
+    <span class="key">E / ЛКМ</span> — взаимодействие<br>
     <span class="key">ESC</span> — пауза
   </p>
   <p class="hint" id="overlay-hint">НАЖМИТЕ, ЧТОБЫ ВОЙТИ В ДОМ</p>
@@ -74,7 +95,11 @@
 <div id="damage"></div>
 <div id="grain"></div>
 <div id="crosshair"></div>
+<div id="interact-hint"></div>
 <div id="hud">ФОНАРИК: ВКЛ &nbsp;|&nbsp; ЭТАЖ: 1</div>
+<div id="tv-ui">
+  <div id="tv-exit">← ВЫЙТИ (ESC)</div>
+</div>
 <div id="mobile-controls">
   <div id="move-zone"></div>
   <div id="look-zone"></div>
@@ -90,13 +115,12 @@
     <line x1="16" y1="3" x2="17.5" y2="1.5"/>
   </svg>
 </div>
+<div id="action-btn">ДЕЙСТВИЕ</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
-   ТЁМНЫЙ ДОМ — реалистичная мебель с правильной ориентацией
-   Локальная система: front = +Z, right = +X.
-   facing = направление, куда смотрит ПЕРЕД мебели в мире.
+   ТЁМНЫЙ ДОМ — свет в комнатах ×2
    ============================================================ */
 
 const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
@@ -108,7 +132,7 @@ const STAIR = { x1: 5.20, x2: 7.80, z1: 1.0, z2: 7.0, h: F1 };
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020304);
-scene.fog = new THREE.FogExp2(0x020304, 0.062);
+scene.fog = new THREE.FogExp2(0x020304, 0.055);
 
 const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.05, 200);
 camera.rotation.order = 'YXZ';
@@ -124,7 +148,9 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 document.body.appendChild(renderer.domElement);
 
-/* ---------- ТЕКСТУРЫ ---------- */
+/* ============================================================
+   ТЕКСТУРЫ
+   ============================================================ */
 const maxAniso = renderer.capabilities.getMaxAnisotropy();
 function makeTex(w, h, drawFn, rx = 1, ry = 1) {
   const c = document.createElement('canvas');
@@ -263,7 +289,9 @@ const texTile      = makeTex(256, 256, drawTile, 1, 1);
 const texFabric    = makeTex(128, 128, drawFabric, 3, 3);
 const texMarble    = makeTex(256, 256, drawMarble, 1, 1);
 
-/* ---------- МАТЕРИАЛЫ ---------- */
+/* ============================================================
+   МАТЕРИАЛЫ
+   ============================================================ */
 const matWallOuter = new THREE.MeshStandardMaterial({ map: texConcrete, bumpMap: texConcrete, bumpScale: 0.04, color: 0x9a9088, roughness: 1.0 });
 const matWall      = new THREE.MeshStandardMaterial({ map: texWallpaper, bumpMap: texWallpaper, bumpScale: 0.025, color: 0xb8a890, roughness: 0.97 });
 const matSlab      = new THREE.MeshStandardMaterial({ map: texCeiling, bumpMap: texCeiling, bumpScale: 0.03, color: 0x9a8f80, roughness: 0.98 });
@@ -279,7 +307,8 @@ const matWhite     = new THREE.MeshStandardMaterial({ map: texTile, bumpMap: tex
 const matPorcelain = new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: 0.15, metalness: 0.05 });
 const matCountertop= new THREE.MeshStandardMaterial({ map: texMarble, bumpMap: texMarble, bumpScale: 0.005, color: 0x9a9a9e, roughness: 0.25, metalness: 0.15 });
 const matGlass     = new THREE.MeshStandardMaterial({ color: 0x0a0e14, roughness: 0.05, metalness: 0.5 });
-const matTVScreen  = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.03, metalness: 0.3, emissive: 0x050510 });
+const matTVScreenOff = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.15, metalness: 0.35 });
+const matTVScreenOn  = new THREE.MeshStandardMaterial({ color: 0x1a3a5a, roughness: 0.05, metalness: 0.1, emissive: 0x4a7ab0, emissiveIntensity: 1.4 });
 const matFridge    = new THREE.MeshStandardMaterial({ color: 0xc8c8cc, roughness: 0.35, metalness: 0.4 });
 const matStove     = new THREE.MeshStandardMaterial({ color: 0x303034, roughness: 0.4, metalness: 0.5 });
 const matFabric    = new THREE.MeshStandardMaterial({ map: texFabric, bumpMap: texFabric, bumpScale: 0.005, color: 0x4a3a48, roughness: 1.0 });
@@ -297,6 +326,10 @@ const matPlant     = new THREE.MeshStandardMaterial({ color: 0x1e4a1e, roughness
 const matPot       = new THREE.MeshStandardMaterial({ color: 0x6a3a1a, roughness: 0.8 });
 const matPaper     = new THREE.MeshStandardMaterial({ color: 0xd8ccb0, roughness: 0.9 });
 const matClockFace = new THREE.MeshBasicMaterial({ color: 0xd8c8a0 });
+const matRemoteBody = new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.55, metalness: 0.15 });
+const matRemoteBtn  = new THREE.MeshStandardMaterial({ color: 0x2a2a2c, roughness: 0.65, metalness: 0.1 });
+const matRemoteRed  = new THREE.MeshStandardMaterial({ color: 0xcc2020, roughness: 0.4, emissive: 0x3a0000, emissiveIntensity: 0.5 });
+const matRemoteGreen= new THREE.MeshStandardMaterial({ color: 0x20aa40, roughness: 0.4, emissive: 0x003a10, emissiveIntensity: 0.5 });
 const matBookMats  = [
   new THREE.MeshStandardMaterial({ color: 0x5a2018, roughness: 0.9 }),
   new THREE.MeshStandardMaterial({ color: 0x1e4a2a, roughness: 0.9 }),
@@ -308,7 +341,9 @@ const matBookMats  = [
   new THREE.MeshStandardMaterial({ color: 0x2a4a4a, roughness: 0.9 })
 ];
 
-/* ---------- КОЛЛИЗИИ + БАЗОВЫЕ ПРИМИТИВЫ ---------- */
+/* ============================================================
+   КОЛЛИЗИИ + ПРИМИТИВЫ
+   ============================================================ */
 const colliders = [];
 const floorRects = [];
 const flickerLights = [];
@@ -324,19 +359,49 @@ function box(w, h, d, mat, x, y, z, collide = true) {
   if (collide) addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y, y + h);
   return m;
 }
-function cyl(rt, rb, h, mat, x, y, z, seg = 12) {
+function cyl(rt, rb, h, mat, x, y, z, seg = 24) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
   m.position.set(x, y + h/2, z);
   m.castShadow = true; m.receiveShadow = true;
   scene.add(m);
   return m;
 }
+function sphere(r, mat, x, y, z, seg = 16) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg, seg), mat);
+  m.position.set(x, y, z);
+  m.castShadow = true; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function torus(R, r, mat, x, y, z, seg = 24, ringSeg = 12) {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(R, r, ringSeg, seg), mat);
+  m.position.set(x, y, z);
+  m.castShadow = true; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function rbox(w, h, d, r, mat, x, y, z, collide = true) {
+  const g = new THREE.Group();
+  const mainW = w - 2*r, mainD = d - 2*r;
+  const main = new THREE.Mesh(new THREE.BoxGeometry(mainW, h, d), mat);
+  main.castShadow = true; main.receiveShadow = true;
+  g.add(main);
+  const main2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, mainD), mat);
+  main2.castShadow = true; main2.receiveShadow = true;
+  g.add(main2);
+  for (const cx of [-mainW/2, mainW/2]) for (const cz of [-mainD/2, mainD/2]) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 8), mat);
+    c.position.set(cx, 0, cz);
+    c.castShadow = true; c.receiveShadow = true;
+    g.add(c);
+  }
+  g.position.set(x, y + h/2, z);
+  scene.add(g);
+  if (collide) addCollider(x - w/2, x + w/2, z - d/2, z + d/2, y, y + h);
+  return g;
+}
 
-/* ============================================================
-   ЛОКАЛЬНАЯ СИСТЕМА КООРДИНАТ
-   front = +Z (куда смотрит мебель), right = +X
-   facing = куда "лицо" мебели смотрит в мире
-   ============================================================ */
+/* ---- Локальная система координат ---- */
 function localToWorld(cx, cz, lx, lz, facing) {
   switch (facing) {
     case 'z+': return { x: cx + lx, z: cz + lz };
@@ -364,7 +429,57 @@ function lCollider(cx, cz, lw, ld, ly, lh, facing) {
   addCollider(cx - rd.w/2, cx + rd.w/2, cz - rd.d/2, cz + rd.d/2, ly, ly + lh);
 }
 
-/* ---------- СТЕНЫ ---------- */
+/* ============================================================
+   ИНТЕРАКТИВНАЯ СИСТЕМА
+   ============================================================ */
+const interactives = [];
+const doorAnims = [];
+const raycaster = new THREE.Raycaster();
+const rayNDC = new THREE.Vector2(0, 0);
+
+function registerInteractive(mesh, label, onAction) {
+  mesh.userData.interactive = true;
+  mesh.userData.label = label;
+  mesh.userData.onAction = onAction;
+  interactives.push(mesh);
+}
+
+let currentHovered = null;
+
+function checkReach() {
+  raycaster.setFromCamera(rayNDC, camera);
+  raycaster.far = 3.5;
+  const hits = raycaster.intersectObjects(interactives, true);
+  let found = null;
+  if (hits.length > 0) {
+    let o = hits[0].object;
+    while (o && !o.userData.interactive) o = o.parent;
+    if (o && o.userData.interactive) found = o;
+  }
+  if (found !== currentHovered) {
+    currentHovered = found;
+    const ch = document.getElementById('crosshair');
+    const hint = document.getElementById('interact-hint');
+    if (found) {
+      ch.classList.add('active');
+      hint.textContent = found.userData.label || 'Взаимодействовать';
+      hint.classList.add('show');
+    } else {
+      ch.classList.remove('active');
+      hint.classList.remove('show');
+    }
+  }
+}
+
+function triggerInteraction() {
+  if (currentHovered && currentHovered.userData.onAction) {
+    currentHovered.userData.onAction(currentHovered);
+  }
+}
+
+/* ============================================================
+   СТЕНЫ / ГЕОМЕТРИЯ ДОМА
+   ============================================================ */
 function wallX(x1, x2, z, y0, y1, mat = matWall, collide = true) {
   if (x2 - x1 <= 0 || y1 - y0 <= 0) return;
   box(x2 - x1, y1 - y0, T, mat, (x1+x2)/2, y0, z, collide);
@@ -374,9 +489,6 @@ function wallZ(z1, z2, x, y0, y1, mat = matWall, collide = true) {
   box(T, y1 - y0, z2 - z1, mat, x, y0, (z1+z2)/2, collide);
 }
 
-/* ============================================================
-   ГЕОМЕТРИЯ ДОМА
-   ============================================================ */
 floorRects.push({ minX: -10, maxX: 10, minZ: -8, maxZ: 8, y: 0 });
 const groundMesh = new THREE.Mesh(new THREE.BoxGeometry(20.4, 0.4, 16.4), matWoodDark);
 groundMesh.position.set(0, -0.2, 0);
@@ -460,201 +572,250 @@ for (let i = 0; i < STEPS; i++) {
 box(20, 0.35, 16, matWallOuter, 0, F2, 0, false);
 
 /* ============================================================
-   МЕБЕЛЬ — 4-направленная ориентация
+   МЕБЕЛЬ
    ============================================================ */
 
-/* ДИВАН / КРЕСЛО */
 function buildSofa(cx, cz, w, d, fabricMat, seatMat, facing = 'z+') {
-  const legH = 0.12, seatY = legH + 0.18;
-  const armW = 0.22, armH = 0.55;
-  const backH = 0.65, backT = 0.22;
+  const legH = 0.13, seatY = legH + 0.16;
+  const armW = 0.24, armH = 0.58;
+  const backH = 0.70, backT = 0.24;
   const innerW = w - armW * 2;
 
-  // Ножки по углам
-  for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
-                          [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
-    lcyl(0.04, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
+  for (const [lx, lz] of [[-w/2+0.12, -d/2+0.12], [w/2-0.12, -d/2+0.12],
+                          [-w/2+0.12,  d/2-0.12], [w/2-0.12,  d/2-0.12]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.035, 0.045, 0.11, matWoodDeep, p.x, 0, p.z, 12);
+    cyl(0.05, 0.05, 0.02, matWoodDeep, p.x, 0.11, p.z, 12);
   }
-  // Основание
-  lbox(w, 0.22, d, 0, legH, 0, fabricMat, cx, cz, facing, false);
-  // Сиденье (подушки)
+  lbox(w, 0.20, d, 0, legH, 0, fabricMat, cx, cz, facing, false);
   const seatDepth = d - backT - 0.05;
   const nSeats = Math.max(2, Math.round(innerW / 0.8));
   const seatW = innerW / nSeats;
-  const seatZ = backT/2 + 0.02;
+  const seatZ = backT/2 + 0.03;
   for (let i = 0; i < nSeats; i++) {
     const sx = -innerW/2 + seatW * (i + 0.5);
-    lbox(seatW - 0.03, 0.14, seatDepth - 0.03, sx, seatY, seatZ, seatMat, cx, cz, facing, false);
-    lbox(seatW - 0.03, 0.06, 0.03, sx, seatY + 0.10, seatZ + (seatDepth - 0.04)/2, seatMat, cx, cz, facing, false);
+    lbox(seatW - 0.04, 0.15, seatDepth - 0.04, sx, seatY, seatZ, seatMat, cx, cz, facing, false);
+    lbox(seatW - 0.06, 0.03, seatDepth - 0.06, sx, seatY + 0.15, seatZ, seatMat, cx, cz, facing, false);
   }
-  // Подлокотники
   for (const side of [-1, 1]) {
     const ax = side * (w/2 - armW/2);
     lbox(armW, armH - legH, d, ax, legH, 0, fabricMat, cx, cz, facing, false);
-    lbox(armW - 0.02, 0.06, d - 0.02, ax, legH + armH - legH, 0, fabricMat, cx, cz, facing, false);
+    lbox(armW - 0.01, 0.06, d - 0.02, ax, legH + armH - legH, 0, fabricMat, cx, cz, facing, false);
+    lbox(armW - 0.02, 0.04, d - 0.05, ax, legH + armH - legH + 0.06, 0, fabricMat, cx, cz, facing, false);
   }
-  // Спинка
   const backZ = -d/2 + backT/2;
-  lbox(w, backH, backT, 0, legH + 0.22, backZ, fabricMat, cx, cz, facing, false);
-  lbox(w - 0.02, 0.06, backT - 0.02, 0, legH + 0.22 + backH, backZ, fabricMat, cx, cz, facing, false);
-  // Подушки спинки
+  lbox(w, backH, backT, 0, legH + 0.20, backZ, fabricMat, cx, cz, facing, false);
+  lbox(w - 0.02, 0.06, backT - 0.02, 0, legH + 0.20 + backH, backZ, fabricMat, cx, cz, facing, false);
+  lbox(w - 0.04, 0.03, backT - 0.05, 0, legH + 0.20 + backH + 0.06, backZ, fabricMat, cx, cz, facing, false);
   const cushionZ = -d/2 + backT + 0.08;
   for (let i = 0; i < nSeats; i++) {
     const sx = -innerW/2 + seatW * (i + 0.5);
-    lbox(seatW - 0.08, 0.42, 0.14, sx, seatY + 0.20, cushionZ, seatMat, cx, cz, facing, false);
+    lbox(seatW - 0.10, 0.44, 0.16, sx, seatY + 0.18, cushionZ, seatMat, cx, cz, facing, false);
   }
-  // Декоративные подушки
-  lbox(0.4, 0.36, 0.14, -innerW/2 + 0.25, seatY + 0.20, cushionZ, matPillow, cx, cz, facing, false);
-  lbox(0.4, 0.36, 0.14,  innerW/2 - 0.25, seatY + 0.20, cushionZ, matPillow, cx, cz, facing, false);
-
+  lbox(0.42, 0.38, 0.16, -innerW/2 + 0.26, seatY + 0.18, cushionZ, matPillow, cx, cz, facing, false);
+  lbox(0.42, 0.38, 0.16,  innerW/2 - 0.26, seatY + 0.18, cushionZ, matPillow, cx, cz, facing, false);
   lCollider(cx, cz, w, d, 0, armH + legH + 0.05, facing);
 }
 function buildArmchair(x, z, fabricMat, seatMat, facing = 'z+') {
-  buildSofa(x, z, 0.9, 0.9, fabricMat, seatMat, facing);
+  buildSofa(x, z, 0.95, 0.95, fabricMat, seatMat, facing);
 }
 
-/* ЖУРНАЛЬНЫЙ СТОЛИК */
 function buildCoffeeTable(cx, cz, w, d, facing = 'z+') {
-  const topH = 0.42, legH = topH - 0.04;
-  for (const [lx, lz] of [[-w/2+0.08, -d/2+0.08], [w/2-0.08, -d/2+0.08],
-                          [-w/2+0.08,  d/2-0.08], [w/2-0.08,  d/2-0.08]]) {
-    lcyl(0.035, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
+  const topH = 0.42, legH = topH - 0.045;
+  for (const [lx, lz] of [[-w/2+0.09, -d/2+0.09], [w/2-0.09, -d/2+0.09],
+                          [-w/2+0.09,  d/2-0.09], [w/2-0.09,  d/2-0.09]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.03, 0.045, legH, matWoodDeep, p.x, 0, p.z, 12);
   }
-  lbox(w, 0.05, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
-  lbox(w - 0.15, 0.03, d - 0.15, 0, legH*0.4, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w, 0.045, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w + 0.02, 0.015, d + 0.02, 0, legH + 0.045, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.18, 0.03, d - 0.18, 0, legH * 0.42, 0, matWoodOak, cx, cz, facing, false);
   lCollider(cx, cz, w, d, 0, topH, facing);
 }
 
-/* КОМОД / ТУМБА — ящики лицом к "facing" */
 function buildDresser(cx, cz, w, h, d, drawers, mat = matWood, facing = 'z+') {
-  const legH = 0.10;
-  for (const [lx, lz] of [[-w/2+0.06, -d/2+0.06], [w/2-0.06, -d/2+0.06],
-                          [-w/2+0.06,  d/2-0.06], [w/2-0.06,  d/2-0.06]]) {
-    lcyl(0.028, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
+  const legH = 0.11;
+  for (const [lx, lz] of [[-w/2+0.07, -d/2+0.07], [w/2-0.07, -d/2+0.07],
+                          [-w/2+0.07,  d/2-0.07], [w/2-0.07,  d/2-0.07]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.025, 0.035, legH, matWoodDeep, p.x, 0, p.z, 10);
   }
   lbox(w, h - legH, d, 0, legH, 0, mat, cx, cz, facing, false);
-  lbox(w + 0.04, 0.03, d + 0.04, 0, h, 0, matWoodOak, cx, cz, facing, false);
-  const innerH = h - legH - 0.06;
+  lbox(w + 0.05, 0.035, d + 0.05, 0, h, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w + 0.02, 0.015, d + 0.02, 0, h - 0.015, 0, matWoodDeep, cx, cz, facing, false);
+  const innerH = h - legH - 0.05;
   const drawerH = innerH / drawers;
-  const frontZ = d/2 + 0.005;
+  const frontZ = d/2 + 0.008;
+
   for (let i = 0; i < drawers; i++) {
-    const dy = legH + 0.03 + i * drawerH;
-    lbox(w - 0.10, drawerH - 0.03, 0.02, 0, dy + 0.015, frontZ, matWoodOak, cx, cz, facing, false);
-    lbox(0.14, 0.018, 0.02, 0, dy + drawerH/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+    const dy = legH + 0.02 + i * drawerH;
+    const drawerGroup = new THREE.Group();
+    const p = localToWorld(cx, cz, 0, 0, frontZ, facing);
+    drawerGroup.position.set(p.x, dy, p.z);
+    const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                  facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+    drawerGroup.rotation.y = angle;
+    const facade = new THREE.Mesh(new THREE.BoxGeometry(w - 0.10, drawerH - 0.04, 0.025), matWoodOak);
+    facade.position.set(0, drawerH/2 - 0.02, 0);
+    facade.castShadow = true; facade.receiveShadow = true;
+    drawerGroup.add(facade);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.018, 0.03), matHandle);
+    handle.position.set(0, drawerH/2 - 0.02, 0.02);
+    handle.castShadow = true;
+    drawerGroup.add(handle);
+    scene.add(drawerGroup);
+    const closedZ = 0, openZ = 0.20;
+    const st = { group: drawerGroup, axis: 'z', closed: closedZ, open: openZ, current: closedZ, target: closedZ, speed: 3.5, openState: false };
+    doorAnims.push(st);
+    facade.userData.slideAnim = st;
+    registerInteractive(facade, 'Открыть ящик', (obj) => {
+      const anim = obj.userData.slideAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
   }
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 function buildNightstand(x, z, mat = matWood, facing = 'z+') {
-  buildDresser(x, z, 0.5, 0.55, 0.4, 2, mat, facing);
+  buildDresser(x, z, 0.55, 0.58, 0.42, 2, mat, facing);
 }
 
-/* ШКАФ — дверцы лицом к "facing" */
 function buildWardrobe(cx, cz, w, h, d, mat = matWood, facing = 'z+') {
-  lbox(w, h, d, 0, 0, 0, mat, cx, cz, facing, false);
-  lbox(w - 0.05, 0.08, d - 0.05, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
-  lbox(w + 0.06, 0.06, d + 0.06, 0, h, 0, matWoodDeep, cx, cz, facing, false);
-  const doorW = (w - 0.06) / 2;
-  const frontZ = d/2 + 0.005;
-  lbox(doorW - 0.01, h - 0.20, 0.025, -doorW/2 - 0.015, 0.10, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(doorW - 0.01, h - 0.20, 0.025,  doorW/2 + 0.015, 0.10, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(0.02, 0.14, 0.02, -0.04, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
-  lbox(0.02, 0.14, 0.02,  0.04, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  lbox(w - 0.05, 0.09, d - 0.05, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w, h - 0.09, d, 0, 0.09, 0, mat, cx, cz, facing, false);
+  lbox(w + 0.07, 0.07, d + 0.07, 0, h, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w + 0.04, 0.02, d + 0.04, 0, h - 0.02, 0, matWoodOak, cx, cz, facing, false);
+
+  const doorW = (w - 0.04) / 2;
+  const doorH = h - 0.22;
+  const doorT = 0.028;
+  const frontZ = d/2 + doorT/2 + 0.003;
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
+  for (const side of [-1, 1]) {
+    const hingeX = side * (w/2 - 0.02);
+    const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+    const pivot = new THREE.Group();
+    pivot.position.set(p.x, 0.11, p.z);
+    pivot.rotation.y = angle;
+    scene.add(pivot);
+    const innerX = -side * (doorW/2);
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.005, doorH, doorT), matWoodOak);
+    doorMesh.position.set(innerX, doorH/2, 0);
+    doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+    pivot.add(doorMesh);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.16, 0.028), matHandle);
+    handle.position.set(innerX + side * (doorW/2 - 0.06), doorH/2, 0.025);
+    handle.castShadow = true;
+    pivot.add(handle);
+    const closedAngle = 0;
+    const openAngle = side * (-Math.PI / 2.4);
+    const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
+    doorAnims.push(st);
+    doorMesh.userData.doorAnim = st;
+    handle.userData.doorAnim = st;
+    registerInteractive(doorMesh, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+    registerInteractive(handle, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+  }
+
+  lbox(w - 0.14, 0.025, d - 0.10, 0, 0.5, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w - 0.14, 0.025, d - 0.10, 0, 1.1, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w - 0.14, 0.025, d - 0.10, 0, 1.7, 0, matWoodOak, cx, cz, facing, false);
+
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-/* КРОВАТЬ — изголовье со стороны, противоположной "facing" */
-/* facing = направление, куда смотрит изножье (от изголовья) */
 function buildBed(cx, cz, mat = matWood, facing = 'z+') {
   const bedW = 1.55, bedL = 2.05;
-  const frameH = 0.35, mattressH = 0.22;
-  const headZ = -bedL/2 - 0.05;
-  const footZ = bedL/2 + 0.04;
+  const frameH = 0.33, mattressH = 0.24;
+  const headZ = -bedL/2 - 0.04;
+  const footZ = bedL/2 + 0.05;
 
   lbox(bedW + 0.06, frameH, bedL + 0.06, 0, 0, 0, matWoodOak, cx, cz, facing, false);
-  lbox(bedW, 0.10, bedL, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
-  lbox(bedW + 0.06, 1.0, 0.10, 0, 0, headZ, matWoodOak, cx, cz, facing, false);
-  // Планки изголовья
+  lbox(bedW, 0.08, bedL, 0, 0.05, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(bedW + 0.08, 1.05, 0.09, 0, 0, headZ, matWoodOak, cx, cz, facing, false);
   for (let i = 0; i < 7; i++) {
     const px = -bedW/2 + 0.15 + i * (bedW - 0.30) / 6;
-    lbox(0.05, 0.55, 0.05, px, 0.42, headZ, matWoodOak, cx, cz, facing, false);
+    lbox(0.045, 0.58, 0.045, px, 0.45, headZ, matWoodOak, cx, cz, facing, false);
   }
-  lbox(bedW + 0.10, 0.08, 0.12, 0, 1.0, headZ, matWoodOak, cx, cz, facing, false);
-  lbox(bedW + 0.06, 0.55, 0.08, 0, 0, footZ, matWoodOak, cx, cz, facing, false);
-  // Матрас
+  lbox(bedW + 0.12, 0.09, 0.13, 0, 1.05, headZ, matWoodDeep, cx, cz, facing, false);
+  lbox(bedW + 0.06, 0.60, 0.07, 0, 0, footZ, matWoodOak, cx, cz, facing, false);
+  lbox(bedW + 0.08, 0.05, 0.10, 0, 0.60, footZ, matWoodDeep, cx, cz, facing, false);
   lbox(bedW, mattressH, bedL, 0, frameH, 0, matMattress, cx, cz, facing, false);
-  lbox(bedW + 0.02, 0.04, bedL - 0.05, 0, frameH + mattressH, 0, matSheet, cx, cz, facing, false);
-  // Одеяло
-  lbox(bedW - 0.05, 0.06, bedL * 0.65, 0, frameH + mattressH + 0.04, bedL * 0.17, matBlanket, cx, cz, facing, false);
-  lbox(bedW - 0.05, 0.04, 0.20, 0, frameH + mattressH + 0.06, -bedL * 0.15, matSheet, cx, cz, facing, false);
-  // Подушки
-  const pillowZ = -bedL/2 + 0.35;
-  lbox(0.62, 0.14, 0.40, -0.36, frameH + mattressH + 0.04, pillowZ, matPillow, cx, cz, facing, false);
-  lbox(0.62, 0.14, 0.40,  0.36, frameH + mattressH + 0.04, pillowZ, matPillow, cx, cz, facing, false);
-  lbox(0.60, 0.02, 0.36, -0.36, frameH + mattressH + 0.18, pillowZ, matPillow, cx, cz, facing, false);
-  lbox(0.60, 0.02, 0.36,  0.36, frameH + mattressH + 0.18, pillowZ, matPillow, cx, cz, facing, false);
-
+  lbox(bedW + 0.02, 0.035, bedL - 0.04, 0, frameH + mattressH, 0, matSheet, cx, cz, facing, false);
+  lbox(bedW - 0.04, 0.055, bedL * 0.65, 0, frameH + mattressH + 0.035, bedL * 0.17, matBlanket, cx, cz, facing, false);
+  lbox(bedW - 0.04, 0.03, 0.22, 0, frameH + mattressH + 0.055, -bedL * 0.15, matSheet, cx, cz, facing, false);
+  const pillowZ = -bedL/2 + 0.33;
+  lbox(0.65, 0.14, 0.42, -0.37, frameH + mattressH + 0.035, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.65, 0.14, 0.42,  0.37, frameH + mattressH + 0.035, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.62, 0.02, 0.38, -0.37, frameH + mattressH + 0.175, pillowZ, matPillow, cx, cz, facing, false);
+  lbox(0.62, 0.02, 0.38,  0.37, frameH + mattressH + 0.175, pillowZ, matPillow, cx, cz, facing, false);
   lCollider(cx, cz, bedW + 0.06, bedL + 0.15, 0, 0.9, facing);
 }
 
-/* ОБЕДЕННЫЙ СТОЛ */
 function buildTable(cx, cz, w, d, facing = 'z+') {
-  const h = 0.75, topT = 0.05, legH = h - topT, legR = 0.045;
-  for (const [lx, lz] of [[-w/2+0.10, -d/2+0.10], [w/2-0.10, -d/2+0.10],
-                          [-w/2+0.10,  d/2-0.10], [w/2-0.10,  d/2-0.10]]) {
-    lcyl(legR, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 8);
+  const h = 0.75, topT = 0.05, legH = h - topT;
+  for (const [lx, lz] of [[-w/2+0.11, -d/2+0.11], [w/2-0.11, -d/2+0.11],
+                          [-w/2+0.11,  d/2-0.11], [w/2-0.11,  d/2-0.11]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.038, 0.048, legH - 0.02, matWoodDeep, p.x, 0, p.z, 14);
+    cyl(0.055, 0.055, 0.02, matWoodDeep, p.x, legH - 0.02, p.z, 14);
   }
-  lbox(w - 0.20, 0.08, 0.04, 0, legH - 0.08, -d/2 + 0.20, matWoodDeep, cx, cz, facing, false);
-  lbox(w - 0.20, 0.08, 0.04, 0, legH - 0.08,  d/2 - 0.20, matWoodDeep, cx, cz, facing, false);
-  lbox(0.04, 0.08, d - 0.20, -w/2 + 0.20, legH - 0.08, 0, matWoodDeep, cx, cz, facing, false);
-  lbox(0.04, 0.08, d - 0.20,  w/2 - 0.20, legH - 0.08, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.22, 0.09, 0.045, 0, legH - 0.11, -d/2 + 0.22, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.22, 0.09, 0.045, 0, legH - 0.11,  d/2 - 0.22, matWoodDeep, cx, cz, facing, false);
+  lbox(0.045, 0.09, d - 0.22, -w/2 + 0.22, legH - 0.11, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(0.045, 0.09, d - 0.22,  w/2 - 0.22, legH - 0.11, 0, matWoodDeep, cx, cz, facing, false);
   lbox(w, topT, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w + 0.03, 0.015, d + 0.03, 0, legH + topT, 0, matWoodDeep, cx, cz, facing, false);
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-/* СТУЛ — спинка с противоположной стороны от "facing" */
-/* facing = направление, куда смотрит сидящий человек (напр. на стол) */
 function buildChair(cx, cz, facing = 'z+', mat = matWood) {
-  const seatH = 0.45, seatT = 0.05, legH = seatH - seatT;
-  const backH = 0.50, backT = 0.04, w = 0.42, d = 0.42;
-  for (const [lx, lz] of [[-w/2+0.04, -d/2+0.04], [w/2-0.04, -d/2+0.04],
-                          [-w/2+0.04,  d/2-0.04], [w/2-0.04,  d/2-0.04]]) {
-    lcyl(0.022, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
+  const seatH = 0.46, seatT = 0.05, legH = seatH - seatT;
+  const backH = 0.52, backT = 0.04, w = 0.44, d = 0.44;
+  for (const [lx, lz] of [[-w/2+0.045, -d/2+0.045], [w/2-0.045, -d/2+0.045],
+                          [-w/2+0.045,  d/2-0.045], [w/2-0.045,  d/2-0.045]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.02, 0.026, legH, matWoodDeep, p.x, 0, p.z, 10);
   }
-  lbox(w - 0.08, 0.04, 0.02, 0, legH - 0.06, -d/2 + 0.04, matWoodDeep, cx, cz, facing, false);
-  lbox(w - 0.08, 0.04, 0.02, 0, legH - 0.06,  d/2 - 0.04, matWoodDeep, cx, cz, facing, false);
-  lbox(0.02, 0.04, d - 0.08, -w/2 + 0.04, legH - 0.06, 0, matWoodDeep, cx, cz, facing, false);
-  lbox(0.02, 0.04, d - 0.08,  w/2 - 0.04, legH - 0.06, 0, matWoodDeep, cx, cz, facing, false);
-  // Сиденье
+  lbox(w - 0.09, 0.035, 0.02, 0, legH - 0.07, -d/2 + 0.045, matWoodDeep, cx, cz, facing, false);
+  lbox(w - 0.09, 0.035, 0.02, 0, legH - 0.07,  d/2 - 0.045, matWoodDeep, cx, cz, facing, false);
+  lbox(0.02, 0.035, d - 0.09, -w/2 + 0.045, legH - 0.07, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(0.02, 0.035, d - 0.09,  w/2 - 0.045, legH - 0.07, 0, matWoodDeep, cx, cz, facing, false);
   lbox(w, seatT, d, 0, legH, 0, matWoodOak, cx, cz, facing, false);
-  // Спинка — на ЗАДНЕЙ стороне (local -Z, т.к. front=+Z — это лицо сидящего)
+  lbox(w + 0.02, 0.012, d + 0.02, 0, legH + seatT, 0, matWoodDeep, cx, cz, facing, false);
   const bz = -d/2 + 0.02;
   lbox(w, backH, backT, 0, seatH, bz, matWoodOak, cx, cz, facing, false);
   for (let i = 0; i < 3; i++) {
-    const px = -w/2 + 0.07 + i * (w - 0.14) / 2;
-    lbox(0.03, backH - 0.06, 0.025, px, seatH + 0.03, bz, matWoodOak, cx, cz, facing, false);
+    const px = -w/2 + 0.075 + i * (w - 0.15) / 2;
+    lbox(0.028, backH - 0.07, 0.022, px, seatH + 0.035, bz, matWoodOak, cx, cz, facing, false);
   }
-  lbox(w + 0.02, 0.05, backT + 0.02, 0, seatH + backH, bz, matWoodOak, cx, cz, facing, false);
+  lbox(w + 0.02, 0.055, backT + 0.025, 0, seatH + backH, bz, matWoodDeep, cx, cz, facing, false);
   lCollider(cx, cz, w, d, 0, seatH + 0.05, facing);
 }
 
-/* КНИЖНЫЙ ШКАФ */
 function buildBookshelf(cx, cz, w, h, d, facing, y0 = 0) {
-  const shelfT = 0.03, sideT = 0.05;
-  // Боковые панели
+  const shelfT = 0.028, sideT = 0.045;
   lbox(sideT, h, d, -w/2 + sideT/2, y0, 0, matWood, cx, cz, facing, false);
   lbox(sideT, h, d,  w/2 - sideT/2, y0, 0, matWood, cx, cz, facing, false);
-  // Задняя стенка (local -Z)
-  lbox(w, h, 0.02, 0, y0, -d/2 + 0.01, matWoodDeep, cx, cz, facing, false);
-  // Верх и низ
+  lbox(w, h, 0.018, 0, y0, -d/2 + 0.009, matWoodDeep, cx, cz, facing, false);
   lbox(w, 0.04, d, 0, y0, 0, matWoodOak, cx, cz, facing, false);
   lbox(w, 0.04, d, 0, y0 + h - 0.04, 0, matWoodOak, cx, cz, facing, false);
-  // Полки
+  lbox(w + 0.04, 0.03, d + 0.04, 0, y0 + h, 0, matWoodDeep, cx, cz, facing, false);
   const shelfCount = Math.max(2, Math.floor(h / 0.42));
   const shelfStep = (h - 0.08) / shelfCount;
   for (let s = 1; s < shelfCount; s++) {
     lbox(w - 0.10, shelfT, d - 0.05, 0, y0 + s * shelfStep, 0, matWoodOak, cx, cz, facing, false);
   }
-  // Книги
   for (let s = 0; s < shelfCount; s++) {
     const sy = y0 + 0.04 + s * shelfStep + shelfT;
     const books = 4 + Math.floor(Math.random() * 5);
@@ -671,414 +832,641 @@ function buildBookshelf(cx, cz, w, h, d, facing, y0 = 0) {
   lCollider(cx, cz, w, d, y0, h, facing);
 }
 
-/* ТЕЛЕВИЗОР — экран на стороне "facing" */
+let tvScreenMesh = null;
+let tvOn = false;
+
 function buildTV(cx, cy, cz, w, h, facing) {
-  const bezelT = 0.02, screenDepth = 0.05;
+  const bezelT = 0.025, screenDepth = 0.055;
   lbox(w, h, screenDepth, 0, cy, 0, matDark, cx, cz, facing, false);
-  lbox(w - bezelT*2, h - bezelT*2, 0.005, 0, cy + bezelT, screenDepth/2 + 0.001, matTVScreen, cx, cz, facing, false);
-  lbox(0.08, 0.06, 0.08, 0, cy - 0.06, 0, matDark, cx, cz, facing, false);
-  lbox(0.5, 0.03, 0.20, 0, cy - 0.09, 0, matDark, cx, cz, facing, false);
+  lbox(w + 0.02, 0.02, screenDepth + 0.02, 0, cy - 0.01, 0, matDark, cx, cz, facing, false);
+  lbox(w + 0.02, 0.02, screenDepth + 0.02, 0, cy + h - 0.01, 0, matDark, cx, cz, facing, false);
+  const scr = new THREE.Mesh(new THREE.BoxGeometry(w - bezelT*2, h - bezelT*2, 0.008), matTVScreenOff);
+  const scrP = localToWorld(cx, cz, 0, screenDepth/2 + 0.001, facing);
+  scr.position.set(scrP.x, cy + bezelT, scrP.z);
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+  scr.rotation.y = angle;
+  scr.castShadow = false; scr.receiveShadow = false;
+  scene.add(scr);
+  tvScreenMesh = scr;
+  lbox(0.30, 0.05, 0.20, 0, cy - 0.08, 0, matDark, cx, cz, facing, false);
+  lbox(0.10, 0.06, 0.10, 0, cy - 0.06, 0, matDark, cx, cz, facing, false);
 }
 
-/* ТВ-ТУМБА — дверцы на "facing" */
+function toggleTV() {
+  tvOn = !tvOn;
+  if (tvScreenMesh) {
+    tvScreenMesh.material = tvOn ? matTVScreenOn : matTVScreenOff;
+  }
+}
+
 function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
-  const legH = 0.10;
-  for (const [lx, lz] of [[-w/2+0.08, -d/2+0.06], [w/2-0.08, -d/2+0.06],
-                          [-w/2+0.08,  d/2-0.06], [w/2-0.08,  d/2-0.06]]) {
-    lcyl(0.028, legH, lx, 0, lz, matWoodDeep, cx, cz, facing, 6);
+  const legH = 0.11;
+  for (const [lx, lz] of [[-w/2+0.09, -d/2+0.07], [w/2-0.09, -d/2+0.07],
+                          [-w/2+0.09,  d/2-0.07], [w/2-0.09,  d/2-0.07]]) {
+    const p = localToWorld(cx, cz, lx, 0, lz, facing);
+    cyl(0.026, 0.034, legH, matWoodDeep, p.x, 0, p.z, 10);
   }
   lbox(w, h - legH, d, 0, legH, 0, matWood, cx, cz, facing, false);
-  lbox(w + 0.03, 0.03, d + 0.03, 0, h, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w + 0.03, 0.035, d + 0.03, 0, h, 0, matWoodOak, cx, cz, facing, false);
+
   const doorW = (w - 0.08) / 2;
-  const frontZ = d/2 + 0.005;
-  lbox(doorW, h - legH - 0.06, 0.02, -doorW/2 - 0.01, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(doorW, h - legH - 0.06, 0.02,  doorW/2 + 0.01, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(0.02, 0.12, 0.02, -0.03, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
-  lbox(0.02, 0.12, 0.02,  0.03, h/2, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  const doorH = h - legH - 0.08;
+  const doorT = 0.022;
+  const frontZ = d/2 + doorT/2 + 0.003;
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
+  for (const side of [-1, 1]) {
+    const hingeX = side * (w/2 - 0.02);
+    const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+    const pivot = new THREE.Group();
+    pivot.position.set(p.x, legH + 0.02, p.z);
+    pivot.rotation.y = angle;
+    scene.add(pivot);
+    const innerX = -side * (doorW/2);
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.005, doorH, doorT), matWoodOak);
+    doorMesh.position.set(innerX, doorH/2, 0);
+    doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+    pivot.add(doorMesh);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.026), matHandle);
+    handle.position.set(innerX + side * (doorW/2 - 0.05), doorH/2, 0.02);
+    handle.castShadow = true;
+    pivot.add(handle);
+    const closedAngle = 0;
+    const openAngle = side * (-Math.PI / 2.4);
+    const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
+    doorAnims.push(st);
+    doorMesh.userData.doorAnim = st;
+    handle.userData.doorAnim = st;
+    registerInteractive(doorMesh, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+    registerInteractive(handle, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+  }
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-/* НИЖНЯЯ КУХОННАЯ СЕКЦИЯ — дверцы на "facing" */
 function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
   const legH = 0.10;
-  const W = len, D = depth;  // local: width along X, depth along Z
-  const sgn = (facing === 'z+' || facing === 'x+') ? 1 : -1;
-
+  const W = len, D = depth;
   lbox(W - 0.04, legH, D - 0.04, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
   lbox(W, h - legH, D, 0, legH, 0, matWood, cx, cz, facing, false);
-  lbox(W + 0.04, 0.05, D + 0.04, 0, h, 0, matCountertop, cx, cz, facing, false);
+  lbox(W + 0.05, 0.05, D + 0.05, 0, h, 0, matCountertop, cx, cz, facing, false);
+  lbox(W + 0.02, 0.015, D + 0.02, 0, h - 0.015, 0, matDark, cx, cz, facing, false);
 
   const secW = W / sections;
-  const frontZ = D/2 + 0.005;
+  const doorH = h - legH - 0.06;
+  const doorT = 0.022;
+  const frontZ = D/2 + doorT/2 + 0.003;
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
   for (let i = 0; i < sections; i++) {
     const sx = -W/2 + secW * (i + 0.5);
     const isDrawer = (i === 0);
     if (isDrawer) {
-      const h1 = (h - legH - 0.10) / 2 - 0.03;
-      lbox(secW - 0.04, h1, 0.02, sx, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
-      lbox(secW - 0.04, h1, 0.02, sx, legH + h1 + 0.06, frontZ, matWoodOak, cx, cz, facing, false);
-      lbox(0.14, 0.018, 0.02, sx, legH + 0.10, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
-      lbox(0.14, 0.018, 0.02, sx, h - 0.10, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
+      for (let d = 0; d < 2; d++) {
+        const dy = legH + 0.02 + d * (doorH / 2);
+        const dh = doorH / 2 - 0.03;
+        const p = localToWorld(cx, cz, sx, 0, frontZ, facing);
+        const g = new THREE.Group();
+        g.position.set(p.x, dy, p.z);
+        g.rotation.y = angle;
+        const facade = new THREE.Mesh(new THREE.BoxGeometry(secW - 0.05, dh - 0.02, doorT), matWoodOak);
+        facade.position.set(0, dh/2, 0);
+        facade.castShadow = true; facade.receiveShadow = true;
+        g.add(facade);
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.018, 0.026), matHandle);
+        handle.position.set(0, dh/2, 0.018);
+        handle.castShadow = true;
+        g.add(handle);
+        scene.add(g);
+        const st = { group: g, axis: 'z', closed: 0, open: 0.22, current: 0, target: 0, speed: 3.5, openState: false };
+        doorAnims.push(st);
+        facade.userData.slideAnim = st;
+        registerInteractive(facade, 'Открыть ящик', (obj) => {
+          const anim = obj.userData.slideAnim;
+          anim.openState = !anim.openState;
+          anim.target = anim.openState ? anim.open : anim.closed;
+        });
+      }
     } else {
-      lbox(secW - 0.04, h - legH - 0.06, 0.02, sx, legH + 0.03, frontZ, matWoodOak, cx, cz, facing, false);
-      lbox(0.02, 0.10, 0.02, sx, legH + 0.30, frontZ + sgn * 0.025, matHandle, cx, cz, facing, false);
+      const side = i === 1 ? -1 : 1;
+      const hingeX = sx + side * (secW/2);
+      const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+      const pivot = new THREE.Group();
+      pivot.position.set(p.x, legH + 0.02, p.z);
+      pivot.rotation.y = angle;
+      scene.add(pivot);
+      const innerX = -side * (secW/2 - 0.01);
+      const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(secW - 0.03, doorH, doorT), matWoodOak);
+      doorMesh.position.set(innerX, doorH/2, 0);
+      doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+      pivot.add(doorMesh);
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.12, 0.026), matHandle);
+      handle.position.set(innerX + side * (secW/2 - 0.06), doorH/2, 0.02);
+      handle.castShadow = true;
+      pivot.add(handle);
+      const closedAngle = 0;
+      const openAngle = side * (-Math.PI / 2.4);
+      const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
+      doorAnims.push(st);
+      doorMesh.userData.doorAnim = st;
+      handle.userData.doorAnim = st;
+      registerInteractive(doorMesh, 'Открыть дверцу', (obj) => {
+        const anim = obj.userData.doorAnim;
+        anim.openState = !anim.openState;
+        anim.target = anim.openState ? anim.open : anim.closed;
+      });
+      registerInteractive(handle, 'Открыть дверцу', (obj) => {
+        const anim = obj.userData.doorAnim;
+        anim.openState = !anim.openState;
+        anim.target = anim.openState ? anim.open : anim.closed;
+      });
     }
   }
   lCollider(cx, cz, W, D, 0, h + 0.05, facing);
 }
 
-/* ВЕРХНИЙ ШКАФ (навесной) */
 function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
   const W = len, D = depth;
   lbox(W, h, D, 0, cy, 0, matWood, cx, cz, facing, false);
+  lbox(W + 0.04, 0.03, D + 0.04, 0, cy, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(W + 0.04, 0.03, D + 0.04, 0, cy + h - 0.03, 0, matWoodDeep, cx, cz, facing, false);
+
   const doorW = (W - 0.06) / 2;
-  const frontZ = D/2 + 0.005;
-  lbox(doorW, h - 0.08, 0.02, -doorW/2 - 0.01, cy + 0.04, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(doorW, h - 0.08, 0.02,  doorW/2 + 0.01, cy + 0.04, frontZ, matWoodOak, cx, cz, facing, false);
-  lbox(0.02, 0.10, 0.02, -0.03, cy + h/2 - 0.05, frontZ + 0.03, matHandle, cx, cz, facing, false);
-  lbox(0.02, 0.10, 0.02,  0.03, cy + h/2 - 0.05, frontZ + 0.03, matHandle, cx, cz, facing, false);
+  const doorH = h - 0.08;
+  const doorT = 0.022;
+  const frontZ = D/2 + doorT/2 + 0.003;
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
+  for (const side of [-1, 1]) {
+    const hingeX = side * (W/2 - 0.015);
+    const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+    const pivot = new THREE.Group();
+    pivot.position.set(p.x, cy + 0.04, p.z);
+    pivot.rotation.y = angle;
+    scene.add(pivot);
+    const innerX = -side * (doorW/2);
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW - 0.005, doorH, doorT), matWoodOak);
+    doorMesh.position.set(innerX, doorH/2, 0);
+    doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+    pivot.add(doorMesh);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.10, 0.026), matHandle);
+    handle.position.set(innerX + side * (doorW/2 - 0.05), doorH/2, 0.02);
+    handle.castShadow = true;
+    pivot.add(handle);
+    const closedAngle = 0;
+    const openAngle = side * (-Math.PI / 2.6);
+    const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
+    doorAnims.push(st);
+    doorMesh.userData.doorAnim = st;
+    handle.userData.doorAnim = st;
+    registerInteractive(doorMesh, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+    registerInteractive(handle, 'Открыть дверцу', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+  }
   lCollider(cx, cz, W, D, cy, h, facing);
 }
 
-/* ХОЛОДИЛЬНИК */
 function buildFridge(cx, cz, facing) {
   const w = 0.72, h = 1.85, d = 0.72;
   const freezH = 0.55;
-  const frontZ = d/2 + 0.005;
   lbox(w, h, d, 0, 0, 0, matFridge, cx, cz, facing, false);
-  lbox(w - 0.02, freezH - 0.02, 0.02, 0, h - freezH + 0.01, frontZ, matFridge, cx, cz, facing, false);
-  lbox(w - 0.02, h - freezH - 0.10, 0.02, 0, 0.05, frontZ, matFridge, cx, cz, facing, false);
-  lbox(w, 0.01, 0.005, 0, h - freezH, frontZ + 0.001, matDark, cx, cz, facing, false);
-  lbox(0.03, 0.30, 0.03, 0.15, h - freezH + 0.10, frontZ + 0.04, matHandle, cx, cz, facing, false);
-  lbox(0.03, 0.40, 0.03, 0.15, 0.55, frontZ + 0.04, matHandle, cx, cz, facing, false);
+  lbox(w + 0.02, 0.03, d + 0.02, 0, 0, 0, matDark, cx, cz, facing, false);
+  lbox(w + 0.02, 0.03, d + 0.02, 0, h - 0.03, 0, matDark, cx, cz, facing, false);
+
+  const frontZ = d/2 + 0.012;
+  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
+  {
+    const hingeX = -w/2 + 0.02;
+    const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+    const pivot = new THREE.Group();
+    pivot.position.set(p.x, 0.06, p.z);
+    pivot.rotation.y = angle;
+    scene.add(pivot);
+    const doorH = h - freezH - 0.10;
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(w - 0.02, doorH, 0.03), matFridge);
+    doorMesh.position.set(w/2 - 0.01, doorH/2, 0);
+    doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+    pivot.add(doorMesh);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.5, 0.035), matHandle);
+    handle.position.set(w - 0.15, doorH/2, 0.03);
+    handle.castShadow = true;
+    pivot.add(handle);
+    const st = { group: pivot, axis: 'rotY', closed: 0, open: -Math.PI/2.4, current: 0, target: 0, speed: 3.2, openState: false };
+    doorAnims.push(st);
+    doorMesh.userData.doorAnim = st;
+    handle.userData.doorAnim = st;
+    registerInteractive(doorMesh, 'Открыть холодильник', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+    registerInteractive(handle, 'Открыть холодильник', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+  }
+  {
+    const hingeX = -w/2 + 0.02;
+    const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
+    const pivot = new THREE.Group();
+    pivot.position.set(p.x, h - freezH, p.z);
+    pivot.rotation.y = angle;
+    scene.add(pivot);
+    const doorH = freezH - 0.04;
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(w - 0.02, doorH, 0.03), matFridge);
+    doorMesh.position.set(w/2 - 0.01, doorH/2, 0);
+    doorMesh.castShadow = true; doorMesh.receiveShadow = true;
+    pivot.add(doorMesh);
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.3, 0.035), matHandle);
+    handle.position.set(w - 0.15, doorH/2, 0.03);
+    handle.castShadow = true;
+    pivot.add(handle);
+    const st = { group: pivot, axis: 'rotY', closed: 0, open: -Math.PI/2.6, current: 0, target: 0, speed: 3.2, openState: false };
+    doorAnims.push(st);
+    doorMesh.userData.doorAnim = st;
+    handle.userData.doorAnim = st;
+    registerInteractive(doorMesh, 'Открыть морозилку', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+    registerInteractive(handle, 'Открыть морозилку', (obj) => {
+      const anim = obj.userData.doorAnim;
+      anim.openState = !anim.openState;
+      anim.target = anim.openState ? anim.open : anim.closed;
+    });
+  }
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-/* ПЛИТА */
 function buildStove(cx, cz, facing) {
   const w = 0.62, h = 0.90, d = 0.62;
-  const frontZ = d/2 + 0.005;
-  lbox(w, h - 0.05, d, 0, 0, 0, matStove, cx, cz, facing, false);
-  lbox(w - 0.10, h - 0.30, 0.02, 0, 0.06, frontZ, matGlass, cx, cz, facing, false);
-  lbox(w - 0.15, 0.03, 0.04, 0, h - 0.25, frontZ + 0.035, matChrome, cx, cz, facing, false);
+  const frontZ = d/2 + 0.008;
+  lbox(w, h - 0.06, d, 0, 0, 0, matStove, cx, cz, facing, false);
+  lbox(w - 0.08, h - 0.32, 0.02, 0, 0.08, frontZ, matGlass, cx, cz, facing, false);
+  lbox(w - 0.14, 0.03, 0.045, 0, h - 0.26, frontZ + 0.03, matChrome, cx, cz, facing, false);
   lbox(w, 0.10, 0.02, 0, h - 0.10, frontZ, matDark, cx, cz, facing, false);
-  // Ручки
   for (let i = 0; i < 4; i++) {
     const lx = -w/2 + 0.10 + i * (w - 0.20) / 3;
-    const p = localToWorld(cx, cz, lx, frontZ + 0.02, facing);
-    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 8), matChrome);
+    const p = localToWorld(cx, cz, lx, 0, frontZ + 0.02, facing);
+    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.03, 12), matChrome);
     const horiz = (facing === 'x+' || facing === 'x-');
     if (horiz) knob.rotation.z = Math.PI / 2; else knob.rotation.x = Math.PI / 2;
     knob.position.set(p.x, h - 0.05, p.z);
+    knob.castShadow = true;
     scene.add(knob);
   }
-  lbox(w, 0.04, d, 0, h - 0.05, 0, matStove, cx, cz, facing, false);
-  // 4 конфорки
-  const burnPositions = [[-0.15,-0.15],[0.15,-0.15],[-0.15,0.15],[0.15,0.15]];
-  for (const [dx, dz] of burnPositions) {
-    const p = localToWorld(cx, cz, dx, dz, facing);
-    const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.01, 16), matDark);
-    burner.position.set(p.x, h + 0.005, p.z);
+  lbox(w + 0.02, 0.02, d + 0.02, 0, h - 0.06, 0, matStove, cx, cz, facing, false);
+  for (const [dx, dz] of [[-0.15,-0.15],[0.15,-0.15],[-0.15,0.15],[0.15,0.15]]) {
+    const p = localToWorld(cx, cz, dx, 0, dz, facing);
+    const burner = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.012, 8, 16), matDark);
+    burner.rotation.x = Math.PI/2;
+    burner.position.set(p.x, h - 0.045, p.z);
     scene.add(burner);
+    const inner = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.008, 12), matDark);
+    inner.position.set(p.x, h - 0.045, p.z);
+    scene.add(inner);
   }
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
-/* РАКОВИНА */
 function buildSink(cx, cy, cz, facing) {
   const basinW = 0.5, basinD = 0.4;
   const frontZ = basinD/2 - 0.06;
   lbox(basinW, 0.06, basinD, 0, cy, 0, matPorcelain, cx, cz, facing, false);
-  lbox(basinW - 0.06, 0.02, basinD - 0.06, 0, cy + 0.02, 0, matMetal, cx, cz, facing, false);
-  // Слив
-  const pd = localToWorld(cx, cz, 0, 0, facing);
-  const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.005, 8), matDark);
-  drain.position.set(pd.x, cy + 0.03, pd.z); scene.add(drain);
-  // Смеситель (у задней стенки)
-  const pb = localToWorld(cx, cz, 0, -frontZ, facing);
-  cyl(0.018, 0.018, 0.16, matChrome, pb.x, cy + 0.06, pb.z, 8);
-  // Изогнутый носик
-  const pn = localToWorld(cx, cz, 0, -frontZ + 0.07, facing);
-  const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.14, 8), matChrome);
-  const horiz = (facing === 'x+' || facing === 'x-');
-  if (horiz) spout.rotation.z = Math.PI / 2; else spout.rotation.x = Math.PI / 2;
-  spout.position.set(pn.x, cy + 0.22, pn.z); scene.add(spout);
-  // Ручки
-  const h1 = localToWorld(cx, cz, -0.05, -frontZ, facing);
-  const hh1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.06, 6), matChrome);
-  hh1.position.set(h1.x, cy + 0.20, h1.z); scene.add(hh1);
-  const h2 = localToWorld(cx, cz, 0.05, -frontZ, facing);
-  const hh2 = hh1.clone(); hh2.position.set(h2.x, cy + 0.20, h2.z); scene.add(hh2);
+  lbox(basinW - 0.08, 0.045, basinD - 0.08, 0, cy + 0.015, 0, matMetal, cx, cz, facing, false);
+  const pd = localToWorld(cx, cz, 0, 0, 0, facing);
+  const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.008, 12), matDark);
+  drain.position.set(pd.x, cy + 0.06, pd.z);
+  scene.add(drain);
+  const pb = localToWorld(cx, cz, 0, 0, -frontZ, facing);
+  cyl(0.018, 0.018, 0.20, matChrome, pb.x, cy + 0.06, pb.z, 12);
+  const pn = localToWorld(cx, cz, 0, 0, -frontZ + 0.08, facing);
+  const spout = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.016, 10, 16, Math.PI), matChrome);
+  spout.rotation.z = Math.PI/2;
+  spout.rotation.y = (facing === 'z+' || facing === 'z-') ? Math.PI/2 : 0;
+  spout.position.set(pn.x, cy + 0.26, pn.z);
+  spout.castShadow = true;
+  scene.add(spout);
+  const h1 = localToWorld(cx, cz, -0.06, 0, -frontZ, facing);
+  const hh1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.07, 10), matChrome);
+  hh1.position.set(h1.x, cy + 0.24, h1.z);
+  scene.add(hh1);
+  const h2 = localToWorld(cx, cz, 0.06, 0, -frontZ, facing);
+  const hh2 = hh1.clone(); hh2.position.set(h2.x, cy + 0.24, h2.z); scene.add(hh2);
 }
 
-/* УНИТАЗ */
 function buildToilet(cx, cy0, cz, facing) {
-  // Танк сзади (local -Z), чаша спереди (local +Z)
-  lbox(0.42, 0.50, 0.20, 0, cy0, -0.20, matPorcelain, cx, cz, facing, false);
-  lbox(0.46, 0.04, 0.24, 0, cy0 + 0.50, -0.20, matPorcelain, cx, cz, facing, false);
-  lbox(0.06, 0.02, 0.06, 0, cy0 + 0.54, -0.20, matChrome, cx, cz, facing, false);
-  lbox(0.25, cy0 + 0.30, 0.22, 0, 0, -0.02, matPorcelain, cx, cz, facing, false);
-  // Чаша
-  const pBowl = localToWorld(cx, cz, 0, 0.08, facing);
-  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.20, 16), matPorcelain);
-  bowl.position.set(pBowl.x, cy0 + 0.30, pBowl.z);
-  bowl.castShadow = true; bowl.receiveShadow = true; scene.add(bowl);
-  const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.04, 16), matPorcelain);
-  seat.position.set(pBowl.x, cy0 + 0.42, pBowl.z); scene.add(seat);
-  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.02, 16), matPorcelain);
-  lid.position.set(pBowl.x, cy0 + 0.45, pBowl.z); scene.add(lid);
-  lCollider(cx, cz, 0.46, 0.6, cy0, 0.55, facing);
+  lbox(0.22, 0.28, 0.24, 0, cy0, -0.02, matPorcelain, cx, cz, facing, false);
+  const bowlP = localToWorld(cx, cz, 0, 0, 0.05, facing);
+  const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.16, 0.16, 20), matPorcelain);
+  bowl.position.set(bowlP.x, cy0 + 0.34, bowlP.z);
+  bowl.castShadow = true; bowl.receiveShadow = true;
+  scene.add(bowl);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.20, 0.022, 10, 24), matPorcelain);
+  rim.rotation.x = Math.PI/2;
+  rim.position.set(bowlP.x, cy0 + 0.42, bowlP.z);
+  scene.add(rim);
+  const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.035, 20), matPorcelain);
+  seat.position.set(bowlP.x, cy0 + 0.45, bowlP.z);
+  scene.add(seat);
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.018, 0.24), matPorcelain);
+  lid.position.set(bowlP.x, cy0 + 0.52, bowlP.z - 0.12);
+  lid.rotation.x = -0.3;
+  scene.add(lid);
+  lbox(0.42, 0.44, 0.20, 0, cy0 + 0.06, -0.20, matPorcelain, cx, cz, facing, false);
+  lbox(0.46, 0.035, 0.24, 0, cy0 + 0.50, -0.20, matPorcelain, cx, cz, facing, false);
+  const btnP = localToWorld(cx, cz, 0, 0, -0.20, facing);
+  const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.02, 12), matChrome);
+  btn.position.set(btnP.x, cy0 + 0.545, btnP.z);
+  scene.add(btn);
+  lCollider(cx, cz, 0.46, 0.66, cy0, 0.55, facing);
 }
 
-/* ВАННА */
 function buildBathtub(cx, cy0, cz, w, d, facing = 'z+') {
-  const p1 = localToWorld(cx, cz, -w/2 + 0.20, -d/2 + 0.10, facing);
-  lbox(w, 0.55, d, 0, cy0, 0, matPorcelain, cx, cz, facing, false);
-  lbox(w - 0.15, 0.02, d - 0.15, 0, cy0 + 0.50, 0, matMetal, cx, cz, facing, false);
-  lbox(0.04, 0.04, 0.04, 0, cy0 + 0.54, d/2 - 0.10, matChrome, cx, cz, facing, false);
-  lbox(w - 0.05, 0.10, d - 0.05, 0, 0, 0, matPorcelain, cx, cz, facing, false);
-  cyl(0.02, 0.02, 0.20, matChrome, p1.x, cy0 + 0.54, p1.z, 8);
-  lCollider(cx, cz, w, d, cy0, 0.55, facing);
+  lbox(w, 0.58, d, 0, cy0, 0, matPorcelain, cx, cz, facing, false);
+  lbox(w - 0.14, 0.03, d - 0.14, 0, cy0 + 0.53, 0, matPorcelain, cx, cz, facing, false);
+  const innerW = w - 0.14, innerD = d - 0.14;
+  const edgeTopY = cy0 + 0.58;
+  for (const [dx, dz, rot] of [
+      [0, innerD/2, 0], [0, -innerD/2, 0], [innerW/2, 0, 1], [-innerW/2, 0, 1]]) {
+    const p = localToWorld(cx, cz, dx, 0, dz, facing);
+    const len = rot === 0 ? innerW : innerD;
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, len, 12), matPorcelain);
+    bar.rotation.z = Math.PI/2;
+    if (rot === 1) bar.rotation.y = Math.PI/2;
+    bar.position.set(p.x, edgeTopY, p.z);
+    scene.add(bar);
+  }
+  const sp = localToWorld(cx, cz, -w/2 + 0.18, 0, -d/2 + 0.08, facing);
+  cyl(0.018, 0.018, 0.22, matChrome, sp.x, cy0 + 0.58, sp.z, 12);
+  const dp = localToWorld(cx, cz, w/2 - 0.20, 0, d/2 - 0.15, facing);
+  const drain = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 12), matChrome);
+  drain.position.set(dp.x, cy0 + 0.545, dp.z);
+  scene.add(drain);
+  lCollider(cx, cz, w, d, cy0, 0.58, facing);
 }
 
-/* ТОРШЕР */
+let tvRemoteMesh = null;
+function buildTVRemote(x, y, z, rotation = 0) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+  g.rotation.y = rotation;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.018, 0.20), matRemoteBody);
+  body.castShadow = true; body.receiveShadow = true;
+  g.add(body);
+  const rim = new THREE.Mesh(new THREE.BoxGeometry(0.079, 0.008, 0.204), matDark);
+  rim.position.y = -0.008;
+  g.add(rim);
+  const powerBtn = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.008, 0.03), matRemoteRed);
+  powerBtn.position.set(0, 0.013, 0.06);
+  g.add(powerBtn);
+  const led = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.006, 8), matRemoteGreen);
+  led.position.set(0, 0.012, 0.085);
+  g.add(led);
+  for (let i = 0; i < 3; i++) {
+    const btn = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.006, 0.012), matRemoteBtn);
+    btn.position.set(-0.02 + i * 0.02, 0.012, 0.02);
+    g.add(btn);
+  }
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const btn = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.005, 0.010), matRemoteBtn);
+    btn.position.set(-0.022 + c * 0.022, 0.012, -0.02 - r * 0.022);
+    g.add(btn);
+  }
+  scene.add(g);
+
+  powerBtn.userData.onAction = (obj) => {
+    if (tvViewMode) toggleTV();
+    else enterTVView();
+  };
+  powerBtn.userData.interactive = true;
+  powerBtn.userData.label = 'ПУЛЬТ: ВКЛ/ВЫКЛ';
+  interactives.push(powerBtn);
+
+  body.userData.onAction = (obj) => {
+    if (tvViewMode) toggleTV();
+    else enterTVView();
+  };
+  body.userData.interactive = true;
+  body.userData.label = 'Взять пульт';
+  interactives.push(body);
+
+  tvRemoteMesh = g;
+  return g;
+}
+
+/* ============================================================
+   ОСВЕЩЕНИЕ — всё ×2 для яркости комнат
+   ============================================================ */
+
+/* ТОРШЕР — яркость intensity ×2 */
 function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
-  cyl(0.18, 0.20, 0.03, matDark, x, y0, z, 16);
-  cyl(0.02, 0.02, 1.50, matChrome, x, y0 + 0.03, z, 8);
-  const shadeY = y0 + 1.50;
-  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.30, 20, 1, true), matLampShade);
-  shade.position.set(x, shadeY + 0.15, z); shade.castShadow = true; scene.add(shade);
-  const shadeTop = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.01, 20), matLampShade);
-  shadeTop.position.set(x, shadeY + 0.30, z); scene.add(shadeTop);
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), matBulb);
-  bulb.position.set(x, shadeY + 0.16, z); scene.add(bulb);
+  cyl(0.19, 0.21, 0.03, matDark, x, y0, z, 20);
+  cyl(0.02, 0.02, 1.52, matChrome, x, y0 + 0.03, z, 10);
+  const shadeY = y0 + 1.52;
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.25, 0.32, 24, 1, true), matLampShade);
+  shade.position.set(x, shadeY + 0.16, z); shade.castShadow = true; scene.add(shade);
+  const shadeTop = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.012, 24), matLampShade);
+  shadeTop.position.set(x, shadeY + 0.32, z); scene.add(shadeTop);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), matBulb);
+  bulb.position.set(x, shadeY + 0.17, z); scene.add(bulb);
   const l = new THREE.PointLight(colorHex, intensity, 6.5, 2);
   l.position.set(x, shadeY + 0.15, z); scene.add(l);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random()*100, speed: 1.4 + Math.random()*3 });
   addCollider(x - 0.20, x + 0.20, z - 0.20, z + 0.20, y0, y0 + 1.6);
 }
 
-/* НАСТОЛЬНАЯ ЛАМПА */
+/* НАСТОЛЬНАЯ ЛАМПА — яркость ×2 */
 function buildTableLamp(x, y0, z, colorHex, intensity) {
-  cyl(0.07, 0.09, 0.03, matDark, x, y0, z, 12);
-  cyl(0.012, 0.012, 0.24, matChrome, x, y0 + 0.03, z, 6);
-  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.16, 16, 1, true), matLampShade);
-  shade.position.set(x, y0 + 0.35, z); shade.castShadow = true; scene.add(shade);
-  const top = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.01, 16), matLampShade);
-  top.position.set(x, y0 + 0.43, z); scene.add(top);
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), matBulb);
-  bulb.position.set(x, y0 + 0.34, z); scene.add(bulb);
+  cyl(0.075, 0.095, 0.03, matDark, x, y0, z, 14);
+  cyl(0.012, 0.012, 0.25, matChrome, x, y0 + 0.03, z, 8);
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.13, 0.17, 20, 1, true), matLampShade);
+  shade.position.set(x, y0 + 0.36, z); shade.castShadow = true; scene.add(shade);
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.095, 0.012, 20), matLampShade);
+  top.position.set(x, y0 + 0.44, z); scene.add(top);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 10), matBulb);
+  bulb.position.set(x, y0 + 0.35, z); scene.add(bulb);
   const l = new THREE.PointLight(colorHex, intensity, 4.5, 2);
   l.position.set(x, y0 + 0.36, z); scene.add(l);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random()*100, speed: 1.8 + Math.random()*3 });
 }
 
-/* РАСТЕНИЕ */
 function buildPlant(x, z, scale = 1, y0 = 0) {
-  cyl(0.20 * scale, 0.15 * scale, 0.30 * scale, matPot, x, y0, z, 12);
-  cyl(0.21 * scale, 0.21 * scale, 0.03 * scale, matPot, x, y0 + 0.30 * scale, z, 12);
-  cyl(0.18 * scale, 0.18 * scale, 0.02 * scale, matDark, x, y0 + 0.31 * scale, z, 12);
-  cyl(0.02 * scale, 0.02 * scale, 0.5 * scale, matPlant, x, y0 + 0.33 * scale, z, 6);
+  cyl(0.20 * scale, 0.15 * scale, 0.30 * scale, matPot, x, y0, z, 16);
+  cyl(0.21 * scale, 0.21 * scale, 0.03 * scale, matPot, x, y0 + 0.30 * scale, z, 16);
+  cyl(0.18 * scale, 0.18 * scale, 0.02 * scale, matDark, x, y0 + 0.31 * scale, z, 16);
+  cyl(0.02 * scale, 0.02 * scale, 0.5 * scale, matPlant, x, y0 + 0.33 * scale, z, 8);
   for (let i = 0; i < 6; i++) {
     const angle = (i / 6) * Math.PI * 2;
     const r = 0.14 * scale;
     const ly = y0 + (0.55 + Math.random() * 0.30) * scale;
     const lx = x + Math.cos(angle) * r;
     const lz = z + Math.sin(angle) * r;
-    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.13 * scale, 8, 6), matPlant);
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.13 * scale, 10, 8), matPlant);
     leaf.scale.set(1, 1.3, 1); leaf.position.set(lx, ly, lz); leaf.castShadow = true; scene.add(leaf);
   }
-  const center = new THREE.Mesh(new THREE.SphereGeometry(0.15 * scale, 8, 6), matPlant);
+  const center = new THREE.Mesh(new THREE.SphereGeometry(0.15 * scale, 12, 10), matPlant);
   center.position.set(x, y0 + 0.75 * scale, z); center.castShadow = true; scene.add(center);
   addCollider(x - 0.20 * scale, x + 0.20 * scale, z - 0.20 * scale, z + 0.20 * scale, y0, y0 + 0.5 * scale);
 }
 
-/* КАРТИНА НА СТЕНЕ */
 function buildPainting(cx, cy, cz, w, h, facing, matContent) {
   const frontZ = 0.02;
-  lbox(w, h, 0.04, 0, cy - h/2, 0, matWoodDeep, cx, cz, facing, false);
-  lbox(w - 0.10, h - 0.10, 0.005, 0, cy - h/2 + 0.05, frontZ, matContent || matPaper, cx, cz, facing, false);
-  lbox(w*0.5, h*0.35, 0.003, -w*0.15, cy - h/2 + h*0.55, frontZ + 0.005, matBookMats[0], cx, cz, facing, false);
-  lbox(w*0.35, h*0.4, 0.003,  w*0.15, cy - h/2 + h*0.35, frontZ + 0.005, matBookMats[2], cx, cz, facing, false);
+  lbox(w + 0.03, h + 0.03, 0.03, 0, cy - h/2 - 0.015, 0, matWoodDeep, cx, cz, facing, false);
+  lbox(w, h, 0.04, 0, cy - h/2, 0, matWoodOak, cx, cz, facing, false);
+  lbox(w - 0.10, h - 0.10, 0.006, 0, cy - h/2 + 0.05, frontZ, matContent || matPaper, cx, cz, facing, false);
+  lbox(w*0.5, h*0.35, 0.004, -w*0.15, cy - h/2 + h*0.55, frontZ + 0.005, matBookMats[0], cx, cz, facing, false);
+  lbox(w*0.35, h*0.4, 0.004,  w*0.15, cy - h/2 + h*0.35, frontZ + 0.005, matBookMats[2], cx, cz, facing, false);
 }
 
-/* ЧАСЫ */
 function buildClock(cx, cy, cz, facing) {
   const radius = 0.18;
-  const frontZ = 0.026;
-  // Корпус — плоский цилиндр, ориентированный перпендикулярно стене
-  // Проще: 2 бокса и круглая "морда" из круга
-  const pBody = localToWorld(cx, cz, 0, 0, facing);
+  const frontZ = 0.028;
+  const pBody = localToWorld(cx, cz, 0, 0, 0, facing);
   const horiz = (facing === 'x+' || facing === 'x-');
-  // Круглый корпус
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.05, 20), matDark);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 0.06, 24), matDark);
   if (horiz) body.rotation.z = Math.PI / 2; else body.rotation.x = Math.PI / 2;
   body.position.set(pBody.x, cy, pBody.z); body.castShadow = true; scene.add(body);
-  // Циферблат
-  const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 20), matClockFace);
-  const pFace = localToWorld(cx, cz, 0, frontZ, facing);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(radius - 0.02, 24), matClockFace);
+  const pFace = localToWorld(cx, cz, 0, 0, frontZ, facing);
   if (horiz) face.rotation.y = (facing === 'x+') ? Math.PI/2 : -Math.PI/2;
   face.position.set(pFace.x, cy, pFace.z); scene.add(face);
-  // Стрелки
-  const pHand1 = localToWorld(cx, cz, 0, frontZ + 0.002, facing);
-  const hh = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.003), matDark);
-  hh.position.set(pHand1.x, cy + 0.035, pHand1.z);
+  const pHand = localToWorld(cx, cz, 0, 0, frontZ + 0.003, facing);
+  const hh = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.09, 0.004), matDark);
+  hh.position.set(pHand.x, cy + 0.035, pHand.z);
   if (horiz) hh.rotation.y = Math.PI/2;
   scene.add(hh);
-  const mh = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.13, 0.003), matDark);
-  mh.position.set(pHand1.x, cy + 0.05, pHand1.z);
+  const mh = new THREE.Mesh(new THREE.BoxGeometry(0.009, 0.13, 0.004), matDark);
+  mh.position.set(pHand.x, cy + 0.05, pHand.z);
   if (horiz) mh.rotation.y = Math.PI/2;
   scene.add(mh);
 }
 
-/* КОВЁР */
 function buildRug(x, z, w, d, mat, y0 = 0) {
   box(w, 0.012, d, mat, x, y0 + 0.002, z, false);
 }
 
 /* ============================================================
-   РАССТАНОВКА — все предметы на своих местах
-   Внутренние поверхности стен:
-     Северная  z = -8 → z = -7.85
-     Южная     z =  8 → z =  7.85
-     Западная  x = -10 → x = -9.85
-     Восточная x =  10 → x =  9.85
-     Центр (x=0) внутренние: x = ±0.15
-     Центр (z=0) внутренние: z = ±0.15
+   РАССТАНОВКА МЕБЕЛИ
    ============================================================ */
 
-/* ====== ГОСТИНАЯ (1 эт.: x[-10, 0], z[-8, 0]) ====== */
-// ТВ-тумба и телевизор у северной стены — экран смотрит на юг (+Z)
-buildTVStand(-6.0, -7.6, 1.8, 0.45, 0.45, 'z+');
-buildTV(-6.0, 0.75, -7.3, 1.30, 0.75, 'z+');
+/* ====== ГОСТИНАЯ ====== */
+buildTVStand(-6.0, -7.6, 1.8, 0.50, 0.45, 'z+');
+buildTV(-6.0, 0.82, -7.32, 1.30, 0.75, 'z+');
 
-// Диван напротив ТВ, лицом к северу (-Z)
 buildSofa(-6.0, -3.5, 2.6, 0.95, matFabric, matFabric, 'z-');
-
-// Журнальный столик между ТВ и диваном
-buildCoffeeTable(-6.0, -5.4, 1.0, 0.55, 'z+');
-
-// Кресло сбоку, тоже лицом к ТВ (-Z)
+buildCoffeeTable(-6.0, -5.4, 1.05, 0.58, 'z+');
 buildArmchair(-3.2, -4.6, matFabric2, matFabric2, 'z-');
 
-// Книжный шкаф у западной стены, открыт на восток (x+)
+buildTVRemote(-6.15, 0.435, -5.4, Math.PI * 0.15);
+
 buildBookshelf(-9.5, -4.0, 1.8, 2.0, 0.35, 'x+');
 
-// Торшер в северо-западном углу
-buildFloorLamp(-9.0, -7.0, 0xffc88a, 0.7);
+// Торшер — яркость ×2 (0.7 → 1.4)
+buildFloorLamp(-9.0, -7.0, 0xffc88a, 1.4);
 
-// Комод у ЮЖНОЙ стены (z = 0, внутр. -0.15), ящики лицом в комнату (на север, -Z)
 buildDresser(-3.7, -0.42, 1.4, 0.85, 0.5, 3, matWood, 'z-');
-
-// Тумбочка у ЗАПАДНОЙ стены, ящики на восток (x+)
 buildDresser(-9.55, 0.5, 1.2, 0.6, 0.5, 2, matWood, 'x+');
-buildTableLamp(-9.55, 0.6, 0.5, 0xffb070, 0.5);
 
-// Растение в юго-западном углу
+// Настольная лампа — яркость ×2 (0.5 → 1.0)
+buildTableLamp(-9.55, 0.6, 0.5, 0xffb070, 1.0);
+
 buildPlant(-9.3, -0.8, 1.0);
-
-// Ковёр
 buildRug(-6.0, -5.0, 3.2, 2.2, matRug);
-
-// Картины на СЕВЕРНОЙ стене (внутр. z=-7.84), лицом на юг (+Z)
 buildPainting(-8.0, 2.0, -7.84, 0.9, 0.65, 'z+', matPaper);
 buildPainting(-4.0, 2.0, -7.84, 0.75, 0.95, 'z+', matBookMats[2]);
-
-// Картина на ЗАПАДНОЙ стене (внутр. x=-9.84), лицом на восток (+X)
 buildPainting(-9.84, 1.85, -3.5, 1.1, 0.8, 'x+', matPaper);
-
-// Часы на СЕВЕРНОЙ стене (лицом +Z)
 buildClock(-2.0, 2.7, -7.84, 'z+');
 
-/* ====== КУХНЯ (1 эт.: x[-10, 0], z[0, 8]) ====== */
-// Нижняя секция вдоль ЗАПАДНОЙ стены (x=-9.85), дверцы на восток (x+)
-// len=4.0 → ширина вдоль Z, depth=0.60 → глубина вдоль X
-buildBaseCabinet(-9.55, 2.15, 4.0, 0.60, 0.90, 4, 'x+');
-
-// Верхние шкафы над секцией
-buildUpperCabinet(-9.72, 1.55, 1.15, 1.6, 0.35, 0.70, 'x+');
-buildUpperCabinet(-9.72, 1.55, 3.15, 1.6, 0.35, 0.70, 'x+');
-
-// Холодильник в СЕВЕРО-ЗАПАДНОМ углу кухни, дверь на восток (x+)
+/* ====== КУХНЯ ====== */
+buildBaseCabinet(-9.55, 2.15, 4.0, 0.62, 0.90, 4, 'x+');
+buildUpperCabinet(-9.72, 1.55, 1.15, 1.6, 0.38, 0.72, 'x+');
+buildUpperCabinet(-9.72, 1.55, 3.15, 1.6, 0.38, 0.72, 'x+');
 buildFridge(-9.49, 7.49, 'x+');
-
-// Плита вдоль западной стены, дверца духовки на восток (x+)
 buildStove(-9.55, 4.6, 'x+');
+buildSink(-9.55, 0.92, 5.4, 'x+');
 
-// Раковина на столешнице, смеситель у стены — открывается в комнату (x+)
-buildSink(-9.55, 0.90, 5.4, 'x+');
-
-// Микроволновка на столешнице
 (function(){
-  box(0.42, 0.35, 0.55, matDark, -9.5, 0.90, 1.0, false);
-  box(0.02, 0.22, 0.35, matGlass, -9.29, 0.96, 1.0, false);
-  box(0.02, 0.05, 0.05, matChrome, -9.28, 1.05, 1.0, false);
+  const y = 0.95;
+  box(0.42, 0.32, 0.52, matDark, -9.55, y, 1.0, false);
+  box(0.02, 0.20, 0.32, matGlass, -9.33, y + 0.06, 1.0, false);
+  box(0.02, 0.04, 0.04, matChrome, -9.32, y + 0.14, 1.0, false);
 })();
 
-// Чайник на столешнице
 (function(){
-  const x = -9.5, z = 2.4, y = 0.90;
-  cyl(0.10, 0.12, 0.18, matChrome, x, y, z, 12);
-  cyl(0.03, 0.05, 0.06, matChrome, x, y + 0.18, z, 8);
-  const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.025, 0.10, 8), matChrome);
+  const x = -9.55, z = 2.4, y = 0.95;
+  cyl(0.10, 0.12, 0.18, matChrome, x, y, z, 14);
+  cyl(0.03, 0.05, 0.06, matChrome, x, y + 0.18, z, 10);
+  const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.025, 0.10, 10), matChrome);
   spout.rotation.z = Math.PI / 3;
   spout.position.set(x - 0.10, y + 0.12, z);
   scene.add(spout);
 })();
 
-// Обеденный стол в центре
 buildTable(-5.0, 4.0, 1.6, 0.9, 'z+');
+buildChair(-5.0, 3.0, 'z+');
+buildChair(-5.0, 5.0, 'z-');
+buildChair(-6.0, 4.0, 'x+');
+buildChair(-4.0, 4.0, 'x-');
 
-// Стулья — все лицом к столу
-buildChair(-5.0, 3.0, 'z+');   // северный → смотрит на юг (на стол)
-buildChair(-5.0, 5.0, 'z-');   // южный → смотрит на север
-buildChair(-6.0, 4.0, 'x+');   // западный → смотрит на восток
-buildChair(-4.0, 4.0, 'x-');   // восточный → смотрит на запад
+const TABLE_TOP = 0.80;
+box(0.20, 0.02, 0.20, matPorcelain, -5.3, TABLE_TOP, 4.0, false);
+box(0.20, 0.02, 0.20, matPorcelain, -5.0, TABLE_TOP, 4.0, false);
+box(0.20, 0.02, 0.20, matPorcelain, -4.7, TABLE_TOP, 4.0, false);
+box(0.06, 0.09, 0.06, matPorcelain, -5.3, TABLE_TOP, 3.5, false);
+box(0.06, 0.09, 0.06, matPorcelain, -4.7, TABLE_TOP, 3.5, false);
 
-// Посуда на столе
-box(0.20, 0.02, 0.20, matPorcelain, -5.3, 0.77, 4.0, false);
-box(0.20, 0.02, 0.20, matPorcelain, -5.0, 0.77, 4.0, false);
-box(0.20, 0.02, 0.20, matPorcelain, -4.7, 0.77, 4.0, false);
-box(0.06, 0.09, 0.06, matPorcelain, -5.3, 0.79, 3.5, false);
-box(0.06, 0.09, 0.06, matPorcelain, -4.7, 0.79, 3.5, false);
-
-// Ваза с цветами
-cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, 0.75, 4.5, 12);
+cyl(0.05, 0.06, 0.20, matPorcelain, -5.0, TABLE_TOP, 4.5, 12);
 (function(){
   for (let i = 0; i < 5; i++) {
     const fx = -5.0 + (Math.random() - 0.5) * 0.10;
     const fz = 4.5 + (Math.random() - 0.5) * 0.10;
-    const fy = 0.95 + Math.random() * 0.10;
-    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), matBookMats[i]);
+    const fy = TABLE_TOP + 0.20 + Math.random() * 0.08;
+    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), matBookMats[i]);
     flower.position.set(fx, fy, fz); scene.add(flower);
   }
 })();
 
-// Мусорное ведро в юго-восточном углу
 (function(){
   const x = -0.6, z = 7.5;
-  const trash = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.45, 12), matMetal);
+  const trash = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.45, 16), matMetal);
   trash.position.set(x, 0.225, z); trash.castShadow = true; scene.add(trash);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.45);
 })();
 
-// Растение
 buildPlant(-0.6, 1.0, 0.9);
-
-// Картина на ЮЖНОЙ стене (внутр. z=7.84), лицом на север (-Z)
 buildPainting(-4.0, 2.0, 7.84, 0.9, 0.65, 'z-', matPaper);
-
-// Часы на ЗАПАДНОЙ стене (внутр. x=-9.84), лицом на восток (+X)
 buildClock(-9.84, 2.5, 6.0, 'x+');
 
-/* ====== КЛАДОВАЯ (1 эт.: x[4, 10], z[-8, 0]) ====== */
-// Металлический стеллаж у СЕВЕРНОЙ стены
+/* ====== КЛАДОВАЯ ====== */
 (function(){
   const x = 6.5, z = -7.6, w = 2.4, h = 2.0, d = 0.5;
   const shelfYs = [0.05, 0.65, 1.25, 1.85];
   for (const [lx, lz] of [[-w/2+0.05, -d/2+0.05], [w/2-0.05, -d/2+0.05],
                           [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
-    cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
+    cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 8);
   }
   for (const sy of shelfYs) box(w, 0.04, d, matWoodDark, x, sy, z, false);
   box(0.35, 0.28, 0.35, matWood, x - 0.6, shelfYs[1] + 0.04, z, false);
@@ -1088,12 +1476,11 @@ buildClock(-9.84, 2.5, 6.0, 'x+');
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
-// Второй стеллаж у ЗАПАДНОЙ стены (внутр. x=4.15)
 (function(){
   const x = 4.35, z = -2.5, w = 0.4, h = 2.0, d = 2.0;
   for (const [lx, lz] of [[-w/2+0.05, -d/2+0.05], [w/2-0.05, -d/2+0.05],
                           [-w/2+0.05,  d/2-0.05], [w/2-0.05,  d/2-0.05]]) {
-    cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 6);
+    cyl(0.022, 0.022, h, matMetal, x + lx, 0, z + lz, 8);
   }
   for (const sy of [0.05, 0.70, 1.35, 1.90]) box(w, 0.04, d, matWoodDark, x, sy, z, false);
   box(0.3, 0.3, 0.4, matWood, x, 0.09, z - 0.5, false);
@@ -1101,17 +1488,16 @@ buildClock(-9.84, 2.5, 6.0, 'x+');
   addCollider(x - w/2, x + w/2, z - d/2, z + d/2, 0, h);
 })();
 
-// Велосипед у ВОСТОЧНОЙ стены
 (function(){
   const x = 9.4, z = -3.5;
   const tireMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.95 });
-  const w1 = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.035, 8, 24), tireMat);
+  const w1 = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.035, 10, 28), tireMat);
   w1.rotation.y = Math.PI / 2;
   w1.position.set(x, 0.36, z - 0.55);
   w1.castShadow = true; scene.add(w1);
   const w2 = w1.clone(); w2.position.set(x, 0.36, z + 0.55); scene.add(w2);
-  for (let i = 0; i < 4; i++) {
-    const a = (i / 4) * Math.PI;
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI;
     const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.008, 0.008), matChrome);
     spoke.rotation.x = a; spoke.position.set(x, 0.36, z - 0.55); scene.add(spoke);
     const spoke2 = spoke.clone(); spoke2.position.z = z + 0.55; scene.add(spoke2);
@@ -1125,166 +1511,134 @@ buildClock(-9.84, 2.5, 6.0, 'x+');
   addCollider(x - 0.25, x + 0.25, z - 1.0, z + 1.0, 0, 1.0);
 })();
 
-// Мешок в углу
 box(0.65, 0.45, 0.65, matFabric3, 9.2, 0, -7.2);
 
-// Ведро
 (function(){
   const x = 6.5, z = -1.5;
-  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 0.28, 12), matMetal);
+  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 0.28, 16), matMetal);
   bucket.position.set(x, 0.14, z); bucket.castShadow = true; scene.add(bucket);
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.008, 6, 12, Math.PI), matChrome);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.008, 8, 16, Math.PI), matChrome);
   handle.rotation.y = Math.PI / 2;
   handle.position.set(x, 0.28, z); scene.add(handle);
   addCollider(x - 0.16, x + 0.16, z - 0.16, z + 0.16, 0, 0.30);
 })();
 
-/* ====== СПАЛЬНЯ 1 (2 эт.: x[-10, 0], z[-8, 0]) ====== */
-// Кровать — изголовье к СЕВЕРНОЙ стене (z=-7.85), лежим лицом на юг (+Z)
-// Изголовье на -Z → facing='z+'
-// Центр z = -7.85 + bedL/2 + 0.05 = -7.85 + 1.025 + 0.05 = -6.775
+/* ====== СПАЛЬНЯ 1 ====== */
 buildBed(-7.5, -6.78, matWood, 'z+');
-
-// Тумбочка у изголовья, ящики на юг (+Z)
 buildNightstand(-6.4, -7.4, matWood, 'z+');
-buildTableLamp(-6.4, F1 + 0.55, -7.4, 0xffb070, 0.5);
-
-// Шкаф у ВОСТОЧНОЙ стены (внутр. x=-0.15), дверцы на запад (-X) в комнату
-// Локальная ширина = 1.4 (вдоль Z), глубина = 0.6 (вдоль X)
-// Центр x = -0.15 - 0.30 = -0.45
+// Настольная лампа — яркость ×2 (0.5 → 1.0)
+buildTableLamp(-6.4, F1 + 0.58, -7.4, 0xffb070, 1.0);
 buildWardrobe(-0.45, -6.5, 1.4, 2.1, 0.6, matWood, 'x-');
-
-// Комод у ЮЖНОЙ стены, ящики на север (-Z)
 buildDresser(-8.5, -0.4, 1.6, 0.85, 0.5, 3, matWood, 'z-');
-
-// Стеллаж с книгами у ЗАПАДНОЙ стены
 buildBookshelf(-9.5, F1, -3.5, 1.6, 1.9, 0.35, 'x+');
-
-// Кресло в юго-западном углу, лицом в комнату (+X / +Z)
 buildArmchair(-8.5, F1, -1.3, matFabric2, matFabric2, 'z+');
-
-// Ковёр
 buildRug(-6.0, F1, -4.0, 2.8, 1.9, matRug2);
-
-// Картины
 buildPainting(-5.5, F1 + 1.9, -7.84, 0.9, 0.7, 'z+', matPaper);
 buildPainting(-3.0, F1 + 1.9, -7.84, 0.7, 0.95, 'z+', matBookMats[3]);
 buildPainting(-9.84, F1 + 1.85, -4.5, 0.85, 0.65, 'x+', matPaper);
-
-// Часы
 buildClock(-4.5, F1 + 2.7, -7.84, 'z+');
-
-// Растение
 buildPlant(-9.3, F1, -0.8, 0.9);
 
-/* ====== СПАЛЬНЯ 2 (2 эт.: x[-10, 0], z[0, 8]) ====== */
-// Кровать — изголовье к ЮЖНОЙ стене (z=7.85), лежим лицом на север (-Z)
-// Изголовье на -local Z, facing='z-' (перед на -Z)
-// Центр z = 7.85 - 1.075 = 6.775
+/* ====== СПАЛЬНЯ 2 ====== */
 buildBed(-7.5, 6.78, matWood, 'z-');
-
-// Тумбочка
 buildNightstand(-6.4, 7.4, matWood, 'z-');
-buildTableLamp(-6.4, F1 + 0.55, 7.4, 0xffb070, 0.5);
-
-// Шкаф у ВОСТОЧНОЙ стены (внутр. x=-0.15), дверцы на запад (-X)
+buildTableLamp(-6.4, F1 + 0.58, 7.4, 0xffb070, 1.0);
 buildWardrobe(-0.45, 5.5, 1.4, 2.1, 0.6, matWood, 'x-');
-
-// Комод у СЕВЕРНОЙ стены (внутр. z=0.15), ящики на юг (+Z)
 buildDresser(-8.5, 0.4, 1.6, 0.85, 0.5, 3, matWood, 'z+');
-
-// Стеллаж у ЗАПАДНОЙ стены
 buildBookshelf(-9.5, F1, 2.5, 1.6, 1.9, 0.35, 'x+');
-
-// Кресло
 buildArmchair(-8.5, F1, 1.3, matFabric, matFabric, 'z-');
-
-// Ковёр
 buildRug(-6.0, F1, 4.0, 2.8, 1.9, matRug);
-
-// Картины
 buildPainting(-5.5, F1 + 1.9, 7.84, 0.9, 0.7, 'z-', matPaper);
 buildPainting(-3.0, F1 + 1.9, 7.84, 0.7, 0.95, 'z-', matBookMats[4]);
-
-// Часы
 buildClock(-4.5, F1 + 2.7, 7.84, 'z-');
-
-// Растение
 buildPlant(-9.3, F1, 0.8, 0.9);
 
-/* ====== ВАННАЯ (2 эт.: x[4, 10], z[-8, -6]) ====== */
-// Ванна — изголовьем к СЕВЕРНОЙ стене (внутр. z=-7.85)
-// Ставим на 0.9 глубины, центр z = -7.85 + 0.45 = -7.4
+/* ====== ВАННАЯ ====== */
 buildBathtub(8.4, F1, -7.4, 1.7, 0.9, 'z+');
-
-// Унитаз — танк у СЕВЕРНОЙ стены, чаша на юг (+Z)
 buildToilet(6.0, F1, -7.55, 'z+');
 
-// Раковина на тумбе — у ЮЖНОЙ стены (внутр. z=-6.15), смеситель к стене, лицом на север (-Z)
 (function(){
-  // Тумба-стойка у южной стены
-  box(0.5, 0.75, 0.4, matWhite, 4.7, F1, -6.4, false);
-  // Раковина на тумбе — открывается на север (-Z)
-  buildSink(4.7, F1 + 0.75, -6.4, 'z-');
+  box(0.5, 0.75, 0.4, matWhite, 4.7, F1, -6.45, false);
+  box(0.52, 0.02, 0.42, matCountertop, 4.7, F1 + 0.75, -6.45, false);
+  buildSink(4.7, F1 + 0.77, -6.45, 'z-');
 })();
 
-// Зеркало над раковиной (на южной стене, лицом на север -Z)
-buildPainting(4.7, F1 + 1.85, -6.16, 0.7, 0.9, 'z-', matGlass);
+buildPainting(4.7, F1 + 1.95, -6.16, 0.7, 0.9, 'z-', matGlass);
 
-// Навесной шкафчик
-box(0.5, 0.6, 0.4, matWhite, 7.5, F1 + 1.5, -6.4, false);
-box(0.52, 0.02, 0.42, matChrome, 7.5, F1 + 2.1, -6.4, false);
-box(0.02, 0.10, 0.02, matHandle, 7.35, F1 + 1.75, -6.2, false);
+(function(){
+  const x = 7.5, y = F1 + 1.5, z = -6.4;
+  box(0.5, 0.6, 0.4, matWhite, x, y, z, false);
+  box(0.52, 0.03, 0.42, matWhite, x, y + 0.6, z, false);
+  const pivot = new THREE.Group();
+  pivot.position.set(x - 0.25, y + 0.05, z + 0.20);
+  scene.add(pivot);
+  const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.5, 0.02), matWhite);
+  doorMesh.position.set(0.24, 0.25, 0);
+  doorMesh.castShadow = true;
+  pivot.add(doorMesh);
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 0.026), matHandle);
+  handle.position.set(0.44, 0.25, 0.02);
+  pivot.add(handle);
+  const st = { group: pivot, axis: 'rotY', closed: 0, open: -Math.PI/2.5, current: 0, target: 0, speed: 3.5, openState: false };
+  doorAnims.push(st);
+  doorMesh.userData.doorAnim = st;
+  registerInteractive(doorMesh, 'Открыть шкафчик', (obj) => {
+    const anim = obj.userData.doorAnim;
+    anim.openState = !anim.openState;
+    anim.target = anim.openState ? anim.open : anim.closed;
+  });
+})();
 
-// Полотенца на крючках (южная стена)
 box(0.28, 0.55, 0.03, matSheet, 5.5, F1 + 1.55, -6.16, false);
 box(0.28, 0.55, 0.03, matFabric2, 5.8, F1 + 1.55, -6.16, false);
 
-// Полка с флаконами над ванной (северная стена)
 box(1.0, 0.04, 0.22, matWhite, 8.0, F1 + 1.55, -7.85, false);
-cyl(0.04, 0.04, 0.12, matGlass, 7.8, F1 + 1.59, -7.85, 8);
-cyl(0.035, 0.035, 0.10, matBookMats[5], 8.0, F1 + 1.59, -7.85, 8);
-cyl(0.03, 0.03, 0.08, matBookMats[2], 8.2, F1 + 1.59, -7.85, 8);
+cyl(0.04, 0.04, 0.12, matGlass, 7.8, F1 + 1.59, -7.85, 12);
+cyl(0.035, 0.035, 0.10, matBookMats[5], 8.0, F1 + 1.59, -7.85, 12);
+cyl(0.03, 0.03, 0.08, matBookMats[2], 8.2, F1 + 1.59, -7.85, 12);
 
-// Стеллаж в углу
 box(0.4, 1.8, 1.2, matWhite, 9.65, F1, -7.0, false);
 
-// Стержень для шторы у ванны
 (function(){
-  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.7, 8), matChrome);
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.7, 10), matChrome);
   rod.rotation.z = Math.PI / 2;
   rod.position.set(8.4, F1 + 1.95, -6.4);
   scene.add(rod);
-  box(1.6, 1.4, 0.03, matFabric, 8.4, F1 + 0.55, -6.4, false);
+  box(1.6, 1.4, 0.03, matFabric, 8.4, F1 + 0.58, -6.4, false);
 })();
 
 /* ============================================================
-   СВЕТ
+   СВЕТ — ЯРКОСТЬ КОМНАТ ×2
    ============================================================ */
-const ambient = new THREE.AmbientLight(0x141c2c, 0.22);
+
+// Ambient ×2: 0.22 → 0.44
+const ambient = new THREE.AmbientLight(0x141c2c, 0.44);
 scene.add(ambient);
-const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.14);
+// Hemisphere ×2: 0.14 → 0.28
+const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.28);
 scene.add(hemi);
 
 function addRoomLight(x, y, z, color, intensity, distance) {
   const l = new THREE.PointLight(color, intensity, distance, 2);
   l.position.set(x, y, z); scene.add(l);
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), new THREE.MeshBasicMaterial({ color: color }));
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), new THREE.MeshBasicMaterial({ color: color }));
   bulb.position.set(x, y, z); scene.add(bulb);
   flickerLights.push({ light: l, base: intensity, bulb, phase: Math.random() * 100, speed: 2.5 + Math.random() * 5.0 });
   return l;
 }
-addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 0.55, 9);
-addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.42, 8);
-addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.30, 9);
-addRoomLight( 2.0, 2.55,  4.0, 0x5f80b0, 0.28, 9);
-addRoomLight( 6.8, 2.55, -4.5, 0x806a4a, 0.22, 7);
-addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff8040, 0.45, 9);
-addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.40, 9);
-addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.28, 9);
-addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.30, 7);
 
-/* ---------- ФОНАРИК ---------- */
+// Все потолочные лампы — интенсивность ×2
+addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 1.10, 9);   // было 0.55
+addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.84, 8);   // было 0.42
+addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.60, 9);   // было 0.30
+addRoomLight( 2.0, 2.55,  4.0, 0x5f80b0, 0.56, 9);   // было 0.28
+addRoomLight( 6.8, 2.55, -4.5, 0x806a4a, 0.44, 7);   // было 0.22
+addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff8040, 0.90, 9);  // было 0.45
+addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.80, 9);  // было 0.40
+addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.56, 9);  // было 0.28
+addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.60, 7);  // было 0.30
+
+/* ---------- ФОНАРИК (не меняем — он и так яркий) ---------- */
 const flashlight = new THREE.SpotLight(0xfff0cf, 3.4, 34, Math.PI / 7.0, 0.42, 1.35);
 flashlight.castShadow = true;
 flashlight.shadow.mapSize.set(isMobile ? 512 : 1024, isMobile ? 512 : 1024);
@@ -1303,7 +1657,8 @@ const flFill = new THREE.PointLight(0xffe3b8, 0.85, 4.0, 2);
 flFill.position.set(0.25, -0.15, -0.35);
 camera.add(flFill);
 
-const playerHalo = new THREE.PointLight(0x8898b0, 0.6, 6.5, 1.8);
+// Ореол вокруг игрока ×2: 0.6 → 1.2
+const playerHalo = new THREE.PointLight(0x8898b0, 1.2, 6.5, 1.8);
 playerHalo.position.set(0, -0.2, 0);
 camera.add(playerHalo);
 
@@ -1312,14 +1667,14 @@ handGroup.position.set(0.30, -0.24, -0.42);
 handGroup.rotation.set(-0.06, 0.05, 0.0);
 camera.add(handGroup);
 
-const flBody = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.042, 0.22, 14), matMetal);
+const flBody = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.042, 0.22, 20), matMetal);
 flBody.rotation.x = Math.PI / 2; flBody.castShadow = false; handGroup.add(flBody);
-const flHead = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.05, 0.11, 14), matMetal);
+const flHead = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.05, 0.11, 20), matMetal);
 flHead.rotation.x = Math.PI / 2; flHead.position.z = -0.155; handGroup.add(flHead);
-const flGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.09, 14), matDark);
+const flGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.09, 20), matDark);
 flGrip.rotation.x = Math.PI / 2; flGrip.position.z = 0.055; handGroup.add(flGrip);
 const flLensMat = new THREE.MeshBasicMaterial({ color: 0xfff3d0 });
-const flLens = new THREE.Mesh(new THREE.CircleGeometry(0.062, 16), flLensMat);
+const flLens = new THREE.Mesh(new THREE.CircleGeometry(0.062, 20), flLensMat);
 flLens.position.z = -0.212; flLens.rotation.y = Math.PI; handGroup.add(flLens);
 const handMat = new THREE.MeshStandardMaterial({ color: 0x5a4535, roughness: 1.0 });
 const handMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.10, 0.20), handMat);
@@ -1339,7 +1694,44 @@ function setFlashlight(on) {
   updateHUD(); updateFlashlightButton();
 }
 
-/* ---------- ИГРОК ---------- */
+/* ============================================================
+   РЕЖИМ ТВ
+   ============================================================ */
+let tvViewMode = false;
+let camTransition = null;
+const tvViewPos = new THREE.Vector3(-6.0, 1.3, -4.5);
+const tvViewLook = new THREE.Vector3(-6.0, 0.9, -7.3);
+
+function enterTVView() {
+  if (tvViewMode) return;
+  tvViewMode = true;
+  camTransition = {
+    fromPos: camera.position.clone(),
+    fromYaw: player.yaw,
+    fromPitch: player.pitch,
+    toYaw: 0, toPitch: -0.05,
+    t: 0, dur: 1.0
+  };
+  document.getElementById('tv-ui').classList.add('active');
+}
+
+function exitTVView() {
+  if (!tvViewMode) return;
+  tvViewMode = false;
+  document.getElementById('tv-ui').classList.remove('active');
+  camTransition = {
+    fromPos: camera.position.clone(),
+    fromYaw: 0, fromPitch: -0.05,
+    toYaw: player.yaw, toPitch: player.pitch,
+    t: 0, dur: 0.8
+  };
+}
+
+document.getElementById('tv-exit').addEventListener('click', exitTVView);
+
+/* ============================================================
+   ИГРОК
+   ============================================================ */
 const player = {
   pos: new THREE.Vector3(2.0, 0, -5.0),
   feetY: 0, yaw: Math.PI, pitch: 0,
@@ -1349,7 +1741,9 @@ const PLAYER_RADIUS = 0.36;
 const EYE_HEIGHT    = 1.68;
 const GRAVITY       = 24.0;
 
-/* ---------- ВВОД ---------- */
+/* ============================================================
+   ВВОД
+   ============================================================ */
 const keys = {};
 const overlay = document.getElementById('overlay');
 const hudEl = document.getElementById('hud');
@@ -1357,6 +1751,8 @@ const hudEl = document.getElementById('hud');
 document.addEventListener('keydown', (e) => {
   keys[e.code] = true;
   if (e.code === 'KeyF') setFlashlight(!flashlightOn);
+  if (e.code === 'KeyE' && gameActive && !tvViewMode) triggerInteraction();
+  if (e.code === 'Escape' && tvViewMode) exitTVView();
 });
 document.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
@@ -1378,12 +1774,33 @@ document.addEventListener('pointerlockchange', () => {
   }
 });
 document.addEventListener('mousemove', (e) => {
-  if (!pointerLocked || isMobile) return;
+  if (!pointerLocked || isMobile || tvViewMode) return;
   const sens = 0.0022;
   player.yaw   -= e.movementX * sens;
   player.pitch -= e.movementY * sens;
   const lim = Math.PI / 2 - 0.02;
   player.pitch = Math.max(-lim, Math.min(lim, player.pitch));
+});
+
+renderer.domElement.addEventListener('mousedown', (e) => {
+  if (e.button === 0) {
+    if (!gameActive) return;
+    if (tvViewMode) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const my = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera({ x: mx, y: my }, camera);
+      raycaster.far = 20;
+      const hits = raycaster.intersectObjects(interactives, true);
+      if (hits.length > 0) {
+        let o = hits[0].object;
+        while (o && !o.userData.interactive) o = o.parent;
+        if (o && o.userData.onAction) o.userData.onAction(o);
+      }
+      return;
+    }
+    triggerInteraction();
+  }
 });
 
 function startGame() {
@@ -1393,6 +1810,7 @@ function startGame() {
     overlay.style.display = 'none';
     document.getElementById('mobile-controls').classList.add('active');
     flBtnEl.classList.add('active');
+    document.getElementById('action-btn').classList.add('active');
   } else requestLock();
 }
 overlay.addEventListener('click', startGame);
@@ -1401,11 +1819,14 @@ renderer.domElement.addEventListener('click', () => {
   if (!isMobile && !pointerLocked) requestLock();
 });
 
-/* ---------- МОБИЛЬНЫЕ КОНТРОЛЫ ---------- */
+/* ============================================================
+   МОБИЛЬНЫЕ КОНТРОЛЫ
+   ============================================================ */
 const moveZoneEl = document.getElementById('move-zone');
 const lookZoneEl = document.getElementById('look-zone');
 const joystickEl = document.getElementById('joystick');
 const joystickStick = document.getElementById('joystick-stick');
+const actionBtn = document.getElementById('action-btn');
 const JOY_RADIUS = 65;
 const moveVec = { x: 0, y: 0 };
 let moveTouchId = null;
@@ -1457,6 +1878,7 @@ lookZoneEl.addEventListener('touchstart', (e) => {
 }, { passive: false });
 lookZoneEl.addEventListener('touchmove', (e) => {
   e.preventDefault();
+  if (tvViewMode) return;
   for (let i = 0; i < e.changedTouches.length; i++) {
     const t = e.changedTouches[i];
     if (t.identifier !== lookTouchId) continue;
@@ -1480,6 +1902,19 @@ function endLookTouch(e) {
 lookZoneEl.addEventListener('touchend', endLookTouch);
 lookZoneEl.addEventListener('touchcancel', endLookTouch);
 
+let lastActionTouch = 0;
+actionBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  lastActionTouch = Date.now();
+  if (tvViewMode) { }
+  else triggerInteraction();
+}, { passive: false });
+actionBtn.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  if (Date.now() - lastActionTouch < 500) return;
+  triggerInteraction();
+});
+
 let lastFlTouch = 0;
 flBtnEl.addEventListener('touchstart', (e) => {
   e.preventDefault(); e.stopPropagation();
@@ -1491,7 +1926,9 @@ flBtnEl.addEventListener('click', (e) => {
   setFlashlight(!flashlightOn);
 });
 
-/* ---------- ФИЗИКА ---------- */
+/* ============================================================
+   ФИЗИКА
+   ============================================================ */
 function getGroundHeight(x, z, feetY) {
   let best = -Infinity;
   const limit = feetY + 0.62;
@@ -1581,28 +2018,101 @@ function updatePlayer(dt) {
   camera.rotation.z = Math.cos(player.bobTime) * 0.006 * player.bobAmount;
 }
 
-/* ---------- HUD ---------- */
 function updateHUD() {
   const floor = player.feetY > F1 - 0.6 ? 2 : 1;
   hudEl.textContent = `ФОНАРИК: ${flashlightOn ? 'ВКЛ' : 'ВЫКЛ'}  |  ЭТАЖ: ${floor}`;
 }
 
-/* ---------- ГЛАВНЫЙ ЦИКЛ ---------- */
+function updateDoors(dt) {
+  for (let i = 0; i < doorAnims.length; i++) {
+    const d = doorAnims[i];
+    const diff = d.target - d.current;
+    if (Math.abs(diff) < 0.001) { d.current = d.target; continue; }
+    const step = Math.sign(diff) * Math.min(Math.abs(diff), d.speed * dt);
+    d.current += step;
+    if (d.axis === 'rotY') {
+      d.group.rotation.y += step;
+    } else if (d.axis === 'z') {
+      const localStep = step;
+      const dx = Math.sin(d.group.rotation.y) * localStep;
+      const dz = Math.cos(d.group.rotation.y) * localStep;
+      d.group.position.x += dx;
+      d.group.position.z += dz;
+    }
+  }
+}
+
+/* ============================================================
+   ГЛАВНЫЙ ЦИКЛ
+   ============================================================ */
 const clock = new THREE.Clock();
 let elapsed = 0;
+let reachTimer = 0;
+
 function animate() {
   requestAnimationFrame(animate);
   let dt = clock.getDelta();
   if (dt > 0.05) dt = 0.05;
   elapsed += dt;
 
-  if (gameActive) updatePlayer(dt);
-  else {
+  updateDoors(dt);
+
+  if (tvViewMode) {
+    if (camTransition) {
+      camTransition.t += dt / camTransition.dur;
+      const t = Math.min(1, camTransition.t);
+      const ease = t * t * (3 - 2 * t);
+      let dy = camTransition.toYaw - camTransition.fromYaw;
+      while (dy > Math.PI) dy -= Math.PI * 2;
+      while (dy < -Math.PI) dy += Math.PI * 2;
+      player.yaw = camTransition.fromYaw + dy * ease;
+      player.pitch = camTransition.fromPitch + (camTransition.toPitch - camTransition.fromPitch) * ease;
+      camera.position.lerpVectors(camTransition.fromPos, tvViewPos, ease);
+      camera.rotation.y = player.yaw;
+      camera.rotation.x = player.pitch;
+      if (t >= 1) camTransition = null;
+    } else {
+      camera.position.copy(tvViewPos);
+      camera.rotation.y = 0;
+      camera.rotation.x = -0.08;
+      camera.lookAt(tvViewLook);
+    }
+  } else if (camTransition) {
+    camTransition.t += dt / camTransition.dur;
+    const t = Math.min(1, camTransition.t);
+    const ease = t * t * (3 - 2 * t);
+    let dy = camTransition.toYaw - camTransition.fromYaw;
+    while (dy > Math.PI) dy -= Math.PI * 2;
+    while (dy < -Math.PI) dy += Math.PI * 2;
+    player.yaw = camTransition.fromYaw + dy * ease;
+    player.pitch = camTransition.fromPitch + (camTransition.toPitch - camTransition.fromPitch) * ease;
+    const targetPos = new THREE.Vector3(player.pos.x, player.feetY + EYE_HEIGHT, player.pos.z);
+    camera.position.lerpVectors(camTransition.fromPos, targetPos, ease);
+    camera.rotation.y = player.yaw;
+    camera.rotation.x = player.pitch;
+    if (t >= 1) camTransition = null;
+  } else if (gameActive) {
+    updatePlayer(dt);
+  } else {
     camera.position.set(player.pos.x, player.feetY + EYE_HEIGHT, player.pos.z);
     camera.rotation.y = player.yaw;
     camera.rotation.x = player.pitch;
   }
 
+  if (gameActive && !tvViewMode && !camTransition) {
+    reachTimer += dt;
+    if (reachTimer > 0.1) {
+      reachTimer = 0;
+      checkReach();
+    }
+  } else if (!currentHovered === null) {
+    if (currentHovered === null && document.getElementById('crosshair').classList.contains('active')) {
+      document.getElementById('crosshair').classList.remove('active');
+      document.getElementById('interact-hint').classList.remove('show');
+    }
+  }
+
+  // Мерцание лампочек
   for (let i = 0; i < flickerLights.length; i++) {
     const f = flickerLights[i];
     const t = elapsed * f.speed + f.phase;
@@ -1621,25 +2131,29 @@ function animate() {
   }
 
   const t = elapsed;
+  // ★ ЯРКОСТЬ КОМНАТ ×2 в динамике
   if (flashlightOn) {
-    ambient.intensity = 0.32; hemi.intensity = 0.20;
+    ambient.intensity = 0.64;  // было 0.32
+    hemi.intensity    = 0.40;  // было 0.20
     ambient.color.setHex(0x1a2234); hemi.color.setHex(0x1a2234);
     const hf = 0.92 + 0.05*Math.sin(t*3.1) + 0.03*Math.sin(t*9.7 + 1.4);
-    playerHalo.intensity = 0.60 * hf;
+    playerHalo.intensity = 1.20 * hf;   // было 0.60
     playerHalo.distance = 6.5;
     playerHalo.color.setHex(0x9aa4be);
   } else {
     let flick = 0.95 + 0.10*Math.sin(t*2.4) + 0.06*Math.sin(t*6.9 + 1.7) + 0.04*Math.sin(t*16.3 + 0.4);
     if (Math.sin(t*0.63 + 1.3) > 0.965) flick *= 0.62;
     flick = Math.max(0.55, flick);
-    ambient.intensity = 0.72 * flick; hemi.intensity = 0.52 * flick;
+    ambient.intensity = 1.44 * flick;  // было 0.72
+    hemi.intensity    = 1.04 * flick;  // было 0.52
     ambient.color.setHex(0x243048); hemi.color.setHex(0x243048);
     const hf = 0.95 + 0.08*Math.sin(t*2.1) + 0.05*Math.sin(t*5.7 + 0.9);
-    playerHalo.intensity = 0.88 * hf;
+    playerHalo.intensity = 1.76 * hf;  // было 0.88
     playerHalo.distance = 7.0;
     playerHalo.color.setHex(0xa898b0);
     if (Math.sin(t*0.55 + 2.1) > 0.965) playerHalo.intensity *= 0.55;
   }
+
   updateHUD();
   renderer.render(scene, camera);
 }
@@ -1654,7 +2168,8 @@ if (isMobile) {
   document.getElementById('overlay-help').innerHTML = `
     <span class="key">ЛЕВАЯ ПОЛОВИНА</span> — стик движения<br>
     <span class="key">ПРАВАЯ ПОЛОВИНА</span> — осмотреться<br>
-    <span class="key">КНОПКА ↖</span> — фонарик вкл / выкл
+    <span class="key">КНОПКА «ДЕЙСТВИЕ»</span> — открыть / взаимодействовать<br>
+    <span class="key">КНОПКА ↖</span> — фонарик
   `;
   document.getElementById('overlay-hint').textContent = 'КОСНИТЕСЬ ЭКРАНА, ЧТОБЫ ВОЙТИ';
 }
