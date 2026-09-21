@@ -6,7 +6,6 @@
 <meta name="theme-color" content="#4C1D95">
 <title>VEXA-SELLER — панель продавца</title>
 <style>
-/* ============================ THEME ============================ */
 :root{
   --p900:#2E1065; --p800:#3B0F7A; --p700:#4C1D95; --p600:#6D28D9; --p500:#7C3AED; --p400:#9F67FA;
   --lav50:#F5F3FF; --lav100:#EDE9FE; --lav200:#DDD6FE; --lav300:#C4B5FD;
@@ -40,7 +39,6 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 ::-webkit-scrollbar-thumb{background:var(--lav200);border-radius:8px}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* ============================ BUTTONS ============================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:10px 16px;border-radius:var(--radius-sm);border:1px solid transparent;
@@ -62,7 +60,6 @@ button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
 .btn-icon{padding:8px;min-height:38px;width:38px}
 .btn-block{width:100%}
 
-/* ============================ FORM ============================ */
 .field{margin-bottom:14px}
 .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
 .field .hint{font-size:12px;color:var(--muted);margin-top:5px}
@@ -82,7 +79,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .checkbox{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px}
 .checkbox input{width:18px;height:18px;min-height:18px;flex:0 0 18px;margin-top:1px;accent-color:var(--p600)}
 
-/* ============================ AUTH ============================ */
 .auth-root{
   min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;
   padding:24px 16px;
@@ -103,7 +99,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .auth-brand{font-size:20px;font-weight:800;color:var(--p700);letter-spacing:.02em}
 [data-theme="dark"] .auth-brand{color:var(--lav300)}
 
-/* code inputs */
 .code-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 4px}
 .code-row input{
   text-align:center;font-size:22px;font-weight:700;padding:12px 0;min-height:56px;
@@ -112,7 +107,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .code-row input:focus{background:var(--card)}
 @media(max-width:400px){.code-row{gap:6px}.code-row input{font-size:18px;min-height:48px;padding:10px 0}}
 
-/* ============================ APP SHELL ============================ */
 .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh;min-height:100dvh}
 .sidebar{
   background:linear-gradient(180deg,var(--p900),var(--p700) 65%,#3F1580);
@@ -152,7 +146,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .content{padding:20px;flex:1;min-width:0;max-width:1500px;width:100%}
 .bottomnav{display:none}
 
-/* ============================ CARDS / GRID ============================ */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .card-h h3{font-size:15px}
@@ -166,14 +159,12 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .stat .lbl{font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:7px}
 .stat .val{font-size:23px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
-.stat .val.sm{font-size:19px}
 .stat .dlt{font-size:11.5px;margin-top:5px;color:var(--muted)}
 .stat .ic{position:absolute;right:12px;top:12px;opacity:.14}
 .grid-cards{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .grid-2{grid-template-columns:2fr 1fr}
 @media(max-width:1000px){.grid-2{grid-template-columns:1fr}}
 
-/* ============================ PRODUCT CARD ============================ */
 .pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
 .pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .pcard .thumb{aspect-ratio:1/1;background:var(--lav50);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -186,7 +177,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .pcard .price small{font-size:12px;color:var(--muted);text-decoration:line-through;font-weight:500;margin-left:6px}
 .pcard .acts{display:flex;gap:6px;margin-top:auto;padding-top:8px}
 
-/* ============================ BADGES ============================ */
 .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}
 .b-ok{background:var(--okbg);color:var(--ok)}
 .b-warn{background:var(--warnbg);color:var(--warn)}
@@ -196,7 +186,6 @@ textarea{min-height:88px;resize:vertical;line-height:1.5}
 .b-purple{background:var(--lav100);color:var(--p700)}
 [data-theme="dark"] .b-purple{color:var(--lav300)}
 
-/* ============================ TABLE ============================ */
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
 table.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 table.tbl th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap}
@@ -208,7 +197,6 @@ table.tbl td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:
 .link:hover{text-decoration:underline}
 [data-theme="dark"] .link{color:var(--lav300)}
 
-/* ============================ MISC ============================ */
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .searchbox{position:relative;flex:1;min-width:180px}
 .searchbox input{padding-left:38px}
@@ -236,7 +224,6 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
 .kv .k{color:var(--muted)}
 .kv .v{font-weight:600;text-align:right}
 
-/* ============================ MODAL ============================ */
 .modal-backdrop{position:fixed;inset:0;background:rgba(20,10,50,.5);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .18s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .modal{background:var(--card);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);animation:pop .22s ease;border:1px solid var(--border)}
@@ -252,7 +239,6 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
   .modal-f .btn{width:100%}
 }
 
-/* ============================ TOAST ============================ */
 .toasts{position:fixed;top:14px;right:14px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:min(360px,calc(100vw - 28px))}
 .toast{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--p600);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-lg);display:flex;gap:10px;align-items:flex-start;animation:slidein .25s ease;font-size:13.5px}
 @keyframes slidein{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
@@ -262,28 +248,9 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
 .toast .tt{font-weight:600;margin-bottom:2px}
 .toast .tx{color:var(--muted);font-size:12.5px}
 
-/* ============================ QR / SCANNER ============================ */
 .qr-box{background:#fff;padding:14px;border-radius:14px;display:inline-block;border:1px solid var(--border)}
 .qr-box canvas{display:block;image-rendering:pixelated;max-width:100%;height:auto}
-.scanner-stage{position:relative;background:#0B0910;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;max-height:60vh;display:flex;align-items:center;justify-content:center;width:100%}
-.scanner-stage video{width:100%;height:100%;object-fit:cover;display:block}
-.scan-frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.scan-frame .box{width:min(62%,260px);aspect-ratio:1/1;border-radius:18px;position:relative;box-shadow:0 0 0 9999px rgba(0,0,0,.42)}
-.scan-frame .box span{position:absolute;width:30px;height:30px;border:4px solid #fff;border-radius:4px}
-.scan-frame .box span:nth-child(1){top:-2px;left:-2px;border-right:0;border-bottom:0;border-top-left-radius:14px}
-.scan-frame .box span:nth-child(2){top:-2px;right:-2px;border-left:0;border-bottom:0;border-top-right-radius:14px}
-.scan-frame .box span:nth-child(3){bottom:-2px;left:-2px;border-right:0;border-top:0;border-bottom-left-radius:14px}
-.scan-frame .box span:nth-child(4){bottom:-2px;right:-2px;border-left:0;border-top:0;border-bottom-right-radius:14px}
-.scanner-placeholder{color:#fff;text-align:center;padding:24px;opacity:.85}
 
-/* label preview */
-.label{background:#fff;color:#111;border:1px solid #ddd;border-radius:10px;padding:14px;display:flex;gap:14px;align-items:center}
-.label .qr{flex:0 0 auto}
-.label .info{min-width:0}
-.label .info .n{font-weight:800;font-size:14px;margin-bottom:3px;color:#111}
-.label .info .m{font-size:11.5px;color:#555;font-family:ui-monospace,Menlo,monospace}
-
-/* ============================ CHART ============================ */
 .chart{width:100%;overflow:visible}
 .chart .bar{fill:url(#gradBar);transition:opacity .15s}
 .chart .bar:hover{opacity:.8}
@@ -293,7 +260,6 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
 .bar-row .track{height:8px;background:var(--lav100);border-radius:6px;overflow:hidden}
 .bar-row .track i{display:block;height:100%;background:linear-gradient(90deg,var(--p500),var(--p700));border-radius:6px}
 
-/* ============================ MOBILE ============================ */
 @media(max-width:980px){
   .app{grid-template-columns:1fr}
   .sidebar{
@@ -322,18 +288,12 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
   .stat .val{font-size:20px}
   .page-head h1{font-size:19px}
 }
-.pulse{animation:pulse 1.4s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-.spin{animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- ================= AUTH ROOT ================= -->
 <div id="authRoot" class="auth-root"></div>
 
-<!-- ================= APP SHELL ================= -->
 <div id="app" class="app" hidden>
   <div class="scrim" id="scrim" hidden></div>
   <aside class="sidebar" id="sidebar">
@@ -354,7 +314,7 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
     <nav id="sideNav"></nav>
     <div class="sb-foot">
       <div id="sbShop">Магазин</div>
-      <div style="opacity:.7;margin-top:3px">Демо-режим · данные локальны</div>
+      <div style="opacity:.7;margin-top:3px">Локальное хранилище</div>
     </div>
   </aside>
 
@@ -390,7 +350,6 @@ select.mini{width:auto;min-height:40px;padding:8px 30px 8px 12px;font-size:13px}
 
 /* ==========================================================================
    1. QR-КОДЕР (собственная реализация, без внешних библиотек)
-   Поддержка: байтовый режим, версии 1–10, уровень коррекции M
    ========================================================================== */
 const QRCode = (function () {
   const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
@@ -401,7 +360,6 @@ const QRCode = (function () {
   })();
   const mul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
 
-  // Таблица блоков для уровня M: ec — кодовых слов коррекции на блок, g — [кол-во, данных]
   const RS = {
     1:  { ec: 10, g: [[1, 16]] },
     2:  { ec: 16, g: [[1, 28]] },
@@ -462,7 +420,7 @@ const QRCode = (function () {
 
     const bits = [];
     const push = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
-    push(4, 4);                       // режим: байты
+    push(4, 4);
     push(bytes.length, countBits);
     bytes.forEach(b => push(b, 8));
 
@@ -480,7 +438,6 @@ const QRCode = (function () {
     let pi = 0;
     while (dataBytes.length < dataCW) dataBytes.push(pads[pi++ % 2]);
 
-    // разбиение на блоки + коррекция
     const spec = RS[version];
     const blocks = [];
     let off = 0;
@@ -491,7 +448,6 @@ const QRCode = (function () {
         blocks.push({ data: d, ec: rsEncode(d, spec.ec) });
       }
     });
-    // перемежение
     const stream = [];
     const maxData = Math.max.apply(null, blocks.map(b => b.data.length));
     for (let i = 0; i < maxData; i++) blocks.forEach(b => { if (i < b.data.length) stream.push(b.data[i]); });
@@ -506,7 +462,6 @@ const QRCode = (function () {
     const fn = Array.from({ length: size }, () => new Array(size).fill(false));
     const set = (r, c, v) => { mod[r][c] = v; fn[r][c] = true; };
 
-    // Поисковые узоры
     [[0, 0], [0, size - 7], [size - 7, 0]].forEach(([r0, c0]) => {
       for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
         const rr = r0 + r, cc = c0 + c;
@@ -517,13 +472,11 @@ const QRCode = (function () {
       }
     });
 
-    // Синхронизирующие линии
     for (let i = 8; i < size - 8; i++) {
       const v = (i % 2 === 0) ? 1 : 0;
       set(6, i, v); set(i, 6, v);
     }
 
-    // Узоры выравнивания
     const al = ALIGN[version];
     for (const r of al) for (const c of al) {
       if ((r === 6 && c === 6) || (r === 6 && c === size - 7) || (r === size - 7 && c === 6)) continue;
@@ -533,7 +486,6 @@ const QRCode = (function () {
       }
     }
 
-    // Информация о версии (v>=7)
     if (version >= 7) {
       let rem = version;
       for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
@@ -545,14 +497,12 @@ const QRCode = (function () {
       }
     }
 
-    // Резерв под формат
     for (let i = 0; i < 9; i++) { if (!fn[8][i]) set(8, i, 0); if (!fn[i][8]) set(i, 8, 0); }
     for (let i = 0; i < 8; i++) {
       if (!fn[8][size - 1 - i]) set(8, size - 1 - i, 0);
       if (!fn[size - 1 - i][8]) set(size - 1 - i, 8, 0);
     }
 
-    // Размещение данных «змейкой»
     let bitIdx = 0;
     const totalBits = codewords.length * 8;
     let upward = true;
@@ -573,7 +523,6 @@ const QRCode = (function () {
       upward = !upward;
     }
 
-    // Выбор маски
     const maskFns = [
       (r, c) => (r + c) % 2 === 0,
       (r) => r % 2 === 0,
@@ -600,17 +549,15 @@ const QRCode = (function () {
   }
 
   function drawFormat(m, size, mask) {
-    const eccBits = 0b00; // уровень M
+    const eccBits = 0b00;
     const data = (eccBits << 3) | mask;
     let rem = data;
     for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
     const bits = ((data << 10) | rem) ^ 0x5412;
     const bit = i => (bits >>> i) & 1;
-
     for (let i = 0; i <= 5; i++) m[i][8] = bit(i);
     m[7][8] = bit(6); m[8][8] = bit(7); m[8][7] = bit(8);
     for (let i = 9; i < 15; i++) m[8][14 - i] = bit(i);
-
     for (let i = 0; i < 8; i++) m[8][size - 1 - i] = bit(i);
     for (let i = 8; i < 15; i++) m[size - 15 + i][8] = bit(i);
     m[size - 8][8] = 1;
@@ -687,10 +634,6 @@ function fmtDateTime(ts) {
   const d = new Date(ts);
   return fmtDate(ts) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
-function fmtTime(ts) {
-  const d = new Date(ts);
-  return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
-}
 function relTime(ts) {
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
@@ -727,7 +670,6 @@ function placeholderImage(name, seed) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-/* Иконки */
 const ICONS = {
   home: '<path d="M3 10.4 12 3.2l9 7.2"/><path d="M5.4 9.3V20.8h13.2V9.3"/><path d="M9.8 20.8v-5.6h4.4v5.6"/>',
   box: '<path d="M21 7.8 12 3 3 7.8v8.4L12 21l9-4.8z"/><path d="M3 7.8 12 12.6l9-4.8"/><path d="M12 12.6V21"/>',
@@ -758,7 +700,6 @@ function icon(name, size) {
     'stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
 }
 
-/* Генерация canvas с QR */
 function qrCanvas(text, px, margin) {
   px = px || 260; margin = (margin === undefined) ? 3 : margin;
   const qr = QRCode.encode(text);
@@ -777,7 +718,7 @@ function qrCanvas(text, px, margin) {
 }
 
 /* ==========================================================================
-   3. ХРАНИЛИЩЕ (IndexedDB + резервный localStorage)
+   3. ХРАНИЛИЩЕ
    ========================================================================== */
 const DB = (function () {
   const NAME = 'vexa_seller_db', VER = 1;
@@ -789,14 +730,13 @@ const DB = (function () {
     return new Promise((resolve, reject) => {
       let req;
       try { req = indexedDB.open(NAME, VER); } catch (e) { return reject(e); }
-      req.onupgradeneeded = (ev) => {
+      req.onupgradeneeded = () => {
         const d = req.result;
         STORES.forEach(s => { if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: 'id' }); });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error || new Error('idb error'));
       req.onblocked = () => reject(new Error('idb blocked'));
-      setTimeout(() => { if (!req.readyState || req.readyState !== 'done') { /* не блокируем */ } }, 0);
     });
   }
 
@@ -822,13 +762,8 @@ const DB = (function () {
 
   return {
     async init() {
-      try {
-        db = await idbOpen();
-        mode = 'idb';
-      } catch (e) {
-        console.warn('IndexedDB недоступна, используется localStorage:', e && e.message);
-        mode = 'ls';
-      }
+      try { db = await idbOpen(); mode = 'idb'; }
+      catch (e) { console.warn('IndexedDB недоступна, используется localStorage:', e && e.message); mode = 'ls'; }
       return mode;
     },
     get mode() { return mode; },
@@ -928,17 +863,13 @@ const state = {
     products: { q: '', status: 'all', sort: 'created_desc' },
     orders: { q: '', status: 'all', sort: 'date_desc' },
     analytics: { range: 7, from: null, to: null },
-    dashboard: { range: 7 },
-    inventory: { q: '', type: 'all' }
-  },
-  scanner: null
+    dashboard: { range: 7 }
+  }
 };
 
 /* ==========================================================================
    6. СЕРВИСЫ
    ========================================================================== */
-
-/* ---- 6.1 Уведомления ---- */
 const NotificationService = {
   async add(type, title, text) {
     const n = { id: uid('n'), type, title, text: text || '', at: Date.now(), read: false };
@@ -966,7 +897,6 @@ const NotificationService = {
   }
 };
 
-/* ---- 6.2 Товары ---- */
 const ProductService = {
   all() { return state.products.slice(); },
   byId(id) { return state.products.find(p => p.id === id) || null; },
@@ -1000,9 +930,7 @@ const ProductService = {
       price: Number(data.price) || 0,
       oldPrice: Number(data.oldPrice) || 0,
       qty: Math.max(0, Math.floor(Number(data.qty) || 0)),
-      reserved: 0,
-      sold: 0,
-      returned: 0,
+      reserved: 0, sold: 0, returned: 0,
       barcode: data.barcode || this.generateBarcode(),
       weight: Number(data.weight) || 0,
       length: Number(data.length) || 0,
@@ -1013,8 +941,7 @@ const ProductService = {
       brand: data.brand || '',
       image: data.image || null,
       status: data.status || 'active',
-      createdAt: now,
-      updatedAt: now
+      createdAt: now, updatedAt: now
     };
     if (product.status === 'active' && product.qty === 0) product.status = 'out';
     state.products.unshift(product);
@@ -1055,11 +982,10 @@ const ProductService = {
   },
 
   async remove(id) {
-    // Исторические заказы сохраняются: удаляем только запись товара
     const p = this.byId(id);
     state.products = state.products.filter(x => x.id !== id);
     await DB.del('products', id);
-    if (p) await NotificationService.add('product', 'Товар удалён', p.name + ' (заказы в истории сохранены)');
+    if (p) await NotificationService.add('product', 'Товар удалён', p.name + ' (история заказов сохранена)');
   },
 
   filtered() {
@@ -1094,7 +1020,6 @@ const ProductService = {
   }
 };
 
-/* ---- 6.3 Склад ---- */
 const InventoryService = {
   record(productId, type, qty, reason, orderId) {
     const m = {
@@ -1106,20 +1031,6 @@ const InventoryService = {
     return DB.put('movements', m);
   },
   forProduct(productId) { return state.movements.filter(m => m.productId === productId); },
-  filtered() {
-    const f = state.filters.inventory;
-    let list = state.movements.slice();
-    if (f.type !== 'all') list = list.filter(m => m.type === f.type);
-    if (f.q.trim()) {
-      const q = f.q.trim().toLowerCase();
-      list = list.filter(m => {
-        const p = ProductService.byId(m.productId);
-        return (p && (p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)))
-          || (m.reason || '').toLowerCase().includes(q);
-      });
-    }
-    return list;
-  },
   totals() {
     let total = 0, reserved = 0, sold = 0, returned = 0;
     state.products.forEach(p => {
@@ -1148,7 +1059,6 @@ const InventoryService = {
   }
 };
 
-/* ---- 6.4 Заказы ---- */
 const OrderService = {
   all() { return state.orders.slice(); },
   byId(id) { return state.orders.find(o => o.id === id) || null; },
@@ -1163,7 +1073,6 @@ const OrderService = {
   },
 
   async create(data) {
-    // Проверка остатков
     for (const it of data.items) {
       const p = ProductService.byId(it.productId);
       if (!p) throw new Error('Товар не найден: ' + it.name);
@@ -1177,9 +1086,7 @@ const OrderService = {
     const total = subtotal - discount;
 
     const order = {
-      id: uid('o'),
-      number,
-      createdAt: now,
+      id: uid('o'), number, createdAt: now,
       customerId: data.customerId || null,
       customerName: data.customerName || 'Покупатель',
       customerPhone: data.customerPhone || '',
@@ -1194,7 +1101,6 @@ const OrderService = {
       history: [{ status: 'new', at: now, note: 'Заказ создан' }]
     };
 
-    // Резервирование
     for (const it of order.items) {
       const p = ProductService.byId(it.productId);
       p.reserved = (p.reserved || 0) + it.qty;
@@ -1205,7 +1111,6 @@ const OrderService = {
 
     state.orders.unshift(order);
     await DB.put('orders', order);
-
     await CustomerService.upsertFromOrder(order);
     await NotificationService.add('order', 'Новый заказ', number + ' · ' + fmtMoney(total));
     return order;
@@ -1301,7 +1206,6 @@ const OrderService = {
   }
 };
 
-/* ---- 6.5 Покупатели ---- */
 const CustomerService = {
   all() { return state.customers.slice(); },
   byId(id) { return state.customers.find(c => c.id === id) || null; },
@@ -1327,31 +1231,13 @@ const CustomerService = {
     order.customerId = c.id;
     await DB.put('orders', order);
     return c;
-  },
-
-  stats(c) {
-    const orders = this.ordersOf(c.id);
-    const total = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
-    const last = orders.slice().sort((a, b) => b.createdAt - a.createdAt)[0];
-    return { count: orders.length, total, last };
-  },
-
-  search(q) {
-    if (!q || !q.trim()) return this.all();
-    const s = q.trim().toLowerCase();
-    return this.all().filter(c =>
-      c.name.toLowerCase().includes(s) ||
-      (c.phone || '').toLowerCase().includes(s) ||
-      (c.email || '').toLowerCase().includes(s));
   }
 };
 
-/* ---- 6.6 Аналитика ---- */
 const AnalyticsService = {
   compute(fromTs, toTs) {
     const from = fromTs || 0, to = toTs || Infinity;
     const orders = state.orders.filter(o => o.createdAt >= from && o.createdAt <= to);
-    const valid = orders.filter(o => o.status !== 'cancelled');
     const done = orders.filter(o => o.status === 'done');
     const revenue = done.reduce((s, o) => s + o.total, 0);
 
@@ -1367,7 +1253,6 @@ const AnalyticsService = {
 
     return {
       ordersCount: orders.length,
-      validCount: valid.length,
       doneCount: done.length,
       cancelledCount: orders.filter(o => o.status === 'cancelled').length,
       revenue,
@@ -1390,9 +1275,6 @@ const AnalyticsService = {
       for (let i = days - 1; i >= 0; i--) buckets.push({ ts: daysAgo(i), revenue: 0, orders: 0 });
     }
     state.orders.forEach(o => {
-      if (o.status !== 'done' && o.status !== 'cancelled') {
-        // учитываем только новые заказы для графика количества
-      }
       const d = startOfDay(o.createdAt);
       const b = buckets.find(x => x.ts === d);
       if (!b) return;
@@ -1400,41 +1282,17 @@ const AnalyticsService = {
       if (o.status === 'done') b.revenue += o.total;
     });
     return buckets;
-  },
-
-  revenueSeriesForChart(days, fromTs, toTs) {
-    return this.series(days, fromTs, toTs);
   }
 };
 
-/* ---- 6.7 QR ---- */
 const QrService = {
   productPayload(productId) { return 'VEXA:PRODUCT:' + productId; },
-  orderPayload(orderId) { return 'VEXA:ORDER:' + orderId; },
-
-  parse(text) {
-    const s = String(text || '').trim();
-    if (s.indexOf('VEXA:PRODUCT:') === 0) return { kind: 'product', id: s.slice('VEXA:PRODUCT:'.length) };
-    if (s.indexOf('VEXA:ORDER:') === 0) return { kind: 'order', id: s.slice('VEXA:ORDER:'.length) };
-    // Поддержка ввода только идентификатора
-    if (/^p_[a-z0-9]+$/i.test(s) && ProductService.byId(s)) return { kind: 'product', id: s };
-    if (/^o_[a-z0-9]+$/i.test(s) && OrderService.byId(s)) return { kind: 'order', id: s };
-    const bySku = ProductService.bySkuOrBarcode(s);
-    if (bySku) return { kind: 'product', id: bySku.id };
-    const byNum = OrderService.byNumber(s);
-    if (byNum) return { kind: 'order', id: byNum.id };
-    return null;
-  },
-
-  canvasFor(payload, px) {
-    return qrCanvas(payload, px || 260, 3);
-  }
+  orderPayload(orderId) { return 'VEXA:ORDER:' + orderId; }
 };
 
-/* ---- 6.8 Аутентификация (демо-адаптер) ---- */
 const AuthService = (function () {
   const LS_KEY = 'vexa_session_demo';
-  let pending = null; // { phone, code, expires, attempts }
+  let pending = null;
 
   function normalize(cc, raw) {
     const digits = String(raw || '').replace(/\D/g, '');
@@ -1457,15 +1315,6 @@ const AuthService = (function () {
 
   return {
     formatPhone, valid, normalize,
-    isValidPhone(phone) {
-      const d = String(phone || '').replace(/\D/g, '');
-      return d.length >= 11;
-    },
-    /**
-     * ДЕМО-РЕЖИМ: реальная SMS не отправляется.
-     * Здесь создаётся временный код, который возвращается только в браузер.
-     * Для продакшена замените на вызов POST /api/auth/send-code.
-     */
     async sendCode(phone) {
       const code = String(Math.floor(100000 + Math.random() * 900000));
       pending = { phone, code, expires: Date.now() + 5 * 60 * 1000, attempts: 0 };
@@ -1480,27 +1329,22 @@ const AuthService = (function () {
       pending = null;
       return true;
     },
-    /**
-     * ДЕМО-СЕССИЯ. В продакшене используйте серверные сессии / httpOnly cookie.
-     * Здесь сохраняется лишь отметка входа для удобства демонстрации.
-     */
     saveSession(phone) {
       const s = { phone, at: Date.now(), demo: true };
-      try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ }
+      try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch (e) {}
       return s;
     },
     getSession() {
       try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { return null; }
     },
     async logout() {
-      // Продакшен: POST /api/auth/logout
-      try { localStorage.removeItem(LS_KEY); } catch (e) { /* ignore */ }
+      try { localStorage.removeItem(LS_KEY); } catch (e) {}
     }
   };
 })();
 
 /* ==========================================================================
-   7. ИНТЕРФЕЙС: БАЗОВЫЕ ЭЛЕМЕНТЫ
+   7. БАЗОВЫЕ UI-ЭЛЕМЕНТЫ
    ========================================================================== */
 function toast(title, text, type) {
   const el = document.createElement('div');
@@ -1545,7 +1389,7 @@ function showModal(opts) {
 
 function confirmDialog(title, text, okLabel, danger) {
   return new Promise(resolve => {
-    const m = showModal({
+    showModal({
       title: title,
       body: '<p style="margin:0;color:var(--muted);font-size:14px">' + esc(text) + '</p>',
       footer:
@@ -1554,13 +1398,10 @@ function confirmDialog(title, text, okLabel, danger) {
       onMount(backdrop, close) {
         backdrop.querySelector('[data-role="cancel"]').onclick = () => { close(); resolve(false); };
         backdrop.querySelector('[data-role="ok"]').onclick = () => { close(); resolve(true); };
-        backdrop.addEventListener('click', e => {
-          if (e.target === backdrop) resolve(false);
-        });
+        backdrop.addEventListener('click', e => { if (e.target === backdrop) resolve(false); });
       },
       onClose() { resolve(false); }
     });
-    void m;
   });
 }
 
@@ -1569,23 +1410,21 @@ function emptyState(iconName, title, text, actionHTML) {
     '<h4>' + esc(title) + '</h4><p>' + esc(text) + '</p>' + (actionHTML || '') + '</div>';
 }
 
-/* Графики */
 function barChart(data, opts) {
   opts = opts || {};
   const W = 100, H = 220;
-  const padL = 0, padB = 26, padT = 16;
+  const padB = 26, padT = 16;
   const n = data.length || 1;
   const max = Math.max.apply(null, data.map(d => d.value).concat([1]));
   const gap = 6;
   const bw = (W - gap * (n - 1)) / n;
-  let bars = '';
-  let labels = '';
+  let bars = '', labels = '';
   data.forEach((d, i) => {
     const x = i * (bw + gap);
     const h = Math.max(2, (d.value / max) * (H - padB - padT));
     const y = H - padB - h;
     bars += '<rect class="bar" x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + bw.toFixed(2) +
-      '" height="' + h.toFixed(2) + '" rx="1.6" data-tip="' + esc(d.label + ': ' + (opts.format ? opts.format(d.value) : d.value)) + '"></rect>';
+      '" height="' + h.toFixed(2) + '" rx="1.6"><title>' + esc(d.label + ': ' + (opts.format ? opts.format(d.value) : d.value)) + '</title></rect>';
     labels += '<text x="' + (x + bw / 2).toFixed(2) + '" y="' + (H - 8) + '" font-size="7" fill="var(--muted)" text-anchor="middle">' + esc(d.short) + '</text>';
   });
   return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + (opts.height || 220) + 'px">' +
@@ -1595,7 +1434,7 @@ function barChart(data, opts) {
 }
 
 /* ==========================================================================
-   8. АУТЕНТИФИКАЦИЯ — ЭКРАНЫ
+   8. АУТЕНТИФИКАЦИЯ
    ========================================================================== */
 const authUI = {
   screen: 'welcome',
@@ -1604,7 +1443,8 @@ const authUI = {
   phone: '',
   demoCode: null,
   error: '',
-  resendAt: 0
+  resendAt: 0,
+  profileDraft: null
 };
 
 function renderAuth() {
@@ -1623,11 +1463,11 @@ function renderAuth() {
           '<div class="auth-brand">VEXA-SELLER</div>' +
         '</div>' +
         '<h1 class="auth-title">Добро пожаловать в VEXA</h1>' +
-        '<p class="auth-sub">Управляйте своим магазином в одном месте: товары, заказы, QR-коды, склад и аналитика.</p>' +
+        '<p class="auth-sub">Управляйте своим магазином: товары, QR-коды, заказы и аналитика.</p>' +
         '<button class="btn btn-primary btn-block" id="goLogin" style="margin-bottom:10px">Войти</button>' +
         '<button class="btn btn-ghost btn-block" id="goRegister">Создать аккаунт</button>' +
         '<p class="small muted" style="text-align:center;margin-top:22px;line-height:1.5">' +
-          'Демонстрационная версия. Авторизация выполняется в локальном демо-режиме без реальной отправки SMS.' +
+          'Демонстрационная версия. Авторизация выполняется в локальном режиме без реальной отправки SMS.' +
         '</p>' +
       '</div>';
   } else if (authUI.screen === 'phone') {
@@ -1645,7 +1485,7 @@ function renderAuth() {
               '<option value="+77">🇰🇿 +77</option>' +
               '<option value="+998">🇺🇿 +998</option>' +
               '<option value="+995">🇬🇪 +995</option>' +
-              '<option value="+995">🇦🇲 +374</option>' +
+              '<option value="+374">🇦🇲 +374</option>' +
             '</select>' +
             '<input id="phoneInput" type="tel" inputmode="tel" placeholder="+7 (999) 123-45-67" value="' + esc(authUI.phoneRaw ? AuthService.formatPhone(authUI.cc, authUI.phoneRaw) : '') + '" autocomplete="tel" style="flex:1">' +
           '</div>' +
@@ -1665,7 +1505,7 @@ function renderAuth() {
           ? '<div style="background:var(--warnbg);color:var(--warn);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.5">' +
               '<b>Демонстрационный код:</b> <span style="font-family:ui-monospace,monospace;font-size:19px;font-weight:800;letter-spacing:3px">' +
               esc(authUI.demoCode) + '</span><br>' +
-              '<span style="opacity:.85">Это не настоящее SMS. Код создан локально для демонстрации и не сохраняется в базе.</span>' +
+              '<span style="opacity:.85">Это не настоящее SMS. Код создан локально для демонстрации.</span>' +
             '</div>'
           : '') +
         '<div class="code-row" id="codeRow">' +
@@ -1677,7 +1517,6 @@ function renderAuth() {
           (secsLeft > 0 ? 'Отправить повторно через ' + secsLeft + ' с' : 'Отправить код повторно') +
         '</button>' +
         '<button class="btn btn-ghost btn-block" id="backPhone" style="margin-top:10px">Изменить номер</button>' +
-        '<p class="small muted" style="text-align:center;margin-top:16px">Демо-режим · отправка реальных SMS не выполняется</p>' +
       '</div>';
   } else if (authUI.screen === 'profile') {
     const p = authUI.profileDraft || (authUI.profileDraft = {
@@ -1704,7 +1543,7 @@ function renderAuth() {
         '</select></div>' +
         '<div class="field"><label>Город *</label><input id="pf_city" type="text" value="' + esc(p.city) + '" placeholder="Москва"></div>' +
         '<div class="field"><label>Адрес склада *</label><input id="pf_address" type="text" value="' + esc(p.address) + '" placeholder="ул. Складская, 1"></div>' +
-        '<label class="checkbox" style="margin:14px 0 18px"><input type="checkbox" id="pf_agree"' + (p.agree ? ' checked' : '') + '><span>Я принимаю условия использования VEXA-SELLER и подтверждаю, что данные указаны верно.</span></label>' +
+        '<label class="checkbox" style="margin:14px 0 18px"><input type="checkbox" id="pf_agree"' + (p.agree ? ' checked' : '') + '><span>Я принимаю условия использования VEXA-SELLER.</span></label>' +
         (authUI.error ? '<div class="err-text" style="margin-bottom:10px">' + esc(authUI.error) + '</div>' : '') +
         '<button class="btn btn-primary btn-block" id="doSaveProfile">Завершить регистрацию</button>' +
       '</div>';
@@ -1712,7 +1551,6 @@ function renderAuth() {
 
   root.innerHTML = body;
 
-  /* --- Слушатели --- */
   if (authUI.screen === 'welcome') {
     $('#goLogin').onclick = () => { authUI.screen = 'phone'; authUI.error = ''; renderAuth(); };
     $('#goRegister').onclick = () => { authUI.screen = 'phone'; authUI.error = ''; renderAuth(); };
@@ -1724,7 +1562,7 @@ function renderAuth() {
     cc.value = authUI.cc;
     cc.onchange = () => { authUI.cc = cc.value; inp.value = AuthService.formatPhone(cc.value, authUI.phoneRaw); };
     inp.addEventListener('input', () => {
-      const digits = inp.value.replace(/\D/g, '').replace(/^7|^375|^77|^998/, '');
+      const digits = inp.value.replace(/\D/g, '').replace(/^7|^375|^77|^998|^374/, '');
       authUI.phoneRaw = digits.slice(0, 10);
       inp.value = AuthService.formatPhone(authUI.cc, authUI.phoneRaw);
     });
@@ -1791,7 +1629,7 @@ function renderAuth() {
       authUI.resendAt = Date.now() + 45000;
       renderAuth();
       startResendTimer();
-      toast('Код создан заново', 'Демонстрационный код обновлён', 'ok');
+      toast('Код создан заново', 'Демонстрационный код обновлён');
     };
     $('#backPhone').onclick = () => { authUI.screen = 'phone'; authUI.error = ''; renderAuth(); };
   }
@@ -1867,18 +1705,14 @@ function startResendTimer() {
    9. НАВИГАЦИЯ
    ========================================================================== */
 const NAV_ITEMS = [
-  { route: 'dashboard',   label: 'Главная',      icon: 'home' },
-  { route: 'products',    label: 'Товары',       icon: 'box' },
-  { route: 'orders',      label: 'Заказы',       icon: 'cart' },
-  { route: 'create-order',label: 'Создать заказ',icon: 'plus2' },
-  { route: 'scanner',     label: 'QR-сканер',    icon: 'scan' },
-  { route: 'inventory',   label: 'Остатки',      icon: 'layers' },
-  { route: 'analytics',   label: 'Аналитика',    icon: 'chart' },
-  { route: 'customers',   label: 'Покупатели',   icon: 'users' },
-  { route: 'notifications', label: 'Уведомления',icon: 'bell' },
-  { route: 'settings',    label: 'Настройки',    icon: 'gear' }
+  { route: 'dashboard',     label: 'Главная',      icon: 'home' },
+  { route: 'products',      label: 'Товары',       icon: 'box' },
+  { route: 'orders',        label: 'Заказы',       icon: 'cart' },
+  { route: 'analytics',     label: 'Аналитика',    icon: 'chart' },
+  { route: 'notifications', label: 'Уведомления',  icon: 'bell' },
+  { route: 'settings',      label: 'Настройки',    icon: 'gear' }
 ];
-const MOBILE_NAV = ['dashboard', 'products', 'orders', 'scanner'];
+const MOBILE_NAV = ['dashboard', 'products', 'orders', 'notifications'];
 
 function renderNav() {
   const unread = NotificationService.unreadCount();
@@ -1910,6 +1744,7 @@ function navigate(route) {
     $('#scrim').hidden = false;
     return;
   }
+  if (!PAGES[route]) return;
   state.route = route;
   location.hash = '#/' + route;
   closeDrawer();
@@ -1983,10 +1818,10 @@ function pageDashboard() {
       (chartData.length ? barChart(chartData, { format: fmtMoney, height: 220 }) : emptyState('chart', 'Нет данных', 'Пока нет выполненных заказов')) +
     '</div>' +
     '<div class="card">' +
-      '<div class="card-h"><h3>Заканчивается</h3>' +
-        '<button class="btn btn-sm btn-ghost" data-route="inventory">Все остатки</button></div>' +
+      '<div class="card-h"><h3>Заканчивается</h3></div>' +
       (lowStock.length ? lowStock.map(p =>
-        '<div class="kv"><span class="k" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.name) + '</span>' +
+        '<div class="kv"><span class="k" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        '<span class="link" data-product="' + esc(p.id) + '">' + esc(p.name) + '</span></span>' +
         '<span class="badge ' + (p.qty === 0 ? 'b-err' : 'b-warn') + '">' + p.qty + ' шт.</span></div>').join('')
         : '<p class="muted small" style="margin:0">Все товары в наличии</p>') +
     '</div>' +
@@ -2005,8 +1840,7 @@ function pageDashboard() {
         '<td class="num">' + esc(fmtMoney(o.total)) + '</td>' +
         '<td><span class="badge ' + ORDER_STATUS[o.status].cls + '">' + ORDER_STATUS[o.status].label + '</span></td>' +
       '</tr>').join('') + '</tbody></table></div>'
-      : emptyState('cart', 'Заказов пока нет', 'Создайте первый заказ, чтобы увидеть статистику',
-          '<button class="btn btn-primary btn-sm" data-route="create-order">Создать заказ</button>')) +
+      : emptyState('cart', 'Заказов пока нет', 'Заказы появятся здесь, как только будут созданы')) +
   '</div>' +
 
   '<div class="card">' +
@@ -2059,7 +1893,10 @@ function pageProducts() {
   '</div>' +
 
   (list.length ? '<div class="grid grid-cards">' + list.map(productCard).join('') + '</div>'
-    : emptyState('box', 'Товары не найдены', 'Измените параметры поиска или создайте новый товар',
+    : emptyState('box', state.products.length === 0 ? 'Каталог пуст' : 'Товары не найдены',
+        state.products.length === 0
+          ? 'Создайте первый товар, чтобы начать работу'
+          : 'Измените параметры поиска или фильтры',
         '<button class="btn btn-primary" data-action="new-product">Создать товар</button>'));
 }
 
@@ -2087,14 +1924,13 @@ function productCard(p) {
   '</div>';
 }
 
-/* ---------- 10.3 Форма товара ---------- */
 function productFormHTML(p) {
   p = p || {};
   const v = (k, d) => esc(p[k] !== undefined && p[k] !== null ? p[k] : (d || ''));
   return '' +
   '<div class="field"><label>Название товара *</label><input id="f_name" type="text" value="' + v('name') + '" placeholder="Например: Наушники беспроводные"></div>' +
   '<div class="row row-2">' +
-    '<div class="field"><label>Артикул продавца (SKU)</label><input id="f_sku" type="text" value="' + v('sku') + '" placeholder="Оставьте пустым — сгенерируем автоматически"></div>' +
+    '<div class="field"><label>Артикул продавца (SKU)</label><input id="f_sku" type="text" value="' + v('sku') + '" placeholder="Оставьте пустым — сгенерируем"></div>' +
     '<div class="field"><label>Категория *</label><select id="f_category">' +
       CATEGORIES.map(c => '<option' + (p.category === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select></div>' +
   '</div>' +
@@ -2231,7 +2067,6 @@ function openProductForm(id) {
   });
 }
 
-/* ---------- 10.4 Детали товара + QR ---------- */
 function openProductDetails(id) {
   const p = ProductService.byId(id);
   if (!p) { toast('Товар не найден', '', 'err'); return; }
@@ -2294,8 +2129,7 @@ function openProductDetails(id) {
     onMount(backdrop, close) {
       const holder = backdrop.querySelector('#qrHolder');
       const canvas = qrCanvas(payload, 240, 3);
-      canvas.style.width = '200px';
-      canvas.style.height = '200px';
+      canvas.style.width = '200px'; canvas.style.height = '200px';
       holder.appendChild(canvas);
 
       backdrop.querySelector('#qrDownload').onclick = () => {
@@ -2322,7 +2156,7 @@ function openProductDetails(id) {
 
       backdrop.querySelector('#pEdit').onclick = () => { close(); openProductForm(p.id); };
       backdrop.querySelector('#pArchive').onclick = async () => {
-        const ok = await confirmDialog('Архивировать товар?', 'Товар «' + p.name + '» будет скрыт из активного каталога. История заказов сохранится.', 'Архивировать');
+        const ok = await confirmDialog('Архивировать товар?', 'Товар «' + p.name + '» будет скрыт из активного каталога.', 'Архивировать');
         if (!ok) return;
         await ProductService.archive(p.id);
         toast('Товар архивирован', p.name);
@@ -2372,7 +2206,7 @@ function printProductLabel(p, payload) {
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* ---------- 10.5 Заказы ---------- */
+/* ---------- 10.3 Заказы ---------- */
 function pageOrders() {
   const f = state.filters.orders;
   const list = OrderService.filtered();
@@ -2381,7 +2215,7 @@ function pageOrders() {
   state.orders.forEach(o => { counts[o.status] = (counts[o.status] || 0) + 1; });
 
   return '' +
-  '<div class="page-head"><h1>Заказы</h1><p>Обработка заказов, изменение статусов и печать документов</p></div>' +
+  '<div class="page-head"><h1>Заказы</h1><p>Просмотр заказов и управление статусами</p></div>' +
 
   '<div class="toolbar">' +
     '<div class="searchbox">' + icon('search', 18) +
@@ -2391,7 +2225,6 @@ function pageOrders() {
       [['date_desc','Сначала новые'],['date_asc','Сначала старые'],['total_desc','Сумма по убыванию'],['total_asc','Сумма по возрастанию']]
         .map(([v, l]) => '<option value="' + v + '"' + (f.sort === v ? ' selected' : '') + '>' + l + '</option>').join('') +
     '</select>' +
-    '<button class="btn btn-primary" data-route="create-order">' + icon('plus', 18) + 'Создать заказ</button>' +
   '</div>' +
 
   '<div class="chips mb">' +
@@ -2400,8 +2233,10 @@ function pageOrders() {
   '</div>' +
 
   (list.length ? '<div class="grid grid-cards">' + list.map(orderCard).join('') + '</div>'
-    : emptyState('cart', 'Заказы не найдены', 'Измените фильтры или создайте новый заказ',
-        '<button class="btn btn-primary" data-route="create-order">Создать заказ</button>'));
+    : emptyState('cart', state.orders.length === 0 ? 'Заказов пока нет' : 'Заказы не найдены',
+        state.orders.length === 0
+          ? 'Заказы появятся здесь после их создания'
+          : 'Измените фильтры или поисковый запрос'));
 }
 
 function orderCard(o) {
@@ -2554,562 +2389,7 @@ function printOrderSheet(o, payload) {
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* ---------- 10.6 Создание заказа ---------- */
-const createOrderState = { items: [], search: '', customer: { name: '', phone: '', email: '' }, delivery: DELIVERY_METHODS[0], address: '', note: '', discount: 0 };
-
-function pageCreateOrder() {
-  const co = createOrderState;
-  const products = state.products.filter(p => p.status !== 'archived' && ProductService.available(p) > 0);
-  const filtered = co.search.trim()
-    ? products.filter(p => p.name.toLowerCase().includes(co.search.trim().toLowerCase()) ||
-        p.sku.toLowerCase().includes(co.search.trim().toLowerCase()))
-    : products;
-
-  const subtotal = co.items.reduce((s, i) => s + i.price * i.qty, 0);
-  const discount = Math.min(co.discount || 0, subtotal);
-  const total = subtotal - discount;
-
-  return '' +
-  '<div class="page-head"><h1>Создать заказ</h1><p>Выберите товары, укажите покупателя и подтвердите заказ</p></div>' +
-
-  '<div class="grid grid-2" style="align-items:start">' +
-    '<div>' +
-
-      '<div class="card mb">' +
-        '<div class="card-h"><h3>1. Товары</h3><span class="small muted">' + co.items.length + ' поз. в заказе</span></div>' +
-        '<div class="searchbox mb">' + icon('search', 18) +
-          '<input type="text" id="coSearch" placeholder="Поиск товара по названию или SKU" value="' + esc(co.search) + '">' +
-        '</div>' +
-        (filtered.length ? '<div style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:12px">' +
-          filtered.map(p => {
-            const avail = ProductService.available(p);
-            const inCart = co.items.find(i => i.productId === p.id);
-            return '<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)">' +
-              '<img src="' + esc(p.image || placeholderImage(p.name, p.name.length)) + '" style="width:42px;height:42px;border-radius:9px;object-fit:cover;flex:0 0 auto">' +
-              '<div style="flex:1;min-width:0">' +
-                '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.name) + '</div>' +
-                '<div class="small muted">' + esc(p.sku) + ' · ' + esc(fmtMoney(p.price)) + ' · доступно ' + avail + '</div>' +
-              '</div>' +
-              (inCart
-                ? '<div class="flex" style="gap:4px">' +
-                    '<button class="btn btn-sm btn-ghost btn-icon" data-co-dec="' + esc(p.id) + '">−</button>' +
-                    '<span style="min-width:26px;text-align:center;font-weight:700">' + inCart.qty + '</span>' +
-                    '<button class="btn btn-sm btn-ghost btn-icon" data-co-inc="' + esc(p.id) + '"' + (inCart.qty >= avail ? ' disabled' : '') + '>+</button>' +
-                  '</div>'
-                : '<button class="btn btn-sm btn-primary" data-co-add="' + esc(p.id) + '">Добавить</button>') +
-            '</div>';
-          }).join('') + '</div>'
-          : emptyState('box', 'Нет доступных товаров', co.search ? 'Попробуйте изменить поисковый запрос' : 'Сначала добавьте товары в каталог')) +
-      '</div>' +
-
-      '<div class="card mb">' +
-        '<div class="card-h"><h3>2. Покупатель</h3></div>' +
-        '<div class="row row-2">' +
-          '<div class="field"><label>Имя покупателя *</label><input type="text" id="coName" value="' + esc(co.customer.name) + '" placeholder="Иван Иванов"></div>' +
-          '<div class="field"><label>Телефон</label><input type="tel" id="coPhone" value="' + esc(co.customer.phone) + '" placeholder="+7 (999) 000-00-00"></div>' +
-        '</div>' +
-        '<div class="field"><label>Email</label><input type="email" id="coEmail" value="' + esc(co.customer.email) + '" placeholder="buyer@example.com"></div>' +
-      '</div>' +
-
-      '<div class="card">' +
-        '<div class="card-h"><h3>3. Доставка и комментарий</h3></div>' +
-        '<div class="field"><label>Способ доставки</label><select id="coDelivery">' +
-          DELIVERY_METHODS.map(m => '<option' + (co.delivery === m ? ' selected' : '') + '>' + m + '</option>').join('') +
-        '</select></div>' +
-        '<div class="field"><label>Адрес доставки</label><input type="text" id="coAddress" value="' + esc(co.address) + '" placeholder="Город, улица, дом, квартира"></div>' +
-        '<div class="field"><label>Комментарий продавца</label><textarea id="coNote" placeholder="Внутренняя заметка по заказу">' + esc(co.note) + '</textarea></div>' +
-      '</div>' +
-
-    '</div>' +
-
-    '<div class="card" style="position:sticky;top:80px">' +
-      '<div class="card-h"><h3>Итог заказа</h3></div>' +
-      (co.items.length ? co.items.map(i =>
-        '<div class="kv"><span class="k" style="flex:1;min-width:0">' +
-          '<span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-weight:600">' + esc(i.name) + '</span>' +
-          '<span class="small">' + i.qty + ' × ' + esc(fmtMoney(i.price)) + '</span>' +
-        '</span>' +
-        '<span class="v">' + esc(fmtMoney(i.price * i.qty)) +
-          ' <button class="btn btn-sm btn-ghost btn-icon" data-co-remove="' + esc(i.productId) + '" style="margin-left:6px;width:28px;min-height:28px;padding:2px">' + icon('close', 13) + '</button></span>' +
-        '</div>').join('')
-        : '<p class="small muted" style="margin:0 0 10px">Товары не выбраны</p>') +
-
-      '<div class="divider"></div>' +
-      '<div class="field"><label>Скидка, ₽</label><input type="number" id="coDiscount" min="0" step="1" value="' + (co.discount || 0) + '"></div>' +
-      '<div class="kv"><span class="k">Подытог</span><span class="v">' + esc(fmtMoney(subtotal)) + '</span></div>' +
-      (discount ? '<div class="kv"><span class="k">Скидка</span><span class="v">− ' + esc(fmtMoney(discount)) + '</span></div>' : '') +
-      '<div class="kv" style="font-size:17px"><span class="k" style="font-weight:700;color:var(--text)">Итого</span>' +
-      '<span class="v" style="color:var(--p700);font-weight:800">' + esc(fmtMoney(total)) + '</span></div>' +
-      '<div class="small muted" style="margin:10px 0 14px">Позиций: ' + co.items.reduce((s, i) => s + i.qty, 0) + ' шт. · ' + co.items.length + ' наименований</div>' +
-      '<button class="btn btn-primary btn-block" id="coSubmit"' + (co.items.length ? '' : ' disabled') + '>' + icon('check', 18) + 'Подтвердить заказ</button>' +
-      '<button class="btn btn-ghost btn-block" id="coReset" style="margin-top:8px">Очистить</button>' +
-      '<div id="coError" class="mt"></div>' +
-    '</div>' +
-  '</div>';
-}
-
-function collectCreateOrderInputs() {
-  const co = createOrderState;
-  const g = id => { const el = $('#' + id); return el ? el.value : ''; };
-  if ($('#coName')) co.customer.name = g('coName');
-  if ($('#coPhone')) co.customer.phone = g('coPhone');
-  if ($('#coEmail')) co.customer.email = g('coEmail');
-  if ($('#coDelivery')) co.delivery = g('coDelivery');
-  if ($('#coAddress')) co.address = g('coAddress');
-  if ($('#coNote')) co.note = g('coNote');
-  if ($('#coDiscount')) co.discount = Math.max(0, Number(g('coDiscount')) || 0);
-}
-
-function bindCreateOrder() {
-  const co = createOrderState;
-  const search = $('#coSearch');
-  if (search) {
-    let t = null;
-    search.addEventListener('input', () => {
-      co.search = search.value;
-      clearTimeout(t);
-      t = setTimeout(() => { collectCreateOrderInputs(); renderApp(); const s = $('#coSearch'); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }, 220);
-    });
-  }
-  ['coName', 'coPhone', 'coEmail', 'coAddress', 'coNote'].forEach(id => {
-    const el = $('#' + id);
-    if (el) el.addEventListener('change', () => { collectCreateOrderInputs(); });
-  });
-  const disc = $('#coDiscount');
-  if (disc) {
-    disc.addEventListener('change', () => { collectCreateOrderInputs(); renderApp(); });
-  }
-
-  const sub = $('#coSubmit');
-  if (sub) sub.onclick = async () => {
-    collectCreateOrderInputs();
-    const errBox = $('#coError');
-    const errs = [];
-    if (!co.items.length) errs.push('Добавьте хотя бы один товар');
-    if (!co.customer.name.trim()) errs.push('Укажите имя покупателя');
-    co.items.forEach(i => {
-      const p = ProductService.byId(i.productId);
-      if (!p) { errs.push('Товар не найден: ' + i.name); return; }
-      const avail = ProductService.available(p);
-      if (i.qty > avail) errs.push('«' + p.name + '»: доступно только ' + avail + ' шт.');
-    });
-    if (errs.length) { if (errBox) errBox.innerHTML = '<div class="err-text">' + errs.map(esc).join('<br>') + '</div>'; return; }
-
-    const subtotal = co.items.reduce((s, i) => s + i.price * i.qty, 0);
-    const discount = Math.min(co.discount || 0, subtotal);
-
-    const ok = await confirmDialog('Подтвердить заказ?',
-      'Будет создан заказ на сумму ' + fmtMoney(subtotal - discount) + ' и зарезервировано ' +
-      co.items.reduce((s, i) => s + i.qty, 0) + ' шт. товара.', 'Создать заказ');
-    if (!ok) return;
-
-    try {
-      const order = await OrderService.create({
-        items: co.items.map(i => ({ productId: i.productId, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
-        customerName: co.customer.name.trim(),
-        customerPhone: co.customer.phone.trim(),
-        customerEmail: co.customer.email.trim(),
-        deliveryMethod: co.delivery,
-        deliveryAddress: co.address.trim(),
-        note: co.note.trim(),
-        discount
-      });
-      // Сброс формы
-      createOrderState.items = [];
-      createOrderState.search = '';
-      createOrderState.customer = { name: '', phone: '', email: '' };
-      createOrderState.address = '';
-      createOrderState.note = '';
-      createOrderState.discount = 0;
-      renderApp();
-      showOrderSuccess(order);
-    } catch (e) {
-      if (errBox) errBox.innerHTML = '<div class="err-text">' + esc(e.message) + '</div>';
-      toast('Не удалось создать заказ', e.message, 'err');
-    }
-  };
-
-  const reset = $('#coReset');
-  if (reset) reset.onclick = async () => {
-    const ok = await confirmDialog('Очистить форму?', 'Все выбранные товары и данные покупателя будут удалены.', 'Очистить', true);
-    if (!ok) return;
-    createOrderState.items = [];
-    createOrderState.search = '';
-    createOrderState.customer = { name: '', phone: '', email: '' };
-    createOrderState.address = '';
-    createOrderState.note = '';
-    createOrderState.discount = 0;
-    renderApp();
-  };
-}
-
-function showOrderSuccess(order) {
-  const payload = QrService.orderPayload(order.id);
-  showModal({
-    title: 'Заказ создан',
-    body:
-      '<div style="text-align:center">' +
-        '<div style="width:62px;height:62px;border-radius:50%;background:var(--okbg);color:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">' + icon('check', 32) + '</div>' +
-        '<h3 style="font-size:19px;margin-bottom:4px">' + esc(order.number) + '</h3>' +
-        '<p class="muted small" style="margin:0 0 16px">Товары зарезервированы, склад обновлён</p>' +
-      '</div>' +
-      kv('Покупатель', order.customerName) +
-      kv('Позиций', order.items.length + ' / ' + order.items.reduce((s, i) => s + i.qty, 0) + ' шт.') +
-      kv('Сумма', fmtMoney(order.total)) +
-      kv('Статус', ORDER_STATUS[order.status].label) +
-      '<div class="divider"></div>' +
-      '<div style="text-align:center"><div class="qr-box" id="successQr"></div>' +
-      '<div class="small muted" style="margin-top:8px;font-family:ui-monospace,monospace;word-break:break-all">' + esc(payload) + '</div></div>',
-    footer:
-      '<button class="btn btn-ghost" data-close>Закрыть</button>' +
-      '<button class="btn btn-ghost" id="succPrint">' + icon('print', 16) + 'Печать</button>' +
-      '<button class="btn btn-primary" id="succOpen">Открыть заказ</button>',
-    onMount(backdrop, close) {
-      const c = qrCanvas(payload, 240, 3);
-      c.style.width = '180px'; c.style.height = '180px';
-      backdrop.querySelector('#successQr').appendChild(c);
-      backdrop.querySelector('#succPrint').onclick = () => printOrderSheet(order, payload);
-      backdrop.querySelector('#succOpen').onclick = () => { close(); openOrderDetails(order.id); };
-    }
-  });
-}
-
-/* ---------- 10.7 QR-сканер ---------- */
-function pageScanner() {
-  return '' +
-  '<div class="page-head"><h1>QR-сканер</h1><p>Сканируйте QR-коды товаров и заказов камерой устройства</p></div>' +
-
-  '<div class="grid grid-2" style="align-items:start">' +
-    '<div class="card">' +
-      '<div class="card-h"><h3>Камера</h3>' +
-        '<span class="badge b-gray" id="camStatus">Не запущена</span></div>' +
-      '<div class="scanner-stage" id="scanStage">' +
-        '<video id="scanVideo" playsinline muted style="display:none"></video>' +
-        '<div class="scan-frame" id="scanFrame" hidden><div class="box"><span></span><span></span><span></span><span></span></div></div>' +
-        '<div class="scanner-placeholder" id="scanPlaceholder">' +
-          icon('scan', 48) +
-          '<div style="margin-top:10px;font-weight:600">Камера выключена</div>' +
-          '<div class="small" style="opacity:.7;margin-top:4px">Нажмите «Открыть камеру» для начала сканирования</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="flex" style="flex-wrap:wrap;margin-top:14px;gap:8px">' +
-        '<button class="btn btn-primary" id="camStart">' + icon('scan', 18) + 'Открыть камеру</button>' +
-        '<button class="btn btn-ghost" id="camStop" disabled>Остановить</button>' +
-        '<select class="mini" id="camSelect" style="display:none"></select>' +
-        '<button class="btn btn-ghost btn-icon" id="camTorch" title="Фонарик" hidden>' + icon('warn', 17) + '</button>' +
-      '</div>' +
-      '<div class="small muted mt" id="camMsg"></div>' +
-      '<div class="divider"></div>' +
-      '<div class="small muted">' +
-        '<b>Как это работает:</b> наведите камеру на QR-код товара или заказа. ' +
-        'После распознавания откроется соответствующая карточка. ' +
-        'Если камера недоступна — используйте ручной ввод кода справа.' +
-      '</div>' +
-    '</div>' +
-
-    '<div>' +
-      '<div class="card mb">' +
-        '<div class="card-h"><h3>Ручной ввод кода</h3></div>' +
-        '<div class="field">' +
-          '<label for="manualCode">Код или идентификатор</label>' +
-          '<input type="text" id="manualCode" placeholder="VEXA:PRODUCT:... / VEXA:ORDER:... / SKU / номер заказа">' +
-          '<div class="hint">Поддерживаются QR-строки VEXA, а также артикул (SKU), штрихкод и номер заказа.</div>' +
-        '</div>' +
-        '<button class="btn btn-primary btn-block" id="manualGo">' + icon('search', 18) + 'Найти</button>' +
-      '</div>' +
-
-      '<div class="card mb" id="scanResultCard" hidden>' +
-        '<div class="card-h"><h3>Результат</h3><button class="iconbtn" id="clearResult">' + icon('close', 16) + '</button></div>' +
-        '<div id="scanResult"></div>' +
-      '</div>' +
-
-      '<div class="card">' +
-        '<div class="card-h"><h3>Демонстрационные коды</h3></div>' +
-        '<p class="small muted" style="margin:0 0 12px">Нажмите, чтобы подставить код в поле ручного ввода.</p>' +
-        '<div class="chips">' +
-          (state.products[0] ? '<div class="chip" data-demo-code="' + esc(QrService.productPayload(state.products[0].id)) + '">Товар: ' + esc(state.products[0].sku) + '</div>' : '') +
-          (state.orders[0] ? '<div class="chip" data-demo-code="' + esc(QrService.orderPayload(state.orders[0].id)) + '">Заказ: ' + esc(state.orders[0].number) + '</div>' : '') +
-          (state.products[1] ? '<div class="chip" data-demo-code="' + esc(QrService.productPayload(state.products[1].id)) + '">Товар: ' + esc(state.products[1].sku) + '</div>' : '') +
-          '<div class="chip" data-demo-code="VEXA:PRODUCT:unknown_id">Неизвестный код</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
-}
-
-const scannerState = {
-  stream: null, detector: null, running: false, raf: null,
-  lastCode: null, lastAt: 0, devices: [], torchOn: false, torchSupported: false
-};
-
-async function startCamera(deviceId) {
-  const msg = $('#camMsg');
-  const status = $('#camStatus');
-  try {
-    if (scannerState.stream) {
-      scannerState.stream.getTracks().forEach(t => t.stop());
-    }
-    const constraints = {
-      audio: false,
-      video: deviceId
-        ? { deviceId: { exact: deviceId } }
-        : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-    };
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    scannerState.stream = stream;
-
-    const video = $('#scanVideo');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    $('#scanPlaceholder').hidden = true;
-    $('#scanFrame').hidden = false;
-    await video.play();
-
-    status.textContent = 'Активна';
-    status.className = 'badge b-ok';
-    $('#camStart').disabled = true;
-    $('#camStop').disabled = false;
-    if (msg) msg.textContent = '';
-
-    // Определение возможностей
-    const track = stream.getVideoTracks()[0];
-    const caps = track.getCapabilities ? track.getCapabilities() : {};
-    scannerState.torchSupported = !!(caps && caps.torch);
-    $('#camTorch').hidden = !scannerState.torchSupported;
-
-    // Список камер
-    try {
-      const devs = await navigator.mediaDevices.enumerateDevices();
-      scannerState.devices = devs.filter(d => d.kind === 'videoinput');
-      const sel = $('#camSelect');
-      if (scannerState.devices.length > 1) {
-        sel.style.display = '';
-        sel.innerHTML = scannerState.devices.map((d, i) =>
-          '<option value="' + esc(d.deviceId) + '">' + esc(d.label || ('Камера ' + (i + 1))) + '</option>').join('');
-        sel.value = track.getSettings().deviceId || '';
-      }
-    } catch (e) { /* перечисление недоступно */ }
-
-    // Инициализация детектора
-    if ('BarcodeDetector' in window) {
-      try {
-        scannerState.detector = new BarcodeDetector({ formats: ['qr_code'] });
-      } catch (e) {
-        scannerState.detector = null;
-      }
-    } else {
-      scannerState.detector = null;
-      if (msg) msg.innerHTML = 'Ваш браузер не поддерживает встроенное распознавание QR-кодов. ' +
-        'Используйте ручной ввод кода или откройте приложение в Chrome/Edge/Android.';
-    }
-    scannerState.running = true;
-    scanLoop();
-  } catch (err) {
-    const name = err && err.name ? err.name : '';
-    let text = 'Не удалось получить доступ к камере.';
-    if (name === 'NotAllowedError') text = 'Доступ к камере запрещён. Разрешите доступ в настройках браузера.';
-    else if (name === 'NotFoundError') text = 'Камера не найдена на этом устройстве.';
-    else if (name === 'NotReadableError') text = 'Камера занята другим приложением.';
-    else if (location.protocol === 'file:') text = 'Камера недоступна при открытии файла через file://. Откройте страницу по http(s)://localhost или через HTTPS.';
-    if (msg) msg.innerHTML = '<span style="color:var(--err)">' + esc(text) + '</span>';
-    status.textContent = 'Ошибка';
-    status.className = 'badge b-err';
-    toast('Камера недоступна', text, 'err');
-  }
-}
-
-function stopCamera() {
-  scannerState.running = false;
-  if (scannerState.raf) cancelAnimationFrame(scannerState.raf);
-  if (scannerState.stream) {
-    scannerState.stream.getTracks().forEach(t => t.stop());
-    scannerState.stream = null;
-  }
-  const video = $('#scanVideo');
-  if (video) { video.srcObject = null; video.style.display = 'none'; }
-  if ($('#scanPlaceholder')) $('#scanPlaceholder').hidden = false;
-  if ($('#scanFrame')) $('#scanFrame').hidden = true;
-  if ($('#camStatus')) { $('#camStatus').textContent = 'Остановлена'; $('#camStatus').className = 'badge b-gray'; }
-  if ($('#camStart')) $('#camStart').disabled = false;
-  if ($('#camStop')) $('#camStop').disabled = true;
-  if ($('#camSelect')) $('#camSelect').style.display = 'none';
-  if ($('#camTorch')) $('#camTorch').hidden = true;
-}
-
-function scanLoop() {
-  if (!scannerState.running) return;
-  const video = $('#scanVideo');
-  const detect = async () => {
-    if (!scannerState.running) return;
-    if (scannerState.detector && video && video.readyState === 4) {
-      try {
-        const codes = await scannerState.detector.detect(video);
-        if (codes && codes.length) {
-          const raw = codes[0].rawValue;
-          if (raw) handleScannedCode(raw);
-        }
-      } catch (e) { /* игнорируем ошибки кадра */ }
-    }
-    scannerState.raf = requestAnimationFrame(() => setTimeout(detect, 120));
-  };
-  detect();
-}
-
-function handleScannedCode(raw) {
-  const now = Date.now();
-  if (raw === scannerState.lastCode && now - scannerState.lastAt < 3000) return; // защита от повторов
-  scannerState.lastCode = raw;
-  scannerState.lastAt = now;
-
-  const parsed = QrService.parse(raw);
-  const card = $('#scanResultCard');
-  const box = $('#scanResult');
-  if (!card || !box) return;
-  card.hidden = false;
-
-  if (!parsed) {
-    box.innerHTML = '<div style="text-align:center;padding:10px 0">' +
-      '<div style="color:var(--err);margin-bottom:8px">' + icon('warn', 34) + '</div>' +
-      '<h4 style="margin-bottom:4px">Код не найден</h4>' +
-      '<p class="small muted" style="margin:0 0 10px;word-break:break-all">' + esc(raw) + '</p>' +
-      '<p class="small muted">Этот код не соответствует ни одному товару или заказу в вашем магазине.</p></div>';
-    toast('Код не найден', raw.slice(0, 40), 'warn');
-    return;
-  }
-
-  if (parsed.kind === 'product') {
-    const p = ProductService.byId(parsed.id);
-    if (!p) {
-      box.innerHTML = '<div style="text-align:center"><h4>Код не найден</h4><p class="small muted">Товар с ID ' + esc(parsed.id) + ' отсутствует</p></div>';
-      return;
-    }
-    box.innerHTML =
-      '<div class="flex" style="gap:12px;align-items:center">' +
-        '<img src="' + esc(p.image || placeholderImage(p.name, p.name.length)) + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover">' +
-        '<div style="flex:1;min-width:0"><div style="font-weight:700">' + esc(p.name) + '</div>' +
-        '<div class="small muted">' + esc(p.sku) + ' · ' + esc(fmtMoney(p.price)) + ' · остаток ' + p.qty + '</div></div>' +
-      '</div>' +
-      '<div class="flex mt"><span class="badge b-purple">Товар</span><span class="badge b-gray">' + esc(p.category) + '</span></div>' +
-      '<button class="btn btn-primary btn-block mt" data-scan-open-product="' + esc(p.id) + '">Открыть товар</button>';
-    toast('Товар распознан', p.name);
-  } else {
-    const o = OrderService.byId(parsed.id);
-    if (!o) {
-      box.innerHTML = '<div style="text-align:center"><h4>Код не найден</h4><p class="small muted">Заказ с ID ' + esc(parsed.id) + ' отсутствует</p></div>';
-      return;
-    }
-    box.innerHTML =
-      '<div class="flex-between"><span style="font-weight:800;font-size:16px">' + esc(o.number) + '</span>' +
-      '<span class="badge ' + ORDER_STATUS[o.status].cls + '">' + ORDER_STATUS[o.status].label + '</span></div>' +
-      '<div class="small muted" style="margin:6px 0 10px">' + esc(o.customerName) + ' · ' + esc(fmtDateTime(o.createdAt)) + '</div>' +
-      o.items.map(i => '<div class="kv"><span class="k" style="flex:1">' + esc(i.name) + '</span><span class="v">' + i.qty + ' шт.</span></div>').join('') +
-      '<div class="kv" style="font-size:15px"><span class="k" style="font-weight:700;color:var(--text)">Итого</span>' +
-      '<span class="v" style="font-weight:800;color:var(--p700)">' + esc(fmtMoney(o.total)) + '</span></div>' +
-      '<button class="btn btn-primary btn-block mt" data-scan-open-order="' + esc(o.id) + '">Открыть заказ</button>';
-    toast('Заказ распознан', o.number);
-  }
-}
-
-/* ---------- 10.8 Остатки ---------- */
-function pageInventory() {
-  const inv = InventoryService.totals();
-  const f = state.filters.inventory;
-  const list = InventoryService.filtered().slice(0, 80);
-  const low = state.products.filter(p => p.status !== 'archived' && p.qty <= 5).sort((a, b) => a.qty - b.qty);
-
-  const typeLabels = {
-    in: 'Поступление', out: 'Списание', reserve: 'Резерв', unreserve: 'Снятие резерва',
-    sale: 'Продажа', return: 'Возврат', adjust: 'Корректировка'
-  };
-
-  return '' +
-  '<div class="page-head"><h1>Остатки</h1><p>Складской учёт, движения товаров и ручные корректировки</p></div>' +
-
-  '<div class="grid stats mb">' +
-    statCard('Всего на складе', fmtNum(inv.total) + ' шт.', 'layers', 'физический остаток') +
-    statCard('Доступно', fmtNum(inv.available) + ' шт.', 'check', 'остаток минус резерв') +
-    statCard('Зарезервировано', fmtNum(inv.reserved) + ' шт.', 'cart', 'под активные заказы') +
-    statCard('Продано', fmtNum(inv.sold) + ' шт.', 'chart', 'по выполненным заказам') +
-  '</div>' +
-
-  '<div class="grid grid-2 mb" style="align-items:start">' +
-    '<div class="card">' +
-      '<div class="card-h"><h3>Движения по складу</h3>' +
-        '<div class="flex" style="gap:8px">' +
-          '<select class="mini" id="invType">' +
-            '<option value="all">Все типы</option>' +
-            Object.keys(typeLabels).map(k => '<option value="' + k + '"' + (f.type === k ? ' selected' : '') + '>' + typeLabels[k] + '</option>').join('') +
-          '</select>' +
-          '<button class="btn btn-sm btn-primary" id="btnAdjust">' + icon('plus', 16) + 'Корректировка</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="searchbox mb">' + icon('search', 18) +
-        '<input type="text" id="invSearch" placeholder="Поиск по товару или причине" value="' + esc(f.q) + '">' +
-      '</div>' +
-      (list.length ? '<div class="table-wrap"><table class="tbl">' +
-        '<thead><tr><th>Дата</th><th>Товар</th><th>Тип</th><th class="num">Кол-во</th><th>Причина</th></tr></thead><tbody>' +
-        list.map(m => {
-          const p = ProductService.byId(m.productId);
-          const sign = (m.type === 'in' || m.type === 'return' || m.type === 'unreserve') ? '+' : '−';
-          return '<tr>' +
-            '<td class="small">' + esc(fmtDateTime(m.at)) + '</td>' +
-            '<td>' + (p ? '<span class="link" data-product="' + esc(p.id) + '">' + esc(p.name) + '</span>' : '<span class="muted">удалён</span>') + '</td>' +
-            '<td><span class="badge b-gray">' + esc(typeLabels[m.type] || m.type) + '</span></td>' +
-            '<td class="num">' + sign + m.qty + '</td>' +
-            '<td class="small muted">' + esc(m.reason || '—') + '</td>' +
-          '</tr>';
-        }).join('') + '</tbody></table></div>'
-        : emptyState('layers', 'Движений нет', 'Создайте заказ или выполните корректировку остатка')) +
-    '</div>' +
-
-    '<div class="card">' +
-      '<div class="card-h"><h3>Низкий остаток</h3><span class="badge b-warn">' + low.length + '</span></div>' +
-      (low.length ? low.map(p =>
-        '<div class="kv"><span class="k" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
-          '<span class="link" data-product="' + esc(p.id) + '">' + esc(p.name) + '</span><br>' +
-          '<span class="small muted">' + esc(p.sku) + '</span></span>' +
-        '<span class="badge ' + (p.qty === 0 ? 'b-err' : 'b-warn') + '">' + p.qty + ' шт.</span></div>').join('')
-        : '<p class="small muted" style="margin:0">Все остатки в норме</p>') +
-    '</div>' +
-  '</div>';
-}
-
-function openAdjustForm() {
-  const options = state.products.filter(p => p.status !== 'archived')
-    .map(p => '<option value="' + esc(p.id) + '">' + esc(p.name) + ' (' + esc(p.sku) + ') — ' + p.qty + ' шт.</option>').join('');
-  showModal({
-    title: 'Корректировка остатка',
-    body:
-      '<div class="field"><label>Товар</label><select id="adjProduct">' + options + '</select></div>' +
-      '<div class="field"><label>Изменение</label>' +
-        '<select id="adjSign"><option value="1">Увеличить (+)</option><option value="-1">Уменьшить (−)</option></select></div>' +
-      '<div class="field"><label>Количество, шт.</label><input type="number" id="adjQty" min="1" step="1" value="1"></div>' +
-      '<div class="field"><label>Причина</label><input type="text" id="adjReason" placeholder="Инвентаризация, порча, поставка..."></div>' +
-      '<div id="adjError"></div>',
-    footer:
-      '<button class="btn btn-ghost" data-close>Отмена</button>' +
-      '<button class="btn btn-primary" id="adjSave">Применить</button>',
-    onMount(backdrop, close) {
-      backdrop.querySelector('#adjSave').onclick = async () => {
-        const pid = backdrop.querySelector('#adjProduct').value;
-        const sign = Number(backdrop.querySelector('#adjSign').value);
-        const qty = Math.abs(Number(backdrop.querySelector('#adjQty').value) || 0);
-        const reason = backdrop.querySelector('#adjReason').value.trim() || 'Ручная корректировка';
-        const box = backdrop.querySelector('#adjError');
-        if (!qty) { box.innerHTML = '<div class="err-text">Укажите количество</div>'; return; }
-        try {
-          await InventoryService.adjust(pid, sign * qty, reason);
-          toast('Остаток обновлён', (sign > 0 ? '+' : '−') + qty + ' шт.');
-          close(); renderApp();
-        } catch (e) {
-          box.innerHTML = '<div class="err-text">' + esc(e.message) + '</div>';
-        }
-      };
-    }
-  });
-}
-
-/* ---------- 10.9 Аналитика ---------- */
+/* ---------- 10.4 Аналитика ---------- */
 function pageAnalytics() {
   const f = state.filters.analytics;
   let from, to;
@@ -3186,65 +2466,7 @@ function pageAnalytics() {
   '</div>';
 }
 
-/* ---------- 10.10 Покупатели ---------- */
-function pageCustomers() {
-  const q = state.filters.customers ? state.filters.customers.q : '';
-  const list = CustomerService.search(q);
-
-  return '' +
-  '<div class="page-head"><h1>Покупатели</h1><p>Справочник покупателей формируется из созданных вами заказов</p></div>' +
-
-  '<div class="toolbar">' +
-    '<div class="searchbox">' + icon('search', 18) +
-      '<input type="text" id="cSearch" placeholder="Поиск по имени, телефону или email" value="' + esc(q) + '">' +
-    '</div>' +
-  '</div>' +
-
-  (list.length ? '<div class="card"><div class="table-wrap"><table class="tbl">' +
-    '<thead><tr><th>Покупатель</th><th>Телефон</th><th>Email</th><th class="num">Заказов</th><th class="num">Сумма</th><th>Последний заказ</th><th></th></tr></thead><tbody>' +
-    list.map(c => {
-      const st = CustomerService.stats(c);
-      return '<tr>' +
-        '<td><b>' + esc(c.name) + '</b></td>' +
-        '<td class="small">' + esc(c.phone || '—') + '</td>' +
-        '<td class="small">' + esc(c.email || '—') + '</td>' +
-        '<td class="num">' + st.count + '</td>' +
-        '<td class="num">' + esc(fmtMoney(st.total)) + '</td>' +
-        '<td class="small muted">' + (st.last ? esc(fmtDate(st.last.createdAt)) : '—') + '</td>' +
-        '<td><button class="btn btn-sm btn-ghost" data-customer="' + esc(c.id) + '">Открыть</button></td>' +
-      '</tr>';
-    }).join('') + '</tbody></table></div></div>'
-    : emptyState('users', 'Покупателей пока нет', 'Создайте заказ — покупатель появится в справочнике автоматически',
-        '<button class="btn btn-primary" data-route="create-order">Создать заказ</button>'));
-}
-
-function openCustomerDetails(id) {
-  const c = CustomerService.byId(id);
-  if (!c) return;
-  const orders = CustomerService.ordersOf(id).sort((a, b) => b.createdAt - a.createdAt);
-  const total = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
-
-  showModal({
-    title: c.name,
-    wide: true,
-    body:
-      '<div class="row row-2 mb">' +
-        '<div>' + kv('Телефон', c.phone || '—') + kv('Email', c.email || '—') + '</div>' +
-        '<div>' + kv('Всего заказов', orders.length) + kv('Сумма заказов', fmtMoney(total)) + '</div>' +
-      '</div>' +
-      '<h4 style="font-size:13px;margin-bottom:8px">История заказов</h4>' +
-      (orders.length ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>Номер</th><th>Дата</th><th class="num">Сумма</th><th>Статус</th></tr></thead><tbody>' +
-        orders.map(o => '<tr><td><span class="link" data-order="' + esc(o.id) + '">' + esc(o.number) + '</span></td>' +
-          '<td class="small">' + esc(fmtDate(o.createdAt)) + '</td>' +
-          '<td class="num">' + esc(fmtMoney(o.total)) + '</td>' +
-          '<td><span class="badge ' + ORDER_STATUS[o.status].cls + '">' + ORDER_STATUS[o.status].label + '</span></td></tr>').join('') +
-        '</tbody></table></div>'
-        : '<p class="small muted" style="margin:0">Заказов нет</p>'),
-    footer: '<button class="btn btn-ghost" data-close>Закрыть</button>'
-  });
-}
-
-/* ---------- 10.11 Уведомления ---------- */
+/* ---------- 10.5 Уведомления ---------- */
 function pageNotifications() {
   const list = state.notifications;
   const typeIcon = {
@@ -3254,8 +2476,8 @@ function pageNotifications() {
   '<div class="page-head"><h1>Уведомления</h1><p>События магазина, остатки и статусы заказов</p></div>' +
 
   '<div class="toolbar">' +
-    '<button class="btn btn-ghost" id="nMarkAll">' + icon('check', 17) + 'Отметить все прочитанными</button>' +
-    '<button class="btn btn-ghost btn-danger" id="nClear">' + icon('trash', 17) + 'Очистить</button>' +
+    '<button class="btn btn-ghost" id="nMarkAll"' + (list.some(n => !n.read) ? '' : ' disabled') + '>' + icon('check', 17) + 'Отметить все прочитанными</button>' +
+    '<button class="btn btn-ghost btn-danger" id="nClear"' + (list.length ? '' : ' disabled') + '>' + icon('trash', 17) + 'Очистить</button>' +
   '</div>' +
 
   (list.length ? '<div class="card" style="padding:8px">' + list.map(n =>
@@ -3274,7 +2496,7 @@ function pageNotifications() {
     : emptyState('bell', 'Уведомлений нет', 'Здесь появятся события: новые заказы, изменения статусов, низкие остатки'));
 }
 
-/* ---------- 10.12 Настройки ---------- */
+/* ---------- 10.6 Настройки ---------- */
 function pageSettings() {
   const s = state.seller || {};
   const theme = document.documentElement.getAttribute('data-theme');
@@ -3328,8 +2550,8 @@ function pageSettings() {
 
       '<div class="card mb">' +
         '<div class="card-h"><h3>Безопасность</h3></div>' +
-        '<p class="small muted" style="margin:0 0 12px">Текущий режим — демонстрационный. Аутентификация выполняется локально, реальные SMS не отправляются.</p>' +
-        '<div class="kv"><span class="k">Режим</span><span class="v"><span class="badge b-warn">Демо</span></span></div>' +
+        '<p class="small muted" style="margin:0 0 12px">Аутентификация выполняется локально, реальные SMS не отправляются.</p>' +
+        '<div class="kv"><span class="k">Режим авторизации</span><span class="v"><span class="badge b-warn">Демо</span></span></div>' +
         '<div class="kv"><span class="k">Хранилище данных</span><span class="v">' + (DB.mode === 'idb' ? 'IndexedDB' : 'localStorage') + '</span></div>' +
         '<button class="btn btn-ghost btn-block mt" id="s_logout">' + icon('logout', 17) + 'Выйти из аккаунта</button>' +
       '</div>' +
@@ -3347,7 +2569,7 @@ function pageSettings() {
           '<input type="file" id="d_file" accept="application/json" hidden>' +
         '</div>' +
         '<div class="divider"></div>' +
-        '<button class="btn btn-danger btn-block mb" id="d_clear">Очистить демо-данные</button>' +
+        '<button class="btn btn-danger btn-block mb" id="d_clear">Очистить данные магазина</button>' +
         '<button class="btn btn-danger btn-block" id="d_reset">Полный сброс приложения</button>' +
       '</div>' +
 
@@ -3364,16 +2586,12 @@ function pageSettings() {
    11. РЕНДЕР ПРИЛОЖЕНИЯ
    ========================================================================== */
 const PAGES = {
-  'dashboard': { title: 'Главная', sub: 'Сводка по магазину', render: pageDashboard },
-  'products': { title: 'Товары', sub: 'Каталог и QR-коды', render: pageProducts },
-  'orders': { title: 'Заказы', sub: 'Обработка и статусы', render: pageOrders },
-  'create-order': { title: 'Создать заказ', sub: 'Новый заказ вручную', render: pageCreateOrder },
-  'scanner': { title: 'QR-сканер', sub: 'Сканирование кодов', render: pageScanner },
-  'inventory': { title: 'Остатки', sub: 'Складской учёт', render: pageInventory },
-  'analytics': { title: 'Аналитика', sub: 'Показатели продаж', render: pageAnalytics },
-  'customers': { title: 'Покупатели', sub: 'Справочник', render: pageCustomers },
-  'notifications': { title: 'Уведомления', sub: 'События магазина', render: pageNotifications },
-  'settings': { title: 'Настройки', sub: 'Профиль и данные', render: pageSettings }
+  'dashboard':     { title: 'Главная',     sub: 'Сводка по магазину',    render: pageDashboard },
+  'products':      { title: 'Товары',      sub: 'Каталог и QR-коды',     render: pageProducts },
+  'orders':        { title: 'Заказы',      sub: 'Обработка и статусы',   render: pageOrders },
+  'analytics':     { title: 'Аналитика',   sub: 'Показатели продаж',     render: pageAnalytics },
+  'notifications': { title: 'Уведомления', sub: 'События магазина',      render: pageNotifications },
+  'settings':      { title: 'Настройки',   sub: 'Профиль и данные',      render: pageSettings }
 };
 
 function renderApp() {
@@ -3386,7 +2604,6 @@ function renderApp() {
 }
 
 function bindPage(route) {
-  // Общие ссылки маршрутов
   $$('[data-route]').forEach(el => {
     if (el.dataset.boundRoute) return;
     el.dataset.boundRoute = '1';
@@ -3446,67 +2663,6 @@ function bindPage(route) {
     });
   }
 
-  if (route === 'create-order') bindCreateOrder();
-
-  if (route === 'scanner') {
-    const start = $('#camStart');
-    const stop = $('#camStop');
-    if (start) start.onclick = () => startCamera();
-    if (stop) stop.onclick = () => stopCamera();
-    const sel = $('#camSelect');
-    if (sel) sel.onchange = () => startCamera(sel.value);
-    const torch = $('#camTorch');
-    if (torch) torch.onclick = async () => {
-      if (!scannerState.stream) return;
-      const track = scannerState.stream.getVideoTracks()[0];
-      scannerState.torchOn = !scannerState.torchOn;
-      try {
-        await track.applyConstraints({ advanced: [{ torch: scannerState.torchOn }] });
-        torch.classList.toggle('btn-primary', scannerState.torchOn);
-      } catch (e) {
-        toast('Фонарик недоступен', 'Устройство не поддерживает управление вспышкой', 'warn');
-      }
-    };
-    const manual = $('#manualGo');
-    if (manual) manual.onclick = () => {
-      const v = $('#manualCode').value.trim();
-      if (!v) { toast('Введите код', '', 'warn'); return; }
-      handleScannedCode(v);
-    };
-    const mi = $('#manualCode');
-    if (mi) mi.addEventListener('keydown', e => { if (e.key === 'Enter') $('#manualGo').click(); });
-    $$('[data-demo-code]').forEach(ch => {
-      ch.onclick = () => { const el = $('#manualCode'); if (el) el.value = ch.getAttribute('data-demo-code'); };
-    });
-    const cr = $('#clearResult');
-    if (cr) cr.onclick = () => { $('#scanResultCard').hidden = true; };
-    // Остановка камеры при уходе со страницы
-    state.scanner = { stop: stopCamera };
-  } else if (state.scanner && state.scanner.stop) {
-    state.scanner.stop();
-    state.scanner = null;
-  }
-
-  if (route === 'inventory') {
-    const s = $('#invSearch');
-    if (s) {
-      let t;
-      s.addEventListener('input', () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          state.filters.inventory.q = s.value;
-          renderApp();
-          const el = $('#invSearch');
-          if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-        }, 240);
-      });
-    }
-    const ty = $('#invType');
-    if (ty) ty.onchange = () => { state.filters.inventory.type = ty.value; renderApp(); };
-    const adj = $('#btnAdjust');
-    if (adj) adj.onclick = openAdjustForm;
-  }
-
   if (route === 'analytics') {
     $$('#content [data-arange]').forEach(c => {
       c.onclick = () => {
@@ -3528,27 +2684,15 @@ function bindPage(route) {
     };
   }
 
-  if (route === 'customers') {
-    const s = $('#cSearch');
-    if (s) {
-      let t;
-      s.addEventListener('input', () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          state.filters.customers = { q: s.value };
-          renderApp();
-          const el = $('#cSearch');
-          if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-        }, 240);
-      });
-    }
-  }
-
   if (route === 'notifications') {
     const ma = $('#nMarkAll');
-    if (ma) ma.onclick = async () => { await NotificationService.markAllRead(); toast('Все уведомления прочитаны'); renderApp(); };
+    if (ma && !ma.disabled) ma.onclick = async () => {
+      await NotificationService.markAllRead();
+      toast('Все уведомления прочитаны');
+      renderApp();
+    };
     const cl = $('#nClear');
-    if (cl) cl.onclick = async () => {
+    if (cl && !cl.disabled) cl.onclick = async () => {
       const ok = await confirmDialog('Очистить уведомления?', 'Все уведомления будут удалены без возможности восстановления.', 'Очистить', true);
       if (!ok) return;
       await NotificationService.clear();
@@ -3560,7 +2704,6 @@ function bindPage(route) {
   if (route === 'settings') bindSettings();
 }
 
-/* ---------- Настройки: обработчики ---------- */
 function bindSettings() {
   const save = $('#s_save');
   if (save) save.onclick = async () => {
@@ -3618,7 +2761,7 @@ function bindSettings() {
   const ex = $('#d_export');
   if (ex) ex.onclick = () => {
     const data = {
-      meta: { app: 'VEXA-SELLER', version: 1, exportedAt: new Date().toISOString(), demo: true },
+      meta: { app: 'VEXA-SELLER', version: 2, exportedAt: new Date().toISOString() },
       seller: state.seller,
       products: state.products,
       orders: state.orders,
@@ -3655,33 +2798,34 @@ function bindSettings() {
         }
       };
       reader.readAsText(f);
+      file.value = '';
     };
   }
 
   const clr = $('#d_clear');
   if (clr) clr.onclick = async () => {
-    const ok = await confirmDialog('Очистить демо-данные?',
-      'Будут удалены товары, заказы, покупатели, движения склада и уведомления. Профиль сохранится.', 'Очистить', true);
+    const ok = await confirmDialog('Очистить данные магазина?',
+      'Будут удалены товары, заказы, покупатели, движения склада и уведомления. Профиль продавца сохранится.', 'Очистить', true);
     if (!ok) return;
     for (const s of ['products', 'orders', 'customers', 'movements', 'notifications']) await DB.clear(s);
     await DB.put('meta', { id: 'counter_order', value: 0 });
     await reloadState();
     renderApp();
-    toast('Демо-данные очищены', 'Можно начать заново');
+    toast('Данные магазина очищены');
   };
 
   const rst = $('#d_reset');
   if (rst) rst.onclick = async () => {
     const ok = await confirmDialog('Полный сброс приложения?',
-      'Будут удалены все данные, включая профиль продавца. Приложение вернётся к первоначальному состоянию с демонстрационными данными.', 'Сбросить всё', true);
+      'Будут удалены все данные, включая профиль продавца.', 'Сбросить всё', true);
     if (!ok) return;
     await DB.clearAll();
-    try { localStorage.removeItem('vexa_session_demo'); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem('vexa_session_demo'); } catch (e) {}
+    try { localStorage.removeItem('vexa_notif_prefs'); } catch (e) {}
     location.reload();
   };
 }
 
-/* Безопасный импорт */
 async function applyImport(data) {
   const sanitizeStr = v => (typeof v === 'string' ? v.slice(0, 5000) : '');
   const products = Array.isArray(data.products) ? data.products : [];
@@ -3760,156 +2904,33 @@ async function applyImport(data) {
    ========================================================================== */
 function setTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  try { localStorage.setItem('vexa_theme', t); } catch (e) { /* ignore */ }
+  try { localStorage.setItem('vexa_theme', t); } catch (e) {}
 }
 function applyTheme() {
   let t = 'light';
-  try { t = localStorage.getItem('vexa_theme') || 'light'; } catch (e) { /* ignore */ }
+  try { t = localStorage.getItem('vexa_theme') || 'light'; } catch (e) {}
   document.documentElement.setAttribute('data-theme', t);
 }
 
 /* ==========================================================================
-   13. ДЕМОНСТРАЦИОННЫЕ ДАННЫЕ
+   13. МИГРАЦИЯ СХЕМЫ
+   Демонстрационные данные из v1 удаляются при первом запуске обновления.
    ========================================================================== */
-async function seedIfNeeded() {
+async function migrateData() {
+  const CURRENT = 2;
+  const sv = await DB.get('meta', 'schema_version');
+  if (sv && sv.value >= CURRENT) return;
+
   const seeded = await DB.get('meta', 'seeded');
-  if (seeded && seeded.value) return;
-
-  const now = Date.now();
-  const day = 86400000;
-
-  const defs = [
-    ['Наушники беспроводные VexaSound Pro', 'Электроника', 4990, 6990, 42, 'VEXA', 0.25],
-    ['Смарт-часы VexaTime S2', 'Электроника', 7990, 9990, 18, 'VEXA', 0.09],
-    ['Внешний аккумулятор 20000 мАч', 'Электроника', 2290, 2990, 64, 'PowerLine', 0.42],
-    ['Футболка хлопковая Basic', 'Одежда', 1190, 1590, 120, 'UrbanWear', 0.18],
-    ['Худи оверсайз Urban', 'Одежда', 3490, 4290, 34, 'UrbanWear', 0.65],
-    ['Кепка классическая', 'Аксессуары', 890, 1290, 76, 'CapCo', 0.11],
-    ['Рюкзак городской 20 л', 'Аксессуары', 3190, 3990, 22, 'TrekGo', 0.72],
-    ['Настольная лампа LED', 'Дом', 1890, 2490, 41, 'LumenHome', 0.95],
-    ['Органайзер для кухни', 'Дом', 1290, 1690, 58, 'HomeBox', 0.35],
-    ['Коврик для йоги 6 мм', 'Спорт', 2190, 2790, 27, 'FlexFit', 1.1],
-    ['Гантели разборные 2×5 кг', 'Спорт', 3990, 4990, 9, 'IronSet', 10.0],
-    ['Набор для ухода за кожей', 'Косметика', 2690, 3290, 33, 'GlowLab', 0.4],
-    ['Крем увлажняющий 50 мл', 'Косметика', 990, 1390, 4, 'GlowLab', 0.06],
-    ['Термокружка 450 мл', 'Дом', 1490, 1990, 3, 'ThermoGo', 0.32]
-  ];
-
-  const products = defs.map((d, i) => {
-    const [name, category, price, oldPrice, qty, brand, weight] = d;
-    const created = now - (i * 2 + 1) * day;
-    return {
-      id: uid('p') + i,
-      name, category, price, oldPrice, qty,
-      sku: 'VX-' + String(1000 + i),
-      barcode: '46' + String(10000000000 + i * 7919).slice(0, 11),
-      description: name + ' — демонстрационная позиция каталога VEXA-SELLER.',
-      reserved: 0, sold: 0, returned: 0,
-      weight, length: 20 + i, width: 12 + i, height: 8 + i,
-      color: ['Чёрный', 'Белый', 'Синий', 'Серый', 'Красный'][i % 5],
-      size: ['S', 'M', 'L', 'XL', '—'][i % 5],
-      brand,
-      image: null,
-      status: qty === 0 ? 'out' : 'active',
-      createdAt: created,
-      updatedAt: created
-    };
-  });
-
-  const customers = [
-    { id: uid('c') + '1', name: 'Анна Смирнова', phone: '+7 (916) 111-22-33', email: 'anna@example.com', createdAt: now - 12 * day },
-    { id: uid('c') + '2', name: 'Дмитрий Козлов', phone: '+7 (925) 222-33-44', email: 'dmitry@example.com', createdAt: now - 9 * day },
-    { id: uid('c') + '3', name: 'Елена Петрова', phone: '+7 (903) 333-44-55', email: 'elena@example.com', createdAt: now - 6 * day },
-    { id: uid('c') + '4', name: 'Игорь Волков', phone: '+7 (911) 444-55-66', email: 'igor@example.com', createdAt: now - 4 * day },
-    { id: uid('c') + '5', name: 'Мария Орлова', phone: '+7 (926) 555-66-77', email: 'maria@example.com', createdAt: now - 2 * day },
-    { id: uid('c') + '6', name: 'Сергей Новиков', phone: '+7 (999) 666-77-88', email: 'sergey@example.com', createdAt: now - 1 * day }
-  ];
-
-  const orderDefs = [
-    { ci: 0, items: [[0, 1], [5, 2]], status: 'done', daysAgo: 11, delivery: 'Курьером по адресу', address: 'Москва, ул. Тверская, 12, кв. 45' },
-    { ci: 1, items: [[2, 1], [13, 2]], status: 'done', daysAgo: 9, delivery: 'Пункт выдачи VEXA', address: 'ПВЗ на Ленинском, 42' },
-    { ci: 2, items: [[1, 1]], status: 'done', daysAgo: 7, delivery: 'Курьером по адресу', address: 'Санкт-Петербург, Невский пр., 88' },
-    { ci: 3, items: [[3, 3], [5, 1]], status: 'shipped', daysAgo: 5, delivery: 'Почта России', address: 'Казань, ул. Баумана, 5' },
-    { ci: 4, items: [[9, 1], [12, 2]], status: 'ready', daysAgo: 3, delivery: 'Курьером по адресу', address: 'Москва, Ленинградский пр., 30' },
-    { ci: 5, items: [[7, 2]], status: 'assembling', daysAgo: 2, delivery: 'Самовывоз со склада', address: '' },
-    { ci: 0, items: [[10, 1]], status: 'pending', daysAgo: 1, delivery: 'Курьером по адресу', address: 'Москва, ул. Арбат, 20' },
-    { ci: 2, items: [[11, 1], [12, 1]], status: 'new', daysAgo: 0, delivery: 'Пункт выдачи VEXA', address: 'ПВЗ на Профсоюзной, 15' },
-    { ci: 1, items: [[4, 1]], status: 'cancelled', daysAgo: 4, delivery: 'Курьером по адресу', address: 'Екатеринбург, ул. Ленина, 1' }
-  ];
-
-  const orders = [];
-  let counter = 0;
-  orderDefs.forEach((def, idx) => {
-    counter++;
-    const created = startOfDay(now - def.daysAgo * day) + (10 + idx) * 3600000;
-    const items = def.items.map(([pi, qty]) => {
-      const p = products[pi];
-      return { productId: p.id, name: p.name, sku: p.sku, price: p.price, qty };
-    });
-    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-    const c = customers[def.ci];
-    const hist = [{ status: 'new', at: created, note: 'Заказ создан' }];
-    const order = {
-      id: uid('o') + idx,
-      number: 'VX-' + String(counter).padStart(6, '0'),
-      createdAt: created,
-      customerId: c.id,
-      customerName: c.name,
-      customerPhone: c.phone,
-      customerEmail: c.email,
-      items, subtotal, discount: 0, total: subtotal,
-      delivery: { method: def.delivery, address: def.address },
-      note: '',
-      status: def.status,
-      history: hist
-    };
-
-    // Согласованное состояние склада
-    items.forEach(it => {
-      const p = products.find(x => x.id === it.productId);
-      if (def.status === 'cancelled') return;
-      if (def.status === 'done') { p.sold += it.qty; }
-      else { p.reserved += it.qty; }
-    });
-
-    if (def.status !== 'new') hist.push({ status: def.status, at: created + 3600000 * (idx % 5 + 1), note: '' });
-    if (def.status === 'cancelled') hist.push({ status: 'cancelled', at: created + 7200000, note: 'Отменён покупателем' });
-
-    orders.push(order);
-  });
-
-  const movements = [];
-  products.forEach(p => {
-    movements.push({
-      id: uid('m'), productId: p.id, type: 'in', qty: p.qty + p.reserved + p.sold,
-      reason: 'Начальный остаток', orderId: null, at: p.createdAt
-    });
-  });
-  orders.forEach(o => {
-    o.items.forEach(it => {
-      if (o.status === 'done') {
-        movements.push({ id: uid('m'), productId: it.productId, type: 'sale', qty: it.qty, reason: 'Списание по заказу ' + o.number, orderId: o.id, at: o.createdAt + 3600000 });
-      } else if (o.status !== 'cancelled') {
-        movements.push({ id: uid('m'), productId: it.productId, type: 'reserve', qty: it.qty, reason: 'Резерв под заказ ' + o.number, orderId: o.id, at: o.createdAt });
-      }
-    });
-  });
-
-  const notifications = [
-    { id: uid('n'), type: 'order', title: 'Новый заказ', text: 'VX-000008 · ' + fmtMoney(orders[7].total), at: now - 3600000 * 2, read: false },
-    { id: uid('n'), type: 'stock', title: 'Товар заканчивается', text: 'Крем увлажняющий 50 мл — осталось 4 шт.', at: now - 3600000 * 5, read: false },
-    { id: uid('n'), type: 'order', title: 'Заказ выполнен', text: 'VX-000001 · ' + fmtMoney(orders[0].total), at: now - day * 11, read: true },
-    { id: uid('n'), type: 'system', title: 'Демонстрационные данные загружены', text: 'Каталог, заказы и склад заполнены примерами', at: now - day * 14, read: true }
-  ];
-
-  await DB.putMany('products', products);
-  await DB.putMany('orders', orders);
-  await DB.putMany('customers', customers);
-  await DB.putMany('movements', movements);
-  await DB.putMany('notifications', notifications);
-  await DB.put('meta', { id: 'counter_order', value: counter });
-  await DB.put('meta', { id: 'seeded', value: true, at: now });
-  await DB.put('meta', { id: 'schema_version', value: 1 });
+  if (seeded && seeded.value) {
+    // Удаляем старые автогенерированные данные
+    for (const store of ['products', 'orders', 'customers', 'movements', 'notifications']) {
+      await DB.clear(store);
+    }
+    try { await DB.del('meta', 'seeded'); } catch (e) {}
+    try { await DB.del('meta', 'counter_order'); } catch (e) {}
+  }
+  await DB.put('meta', { id: 'schema_version', value: CURRENT });
 }
 
 /* ==========================================================================
@@ -3951,54 +2972,6 @@ document.addEventListener('click', e => {
 
   const nr = e.target.closest('[data-nread]');
   if (nr) { NotificationService.markRead(nr.getAttribute('data-nread')).then(renderApp); return; }
-
-  const cu = e.target.closest('[data-customer]');
-  if (cu) { openCustomerDetails(cu.getAttribute('data-customer')); return; }
-
-  const sop = e.target.closest('[data-scan-open-product]');
-  if (sop) { openProductDetails(sop.getAttribute('data-scan-open-product')); return; }
-
-  const soo = e.target.closest('[data-scan-open-order]');
-  if (soo) { openOrderDetails(soo.getAttribute('data-scan-open-order')); return; }
-
-  // Корзина создания заказа
-  const add = e.target.closest('[data-co-add]');
-  if (add) {
-    collectCreateOrderInputs();
-    const p = ProductService.byId(add.getAttribute('data-co-add'));
-    if (p && !createOrderState.items.some(i => i.productId === p.id)) {
-      createOrderState.items.push({ productId: p.id, name: p.name, sku: p.sku, price: p.price, qty: 1 });
-      renderApp();
-    }
-    return;
-  }
-  const inc = e.target.closest('[data-co-inc]');
-  if (inc) {
-    collectCreateOrderInputs();
-    const p = ProductService.byId(inc.getAttribute('data-co-inc'));
-    const it = createOrderState.items.find(i => i.productId === (p && p.id));
-    if (p && it && it.qty < ProductService.available(p)) { it.qty++; renderApp(); }
-    return;
-  }
-  const dec = e.target.closest('[data-co-dec]');
-  if (dec) {
-    collectCreateOrderInputs();
-    const id = dec.getAttribute('data-co-dec');
-    const it = createOrderState.items.find(i => i.productId === id);
-    if (it) {
-      it.qty--;
-      if (it.qty <= 0) createOrderState.items = createOrderState.items.filter(i => i.productId !== id);
-      renderApp();
-    }
-    return;
-  }
-  const rem = e.target.closest('[data-co-remove]');
-  if (rem) {
-    collectCreateOrderInputs();
-    createOrderState.items = createOrderState.items.filter(i => i.productId !== rem.getAttribute('data-co-remove'));
-    renderApp();
-    return;
-  }
 });
 
 document.addEventListener('keydown', e => {
@@ -4029,7 +3002,6 @@ function startApp() {
 async function boot() {
   applyTheme();
 
-  // Кнопки оболочки
   $('#burger').onclick = () => {
     const sb = $('#sidebar');
     sb.classList.toggle('open');
@@ -4053,7 +3025,7 @@ async function boot() {
 
   try {
     await DB.init();
-    await seedIfNeeded();
+    await migrateData();
     await reloadState();
   } catch (e) {
     console.error('Ошибка инициализации хранилища', e);
@@ -4064,7 +3036,6 @@ async function boot() {
   if (session && state.seller) {
     startApp();
   } else if (state.seller && !session) {
-    // Профиль есть, но сессия отсутствует — просим войти
     authUI.screen = 'phone';
     renderAuth();
   } else {
@@ -4076,11 +3047,8 @@ async function boot() {
 boot();
 
 /* ==========================================================================
-   17. КОНТРАКТЫ ДЛЯ ПОДКЛЮЧЕНИЯ РЕАЛЬНОГО БЭКЕНДА (не активны в демо)
+   17. КОНТРАКТЫ ДЛЯ ПОДКЛЮЧЕНИЯ РЕАЛЬНОГО БЭКЕНДА (не активны в этой сборке)
    --------------------------------------------------------------------------
-   Ниже приведены описания эндпоинтов, которые необходимо реализовать
-   на сервере. В текущей сборке они НЕ вызываются.
-
    POST   /api/auth/send-code      { phone }                  → { requestId, expiresIn }
    POST   /api/auth/verify-code    { phone, requestId, code }  → Set-Cookie: session (httpOnly)
    POST   /api/auth/logout                                     → 204
@@ -4092,15 +3060,10 @@ boot();
    DELETE /api/products/:id                                    → 204
 
    GET    /api/orders              ?status&q&page              → { items, total }
-   POST   /api/orders              { ...order }                → { order }
    PUT    /api/orders/:id/status   { status, note }            → { order }
-
-   GET    /api/inventory           ?productId&type             → { items, totals }
-   POST   /api/inventory/adjust    { productId, delta, reason } → { product }
 
    GET    /api/analytics           ?from&to                    → { revenue, orders, top, series }
 
-   GET    /api/customers           ?q                          → { items }
    GET    /api/notifications                                   → { items }
    POST   /api/notifications/read  { id | all }                → 204
    ========================================================================== */
