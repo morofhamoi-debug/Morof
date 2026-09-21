@@ -120,7 +120,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ============================================================
-   ТЁМНЫЙ ДОМ — свет в комнатах ×2
+   ТЁМНЫЙ ДОМ — свет в комнатах ×2, исправленные дверцы
    ============================================================ */
 
 const isMobile = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
@@ -429,6 +429,12 @@ function lCollider(cx, cz, lw, ld, ly, lh, facing) {
   addCollider(cx - rd.w/2, cx + rd.w/2, cz - rd.d/2, cz + rd.d/2, ly, ly + lh);
 }
 
+/* ★ Единый угол разворота мебели в мире */
+function facingAngle(facing) {
+  return facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
+         facing === 'x+' ? Math.PI/2 : -Math.PI/2;
+}
+
 /* ============================================================
    ИНТЕРАКТИВНАЯ СИСТЕМА
    ============================================================ */
@@ -572,7 +578,7 @@ for (let i = 0; i < STEPS; i++) {
 box(20, 0.35, 16, matWallOuter, 0, F2, 0, false);
 
 /* ============================================================
-   МЕБЕЛЬ
+   МЕБЕЛЬ — все дверцы теперь ориентированы правильно
    ============================================================ */
 
 function buildSofa(cx, cz, w, d, fabricMat, seatMat, facing = 'z+') {
@@ -633,6 +639,7 @@ function buildCoffeeTable(cx, cz, w, d, facing = 'z+') {
   lCollider(cx, cz, w, d, 0, topH, facing);
 }
 
+/* ★ КОМОД — дверцы/ящики лицом к "facing" */
 function buildDresser(cx, cz, w, h, d, drawers, mat = matWood, facing = 'z+') {
   const legH = 0.11;
   for (const [lx, lz] of [[-w/2+0.07, -d/2+0.07], [w/2-0.07, -d/2+0.07],
@@ -647,13 +654,14 @@ function buildDresser(cx, cz, w, h, d, drawers, mat = matWood, facing = 'z+') {
   const drawerH = innerH / drawers;
   const frontZ = d/2 + 0.008;
 
+  // ★ ЕДИНЫЙ ПРАВИЛЬНЫЙ УГОЛ
+  const angle = facingAngle(facing);
+
   for (let i = 0; i < drawers; i++) {
     const dy = legH + 0.02 + i * drawerH;
     const drawerGroup = new THREE.Group();
     const p = localToWorld(cx, cz, 0, 0, frontZ, facing);
     drawerGroup.position.set(p.x, dy, p.z);
-    const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                  facing === 'x+' ? -Math.PI/2 : Math.PI/2;
     drawerGroup.rotation.y = angle;
     const facade = new THREE.Mesh(new THREE.BoxGeometry(w - 0.10, drawerH - 0.04, 0.025), matWoodOak);
     facade.position.set(0, drawerH/2 - 0.02, 0);
@@ -680,6 +688,7 @@ function buildNightstand(x, z, mat = matWood, facing = 'z+') {
   buildDresser(x, z, 0.55, 0.58, 0.42, 2, mat, facing);
 }
 
+/* ★ ШКАФ — дверцы лицом к "facing", открываются НАРУЖУ */
 function buildWardrobe(cx, cz, w, h, d, mat = matWood, facing = 'z+') {
   lbox(w - 0.05, 0.09, d - 0.05, 0, 0, 0, matWoodDeep, cx, cz, facing, false);
   lbox(w, h - 0.09, d, 0, 0.09, 0, mat, cx, cz, facing, false);
@@ -690,8 +699,9 @@ function buildWardrobe(cx, cz, w, h, d, mat = matWood, facing = 'z+') {
   const doorH = h - 0.22;
   const doorT = 0.028;
   const frontZ = d/2 + doorT/2 + 0.003;
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+
+  // ★ ЕДИНЫЙ ПРАВИЛЬНЫЙ УГОЛ
+  const angle = facingAngle(facing);
 
   for (const side of [-1, 1]) {
     const hingeX = side * (w/2 - 0.02);
@@ -710,7 +720,8 @@ function buildWardrobe(cx, cz, w, h, d, mat = matWood, facing = 'z+') {
     handle.castShadow = true;
     pivot.add(handle);
     const closedAngle = 0;
-    const openAngle = side * (-Math.PI / 2.4);
+    // ★ ИСПРАВЛЕНО: положительный множитель — дверь открывается НАРУЖУ
+    const openAngle = side * (Math.PI / 2.4);
     const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
     doorAnims.push(st);
     doorMesh.userData.doorAnim = st;
@@ -843,9 +854,7 @@ function buildTV(cx, cy, cz, w, h, facing) {
   const scr = new THREE.Mesh(new THREE.BoxGeometry(w - bezelT*2, h - bezelT*2, 0.008), matTVScreenOff);
   const scrP = localToWorld(cx, cz, 0, screenDepth/2 + 0.001, facing);
   scr.position.set(scrP.x, cy + bezelT, scrP.z);
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
-  scr.rotation.y = angle;
+  scr.rotation.y = facingAngle(facing);
   scr.castShadow = false; scr.receiveShadow = false;
   scene.add(scr);
   tvScreenMesh = scr;
@@ -860,6 +869,7 @@ function toggleTV() {
   }
 }
 
+/* ★ ТВ-ТУМБА — дверцы открываются НАРУЖУ */
 function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
   const legH = 0.11;
   for (const [lx, lz] of [[-w/2+0.09, -d/2+0.07], [w/2-0.09, -d/2+0.07],
@@ -874,8 +884,7 @@ function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
   const doorH = h - legH - 0.08;
   const doorT = 0.022;
   const frontZ = d/2 + doorT/2 + 0.003;
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+  const angle = facingAngle(facing);
 
   for (const side of [-1, 1]) {
     const hingeX = side * (w/2 - 0.02);
@@ -894,7 +903,7 @@ function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
     handle.castShadow = true;
     pivot.add(handle);
     const closedAngle = 0;
-    const openAngle = side * (-Math.PI / 2.4);
+    const openAngle = side * (Math.PI / 2.4);
     const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
     doorAnims.push(st);
     doorMesh.userData.doorAnim = st;
@@ -913,6 +922,7 @@ function buildTVStand(cx, cz, w, h, d, facing = 'z+') {
   lCollider(cx, cz, w, d, 0, h, facing);
 }
 
+/* ★ КУХОННАЯ СЕКЦИЯ — дверцы открываются НАРУЖУ */
 function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
   const legH = 0.10;
   const W = len, D = depth;
@@ -925,8 +935,7 @@ function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
   const doorH = h - legH - 0.06;
   const doorT = 0.022;
   const frontZ = D/2 + doorT/2 + 0.003;
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+  const angle = facingAngle(facing);
 
   for (let i = 0; i < sections; i++) {
     const sx = -W/2 + secW * (i + 0.5);
@@ -975,7 +984,7 @@ function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
       handle.castShadow = true;
       pivot.add(handle);
       const closedAngle = 0;
-      const openAngle = side * (-Math.PI / 2.4);
+      const openAngle = side * (Math.PI / 2.4);
       const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
       doorAnims.push(st);
       doorMesh.userData.doorAnim = st;
@@ -995,6 +1004,7 @@ function buildBaseCabinet(cx, cz, len, depth, h, sections, facing) {
   lCollider(cx, cz, W, D, 0, h + 0.05, facing);
 }
 
+/* ★ ВЕРХНИЙ ШКАФ — дверцы открываются НАРУЖУ */
 function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
   const W = len, D = depth;
   lbox(W, h, D, 0, cy, 0, matWood, cx, cz, facing, false);
@@ -1005,8 +1015,7 @@ function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
   const doorH = h - 0.08;
   const doorT = 0.022;
   const frontZ = D/2 + doorT/2 + 0.003;
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+  const angle = facingAngle(facing);
 
   for (const side of [-1, 1]) {
     const hingeX = side * (W/2 - 0.015);
@@ -1025,7 +1034,7 @@ function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
     handle.castShadow = true;
     pivot.add(handle);
     const closedAngle = 0;
-    const openAngle = side * (-Math.PI / 2.6);
+    const openAngle = side * (Math.PI / 2.6);
     const st = { group: pivot, axis: 'rotY', closed: closedAngle, open: openAngle, current: closedAngle, target: closedAngle, speed: 3.5, openState: false };
     doorAnims.push(st);
     doorMesh.userData.doorAnim = st;
@@ -1044,6 +1053,7 @@ function buildUpperCabinet(cx, cy, cz, len, depth, h, facing) {
   lCollider(cx, cz, W, D, cy, h, facing);
 }
 
+/* ★ ХОЛОДИЛЬНИК — обе дверцы (петля слева) открываются НАРУЖУ */
 function buildFridge(cx, cz, facing) {
   const w = 0.72, h = 1.85, d = 0.72;
   const freezH = 0.55;
@@ -1052,9 +1062,9 @@ function buildFridge(cx, cz, facing) {
   lbox(w + 0.02, 0.03, d + 0.02, 0, h - 0.03, 0, matDark, cx, cz, facing, false);
 
   const frontZ = d/2 + 0.012;
-  const angle = facing === 'z+' ? 0 : facing === 'z-' ? Math.PI :
-                facing === 'x+' ? -Math.PI/2 : Math.PI/2;
+  const angle = facingAngle(facing);
 
+  // Нижняя дверь
   {
     const hingeX = -w/2 + 0.02;
     const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
@@ -1086,6 +1096,7 @@ function buildFridge(cx, cz, facing) {
       anim.target = anim.openState ? anim.open : anim.closed;
     });
   }
+  // Верхняя дверь (морозилка)
   {
     const hingeX = -w/2 + 0.02;
     const p = localToWorld(cx, cz, hingeX, 0, frontZ, facing);
@@ -1278,10 +1289,9 @@ function buildTVRemote(x, y, z, rotation = 0) {
 }
 
 /* ============================================================
-   ОСВЕЩЕНИЕ — всё ×2 для яркости комнат
+   ОСВЕЩЕНИЕ — всё ×2
    ============================================================ */
 
-/* ТОРШЕР — яркость intensity ×2 */
 function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
   cyl(0.19, 0.21, 0.03, matDark, x, y0, z, 20);
   cyl(0.02, 0.02, 1.52, matChrome, x, y0 + 0.03, z, 10);
@@ -1298,7 +1308,6 @@ function buildFloorLamp(x, z, colorHex, intensity, y0 = 0) {
   addCollider(x - 0.20, x + 0.20, z - 0.20, z + 0.20, y0, y0 + 1.6);
 }
 
-/* НАСТОЛЬНАЯ ЛАМПА — яркость ×2 */
 function buildTableLamp(x, y0, z, colorHex, intensity) {
   cyl(0.075, 0.095, 0.03, matDark, x, y0, z, 14);
   cyl(0.012, 0.012, 0.25, matChrome, x, y0 + 0.03, z, 8);
@@ -1384,13 +1393,11 @@ buildTVRemote(-6.15, 0.435, -5.4, Math.PI * 0.15);
 
 buildBookshelf(-9.5, -4.0, 1.8, 2.0, 0.35, 'x+');
 
-// Торшер — яркость ×2 (0.7 → 1.4)
 buildFloorLamp(-9.0, -7.0, 0xffc88a, 1.4);
 
 buildDresser(-3.7, -0.42, 1.4, 0.85, 0.5, 3, matWood, 'z-');
 buildDresser(-9.55, 0.5, 1.2, 0.6, 0.5, 2, matWood, 'x+');
 
-// Настольная лампа — яркость ×2 (0.5 → 1.0)
 buildTableLamp(-9.55, 0.6, 0.5, 0xffb070, 1.0);
 
 buildPlant(-9.3, -0.8, 1.0);
@@ -1526,7 +1533,6 @@ box(0.65, 0.45, 0.65, matFabric3, 9.2, 0, -7.2);
 /* ====== СПАЛЬНЯ 1 ====== */
 buildBed(-7.5, -6.78, matWood, 'z+');
 buildNightstand(-6.4, -7.4, matWood, 'z+');
-// Настольная лампа — яркость ×2 (0.5 → 1.0)
 buildTableLamp(-6.4, F1 + 0.58, -7.4, 0xffb070, 1.0);
 buildWardrobe(-0.45, -6.5, 1.4, 2.1, 0.6, matWood, 'x-');
 buildDresser(-8.5, -0.4, 1.6, 0.85, 0.5, 3, matWood, 'z-');
@@ -1611,10 +1617,8 @@ box(0.4, 1.8, 1.2, matWhite, 9.65, F1, -7.0, false);
    СВЕТ — ЯРКОСТЬ КОМНАТ ×2
    ============================================================ */
 
-// Ambient ×2: 0.22 → 0.44
 const ambient = new THREE.AmbientLight(0x141c2c, 0.44);
 scene.add(ambient);
-// Hemisphere ×2: 0.14 → 0.28
 const hemi = new THREE.HemisphereLight(0x151c2c, 0x040404, 0.28);
 scene.add(hemi);
 
@@ -1627,18 +1631,17 @@ function addRoomLight(x, y, z, color, intensity, distance) {
   return l;
 }
 
-// Все потолочные лампы — интенсивность ×2
-addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 1.10, 9);   // было 0.55
-addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.84, 8);   // было 0.42
-addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.60, 9);   // было 0.30
-addRoomLight( 2.0, 2.55,  4.0, 0x5f80b0, 0.56, 9);   // было 0.28
-addRoomLight( 6.8, 2.55, -4.5, 0x806a4a, 0.44, 7);   // было 0.22
-addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff8040, 0.90, 9);  // было 0.45
-addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.80, 9);  // было 0.40
-addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.56, 9);  // было 0.28
-addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.60, 7);  // было 0.30
+addRoomLight(-5.5, 2.55, -4.0, 0xff8040, 1.10, 9);
+addRoomLight(-5.5, 2.55,  4.5, 0xffb060, 0.84, 8);
+addRoomLight( 2.0, 2.55, -3.0, 0x5f80b0, 0.60, 9);
+addRoomLight( 2.0, 2.55,  4.0, 0x5f80b0, 0.56, 9);
+addRoomLight( 6.8, 2.55, -4.5, 0x806a4a, 0.44, 7);
+addRoomLight(-5.5, F1 + 2.55, -4.0, 0xff8040, 0.90, 9);
+addRoomLight(-5.5, F1 + 2.55,  4.5, 0xff8040, 0.80, 9);
+addRoomLight( 2.0, F1 + 2.55,  0.0, 0x5f80b0, 0.56, 9);
+addRoomLight( 7.5, F1 + 2.55, -4.0, 0x7790a8, 0.60, 7);
 
-/* ---------- ФОНАРИК (не меняем — он и так яркий) ---------- */
+/* ---------- ФОНАРИК ---------- */
 const flashlight = new THREE.SpotLight(0xfff0cf, 3.4, 34, Math.PI / 7.0, 0.42, 1.35);
 flashlight.castShadow = true;
 flashlight.shadow.mapSize.set(isMobile ? 512 : 1024, isMobile ? 512 : 1024);
@@ -1657,7 +1660,6 @@ const flFill = new THREE.PointLight(0xffe3b8, 0.85, 4.0, 2);
 flFill.position.set(0.25, -0.15, -0.35);
 camera.add(flFill);
 
-// Ореол вокруг игрока ×2: 0.6 → 1.2
 const playerHalo = new THREE.PointLight(0x8898b0, 1.2, 6.5, 1.8);
 playerHalo.position.set(0, -0.2, 0);
 camera.add(playerHalo);
@@ -2033,9 +2035,8 @@ function updateDoors(dt) {
     if (d.axis === 'rotY') {
       d.group.rotation.y += step;
     } else if (d.axis === 'z') {
-      const localStep = step;
-      const dx = Math.sin(d.group.rotation.y) * localStep;
-      const dz = Math.cos(d.group.rotation.y) * localStep;
+      const dx = Math.sin(d.group.rotation.y) * step;
+      const dz = Math.cos(d.group.rotation.y) * step;
       d.group.position.x += dx;
       d.group.position.z += dz;
     }
@@ -2131,24 +2132,23 @@ function animate() {
   }
 
   const t = elapsed;
-  // ★ ЯРКОСТЬ КОМНАТ ×2 в динамике
   if (flashlightOn) {
-    ambient.intensity = 0.64;  // было 0.32
-    hemi.intensity    = 0.40;  // было 0.20
+    ambient.intensity = 0.64;
+    hemi.intensity    = 0.40;
     ambient.color.setHex(0x1a2234); hemi.color.setHex(0x1a2234);
     const hf = 0.92 + 0.05*Math.sin(t*3.1) + 0.03*Math.sin(t*9.7 + 1.4);
-    playerHalo.intensity = 1.20 * hf;   // было 0.60
+    playerHalo.intensity = 1.20 * hf;
     playerHalo.distance = 6.5;
     playerHalo.color.setHex(0x9aa4be);
   } else {
     let flick = 0.95 + 0.10*Math.sin(t*2.4) + 0.06*Math.sin(t*6.9 + 1.7) + 0.04*Math.sin(t*16.3 + 0.4);
     if (Math.sin(t*0.63 + 1.3) > 0.965) flick *= 0.62;
     flick = Math.max(0.55, flick);
-    ambient.intensity = 1.44 * flick;  // было 0.72
-    hemi.intensity    = 1.04 * flick;  // было 0.52
+    ambient.intensity = 1.44 * flick;
+    hemi.intensity    = 1.04 * flick;
     ambient.color.setHex(0x243048); hemi.color.setHex(0x243048);
     const hf = 0.95 + 0.08*Math.sin(t*2.1) + 0.05*Math.sin(t*5.7 + 0.9);
-    playerHalo.intensity = 1.76 * hf;  // было 0.88
+    playerHalo.intensity = 1.76 * hf;
     playerHalo.distance = 7.0;
     playerHalo.color.setHex(0xa898b0);
     if (Math.sin(t*0.55 + 2.1) > 0.965) playerHalo.intensity *= 0.55;
