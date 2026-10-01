@@ -3,818 +3,2464 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MyOS — личная операционная система</title>
+<title>MyOS — Персональная операционная система</title>
 <style>
-  /* ================= БАЗА ================= */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
-  body {
-    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    user-select: none;
-    -webkit-font-smoothing: antialiased;
-  }
-  input, textarea, select { user-select: text; }
-  svg { display: block; }
-  button { font-family: inherit; }
+/* ============================================================
+   БАЗА
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;width:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",sans-serif;
+  font-size:14px;line-height:1.4;color:var(--fg);
+  background:var(--bg);user-select:none;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+input,textarea,select,button{font-family:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer;color:inherit}
+svg{display:block;flex:0 0 auto}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-h);background-clip:content-box;border:2px solid transparent}
 
-  /* ================= ТЕМЫ ================= */
-  body.theme-dark {
-    --bg: #000000;
-    --fg: #ffffff;
-    --panel: #0b0b0b;
-    --panel2: #131313;
-    --border: #2e2e2e;
-    --border-strong: #6b6b6b;
-    --hover: #1c1c1c;
-    --wall: rgba(255,255,255,.06);
-    --shadow: rgba(0,0,0,.85);
-  }
-  body.theme-light {
-    --bg: #ffffff;
-    --fg: #000000;
-    --panel: #ffffff;
-    --panel2: #f4f4f4;
-    --border: #cfcfcf;
-    --border-strong: #8a8a8a;
-    --hover: #ececec;
-    --wall: rgba(0,0,0,.08);
-    --shadow: rgba(0,0,0,.18);
-  }
+/* ============================================================
+   ТЕМЫ
+   ============================================================ */
+body.theme-dark{
+  --bg:#000;
+  --wall:linear-gradient(135deg,#0a0a0f 0%,#131320 45%,#1a1028 100%);
+  --fg:#f2f2f5;
+  --fg-dim:#9a9aa8;
+  --fg-mute:#68687a;
+  --panel:rgba(22,22,30,0.72);
+  --panel-solid:#16161e;
+  --panel-2:#1e1e2a;
+  --panel-3:#262634;
+  --border:rgba(255,255,255,0.08);
+  --border-2:rgba(255,255,255,0.14);
+  --border-strong:rgba(255,255,255,0.28);
+  --hover:rgba(255,255,255,0.07);
+  --active:rgba(255,255,255,0.12);
+  --shadow:rgba(0,0,0,0.7);
+  --scroll:rgba(255,255,255,0.16);
+  --scroll-h:rgba(255,255,255,0.3);
+  --accent:#4a8cff;
+  --accent-2:#6b9dff;
+  --danger:#ff4d5e;
+  --success:#3ecf8e;
+  --warn:#ffb648;
+}
+body.theme-light{
+  --bg:#f5f5f8;
+  --wall:linear-gradient(135deg,#e8eaf0 0%,#f3eef8 50%,#e6ecf7 100%);
+  --fg:#16161e;
+  --fg-dim:#5a5a6a;
+  --fg-mute:#8a8a98;
+  --panel:rgba(255,255,255,0.78);
+  --panel-solid:#ffffff;
+  --panel-2:#f0f0f4;
+  --panel-3:#e4e4ec;
+  --border:rgba(0,0,0,0.08);
+  --border-2:rgba(0,0,0,0.14);
+  --border-strong:rgba(0,0,0,0.3);
+  --hover:rgba(0,0,0,0.05);
+  --active:rgba(0,0,0,0.1);
+  --shadow:rgba(0,0,0,0.18);
+  --scroll:rgba(0,0,0,0.16);
+  --scroll-h:rgba(0,0,0,0.3);
+  --accent:#2266dd;
+  --accent-2:#4a88f0;
+  --danger:#dd2c3c;
+  --success:#1fa876;
+  --warn:#d98a15;
+}
 
-  /* ================= РАБОЧИЙ СТОЛ ================= */
-  #desktop {
-    position: fixed;
-    left: 0; right: 0; top: 0; bottom: 48px;
-    overflow: hidden;
-    background-color: var(--bg);
-  }
-  #desktop.wall-grid {
-    background-image:
-      linear-gradient(var(--wall) 1px, transparent 1px),
-      linear-gradient(90deg, var(--wall) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  #desktop.wall-dots {
-    background-image: radial-gradient(var(--wall) 1.2px, transparent 1.2px);
-    background-size: 24px 24px;
-  }
-  #desktop.wall-none { background-image: none; }
+/* ============================================================
+   ЭКРАН ЗАГРУЗКИ
+   ============================================================ */
+#boot{
+  position:fixed;inset:0;z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#000;color:#fff;gap:32px;
+  transition:opacity .6s ease;
+}
+#boot.hidden{opacity:0;pointer-events:none}
+.boot-logo{width:100px;height:100px;color:#fff;animation:bootPulse 2s ease-in-out infinite}
+.boot-logo svg{width:100%;height:100%}
+@keyframes bootPulse{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.boot-brand{font-size:28px;font-weight:200;letter-spacing:14px;padding-left:14px;opacity:.95}
+.boot-bar{width:220px;height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;margin-top:6px}
+.boot-bar span{display:block;height:100%;width:0;background:#fff;border-radius:2px;animation:bootFill 2.4s cubic-bezier(.6,.05,.2,1) forwards}
+@keyframes bootFill{0%{width:0}60%{width:80%}100%{width:100%}}
+.boot-status{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:20px}
 
-  #icons {
-    position: absolute;
-    inset: 0;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    gap: 6px;
-  }
+/* ============================================================
+   ЭКРАН БЛОКИРОВКИ
+   ============================================================ */
+#lock{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--wall);color:var(--fg);gap:24px;
+  transition:opacity .5s ease,transform .5s ease;
+  overflow:hidden;
+}
+#lock.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
+#lock::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 30%,rgba(74,140,255,0.15),transparent 60%),
+             radial-gradient(circle at 70% 70%,rgba(160,80,255,0.12),transparent 60%);
+  pointer-events:none;
+}
+.lock-time{font-size:96px;font-weight:200;letter-spacing:-3px;line-height:1;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+.lock-date{font-size:16px;opacity:.75;letter-spacing:1px;margin-top:-6px;position:relative;z-index:1}
+.lock-user{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  margin-top:40px;cursor:pointer;position:relative;z-index:1;
+  transition:transform .2s;
+}
+.lock-user:hover{transform:translateY(-3px)}
+.lock-avatar{
+  width:96px;height:96px;border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),#a05aff);
+  box-shadow:0 8px 32px rgba(74,140,255,0.4);
+  font-size:34px;font-weight:600;color:#fff;
+}
+.lock-name{font-size:18px;font-weight:500}
+.lock-hint{font-size:12px;color:var(--fg-dim)}
 
-  .desk-icon {
-    width: 92px;
-    padding: 10px 4px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: var(--fg);
-    font-size: 12px;
-    line-height: 1.2;
-    cursor: pointer;
-    text-align: center;
-    transition: background .12s, border-color .12s;
-  }
-  .desk-icon:hover { background: var(--hover); border-color: var(--border); }
-  .desk-icon:active { transform: scale(.97); }
-  .desk-icon svg { width: 34px; height: 34px; }
-  .desk-icon span { word-break: break-word; }
+/* ============================================================
+   РАБОЧИЙ СТОЛ
+   ============================================================ */
+#desktop{
+  position:fixed;inset:0 0 52px 0;
+  background:var(--wall);
+  background-size:cover;background-position:center;
+  overflow:hidden;
+  transition:opacity .5s ease;
+}
+#desktop.wall-grid{
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),
+                   var(--wall);
+  background-size:48px 48px,48px 48px,cover;
+}
+#desktop.wall-dots{
+  background-image:radial-gradient(rgba(255,255,255,.12) 1.5px,transparent 1.5px),var(--wall);
+  background-size:28px 28px,cover;
+}
+#desktop.wall-aurora{background-image:
+  radial-gradient(ellipse at 20% 20%,rgba(74,140,255,.35),transparent 55%),
+  radial-gradient(ellipse at 80% 70%,rgba(170,80,255,.3),transparent 55%),
+  radial-gradient(ellipse at 50% 100%,rgba(255,80,160,.2),transparent 60%),
+  linear-gradient(135deg,#0a0a0f,#131320);}
+body.theme-light #desktop.wall-aurora{background-image:
+  radial-gradient(ellipse at 20% 20%,rgba(74,140,255,.35),transparent 55%),
+  radial-gradient(ellipse at 80% 70%,rgba(170,80,255,.3),transparent 55%),
+  linear-gradient(135deg,#e8eaf0,#f3eef8);}
+#desktop.wall-none{background-image:none}
 
-  #windowLayer { position: absolute; inset: 0; pointer-events: none; }
+#icons{position:absolute;inset:0;padding:16px;pointer-events:none}
+.desk-icon{
+  position:absolute;width:88px;height:96px;padding:8px 4px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  border:1px solid transparent;border-radius:8px;
+  color:#fff;font-size:11.5px;line-height:1.25;text-align:center;
+  cursor:pointer;pointer-events:auto;
+  transition:background .1s,border-color .1s,transform .1s;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+body.theme-light .desk-icon{color:#16161e;text-shadow:0 1px 2px rgba(255,255,255,.7)}
+.desk-icon:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)}
+body.theme-light .desk-icon:hover{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.1)}
+.desk-icon.selected{background:rgba(74,140,255,.28);border-color:rgba(74,140,255,.65)}
+.desk-icon svg{width:38px;height:38px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+body.theme-light .desk-icon svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+.desk-icon .lbl{
+  width:100%;max-height:32px;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  word-break:break-word;
+}
+.desk-icon .lbl.editing{background:var(--panel-solid);border-radius:3px;padding:1px 2px}
 
-  /* ================= ОКНА ================= */
-  .window {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    min-width: 260px;
-    min-height: 180px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 14px 44px var(--shadow);
-    overflow: hidden;
-    pointer-events: auto;
-    transition: border-color .15s;
-  }
-  .window.active { border-color: var(--border-strong); }
-  .window.maximized {
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-  .window.maximized .resizer { display: none; }
+/* Selection box */
+#selbox{
+  position:absolute;border:1px solid var(--accent);
+  background:rgba(74,140,255,.16);pointer-events:none;
+  display:none;z-index:5;
+}
 
-  .titlebar {
-    flex: 0 0 36px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 6px 0 12px;
-    background: var(--panel2);
-    border-bottom: 1px solid var(--border);
-    cursor: grab;
-  }
-  .titlebar:active { cursor: grabbing; }
-  .tb-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .tb-left svg { width: 16px; height: 16px; flex: 0 0 auto; }
-  .tb-title { overflow: hidden; text-overflow: ellipsis; }
-  .tb-right { display: flex; gap: 2px; flex: 0 0 auto; }
+/* ============================================================
+   ОКНА
+   ============================================================ */
+#windowLayer{position:absolute;inset:0;pointer-events:none}
+.window{
+  position:absolute;display:flex;flex-direction:column;
+  min-width:280px;min-height:180px;
+  background:var(--panel-solid);
+  border:1px solid var(--border-2);
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 24px 60px var(--shadow),0 2px 8px rgba(0,0,0,.4);
+  pointer-events:auto;
+  animation:winOpen .18s cubic-bezier(.2,.9,.3,1.2);
+  transition:box-shadow .15s,border-color .15s;
+}
+@keyframes winOpen{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+.window.closing{animation:winClose .14s ease-in forwards}
+@keyframes winClose{to{opacity:0;transform:scale(.94)}}
+.window.active{border-color:var(--border-strong);box-shadow:0 30px 70px var(--shadow),0 3px 12px rgba(0,0,0,.5)}
+.window.maximized{border-radius:0;border-left:none;border-right:none;border-top:none}
+.window.minimized{animation:winMin .18s ease forwards}
+@keyframes winMin{to{opacity:0;transform:scale(.85) translateY(60px)}}
+.window.snapped{transition:left .18s ease,top .18s ease,width .18s ease,height .18s ease}
 
-  .win-btn {
-    width: 30px;
-    height: 26px;
-    display: grid;
-    place-items: center;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    color: var(--fg);
-    cursor: pointer;
-    transition: background .12s, border-color .12s, color .12s;
-  }
-  .win-btn svg { width: 13px; height: 13px; }
-  .win-btn:hover { background: var(--hover); border-color: var(--border); }
-  .win-btn.close:hover { background: #e33b3b; border-color: #e33b3b; color: #fff; }
+.titlebar{
+  flex:0 0 40px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 6px 0 14px;
+  background:var(--panel-2);border-bottom:1px solid var(--border);
+  cursor:grab;
+}
+.titlebar:active{cursor:grabbing}
+.tb-left{display:flex;align-items:center;gap:10px;overflow:hidden;white-space:nowrap;min-width:0}
+.tb-left svg{width:16px;height:16px;flex:0 0 auto;opacity:.9}
+.tb-title{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.tb-right{display:flex;gap:2px;flex:0 0 auto}
+.win-btn{
+  width:34px;height:28px;display:grid;place-items:center;
+  border-radius:6px;color:var(--fg);opacity:.75;
+  transition:background .1s,opacity .1s,color .1s;
+}
+.win-btn svg{width:12px;height:12px}
+.win-btn:hover{background:var(--hover);opacity:1}
+.win-btn.close:hover{background:var(--danger);color:#fff;opacity:1}
+.win-body{flex:1;overflow:auto;position:relative;background:var(--panel-solid)}
 
-  .win-body { flex: 1; overflow: auto; position: relative; }
+.resizer{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;z-index:5}
+.resizer-n{position:absolute;top:0;left:8px;right:8px;height:6px;cursor:ns-resize}
+.resizer-s{position:absolute;bottom:0;left:8px;right:8px;height:6px;cursor:ns-resize}
+.resizer-w{position:absolute;left:0;top:8px;bottom:8px;width:6px;cursor:ew-resize}
+.resizer-e{position:absolute;right:0;top:8px;bottom:8px;width:6px;cursor:ew-resize}
 
-  .resizer {
-    position: absolute;
-    right: 0; bottom: 0;
-    width: 16px; height: 16px;
-    cursor: nwse-resize;
-    z-index: 5;
-  }
+/* Snap preview */
+#snapPreview{
+  position:absolute;background:rgba(74,140,255,.22);
+  border:2px solid var(--accent);border-radius:8px;
+  pointer-events:none;display:none;z-index:4;
+  transition:all .12s ease;
+}
 
-  /* ================= ПАНЕЛЬ ЗАДАЧ ================= */
-  #taskbar {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 8px;
-    background: var(--panel);
-    border-top: 1px solid var(--border);
-    z-index: 10000;
-  }
-  .task-start {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 14px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--fg);
-    font-size: 13px;
-    cursor: pointer;
-    flex: 0 0 auto;
-  }
-  .task-start svg { width: 18px; height: 18px; }
-  .task-start:hover, .task-start.on { background: var(--hover); border-color: var(--border-strong); }
+/* ============================================================
+   ПАНЕЛЬ ЗАДАЧ
+   ============================================================ */
+#taskbar{
+  position:fixed;left:0;right:0;bottom:0;height:52px;
+  display:flex;align-items:center;gap:6px;padding:0 8px;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-top:1px solid var(--border);
+  z-index:8000;
+}
 
-  #tasks {
-    flex: 1;
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 40px;
-    align-items: center;
-    scrollbar-width: none;
-  }
-  #tasks::-webkit-scrollbar { display: none; }
+.task-start{
+  display:flex;align-items:center;gap:8px;height:38px;padding:0 14px;
+  border:1px solid var(--border);border-radius:9px;
+  color:var(--fg);font-size:13px;font-weight:500;
+  transition:background .12s,border-color .12s;
+}
+.task-start svg{width:17px;height:17px}
+.task-start:hover{background:var(--hover);border-color:var(--border-2)}
+.task-start.on{background:var(--active);border-color:var(--border-strong)}
 
-  .task {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    height: 34px;
-    max-width: 190px;
-    padding: 0 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--fg);
-    font-size: 12px;
-    cursor: pointer;
-    flex: 0 0 auto;
-    opacity: .7;
-    transition: opacity .12s, background .12s;
-  }
-  .task svg { width: 15px; height: 15px; flex: 0 0 auto; }
-  .task span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .task:hover { background: var(--hover); opacity: 1; }
-  .task.active { background: var(--hover); border-color: var(--border-strong); opacity: 1; }
+#tasks{
+  flex:1;display:flex;gap:6px;align-items:center;
+  height:42px;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;
+}
+#tasks::-webkit-scrollbar{display:none}
 
-  #tray {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    height: 36px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: .5px;
-  }
+.task{
+  position:relative;
+  display:flex;align-items:center;gap:8px;
+  height:38px;max-width:200px;min-width:38px;
+  padding:0 12px;
+  border:1px solid var(--border);border-radius:8px;
+  font-size:12.5px;cursor:pointer;
+  opacity:.75;transition:opacity .12s,background .12s,border-color .12s;
+  flex:0 0 auto;
+}
+.task::after{
+  content:'';position:absolute;left:50%;bottom:2px;
+  width:4px;height:4px;border-radius:50%;background:var(--accent);
+  transform:translateX(-50%) scale(0);transition:transform .18s;
+}
+.task.active::after{transform:translateX(-50%) scale(1)}
+.task svg{width:16px;height:16px;flex:0 0 auto}
+.task span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task:hover{background:var(--hover);opacity:1;border-color:var(--border-2)}
+.task.active{background:var(--hover);border-color:var(--border-2);opacity:1}
 
-  /* ================= МЕНЮ ПУСК ================= */
-  #startMenu {
-    position: fixed;
-    left: 8px;
-    bottom: 56px;
-    width: 300px;
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: 8px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 14px 44px var(--shadow);
-    z-index: 10001;
-    display: none;
-  }
-  #startMenu.open { display: block; animation: pop .13s ease-out; }
-  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#tray{
+  display:flex;align-items:center;gap:4px;height:38px;padding:0 4px;
+  border:1px solid var(--border);border-radius:8px;
+}
+.tray-item{
+  display:flex;align-items:center;gap:8px;
+  height:32px;padding:0 10px;border-radius:6px;
+  font-size:12.5px;font-variant-numeric:tabular-nums;
+  cursor:pointer;transition:background .12s;
+}
+.tray-item:hover{background:var(--hover)}
+.tray-item svg{width:16px;height:16px;opacity:.85}
+#clock{letter-spacing:.3px;font-weight:500}
+#dateSmall{font-size:11px;opacity:.6;margin-top:1px}
+.tray-clock{display:flex;flex-direction:column;line-height:1.1;align-items:flex-end}
 
-  .start-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 10px 12px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-  .start-head span { font-size: 11px; font-weight: 400; opacity: .55; }
+#showDesk{
+  width:6px;height:38px;margin-left:4px;border-radius:3px;
+  background:var(--border);transition:background .12s;cursor:pointer;
+}
+#showDesk:hover{background:var(--border-2)}
 
-  .start-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: var(--fg);
-    font-size: 13px;
-    text-align: left;
-    cursor: pointer;
-  }
-  .start-item svg { width: 18px; height: 18px; flex: 0 0 auto; }
-  .start-item:hover { background: var(--hover); border-color: var(--border); }
+/* ============================================================
+   МЕНЮ ПУСК
+   ============================================================ */
+#startMenu{
+  position:fixed;left:8px;bottom:60px;
+  width:520px;max-height:70vh;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:14px;
+  box-shadow:0 30px 70px var(--shadow),0 4px 12px rgba(0,0,0,.3);
+  z-index:8500;display:none;overflow:hidden;
+  flex-direction:column;
+}
+#startMenu.open{display:flex;animation:menuIn .18s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes menuIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 
-  .start-sep { height: 1px; background: var(--border); margin: 8px 4px; }
+.start-search{
+  padding:14px 16px 10px;border-bottom:1px solid var(--border);
+}
+.start-search input{
+  width:100%;height:36px;padding:0 14px;
+  background:var(--panel-2);border:1px solid var(--border);
+  border-radius:9px;font-size:13px;outline:none;
+  transition:border-color .12s;
+}
+.start-search input:focus{border-color:var(--accent)}
 
-  /* ================= ОБЩИЕ ЭЛЕМЕНТЫ ================= */
-  .btn {
-    padding: 6px 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--fg);
-    font-size: 13px;
-    cursor: pointer;
-    transition: background .12s, border-color .12s;
-  }
-  .btn:hover { background: var(--hover); border-color: var(--border-strong); }
-  .btn:active { transform: scale(.97); }
+.start-body{display:flex;flex:1;min-height:0}
+.start-apps{
+  flex:1;padding:12px;overflow-y:auto;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  align-content:start;
+}
+.start-app{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 8px;border-radius:9px;
+  font-size:12px;text-align:center;color:var(--fg);
+  border:1px solid transparent;transition:background .12s,border-color .12s;
+  cursor:pointer;
+}
+.start-app:hover{background:var(--hover);border-color:var(--border)}
+.start-app svg{width:30px;height:30px;color:var(--accent-2)}
+.start-app span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
 
-  .inp {
-    padding: 7px 10px;
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--fg);
-    font-family: inherit;
-    font-size: 13px;
-    outline: none;
-  }
-  .inp:focus { border-color: var(--border-strong); }
+.start-side{
+  width:180px;flex:0 0 180px;border-left:1px solid var(--border);
+  padding:12px;display:flex;flex-direction:column;gap:2px;
+  overflow-y:auto;
+}
+.start-user{
+  display:flex;align-items:center;gap:10px;padding:8px 6px 14px;
+  border-bottom:1px solid var(--border);margin-bottom:8px;
+}
+.start-user .av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#a05aff);
+  display:grid;place-items:center;color:#fff;font-weight:600;font-size:14px;
+}
+.start-user .un{font-size:13px;font-weight:600}
+.start-user .ud{font-size:10.5px;opacity:.55}
+.start-side-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:7px;font-size:12.5px;
+  cursor:pointer;transition:background .12s;
+}
+.start-side-item:hover{background:var(--hover)}
+.start-side-item svg{width:15px;height:15px;opacity:.85}
+.start-side-item.danger:hover{background:rgba(255,77,94,.15);color:var(--danger)}
+.start-side-item.danger:hover svg{color:var(--danger)}
 
-  /* ================= КАЛЬКУЛЯТОР ================= */
-  .calc { display: flex; flex-direction: column; height: 100%; gap: 10px; padding: 12px; }
-  .calc-screen {
-    flex: 0 0 auto;
-    padding: 10px 14px;
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    text-align: right;
-  }
-  .calc-expr { font-size: 12px; opacity: .55; min-height: 16px; word-break: break-all; }
-  .calc-cur { font-size: 30px; font-weight: 600; word-break: break-all; line-height: 1.25; }
-  .calc-pad { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; min-height: 0; }
-  .cb {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--fg);
-    font-size: 16px;
-    cursor: pointer;
-    transition: background .1s, border-color .1s;
-  }
-  .cb:hover { background: var(--hover); border-color: var(--border-strong); }
-  .cb:active { transform: scale(.95); }
-  .cb.op { border-color: var(--border-strong); font-size: 18px; }
-  .cb.fn { opacity: .75; font-size: 14px; }
-  .cb.eq { border-color: var(--border-strong); border-width: 2px; font-weight: 700; }
+.start-foot{
+  padding:8px 14px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:var(--fg-mute);
+}
+.start-foot .btns{display:flex;gap:4px}
+.start-foot button{
+  width:32px;height:32px;display:grid;place-items:center;border-radius:7px;
+  color:var(--fg);transition:background .12s;
+}
+.start-foot button svg{width:15px;height:15px}
+.start-foot button:hover{background:var(--hover)}
 
-  /* ================= БЛОКНОТ ================= */
-  .pad { display: flex; flex-direction: column; height: 100%; gap: 10px; padding: 12px; }
-  .pad-toolbar { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-  .pad-status { font-size: 12px; opacity: .55; margin-left: auto; }
-  .pad-area {
-    flex: 1;
-    min-height: 0;
-    resize: none;
-    padding: 12px;
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--fg);
-    font-family: ui-monospace, Consolas, "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.55;
-    outline: none;
-  }
-  .pad-area:focus { border-color: var(--border-strong); }
+/* ============================================================
+   КОНТЕКСТНОЕ МЕНЮ
+   ============================================================ */
+#ctxMenu{
+  position:fixed;z-index:10000;min-width:210px;
+  padding:6px;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:10px;
+  box-shadow:0 20px 50px var(--shadow),0 4px 12px rgba(0,0,0,.3);
+  display:none;font-size:13px;
+  animation:ctxIn .1s ease-out;
+}
+#ctxMenu.open{display:block}
+@keyframes ctxIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.ctx-item{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 12px;border-radius:6px;
+  cursor:pointer;color:var(--fg);
+  transition:background .08s;
+}
+.ctx-item:hover{background:var(--hover)}
+.ctx-item.danger:hover{background:rgba(255,77,94,.18);color:var(--danger)}
+.ctx-item.disabled{opacity:.35;pointer-events:none}
+.ctx-item svg{width:15px;height:15px;opacity:.85;flex:0 0 auto}
+.ctx-item .lbl{flex:1}
+.ctx-item .short{font-size:11px;opacity:.5}
+.ctx-item .arrow{margin-left:auto;width:11px;height:11px;opacity:.5}
+.ctx-sep{height:1px;background:var(--border);margin:5px 8px}
+.ctx-sub{position:relative}
+.ctx-submenu{
+  position:absolute;left:100%;top:-6px;margin-left:2px;
+  padding:6px;min-width:170px;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:10px;
+  box-shadow:0 20px 50px var(--shadow);
+  display:none;
+}
+.ctx-sub:hover>.ctx-submenu{display:block}
 
-  /* ================= ТЕРМИНАЛ ================= */
-  .term {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 12px;
-    font-family: ui-monospace, Consolas, "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  .term-out { flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
-  .term-out .err { opacity: .7; }
-  .term-line {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding-top: 8px;
-    margin-top: 8px;
-    border-top: 1px solid var(--border);
-  }
-  .term-prompt { opacity: .65; white-space: nowrap; }
-  .term-in {
-    flex: 1;
-    min-width: 0;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--fg);
-    font-family: inherit;
-    font-size: inherit;
-  }
+/* ============================================================
+   УВЕДОМЛЕНИЯ
+   ============================================================ */
+#notifs{
+  position:fixed;right:14px;bottom:64px;
+  display:flex;flex-direction:column;gap:10px;
+  z-index:9000;width:320px;pointer-events:none;
+}
+.notif{
+  pointer-events:auto;
+  display:flex;gap:12px;padding:14px;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:12px;
+  box-shadow:0 20px 50px var(--shadow);
+  animation:notifIn .3s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes notifIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.notif.out{animation:notifOut .25s ease-in forwards}
+@keyframes notifOut{to{opacity:0;transform:translateX(30px);margin-bottom:-80px}}
+.notif-ic{width:32px;height:32px;flex:0 0 auto;display:grid;place-items:center;border-radius:8px;background:var(--panel-3);color:var(--accent-2)}
+.notif-ic svg{width:18px;height:18px}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.notif-text{font-size:12px;opacity:.75;word-break:break-word;line-height:1.4}
 
-  /* ================= ФАЙЛЫ ================= */
-  .files { display: flex; flex-direction: column; height: 100%; gap: 10px; padding: 12px; }
-  .files-bar { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
-  .files-path {
-    flex: 1;
-    font-size: 12px;
-    opacity: .65;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-  }
-  .files-main { flex: 1; min-height: 0; display: flex; gap: 10px; }
-  .files-list {
-    flex: 1 1 55%;
-    min-width: 0;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px;
-  }
-  .file-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  .file-item:hover { background: var(--hover); }
-  .file-item svg { width: 18px; height: 18px; flex: 0 0 auto; }
-  .fi-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .empty { padding: 14px; font-size: 12px; opacity: .5; text-align: center; }
-  .files-view {
-    flex: 1 1 45%;
-    min-width: 0;
-    overflow: auto;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px;
-  }
-  .fv-title { font-size: 12px; opacity: .6; margin-bottom: 8px; word-break: break-word; }
-  .fv-content {
-    font-family: ui-monospace, Consolas, monospace;
-    font-size: 12px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
+/* ============================================================
+   ALT-TAB SWITCHER
+   ============================================================ */
+#switcher{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  padding:18px;background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:14px;
+  box-shadow:0 30px 70px var(--shadow);
+  display:none;z-index:9500;gap:10px;
+}
+#switcher.open{display:flex}
+.sw-item{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:16px;border-radius:10px;border:2px solid transparent;
+  width:100px;cursor:pointer;transition:background .12s;
+}
+.sw-item svg{width:38px;height:38px}
+.sw-item span{font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.sw-item.on{background:var(--hover);border-color:var(--accent)}
 
-  /* ================= НАСТРОЙКИ ================= */
-  .settings { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
-  .set-row { display: flex; flex-direction: column; gap: 8px; }
-  .set-row > label { font-size: 12px; opacity: .6; }
-  .set-ctrl { display: flex; gap: 8px; flex-wrap: wrap; }
-  .set-ctrl .btn.on { border-color: var(--border-strong); background: var(--hover); }
-  .set-note { font-size: 11px; opacity: .45; }
+/* ============================================================
+   ОБЩИЕ ЭЛЕМЕНТЫ В ПРИЛОЖЕНИЯХ
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;background:var(--panel-2);
+  border:1px solid var(--border);border-radius:7px;
+  font-size:12.5px;transition:background .12s,border-color .12s;
+}
+.btn:hover{background:var(--panel-3);border-color:var(--border-2)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:14px;height:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn.danger{color:var(--danger);border-color:rgba(255,77,94,.3)}
+.btn.danger:hover{background:rgba(255,77,94,.15)}
 
-  /* ================= О СИСТЕМЕ ================= */
-  .about { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px 20px; text-align: center; }
-  .about svg { width: 64px; height: 64px; }
-  .about h2 { font-size: 20px; font-weight: 600; }
-  .about p { font-size: 13px; opacity: .65; line-height: 1.6; max-width: 320px; }
-  .about .ver { font-size: 11px; opacity: .4; }
+.inp{
+  padding:7px 11px;background:var(--panel-2);
+  border:1px solid var(--border);border-radius:7px;
+  font-size:13px;outline:none;color:var(--fg);
+  transition:border-color .12s,background .12s;
+}
+.inp:focus{border-color:var(--accent);background:var(--panel-solid)}
 
-  /* ================= СКРОЛЛБАРЫ ================= */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; border: 2px solid var(--panel); }
-  ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+/* ============================================================
+   ПРИЛОЖЕНИЯ
+   ============================================================ */
+
+/* Файлы */
+.files{display:flex;flex-direction:column;height:100%;background:var(--panel-solid)}
+.files-bar{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;
+  border-bottom:1px solid var(--border);background:var(--panel-2);
+}
+.files-bar .nav-btn{
+  width:30px;height:30px;display:grid;place-items:center;
+  border-radius:6px;color:var(--fg);opacity:.75;
+}
+.files-bar .nav-btn svg{width:15px;height:15px}
+.files-bar .nav-btn:hover{background:var(--hover);opacity:1}
+.files-bar .nav-btn:disabled{opacity:.25;cursor:default}
+.files-bar .nav-btn:disabled:hover{background:none}
+.files-path{
+  flex:1;font-size:12.5px;padding:6px 12px;
+  background:var(--panel-solid);border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--fg-dim);
+}
+.files-bar .btn{padding:5px 10px;font-size:12px}
+.files-main{flex:1;display:flex;min-height:0}
+.files-side{
+  width:180px;flex:0 0 180px;border-right:1px solid var(--border);
+  padding:8px;overflow-y:auto;background:var(--panel-2);
+}
+.files-side .sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 9px;border-radius:6px;font-size:12.5px;
+  cursor:pointer;color:var(--fg-dim);transition:background .12s;
+}
+.files-side .sb-item svg{width:15px;height:15px}
+.files-side .sb-item:hover{background:var(--hover);color:var(--fg)}
+.files-side .sb-item.on{background:var(--hover);color:var(--fg)}
+.files-list{flex:1;padding:14px;overflow-y:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;position:relative}
+.files-list.drag-over{background:rgba(74,140,255,.08)}
+.files-empty{width:100%;padding:40px;text-align:center;color:var(--fg-mute);font-size:13px}
+.f-item{
+  width:98px;height:96px;padding:10px 6px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  border:1px solid transparent;border-radius:8px;
+  text-align:center;font-size:12px;cursor:pointer;
+  transition:background .1s,border-color .1s;
+}
+.f-item:hover{background:var(--hover);border-color:var(--border)}
+.f-item.selected{background:rgba(74,140,255,.2);border-color:rgba(74,140,255,.5)}
+.f-item svg{width:34px;height:34px;color:var(--accent-2)}
+.f-item .fname{
+  max-width:100%;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  word-break:break-word;line-height:1.2;
+}
+.f-item .fname.editing{
+  background:var(--panel-solid);border:1px solid var(--accent);
+  border-radius:3px;padding:1px 3px;outline:none;cursor:text;
+  -webkit-line-clamp:unset;display:block;
+}
+
+/* Блокнот */
+.pad{display:flex;flex-direction:column;height:100%;background:var(--panel-solid)}
+.pad-bar{
+  display:flex;align-items:center;gap:6px;padding:8px 10px;
+  border-bottom:1px solid var(--border);background:var(--panel-2);
+}
+.pad-bar .btn{padding:5px 10px;font-size:12px}
+.pad-info{margin-left:auto;font-size:11px;opacity:.55;padding-right:4px}
+.pad-area{
+  flex:1;padding:14px 18px;border:none;outline:none;resize:none;
+  background:var(--panel-solid);color:var(--fg);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px;line-height:1.6;
+}
+
+/* Калькулятор */
+.calc{display:flex;flex-direction:column;height:100%;padding:12px;gap:10px;background:var(--panel-solid)}
+.calc-scr{
+  padding:14px 16px;background:var(--panel-2);
+  border:1px solid var(--border);border-radius:10px;
+  text-align:right;overflow:hidden;
+}
+.calc-expr{font-size:12px;color:var(--fg-mute);min-height:16px;word-break:break-all}
+.calc-cur{font-size:34px;font-weight:300;font-variant-numeric:tabular-nums;word-break:break-all;line-height:1.1;letter-spacing:-.5px}
+.calc-pad{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-height:0}
+.cb{
+  background:var(--panel-2);border:1px solid var(--border);border-radius:9px;
+  font-size:16px;font-weight:400;color:var(--fg);
+  transition:background .1s,transform .05s;
+}
+.cb:hover{background:var(--panel-3)}
+.cb:active{transform:scale(.95)}
+.cb.op{color:var(--accent-2);font-size:18px}
+.cb.fn{font-size:13px;color:var(--fg-dim)}
+.cb.eq{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.cb.eq:hover{background:var(--accent-2);border-color:var(--accent-2)}
+
+/* Терминал */
+.term{
+  display:flex;flex-direction:column;height:100%;padding:14px;
+  background:#0b0b12;color:#e8e8ee;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px;line-height:1.55;
+}
+body.theme-light .term{background:#16161e;color:#e0e0e8}
+.term-out{flex:1;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.term-out .err{color:#ff6b7a}
+.term-out .ok{color:#4ee6a0}
+.term-out .info{color:#6ba8ff}
+.term-line{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);margin-top:8px}
+.term-prompt{color:#4ee6a0;white-space:nowrap}
+.term-in{
+  flex:1;background:transparent;border:none;outline:none;
+  color:inherit;font-family:inherit;font-size:inherit;
+}
+
+/* Настройки */
+.set{display:flex;flex-direction:column;gap:2px;padding:8px;background:var(--panel-solid);min-height:100%}
+.set-sec{margin-bottom:8px}
+.set-sec-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--fg-mute);padding:10px 12px 6px}
+.set-item{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 14px;background:var(--panel-2);
+  border:1px solid var(--border);border-radius:9px;margin-bottom:6px;
+}
+.set-ic{width:32px;height:32px;flex:0 0 auto;display:grid;place-items:center;border-radius:8px;background:var(--panel-3);color:var(--accent-2)}
+.set-ic svg{width:17px;height:17px}
+.set-txt{flex:1;min-width:0}
+.set-txt h4{font-size:13px;font-weight:500;margin-bottom:2px}
+.set-txt p{font-size:11.5px;color:var(--fg-mute);word-break:break-word}
+.set-ctrl{display:flex;gap:6px;flex-wrap:wrap}
+.set-ctrl .btn{padding:5px 10px;font-size:12px}
+.set-ctrl .btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.set-ctrl input.inp{min-width:120px;height:30px;padding:0 10px;font-size:12px}
+.set-ctrl .swatches{display:flex;gap:6px}
+.swatch{
+  width:24px;height:24px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .1s;
+}
+.swatch:hover{transform:scale(1.1)}
+.swatch.on{border-color:var(--fg);box-shadow:0 0 0 2px var(--panel-solid) inset}
+
+/* Paint */
+.paint{display:flex;flex-direction:column;height:100%;background:var(--panel-solid)}
+.paint-bar{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--panel-2);border-bottom:1px solid var(--border);flex-wrap:wrap;
+}
+.paint-bar .tool{
+  width:30px;height:30px;display:grid;place-items:center;
+  border-radius:6px;border:1px solid transparent;color:var(--fg);opacity:.7;
+}
+.paint-bar .tool svg{width:15px;height:15px}
+.paint-bar .tool:hover{background:var(--hover);opacity:1}
+.paint-bar .tool.on{background:var(--hover);border-color:var(--accent);opacity:1;color:var(--accent-2)}
+.paint-bar .sep{width:1px;height:22px;background:var(--border);margin:0 4px}
+.paint-bar .colors{display:flex;gap:4px}
+.paint-bar .c{
+  width:20px;height:20px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .1s;
+}
+.paint-bar .c:hover{transform:scale(1.15)}
+.paint-bar .c.on{border-color:var(--fg);transform:scale(1.1)}
+.paint-bar input[type=range]{width:80px;accent-color:var(--accent)}
+.paint-canvas-wrap{flex:1;overflow:auto;background:
+  repeating-conic-gradient(#e8e8ee 0 25%,#fff 0 50%) 50%/20px 20px;}
+body.theme-dark .paint-canvas-wrap{background:
+  repeating-conic-gradient(#1a1a24 0 25%,#22222e 0 50%) 50%/20px 20px;}
+.paint-canvas-wrap canvas{display:block;margin:14px;border-radius:4px;box-shadow:0 8px 30px rgba(0,0,0,.4);background:#fff;cursor:crosshair}
+
+/* Minesweeper */
+.mines{display:flex;flex-direction:column;height:100%;background:var(--panel-solid);align-items:center;justify-content:center;gap:14px;padding:16px}
+.mines-top{display:flex;align-items:center;gap:20px;padding:12px 18px;background:var(--panel-2);border:1px solid var(--border);border-radius:9px}
+.mines-top .info{font-size:15px;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
+.mines-top .info b{color:var(--accent-2);font-weight:600}
+.mines-grid{
+  display:grid;gap:2px;padding:6px;
+  background:var(--panel-3);border-radius:10px;
+}
+.ms-cell{
+  width:30px;height:30px;display:grid;place-items:center;
+  background:var(--panel-2);border:1px solid var(--border);
+  border-radius:5px;font-size:14px;font-weight:700;
+  font-family:ui-monospace,monospace;
+  cursor:pointer;user-select:none;
+  transition:background .1s,transform .05s;
+}
+.ms-cell:hover{background:var(--panel-3)}
+.ms-cell:active{transform:scale(.94)}
+.ms-cell.open{background:var(--panel-solid);border-color:var(--border);cursor:default}
+.ms-cell.flag{color:var(--warn)}
+.ms-cell.mine{background:rgba(255,77,94,.3)}
+.ms-cell.mine.revealed{background:var(--danger);color:#fff}
+.ms-cell.n1{color:#4a8cff}.ms-cell.n2{color:#3ecf8e}.ms-cell.n3{color:#ff4d5e}
+.ms-cell.n4{color:#a05aff}.ms-cell.n5{color:#ffb648}.ms-cell.n6{color:#3ecfcf}
+.ms-cell.n7{color:#e0e0e8}.ms-cell.n8{color:#8a8a98}
+.mines-msg{font-size:15px;font-weight:600;min-height:20px}
+
+/* О системе */
+.about{display:flex;flex-direction:column;align-items:center;gap:18px;padding:38px 24px;text-align:center;background:var(--panel-solid)}
+.about .logo{
+  width:88px;height:88px;display:grid;place-items:center;border-radius:24px;
+  background:linear-gradient(135deg,var(--accent),#a05aff);color:#fff;
+  box-shadow:0 14px 40px rgba(74,140,255,.4);
+}
+.about .logo svg{width:48px;height:48px}
+.about h2{font-size:24px;font-weight:600;letter-spacing:.5px}
+.about p{font-size:13px;color:var(--fg-dim);line-height:1.6;max-width:400px}
+.about .ver{font-size:11px;color:var(--fg-mute);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.about .stats{display:flex;gap:24px;margin-top:8px}
+.about .stat{text-align:center}
+.about .stat b{display:block;font-size:20px;font-weight:600;color:var(--accent-2)}
+.about .stat span{font-size:10.5px;color:var(--fg-mute);text-transform:uppercase;letter-spacing:1px}
+
+/* Менеджер задач/Диск */
+.manager{padding:14px;background:var(--panel-solid);height:100%;overflow-y:auto}
+.manager h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--fg)}
+.manager table{width:100%;border-collapse:collapse;font-size:12.5px}
+.manager th{text-align:left;font-weight:500;color:var(--fg-mute);font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--border)}
+.manager td{padding:9px 10px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+.manager tr:hover td{background:var(--hover)}
+.manager .bar-wrap{width:80px;height:6px;background:var(--panel-3);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.manager .bar{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease}
+
+/* Media Player */
+.media{display:flex;flex-direction:column;align-items:center;gap:18px;padding:30px;background:var(--panel-solid);height:100%;justify-content:center}
+.media-art{
+  width:180px;height:180px;border-radius:16px;
+  background:linear-gradient(135deg,var(--accent),#a05aff);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 20px 50px rgba(74,140,255,.4);
+  animation:none;
+}
+.media-art.playing{animation:artSpin 8s linear infinite}
+@keyframes artSpin{to{transform:rotate(360deg)}}
+.media-art svg{width:72px;height:72px}
+.media-title{font-size:16px;font-weight:600}
+.media-artist{font-size:12px;color:var(--fg-mute)}
+.media-ctrl{display:flex;align-items:center;gap:14px}
+.media-ctrl button{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--panel-2);border:1px solid var(--border);
+  display:grid;place-items:center;color:var(--fg);
+  transition:background .12s,transform .08s;
+}
+.media-ctrl button:hover{background:var(--panel-3)}
+.media-ctrl button:active{transform:scale(.92)}
+.media-ctrl button.play{width:56px;height:56px;background:var(--accent);border-color:var(--accent);color:#fff}
+.media-ctrl button.play:hover{background:var(--accent-2)}
+.media-ctrl svg{width:18px;height:18px}
+.media-ctrl button.play svg{width:22px;height:22px}
+.media-keys{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:340px}
+.media-keys button{
+  padding:8px 14px;background:var(--panel-2);border:1px solid var(--border);
+  border-radius:8px;font-size:12.5px;transition:background .12s;
+}
+.media-keys button:hover{background:var(--panel-3)}
+.media-keys button:active{transform:scale(.96)}
+.media-keys button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Календарь (в трее) */
+#calPopup{
+  position:fixed;right:8px;bottom:60px;
+  width:300px;padding:14px;
+  background:var(--panel);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--border-2);border-radius:12px;
+  box-shadow:0 20px 50px var(--shadow);
+  display:none;z-index:8600;
+}
+#calPopup.open{display:block;animation:menuIn .18s ease-out}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-head b{font-size:13px;font-weight:600}
+.cal-head button{width:26px;height:26px;border-radius:6px;display:grid;place-items:center}
+.cal-head button:hover{background:var(--hover)}
+.cal-head button svg{width:13px;height:13px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-grid .cd{
+  aspect-ratio:1;display:grid;place-items:center;
+  font-size:11.5px;border-radius:6px;color:var(--fg-dim);
+  font-variant-numeric:tabular-nums;
+}
+.cal-grid .hd{color:var(--fg-mute);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.cal-grid .cd.other{opacity:.25}
+.cal-grid .cd.today{background:var(--accent);color:#fff;font-weight:600}
+.cal-grid .cd:hover:not(.other):not(.hd){background:var(--hover)}
+
+/* Единообразное выделение */
+.no-select{user-select:none}
+[contenteditable]{outline:none}
 </style>
 </head>
 <body class="theme-dark">
 
-<div id="desktop" class="wall-grid">
+<!-- ЭКРАН ЗАГРУЗКИ -->
+<div id="boot">
+  <div class="boot-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+      <rect x="3" y="3" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8"/>
+    </svg>
+  </div>
+  <div class="boot-brand">MyOS</div>
+  <div class="boot-bar"><span></span></div>
+  <div class="boot-status" id="bootStatus">Инициализация ядра…</div>
+</div>
+
+<!-- ЭКРАН БЛОКИРОВКИ -->
+<div id="lock" class="hidden">
+  <div class="lock-time" id="lockTime">00:00</div>
+  <div class="lock-date" id="lockDate">—</div>
+  <div class="lock-user" id="lockUser">
+    <div class="lock-avatar" id="lockAvatar">U</div>
+    <div class="lock-name" id="lockName">Пользователь</div>
+    <div class="lock-hint">Нажмите, чтобы разблокировать</div>
+  </div>
+</div>
+
+<!-- РАБОЧИЙ СТОЛ -->
+<div id="desktop" class="wall-aurora">
   <div id="icons"></div>
+  <div id="selbox"></div>
+  <div id="snapPreview"></div>
   <div id="windowLayer"></div>
 </div>
 
+<!-- ПАНЕЛЬ ЗАДАЧ -->
 <div id="taskbar">
   <button id="startBtn" class="task-start" type="button">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+      <rect x="3" y="3" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8"/>
+      <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8"/>
     </svg>
     <span>Пуск</span>
   </button>
   <div id="tasks"></div>
-  <div id="tray"><div id="clock">--:--:--</div></div>
+  <div id="tray">
+    <div class="tray-item" id="notifBtn" title="Уведомления">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+      </svg>
+    </div>
+    <div class="tray-item" id="clockBtn">
+      <div class="tray-clock">
+        <div id="clock">--:--:--</div>
+        <div id="dateSmall">--.--.----</div>
+      </div>
+    </div>
+  </div>
+  <div id="showDesk" title="Свернуть все окна"></div>
 </div>
 
+<!-- МЕНЮ ПУСК -->
 <div id="startMenu"></div>
 
+<!-- КОНТЕКСТНОЕ МЕНЮ -->
+<div id="ctxMenu"></div>
+
+<!-- УВЕДОМЛЕНИЯ -->
+<div id="notifs"></div>
+
+<!-- ALT+TAB ПЕРЕКЛЮЧАТЕЛЬ -->
+<div id="switcher"></div>
+
+<!-- КАЛЕНДАРЬ -->
+<div id="calPopup">
+  <div class="cal-head">
+    <button id="calPrev" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <b id="calTitle">—</b>
+    <button id="calNext" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  /* ============================================================
-     ИКОНКИ (SVG-контуры)
-     ============================================================ */
-  var ICONS = {
-    folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.6l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
-    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
-    note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>',
-    calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="7.5" y="5.5" width="9" height="3.5" rx="1"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01"/></svg>',
-    term: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M6 9l3 3-3 3M13 15h5"/></svg>',
-    gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
-    power: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><path d="M12 2v10"/></svg>',
-    min: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>',
-    max: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>',
-    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+function toast(title,text,icon){
+  var box=$('#notifs');
+  var el=document.createElement('div');
+  el.className='notif';
+  el.innerHTML=(icon?('<div class="notif-ic">'+icon+'</div>'):'')+
+               '<div class="notif-body"><div class="notif-title">'+esc(title)+'</div>'+
+               (text?'<div class="notif-text">'+esc(text)+'</div>':'')+'</div>';
+  box.appendChild(el);
+  setTimeout(function(){
+    el.classList.add('out');
+    setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},250);
+  },3200);
+}
+
+/* ============================================================
+   НАСТРОЙКИ
+   ============================================================ */
+var DEFAULT_SETTINGS={
+  theme:'dark',
+  user:'Пользователь',
+  wall:'aurora',
+  accent:'#4a8cff',
+  bootTime:2400
+};
+function loadSettings(){
+  try{
+    var r=localStorage.getItem('myos.settings.v2');
+    if(!r) return Object.assign({},DEFAULT_SETTINGS);
+    return Object.assign({},DEFAULT_SETTINGS,JSON.parse(r));
+  }catch(e){return Object.assign({},DEFAULT_SETTINGS)}
+}
+function saveSettings(){
+  try{localStorage.setItem('myos.settings.v2',JSON.stringify(settings))}catch(e){}
+}
+var settings=loadSettings();
+
+function applySettings(){
+  document.body.classList.toggle('theme-dark',settings.theme==='dark');
+  document.body.classList.toggle('theme-light',settings.theme==='light');
+  var d=$('#desktop');
+  d.classList.remove('wall-grid','wall-dots','wall-none','wall-aurora');
+  d.classList.add('wall-'+(settings.wall||'aurora'));
+  document.documentElement.style.setProperty('--accent',settings.accent);
+  document.documentElement.style.setProperty('--accent-2',shade(settings.accent,20));
+  var av=$('#lockAvatar');
+  if(av) av.textContent=(settings.user||'U').charAt(0).toUpperCase();
+  var ln=$('#lockName');
+  if(ln) ln.textContent=settings.user||'Пользователь';
+}
+function shade(hex,amt){
+  var c=hex.replace('#','');
+  if(c.length===3) c=c.split('').map(function(x){return x+x}).join('');
+  var n=parseInt(c,16);
+  var r=Math.min(255,Math.max(0,(n>>16)+amt));
+  var g=Math.min(255,Math.max(0,((n>>8)&255)+amt));
+  var b=Math.min(255,Math.max(0,(n&255)+amt));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+
+/* ============================================================
+   ВИРТУАЛЬНАЯ ФАЙЛОВАЯ СИСТЕМА
+   ============================================================ */
+function defaultFS(){
+  return {
+    type:'dir',name:'Этот компьютер',
+    children:{
+      'Users':{type:'dir',name:'Users',children:{
+        'user':{type:'dir',name:'user',children:{
+          'Desktop':{type:'dir',name:'Desktop',children:{
+            'Добро пожаловать.txt':{type:'file',name:'Добро пожаловать.txt',
+              content:'Добро пожаловать в MyOS!\n\nЭто личная операционная система, работающая прямо в браузере.\n\n• Щёлкните правой кнопкой по рабочему столу, чтобы создать файл или папку\n• Перетаскивайте окна к краям экрана для привязки\n• Нажмите Alt+Tab для переключения между окнами\n• В терминале наберите "help" для списка команд\n\nПриятного использования!'},
+            'Идеи.txt':{type:'file',name:'Идеи.txt',
+              content:'Список идей:\n1. Сделать свою ОС\n2. Сделать чёрно-белый контурный интерфейс\n3. Удивить всех\n4. ...'}
+          }},
+          'Documents':{type:'dir',name:'Documents',children:{
+            'заметка.txt':{type:'file',name:'заметка.txt',content:'Это тестовая заметка.'}
+          }},
+          'Pictures':{type:'dir',name:'Pictures',children:{}},
+          'Music':{type:'dir',name:'Music',children:{}},
+          'Downloads':{type:'dir',name:'Downloads',children:{}}
+        }}
+      }},
+      'Windows':{type:'dir',name:'Windows',children:{
+        'System32':{type:'dir',name:'System32',children:{
+          'kernel.sys':{type:'file',name:'kernel.sys',content:'[двоичные данные]'}
+        }}
+      }}
+    }
   };
+}
+function loadFS(){
+  try{
+    var r=localStorage.getItem('myos.fs.v2');
+    if(r) return JSON.parse(r);
+  }catch(e){}
+  return defaultFS();
+}
+var vfs=loadFS();
+var fsSaveTimer=null;
+function saveFS(){
+  if(fsSaveTimer) clearTimeout(fsSaveTimer);
+  fsSaveTimer=setTimeout(function(){
+    try{localStorage.setItem('myos.fs.v2',JSON.stringify(vfs))}catch(e){}
+  },150);
+}
 
-  /* ============================================================
-     УТИЛИТЫ
-     ============================================================ */
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
+var DESKTOP_PATH='Users/user/Desktop';
+var DOCS_PATH='Users/user/Documents';
+var PICS_PATH='Users/user/Pictures';
+var MUSIC_PATH='Users/user/Music';
+var DL_PATH='Users/user/Downloads';
+
+function fsSplit(path){return path.split('/').filter(Boolean)}
+function fsResolve(path){
+  if(!path) return vfs;
+  var parts=fsSplit(path);
+  var node=vfs;
+  for(var i=0;i<parts.length;i++){
+    if(!node||node.type!=='dir'||!node.children) return null;
+    node=node.children[parts[i]];
+    if(!node) return null;
   }
+  return node;
+}
+function fsParent(path){
+  var parts=fsSplit(path);
+  var name=parts.pop();
+  var parent=parts.length?fsResolve(parts.join('/')):vfs;
+  return {parent:parent,name:name};
+}
+function fsList(path){
+  var n=fsResolve(path);
+  if(!n||n.type!=='dir') return [];
+  var out=[];
+  Object.keys(n.children||{}).forEach(function(k){
+    out.push(n.children[k]);
+  });
+  out.sort(function(a,b){
+    if(a.type!==b.type) return a.type==='dir'?-1:1;
+    return (a.name||'').localeCompare(b.name||'','ru');
+  });
+  return out;
+}
+function fsUniqueName(parentPath,base,ext){
+  var dir=fsResolve(parentPath);
+  if(!dir||dir.type!=='dir') return base;
+  var name=ext?(base+ext):base;
+  var i=1;
+  while(dir.children&&dir.children[name]){
+    name=ext?(base+' ('+i+')'+ext):(base+' ('+i+')');
+    i++;
+  }
+  return name;
+}
+function fsCreate(parentPath,name,type,content){
+  var dir=fsResolve(parentPath);
+  if(!dir||dir.type!=='dir'){toast('Ошибка','Папка не найдена');return null}
+  if(!dir.children) dir.children={};
+  if(dir.children[name]){toast('Ошибка','Такое имя уже существует');return null}
+  var node={type:type,name:name};
+  if(type==='dir') node.children={};
+  else node.content=content||'';
+  dir.children[name]=node;
+  saveFS();
+  return node;
+}
+function fsDelete(path){
+  var p=fsParent(path);
+  if(!p.parent||!p.parent.children) return false;
+  if(!p.parent.children[p.name]) return false;
+  delete p.parent.children[p.name];
+  saveFS();
+  return true;
+}
+function fsRename(path,newName){
+  if(!newName||/[/\\]/.test(newName)) return false;
+  var p=fsParent(path);
+  if(!p.parent||!p.parent.children) return false;
+  if(p.parent.children[newName]){toast('Ошибка','Имя уже занято');return false}
+  var node=p.parent.children[p.name];
+  if(!node) return false;
+  node.name=newName;
+  delete p.parent.children[p.name];
+  p.parent.children[newName]=node;
+  saveFS();
+  return true;
+}
+function fsRead(path){
+  var n=fsResolve(path);
+  return n&&n.type==='file'?n.content:null;
+}
+function fsWrite(path,content){
+  var n=fsResolve(path);
+  if(n&&n.type==='file'){n.content=content;saveFS();return true}
+  return false;
+}
+function fsMove(srcPath,destDir){
+  var sp=fsParent(srcPath);
+  var node=sp.parent&&sp.parent.children?sp.parent.children[sp.name]:null;
+  if(!node) return false;
+  var dd=fsResolve(destDir);
+  if(!dd||dd.type!=='dir') return false;
+  if(!dd.children) dd.children={};
+  if(dd.children[node.name]){toast('Ошибка','Файл с таким именем уже есть');return false}
+  delete sp.parent.children[sp.name];
+  dd.children[node.name]=node;
+  saveFS();
+  return true;
+}
 
-  var DEFAULT_SETTINGS = { theme: 'dark', user: 'user', wall: 'grid' };
+/* ============================================================
+   ИКОНКИ (SVG-контуры)
+   ============================================================ */
+var I={
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.6l2.2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  folderOpen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.6l2.2 2H19a2 2 0 0 1 2 2v1H8.5L5 20H5a2 2 0 0 1-2-2z"/><path d="M8 10h13l-3 10H5z"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>',
+  calc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="7.5" y="5.5" width="9" height="3.5" rx="1"/><path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01"/></svg>',
+  term:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M6 9l3 3-3 3M13 15h5"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  power:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><path d="M12 2v10"/></svg>',
+  min:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+  max:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>',
+  restore:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="7" y="7" width="12" height="12" rx="1.5"/><path d="M5 17V6a2 2 0 0 1 2-2h11"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  cut:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>',
+  paste:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+  img:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+  music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+  brush:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 0 1 4.03 4.03l-8.06 8.07"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3 0 1.28-.5 2-1 2.5 1.5.5 3.5.5 4.5-.5.94-.94 1-2.17.5-3z"/></svg>',
+  eraser:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16a2 2 0 0 1 0-2.8l9-9a2 2 0 0 1 2.8 0l5.2 5.2a2 2 0 0 1 0 2.8z"/><path d="M15 9l-7 7"/></svg>',
+  line:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"/></svg>',
+  rect:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>',
+  circle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>',
+  fill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11l-8-8-8.5 8.5a2 2 0 0 0 0 2.8L7 19a2 2 0 0 0 2.8 0z"/><path d="M5 11h14"/><path d="M19 15s2 2 2 4a2 2 0 1 1-4 0c0-2 2-4 2-4z" fill="currentColor"/></svg>',
+  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.36 2.64L3 13"/></svg>',
+  trash2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+  prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h2v16H6zM20 4l-12 8 12 8z"/></svg>',
+  next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2v16h-2zM4 4l12 8-12 8z"/></svg>',
+  task:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>',
+  disk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4M6 12h6"/><circle cx="17" cy="12" r="2"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4.5 4.5L19 7"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h13l-2 4 2 4H5"/></svg>',
+  arrowRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  ext:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 9l6 6 6-6"/><path d="M5 21h14"/></svg>'
+};
 
-  function getSettings() {
-    try {
-      var raw = localStorage.getItem('myos.settings');
-      if (!raw) return Object.assign({}, DEFAULT_SETTINGS);
-      var parsed = JSON.parse(raw);
-      return Object.assign({}, DEFAULT_SETTINGS, parsed);
-    } catch (e) {
-      return Object.assign({}, DEFAULT_SETTINGS);
+/* ============================================================
+   КОНТЕКСТНОЕ МЕНЮ
+   ============================================================ */
+var ctxEl=$('#ctxMenu');
+var ctxOpen=false;
+
+function showCtx(items,x,y){
+  ctxEl.innerHTML='';
+  items.forEach(function(it){
+    if(it.sep){var s=document.createElement('div');s.className='ctx-sep';ctxEl.appendChild(s);return;}
+    var el=document.createElement('div');
+    el.className='ctx-item'+(it.danger?' danger':'')+(it.disabled?' disabled':'');
+    el.innerHTML=(it.icon||'')+'<span class="lbl">'+esc(it.label)+'</span>'+
+                 (it.shortcut?'<span class="short">'+esc(it.shortcut)+'</span>':'')+
+                 (it.sub?('<span class="arrow">'+I.arrowRight+'</span>'):'');
+    if(it.sub){
+      var sub=document.createElement('div');
+      sub.className='ctx-submenu';
+      it.sub.forEach(function(s){
+        if(s.sep){var s2=document.createElement('div');s2.className='ctx-sep';sub.appendChild(s2);return;}
+        var se=document.createElement('div');
+        se.className='ctx-item'+(s.danger?' danger':'');
+        se.innerHTML=(s.icon||'')+'<span class="lbl">'+esc(s.label)+'</span>';
+        se.addEventListener('click',function(e){
+          e.stopPropagation();hideCtx();s.action&&s.action();
+        });
+        sub.appendChild(se);
+      });
+      el.appendChild(sub);
+    } else {
+      el.addEventListener('click',function(e){
+        e.stopPropagation();
+        if(it.disabled) return;
+        hideCtx();
+        it.action&&it.action();
+      });
+    }
+    ctxEl.appendChild(el);
+  });
+  ctxEl.classList.add('open');
+  var vw=window.innerWidth,vh=window.innerHeight;
+  var rect=ctxEl.getBoundingClientRect();
+  var w=rect.width,h=rect.height;
+  if(x+w>vw-6) x=vw-w-6;
+  if(y+h>vh-6) y=vh-h-6;
+  ctxEl.style.left=x+'px';
+  ctxEl.style.top=y+'px';
+  ctxOpen=true;
+}
+function hideCtx(){ctxEl.classList.remove('open');ctxOpen=false}
+document.addEventListener('click',function(){if(ctxOpen)hideCtx()});
+document.addEventListener('contextmenu',function(e){
+  // Разрешаем дефолт только в полях ввода и textarea
+  var t=e.target;
+  if(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable) return;
+  // Если обработчик не отменил, скрываем дефолт
+  if(!t.closest('[data-allow-ctx]')) e.preventDefault();
+});
+window.addEventListener('blur',hideCtx);
+window.addEventListener('resize',hideCtx);
+
+/* ============================================================
+   ОКОННЫЙ МЕНЕДЖЕР
+   ============================================================ */
+var wins=[]; // {id, appId, el, title, icon, minimized, maximized, prevBounds}
+var activeWinId=null;
+var zTop=100;
+var winLayer=$('#windowLayer');
+var snapPreview=$('#snapPreview');
+
+function focusWin(id){
+  var w=wins.filter(function(x){return x.id===id})[0];
+  if(!w) return;
+  activeWinId=id;
+  zTop++;
+  w.el.style.zIndex=zTop;
+  wins.forEach(function(x){x.el.classList.toggle('active',x.id===id)});
+  renderTasks();
+}
+
+function openApp(appId,opts){
+  var app=APPS[appId];
+  if(!app){toast('Ошибка','Приложение не найдено');return}
+  // Синглтон?
+  if(app.singleton){
+    var existing=wins.filter(function(w){return w.appId===appId})[0];
+    if(existing){
+      if(existing.minimized){existing.minimized=false;existing.el.style.display='';existing.el.classList.remove('minimized')}
+      focusWin(existing.id);
+      return existing;
     }
   }
+  var w=Math.min(app.width,Math.max(320,window.innerWidth-80));
+  var h=Math.min(app.height,Math.max(220,window.innerHeight-140));
+  var el=document.createElement('div');
+  el.className='window';
+  el.style.width=w+'px';
+  el.style.height=h+'px';
+  var off=(wins.length%7)*26;
+  var left=Math.max(20,Math.round((window.innerWidth-w)/2)-60+off);
+  var top=Math.max(20,Math.round((window.innerHeight-52-h)/2)-30+off);
+  el.style.left=left+'px';
+  el.style.top=top+'px';
 
-  function saveSettings(s) {
-    try { localStorage.setItem('myos.settings', JSON.stringify(s)); } catch (e) { /* ignore */ }
+  var title=app.title;
+  if(opts&&opts.title) title=opts.title;
+
+  el.innerHTML=
+    '<div class="titlebar">'+
+      '<div class="tb-left">'+(app.icon||'')+'<span class="tb-title">'+esc(title)+'</span></div>'+
+      '<div class="tb-right">'+
+        '<button class="win-btn" data-act="min" type="button" title="Свернуть">'+I.min+'</button>'+
+        '<button class="win-btn" data-act="max" type="button" title="Развернуть">'+I.max+'</button>'+
+        '<button class="win-btn close" data-act="close" type="button" title="Закрыть">'+I.close+'</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="win-body"></div>'+
+    '<div class="resizer"></div>'+
+    '<div class="resizer-n"></div><div class="resizer-s"></div>'+
+    '<div class="resizer-w"></div><div class="resizer-e"></div>';
+
+  winLayer.appendChild(el);
+
+  var winObj={
+    id:'w_'+uid(),
+    appId:appId,
+    el:el,
+    title:title,
+    minimized:false,
+    maximized:false,
+    prevBounds:null
+  };
+  wins.push(winObj);
+
+  var body=$('.win-body',el);
+  try{app.render(body,winObj,opts||{})}catch(err){
+    body.innerHTML='<div style="padding:20px;color:var(--danger);font-size:13px">Ошибка приложения: '+esc(err.message)+'</div>';
+    console.error(err);
   }
 
-  function applySettings(s) {
-    document.body.classList.toggle('theme-dark', s.theme === 'dark');
-    document.body.classList.toggle('theme-light', s.theme === 'light');
-    var d = document.getElementById('desktop');
-    d.classList.remove('wall-grid', 'wall-dots', 'wall-none');
-    d.classList.add('wall-' + (s.wall || 'grid'));
+  // Кнопки окна
+  $('.tb-right',el).addEventListener('click',function(e){
+    var b=e.target.closest('.win-btn');
+    if(!b) return;
+    var a=b.getAttribute('data-act');
+    if(a==='min') minimizeWin(winObj.id);
+    else if(a==='max') toggleMax(winObj.id);
+    else if(a==='close') closeWin(winObj.id);
+  });
+
+  // Двойной клик по заголовку = maximize
+  var tb=$('.titlebar',el);
+  tb.addEventListener('dblclick',function(e){
+    if(e.target.closest('.win-btn')) return;
+    toggleMax(winObj.id);
+  });
+
+  // Перетаскивание с прилипанием
+  tb.addEventListener('mousedown',function(e){
+    if(e.target.closest('.win-btn')) return;
+    if(e.button!==0) return;
+    e.preventDefault();
+    focusWin(winObj.id);
+
+    var sx=e.clientX,sy=e.clientY;
+    var ox=el.offsetLeft,oy=el.offsetTop;
+    var wasMax=winObj.maximized;
+    var startBounds=null;
+    if(wasMax){
+      // Восстановить при начале drag
+      var pct=(e.clientX/window.innerWidth);
+      el.classList.remove('maximized');
+      el.style.width=winObj.prevBounds?winObj.prevBounds.width:'600px';
+      el.style.height=winObj.prevBounds?winObj.prevBounds.height:'400px';
+      ox=e.clientX-el.offsetWidth*pct;
+      oy=0;
+      el.style.left=ox+'px';
+      el.style.top=oy+'px';
+      winObj.maximized=false;
+      sx=e.clientX;sy=e.clientY;
+      ox=el.offsetLeft;oy=el.offsetTop;
+    }
+
+    var snap=null;
+    function onMove(ev){
+      var nx=ox+(ev.clientX-sx);
+      var ny=oy+(ev.clientY-sy);
+      var maxX=window.innerWidth-el.offsetWidth-4;
+      var maxY=window.innerHeight-52-el.offsetHeight;
+      nx=Math.max(-el.offsetWidth+120,Math.min(maxX,nx));
+      ny=Math.max(0,Math.min(maxY,ny));
+      el.style.left=nx+'px';
+      el.style.top=ny+'px';
+
+      // Snap detection
+      var th=18;
+      var s=null;
+      if(ev.clientY<=th) s='max';
+      else if(ev.clientX<=th) s='left';
+      else if(ev.clientX>=window.innerWidth-th) s='right';
+      if(s!==snap){
+        snap=s;
+        if(s){
+          var rect;
+          if(s==='max') rect={left:0,top:0,width:window.innerWidth,height:window.innerHeight-52};
+          else if(s==='left') rect={left:0,top:0,width:window.innerWidth/2,height:window.innerHeight-52};
+          else rect={left:window.innerWidth/2,top:0,width:window.innerWidth/2,height:window.innerHeight-52};
+          snapPreview.style.display='block';
+          snapPreview.style.left=rect.left+'px';
+          snapPreview.style.top=rect.top+'px';
+          snapPreview.style.width=rect.width+'px';
+          snapPreview.style.height=rect.height+'px';
+        } else {
+          snapPreview.style.display='none';
+        }
+      }
+    }
+    function onUp(){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      snapPreview.style.display='none';
+      if(snap==='max'){
+        if(!winObj.maximized) toggleMax(winObj.id);
+      } else if(snap==='left'||snap==='right'){
+        if(!winObj.prevBounds){
+          winObj.prevBounds={left:el.style.left,top:el.style.top,width:el.style.width,height:el.style.height};
+        }
+        el.style.left=snap==='left'?'0':(window.innerWidth/2)+'px';
+        el.style.top='0';
+        el.style.width=(window.innerWidth/2)+'px';
+        el.style.height=(window.innerHeight-52)+'px';
+        winObj.snapped=snap;
+        el.classList.add('snapped');
+        setTimeout(function(){el.classList.remove('snapped')},200);
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+
+  // Ресайз
+  var resizers=[
+    ['.resizer','se'],['.resizer-n','n'],['.resizer-s','s'],
+    ['.resizer-w','w'],['.resizer-e','e']
+  ];
+  resizers.forEach(function(pair){
+    var r=$(pair[0],el);
+    var dir=pair[1];
+    r.addEventListener('mousedown',function(e){
+      if(winObj.maximized) return;
+      e.preventDefault();e.stopPropagation();
+      focusWin(winObj.id);
+      var sx=e.clientX,sy=e.clientY;
+      var sw=el.offsetWidth,sh=el.offsetHeight;
+      var sl=el.offsetLeft,st=el.offsetTop;
+      function onMove(ev){
+        var dx=ev.clientX-sx,dy=ev.clientY-sy;
+        var nw=sw,nh=sh,nl=sl,nt=st;
+        if(dir.indexOf('e')>-1) nw=Math.max(280,sw+dx);
+        if(dir.indexOf('w')>-1){nw=Math.max(280,sw-dx);nl=sl+(sw-nw)}
+        if(dir.indexOf('s')>-1) nh=Math.max(180,sh+dy);
+        if(dir.indexOf('n')>-1){nh=Math.max(180,sh-dy);nt=st+(sh-nh)}
+        el.style.width=nw+'px';el.style.height=nh+'px';
+        el.style.left=nl+'px';el.style.top=nt+'px';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove',onMove);
+        document.removeEventListener('mouseup',onUp);
+      }
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+  });
+
+  el.addEventListener('mousedown',function(){focusWin(winObj.id)});
+
+  focusWin(winObj.id);
+  renderTasks();
+  return winObj;
+}
+
+function minimizeWin(id){
+  var w=wins.filter(function(x){return x.id===id})[0];
+  if(!w) return;
+  w.minimized=true;
+  w.el.style.display='none';
+  if(activeWinId===id) activeWinId=null;
+  renderTasks();
+}
+
+function toggleMax(id){
+  var w=wins.filter(function(x){return x.id===id})[0];
+  if(!w) return;
+  var el=w.el;
+  if(!w.maximized){
+    w.prevBounds={left:el.style.left,top:el.style.top,width:el.style.width,height:el.style.height};
+    el.classList.add('maximized');
+    el.style.left='0';el.style.top='0';
+    el.style.width='100%';el.style.height='100%';
+    w.maximized=true;
+    var btn=$('.win-btn[data-act="max"]',el);
+    if(btn){btn.innerHTML=I.restore;btn.title='Восстановить'}
+  } else {
+    el.classList.remove('maximized');
+    if(w.prevBounds){
+      el.style.left=w.prevBounds.left;el.style.top=w.prevBounds.top;
+      el.style.width=w.prevBounds.width;el.style.height=w.prevBounds.height;
+    }
+    w.maximized=false;
+    var btn=$('.win-btn[data-act="max"]',el);
+    if(btn){btn.innerHTML=I.max;btn.title='Развернуть'}
+  }
+  focusWin(id);
+}
+
+function closeWin(id){
+  var idx=-1;
+  for(var i=0;i<wins.length;i++) if(wins[i].id===id){idx=i;break}
+  if(idx<0) return;
+  var w=wins[idx];
+  w.el.classList.add('closing');
+  var el=w.el;
+  setTimeout(function(){
+    if(el.parentNode) el.parentNode.removeChild(el);
+  },140);
+  wins.splice(idx,1);
+  if(activeWinId===id) activeWinId=null;
+  renderTasks();
+}
+
+function closeAllWins(){
+  wins.slice().forEach(function(w){closeWin(w.id)});
+}
+
+function setWinTitle(id,title){
+  var w=wins.filter(function(x){return x.id===id})[0];
+  if(!w) return;
+  w.title=title;
+  var t=$('.tb-title',w.el);
+  if(t) t.textContent=title;
+  renderTasks();
+}
+
+/* ============================================================
+   ПАНЕЛЬ ЗАДАЧ
+   ============================================================ */
+var tasksEl=$('#tasks');
+function renderTasks(){
+  tasksEl.innerHTML='';
+  wins.forEach(function(w){
+    var app=APPS[w.appId];
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='task'+(w.id===activeWinId&&!w.minimized?' active':'');
+    b.innerHTML=(app.icon||I.file)+'<span>'+esc(w.title||app.title)+'</span>';
+    b.title=w.title||app.title;
+    b.addEventListener('click',function(){
+      if(w.minimized){w.minimized=false;w.el.style.display='';focusWin(w.id)}
+      else if(w.id===activeWinId){minimizeWin(w.id)}
+      else focusWin(w.id);
+    });
+    b.addEventListener('contextmenu',function(e){
+      e.preventDefault();e.stopPropagation();
+      showCtx([
+        {label:'Открыть',icon:I.folder,action:function(){if(w.minimized){w.minimized=false;w.el.style.display=''}focusWin(w.id)}},
+        {label:'Свернуть',icon:I.min,action:function(){minimizeWin(w.id)}},
+        {label:w.maximized?'Восстановить':'Развернуть',icon:w.maximized?I.restore:I.max,action:function(){toggleMax(w.id)}},
+        {sep:true},
+        {label:'Закрыть',icon:I.close,danger:true,action:function(){closeWin(w.id)}}
+      ],e.clientX,e.clientY);
+    });
+    tasksEl.appendChild(b);
+  });
+}
+
+/* ============================================================
+   МЕНЮ ПУСК
+   ============================================================ */
+var startMenu=$('#startMenu');
+var startBtn=$('#startBtn');
+var startQuery='';
+
+function renderStart(){
+  var s=settings;
+  var appList=Object.keys(APPS).map(function(k){return Object.assign({id:k},APPS[k])});
+  if(startQuery.trim()){
+    var q=startQuery.toLowerCase().trim();
+    appList=appList.filter(function(a){return a.title.toLowerCase().indexOf(q)>-1});
+  }
+  var appsHtml=appList.map(function(a){
+    return '<button class="start-app" data-app="'+a.id+'" type="button">'+
+             (a.icon||'')+'<span>'+esc(a.title)+'</span>'+
+           '</button>';
+  }).join('');
+  if(!appsHtml) appsHtml='<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--fg-mute);font-size:12px">Ничего не найдено</div>';
+
+  startMenu.innerHTML=
+    '<div class="start-search"><input id="startSearch" type="text" placeholder="Поиск приложений и файлов…" value="'+esc(startQuery)+'"></div>'+
+    '<div class="start-body">'+
+      '<div class="start-apps">'+appsHtml+'</div>'+
+      '<div class="start-side">'+
+        '<div class="start-user">'+
+          '<div class="av">'+esc((s.user||'U').charAt(0).toUpperCase())+'</div>'+
+          '<div><div class="un">'+esc(s.user)+'</div><div class="ud">Локальная учётная запись</div></div>'+
+        '</div>'+
+        '<div class="start-side-item" data-act="settings">'+I.gear+'<span>Параметры</span></div>'+
+        '<div class="start-side-item" data-act="docs">'+I.doc+'<span>Документы</span></div>'+
+        '<div class="start-side-item" data-act="pics">'+I.img+'<span>Изображения</span></div>'+
+        '<div class="start-side-item" data-act="music">'+I.music+'<span>Музыка</span></div>'+
+        '<div class="start-side-item" data-act="dl">'+I.dl+'<span>Загрузки</span></div>'+
+        '<div style="flex:1"></div>'+
+        '<div class="start-side-item" data-act="lock">'+I.power+'<span>Заблокировать</span></div>'+
+        '<div class="start-side-item danger" data-act="restart">'+I.power+'<span>Перезагрузить</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="start-foot">'+
+      '<span>'+esc(s.user)+' • MyOS v1.0</span>'+
+      '<div class="btns">'+
+        '<button data-act="lock" title="Заблокировать">'+I.power+'</button>'+
+      '</div>'+
+    '</div>';
+
+  var searchInput=$('#startSearch');
+  if(searchInput){
+    searchInput.addEventListener('input',function(){
+      startQuery=this.value;
+      var pos=this.selectionStart;
+      renderStart();
+      var ni=$('#startSearch');
+      if(ni){ni.focus();try{ni.setSelectionRange(pos,pos)}catch(e){}}
+    });
+    setTimeout(function(){searchInput.focus()},30);
   }
 
-  /* ============================================================
-     ПРИЛОЖЕНИЯ
-     ============================================================ */
+  startMenu.querySelectorAll('[data-app]').forEach(function(b){
+    b.addEventListener('click',function(){
+      openApp(b.getAttribute('data-app'));
+      hideStart();
+    });
+  });
+  startMenu.querySelectorAll('[data-act]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var a=b.getAttribute('data-act');
+      if(a==='settings') openApp('settings');
+      else if(a==='docs') openApp('files',{path:DOCS_PATH});
+      else if(a==='pics') openApp('files',{path:PICS_PATH});
+      else if(a==='music') openApp('files',{path:MUSIC_PATH});
+      else if(a==='dl') openApp('files',{path:DL_PATH});
+      else if(a==='lock') lockScreen();
+      else if(a==='restart') restart();
+      hideStart();
+    });
+  });
+}
+function showStart(){
+  startQuery='';
+  renderStart();
+  startMenu.classList.add('open');
+  startBtn.classList.add('on');
+}
+function hideStart(){
+  startMenu.classList.remove('open');
+  startBtn.classList.remove('on');
+}
+startBtn.addEventListener('click',function(e){
+  e.stopPropagation();
+  if(startMenu.classList.contains('open')) hideStart();
+  else showStart();
+});
+document.addEventListener('click',function(e){
+  if(!startMenu.classList.contains('open')) return;
+  if(e.target.closest('#startMenu')) return;
+  if(e.target.closest('#startBtn')) return;
+  hideStart();
+});
 
-  /* ---------- КАЛЬКУЛЯТОР ---------- */
-  function renderCalc(body) {
-    var cur = '0', acc = null, op = null, fresh = true;
+/* ============================================================
+   РАБОЧИЙ СТОЛ
+   ============================================================ */
+var desktopEl=$('#desktop');
+var iconsEl=$('#icons');
+var selbox=$('#selbox');
+var deskPositions={}; // name -> {x,y}
+var deskSelected={}; // name -> true
 
-    body.innerHTML =
-      '<div class="calc">' +
-        '<div class="calc-screen">' +
-          '<div class="calc-expr"></div>' +
-          '<div class="calc-cur">0</div>' +
-        '</div>' +
-        '<div class="calc-pad">' +
-          '<button class="cb fn" data-k="C" type="button">C</button>' +
-          '<button class="cb fn" data-k="back" type="button">⌫</button>' +
-          '<button class="cb fn" data-k="%" type="button">%</button>' +
-          '<button class="cb op" data-k="/" type="button">÷</button>' +
+function loadDeskPositions(){
+  try{
+    var r=localStorage.getItem('myos.deskpos');
+    if(r) deskPositions=JSON.parse(r);
+  }catch(e){}
+}
+function saveDeskPositions(){
+  try{localStorage.setItem('myos.deskpos',JSON.stringify(deskPositions))}catch(e){}
+}
+loadDeskPositions();
 
-          '<button class="cb" data-k="7" type="button">7</button>' +
-          '<button class="cb" data-k="8" type="button">8</button>' +
-          '<button class="cb" data-k="9" type="button">9</button>' +
-          '<button class="cb op" data-k="*" type="button">×</button>' +
+function renderDesktop(){
+  iconsEl.innerHTML='';
+  var items=fsList(DESKTOP_PATH);
+  var ICON_W=90,ICON_H=100,GAP=6,PAD=16;
+  var availH=desktopEl.clientHeight-PAD*2;
+  var rows=Math.max(1,Math.floor((availH+GAP)/(ICON_H+GAP)));
+  var used={};
 
-          '<button class="cb" data-k="4" type="button">4</button>' +
-          '<button class="cb" data-k="5" type="button">5</button>' +
-          '<button class="cb" data-k="6" type="button">6</button>' +
-          '<button class="cb op" data-k="-" type="button">−</button>' +
+  items.forEach(function(item,idx){
+    var pos=deskPositions[item.name];
+    if(!pos){
+      // Находим свободное место
+      var found=false;
+      for(var c=0;c<20&&!found;c++){
+        for(var r=0;r<rows;r++){
+          var key=c+','+r;
+          if(!used[key]){pos={c:c,r:r};used[key]=true;found=true;break}
+        }
+      }
+      if(!pos) pos={c:0,r:0};
+      deskPositions[item.name]=pos;
+    } else {
+      used[pos.c+','+pos.r]=true;
+    }
+    var x=PAD+pos.c*(ICON_W+GAP);
+    var y=PAD+pos.r*(ICON_H+GAP);
+    var el=document.createElement('div');
+    el.className='desk-icon'+(deskSelected[item.name]?' selected':'');
+    el.style.left=x+'px';
+    el.style.top=y+'px';
+    el.setAttribute('data-name',item.name);
+    el.innerHTML=(item.type==='dir'?I.folder:I.file)+
+                 '<span class="lbl">'+esc(item.name)+'</span>';
+    el.addEventListener('mousedown',onIconMouseDown);
+    el.addEventListener('dblclick',function(){
+      if(item.type==='dir'){
+        openApp('files',{path:DESKTOP_PATH+'/'+item.name});
+      } else {
+        openFile(item.name,DESKTOP_PATH);
+      }
+    });
+    el.addEventListener('contextmenu',function(e){
+      e.preventDefault();e.stopPropagation();
+      selectOnly(item.name);
+      showItemCtx(item,DESKTOP_PATH,e.clientX,e.clientY);
+    });
+    iconsEl.appendChild(el);
+  });
+  saveDeskPositions();
+}
 
-          '<button class="cb" data-k="1" type="button">1</button>' +
-          '<button class="cb" data-k="2" type="button">2</button>' +
-          '<button class="cb" data-k="3" type="button">3</button>' +
-          '<button class="cb op" data-k="+" type="button">+</button>' +
+function selectOnly(name){
+  deskSelected={};
+  if(name) deskSelected[name]=true;
+  $$('.desk-icon').forEach(function(el){
+    el.classList.toggle('selected',!!deskSelected[el.getAttribute('data-name')]);
+  });
+}
+function clearSel(){
+  deskSelected={};
+  $$('.desk-icon').forEach(function(el){el.classList.remove('selected')});
+}
 
-          '<button class="cb fn" data-k="sign" type="button">±</button>' +
-          '<button class="cb" data-k="0" type="button">0</button>' +
-          '<button class="cb" data-k="." type="button">.</button>' +
-          '<button class="cb eq" data-k="=" type="button">=</button>' +
-        '</div>' +
+function openFile(name,dir){
+  var path=dir+'/'+name;
+  var node=fsResolve(path);
+  if(!node) return;
+  if(node.type==='dir'){openApp('files',{path:path});return}
+  // По расширению
+  if(/\.(txt|md|log|ini|json|js|css|html?)$/i.test(name)){
+    openApp('notepad',{path:path,title:name});
+  } else {
+    openApp('notepad',{path:path,title:name});
+  }
+}
+
+/* Перетаскивание иконок и выделение */
+var dragState=null;
+function onIconMouseDown(e){
+  if(e.button!==0) return;
+  var el=e.currentTarget;
+  var name=el.getAttribute('data-name');
+  if(!deskSelected[name]) selectOnly(name);
+  else {
+    // Уже выделено - не сбрасываем (для мультидрага)
+  }
+  var el0=el;
+  var sx=e.clientX,sy=e.clientY;
+  var moved=false;
+  var startPos={left:el0.offsetLeft,top:el0.offsetTop};
+  var selBefore=Object.assign({},deskSelected);
+  var others=$$('.desk-icon').filter(function(x){return selBefore[x.getAttribute('data-name')]}).map(function(x){
+    return {el:x,name:x.getAttribute('data-name'),ox:x.offsetLeft,oy:x.offsetTop};
+  });
+  function onMove(ev){
+    var dx=ev.clientX-sx,dy=ev.clientY-sy;
+    if(!moved&&(Math.abs(dx)>4||Math.abs(dy)>4)) moved=true;
+    if(!moved) return;
+    others.forEach(function(o){
+      o.el.style.left=(o.ox+dx)+'px';
+      o.el.style.top=(o.oy+dy)+'px';
+      o.el.style.opacity=.7;
+    });
+  }
+  function onUp(ev){
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    others.forEach(function(o){
+      o.el.style.opacity='';
+    });
+    if(!moved) return;
+    // Snap to grid
+    var PAD=16,ICON_W=90,ICON_H=100,GAP=6;
+    var placed={};
+    // Соберём все текущие позиции
+    $$('.desk-icon').forEach(function(x){
+      var n=x.getAttribute('data-name');
+      if(selBefore[n]) return;
+      var c=Math.round((x.offsetLeft-PAD)/(ICON_W+GAP));
+      var r=Math.round((x.offsetTop-PAD)/(ICON_H+GAP));
+      placed[c+','+r]=n;
+    });
+    others.forEach(function(o){
+      var c=Math.round((o.el.offsetLeft-PAD)/(ICON_W+GAP));
+      var r=Math.round((o.el.offsetTop-PAD)/(ICON_H+GAP));
+      c=Math.max(0,c);r=Math.max(0,r);
+      while(placed[c+','+r]){c++}
+      placed[c+','+r]=o.name;
+      o.el.style.left=(PAD+c*(ICON_W+GAP))+'px';
+      o.el.style.top=(PAD+r*(ICON_H+GAP))+'px';
+      deskPositions[o.name]={c:c,r:r};
+    });
+    saveDeskPositions();
+  }
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
+
+/* Выделение рамкой по пустому месту */
+desktopEl.addEventListener('mousedown',function(e){
+  if(e.target!==desktopEl&&e.target!==iconsEl) return;
+  if(e.button!==0) return;
+  var sx=e.clientX,sy=e.clientY;
+  var rect0=desktopEl.getBoundingClientRect();
+  var box={x1:sx-rect0.left,y1:sy-rect0.top,x2:sx-rect0.left,y2:sy-rect0.top};
+  var moved=false;
+  clearSel();
+  function update(ev){
+    var x=ev.clientX-rect0.left,y=ev.clientY-rect0.top;
+    if(!moved&&(Math.abs(x-sx)>4||Math.abs(y-sy)>4)) moved=true;
+    if(!moved) return;
+    box.x2=x;box.y2=y;
+    var l=Math.min(box.x1,box.x2),t=Math.min(box.y1,box.y2);
+    var w=Math.abs(box.x2-box.x1),h=Math.abs(box.y2-box.y1);
+    selbox.style.display='block';
+    selbox.style.left=l+'px';selbox.style.top=t+'px';
+    selbox.style.width=w+'px';selbox.style.height=h+'px';
+    // Отметим попадающие иконки
+    deskSelected={};
+    $$('.desk-icon').forEach(function(el){
+      var eL=el.offsetLeft,eT=el.offsetTop,eR=eL+el.offsetWidth,eB=eT+el.offsetHeight;
+      var hit=eR>l&&eL<l+w&&eB>t&&eT<t+h;
+      if(hit) deskSelected[el.getAttribute('data-name')]=true;
+      el.classList.toggle('selected',hit);
+    });
+  }
+  function onUp(){
+    document.removeEventListener('mousemove',update);
+    document.removeEventListener('mouseup',onUp);
+    selbox.style.display='none';
+  }
+  document.addEventListener('mousemove',update);
+  document.addEventListener('mouseup',onUp);
+});
+
+/* Правый клик по пустому столу */
+desktopEl.addEventListener('contextmenu',function(e){
+  if(e.target!==desktopEl&&e.target!==iconsEl&&e.target!==winLayer) return;
+  e.preventDefault();
+  e.stopPropagation();
+  showDesktopCtx(e.clientX,e.clientY);
+});
+
+function showDesktopCtx(x,y){
+  showCtx([
+    {label:'Создать папку',icon:I.folder,action:function(){createOnDesktop('dir')}},
+    {label:'Создать текстовый документ',icon:I.file,action:function(){createOnDesktop('file')}},
+    {label:'Создать блокнот',icon:I.note,action:function(){createOnDesktop('note')}},
+    {sep:true},
+    {label:'Обновить',icon:I.refresh,action:function(){renderDesktop();toast('Рабочий стол','Обновлено')}},
+    {sep:true},
+    {label:'Обои',icon:I.img,sub:[
+      {label:'Аврора',action:function(){settings.wall='aurora';saveSettings();applySettings()}},
+      {label:'Сетка',action:function(){settings.wall='grid';saveSettings();applySettings()}},
+      {label:'Точки',action:function(){settings.wall='dots';saveSettings();applySettings()}},
+      {label:'Без обоев',action:function(){settings.wall='none';saveSettings();applySettings()}}
+    ]},
+    {label:'Персонализация',icon:I.gear,action:function(){openApp('settings')}},
+    {sep:true},
+    {label:'Открыть терминал',icon:I.term,action:function(){openApp('terminal')}},
+    {label:'Открыть проводник',icon:I.folder,action:function(){openApp('files')}}
+  ],x,y);
+}
+
+function createOnDesktop(kind){
+  var name,type='file',content='';
+  if(kind==='dir'){name=fsUniqueName(DESKTOP_PATH,'Новая папка');type='dir'}
+  else if(kind==='file'){name=fsUniqueName(DESKTOP_PATH,'Новый текстовый документ','.txt');content=''}
+  else if(kind==='note'){name=fsUniqueName(DESKTOP_PATH,'Заметка','.txt');content=''}
+  var node=fsCreate(DESKTOP_PATH,name,type,content);
+  if(!node) return;
+  renderDesktop();
+  // Начинаем переименование через небольшую задержку
+  setTimeout(function(){startIconRename(name)},180);
+  toast(kind==='dir'?'Папка создана':'Файл создан',name);
+}
+
+function startIconRename(name){
+  var el=$$('.desk-icon').filter(function(x){return x.getAttribute('data-name')===name})[0];
+  if(!el) return;
+  var lbl=$('.lbl',el);
+  var oldName=name;
+  lbl.classList.add('editing');
+  lbl.contentEditable='true';
+  lbl.textContent=oldName;
+  var sel=window.getSelection();
+  var range=document.createRange();
+  range.selectNodeContents(lbl);
+  sel.removeAllRanges();sel.addRange(range);
+  // Выделить имя без расширения
+  try{
+    var txt=lbl.textContent;
+    var dot=txt.lastIndexOf('.');
+    if(dot>0){
+      range.setStart(lbl.firstChild,0);
+      range.setEnd(lbl.firstChild,dot);
+      sel.removeAllRanges();sel.addRange(range);
+    }
+  }catch(e){}
+  lbl.focus();
+
+  function finish(commit){
+    lbl.contentEditable='false';
+    lbl.classList.remove('editing');
+    var newName=lbl.textContent.trim();
+    if(commit&&newName&&newName!==oldName){
+      if(fsRename(DESKTOP_PATH+'/'+oldName,newName)){
+        if(deskPositions[oldName]){deskPositions[newName]=deskPositions[oldName];delete deskPositions[oldName];saveDeskPositions()}
+        if(deskSelected[oldName]){deskSelected[newName]=true;delete deskSelected[oldName]}
+      }
+    }
+    renderDesktop();
+  }
+  lbl.addEventListener('blur',function(){finish(true)},{once:true});
+  lbl.addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'){ev.preventDefault();lbl.blur()}
+    else if(ev.key==='Escape'){lbl.textContent=oldName;lbl.blur()}
+    ev.stopPropagation();
+  });
+}
+
+function showItemCtx(item,dir,x,y){
+  var path=dir+'/'+item.name;
+  var isDir=item.type==='dir';
+  showCtx([
+    {label:'Открыть',icon:isDir?I.folderOpen:I.file,shortcut:'Enter',action:function(){
+      if(isDir) openApp('files',{path:path});
+      else openFile(item.name,dir);
+    }},
+    {sep:true},
+    {label:'Вырезать',icon:I.cut,shortcut:'Ctrl+X',action:function(){clipboard={op:'cut',path:path}}},
+    {label:'Копировать',icon:I.copy,shortcut:'Ctrl+C',action:function(){clipboard={op:'copy',path:path}}},
+    {sep:true},
+    {label:'Переименовать',icon:I.edit,shortcut:'F2',action:function(){startIconRename(item.name)}},
+    {label:'Удалить',icon:I.trash,danger:true,shortcut:'Del',action:function(){deleteItem(path,dir)}},
+    {sep:true},
+    {label:'Свойства',icon:I.info,action:function(){
+      var n=fsResolve(path);
+      var sz=n.type==='file'?(n.content||'').length+' символов':'папка, '+(Object.keys(n.children||{}).length)+' элементов';
+      toast('Свойства: '+item.name,'Тип: '+(n.type==='dir'?'Папка':'Файл')+'\nРазмер: '+sz+'\nПуть: '+path);
+    }}
+  ],x,y);
+}
+
+function deleteItem(path,dir){
+  var n=fsResolve(path);
+  if(!n) return;
+  var name=n.name;
+  fsDelete(path);
+  if(deskSelected[name]) delete deskSelected[name];
+  if(deskPositions[name]) delete deskPositions[name];
+  saveDeskPositions();
+  renderDesktop();
+  toast('Удалено',name);
+}
+
+var clipboard=null;
+
+/* ============================================================
+   ПРИЛОЖЕНИЯ
+   ============================================================ */
+var APPS={};
+
+/* ---------- ПРОВОДНИК ---------- */
+APPS.files={
+  title:'Проводник',icon:I.folder,width:880,height:560,
+  render:function(body,win,opts){
+    var cwd=opts.path||'Users/user';
+    var history=[cwd];
+    var hIdx=0;
+    var selected={};
+
+    body.innerHTML=
+      '<div class="files">'+
+        '<div class="files-bar">'+
+          '<button class="nav-btn" data-nav="back" type="button" title="Назад">'+I.back+'</button>'+
+          '<button class="nav-btn" data-nav="fwd" type="button" title="Вперёд">'+I.arrowRight+'</button>'+
+          '<button class="nav-btn" data-nav="up" type="button" title="Вверх">'+I.up+'</button>'+
+          '<button class="nav-btn" data-nav="home" type="button" title="Домой">'+I.home+'</button>'+
+          '<div class="files-path"></div>'+
+          '<button class="btn" data-act="new-folder" type="button">'+I.plus+' Папка</button>'+
+          '<button class="btn" data-act="new-file" type="button">'+I.plus+' Файл</button>'+
+          '<button class="btn danger" data-act="del" type="button">'+I.trash+'</button>'+
+        '</div>'+
+        '<div class="files-main">'+
+          '<div class="files-side"></div>'+
+          '<div class="files-list"></div>'+
+        '</div>'+
       '</div>';
 
-    var curEl = body.querySelector('.calc-cur');
-    var exprEl = body.querySelector('.calc-expr');
+    var listEl=$('.files-list',body);
+    var pathEl=$('.files-path',body);
+    var sideEl=$('.files-side',body);
+    var backBtn=$('[data-nav="back"]',body);
+    var fwdBtn=$('[data-nav="fwd"]',body);
+    var upBtn=$('[data-nav="up"]',body);
+    var homeBtn=$('[data-nav="home"]',body);
 
-    function fmt(n) {
-      if (typeof n !== 'number' || !isFinite(n)) return 'Ошибка';
-      var r = Math.round(n * 1e10) / 1e10;
-      var s = String(r);
-      if (s.length > 16 && s.indexOf('e') === -1) s = r.toExponential(6);
+    // Боковая панель
+    var sideItems=[
+      {label:'Рабочий стол',path:DESKTOP_PATH,icon:I.folder},
+      {label:'Документы',path:DOCS_PATH,icon:I.doc},
+      {label:'Изображения',path:PICS_PATH,icon:I.img},
+      {label:'Музыка',path:MUSIC_PATH,icon:I.music},
+      {label:'Загрузки',path:DL_PATH,icon:I.dl},
+      {sep:true},
+      {label:'Этот компьютер',path:'',icon:I.disk}
+    ];
+    sideItems.forEach(function(it){
+      if(it.sep){var s=document.createElement('div');s.style.height='1px';s.style.background='var(--border)';s.style.margin='6px 4px';sideEl.appendChild(s);return}
+      var el=document.createElement('div');
+      el.className='sb-item';
+      el.innerHTML=it.icon+'<span>'+esc(it.label)+'</span>';
+      el.addEventListener('click',function(){goto(it.path)});
+      el.setAttribute('data-path',it.path);
+      sideEl.appendChild(el);
+    });
+
+    function goto(p,noHist){
+      if(p===cwd) return;
+      if(!noHist){
+        history=history.slice(0,hIdx+1);
+        history.push(p);
+        hIdx=history.length-1;
+      }
+      cwd=p;
+      selected={};
+      render();
+    }
+    function render(){
+      var node=fsResolve(cwd);
+      if(!node){goto('',true);return}
+      pathEl.textContent=node.name||'Этот компьютер';
+      pathEl.title=cwd||'(корень)';
+
+      // Кнопки
+      backBtn.disabled=hIdx<=0;
+      fwdBtn.disabled=hIdx>=history.length-1;
+      upBtn.disabled=!cwd;
+
+      // Активный пункт боковой панели
+      $$('.sb-item',sideEl).forEach(function(x){
+        x.classList.toggle('on',x.getAttribute('data-path')===cwd);
+      });
+
+      listEl.innerHTML='';
+      var items=fsList(cwd);
+      if(items.length===0){
+        var e=document.createElement('div');
+        e.className='files-empty';
+        e.textContent='Папка пуста. Нажмите правую кнопку мыши, чтобы создать файл.';
+        listEl.appendChild(e);
+        return;
+      }
+      items.forEach(function(item){
+        var el=document.createElement('div');
+        el.className='f-item'+(selected[item.name]?' selected':'');
+        el.setAttribute('data-name',item.name);
+        el.innerHTML=(item.type==='dir'?I.folder:(/\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(item.name)?I.img:I.file))+
+                     '<span class="fname">'+esc(item.name)+'</span>';
+        el.addEventListener('click',function(e){
+          if(e.ctrlKey||e.metaKey){
+            selected[item.name]=!selected[item.name];
+          } else {
+            selected={};
+            selected[item.name]=true;
+          }
+          $$('.f-item',listEl).forEach(function(x){
+            x.classList.toggle('selected',!!selected[x.getAttribute('data-name')]);
+          });
+        });
+        el.addEventListener('dblclick',function(){
+          if(item.type==='dir') goto(cwd+'/'+item.name);
+          else openFile(item.name,cwd);
+        });
+        el.addEventListener('contextmenu',function(e){
+          e.preventDefault();e.stopPropagation();
+          if(!selected[item.name]){selected={};selected[item.name]=true}
+          $$('.f-item',listEl).forEach(function(x){
+            x.classList.toggle('selected',!!selected[x.getAttribute('data-name')]);
+          });
+          var path=cwd+'/'+item.name;
+          showCtx([
+            {label:'Открыть',icon:item.type==='dir'?I.folderOpen:I.file,action:function(){
+              if(item.type==='dir') goto(path);
+              else openFile(item.name,cwd);
+            }},
+            {sep:true},
+            {label:'Переименовать',icon:I.edit,action:function(){renameItem(el,item.name,cwd,function(){render()})}},
+            {label:'Удалить',icon:I.trash,danger:true,action:function(){
+              if(confirm('Удалить «'+item.name+'»?')){fsDelete(path);render();toast('Удалено',item.name)}
+            }},
+            {sep:true},
+            {label:'Свойства',icon:I.info,action:function(){
+              toast('Свойства: '+item.name,'Тип: '+(item.type==='dir'?'Папка':'Файл'));
+            }}
+          ],e.clientX,e.clientY);
+        });
+        listEl.appendChild(el);
+      });
+    }
+
+    backBtn.addEventListener('click',function(){if(hIdx>0){hIdx--;cwd=history[hIdx];selected={};render()}});
+    fwdBtn.addEventListener('click',function(){if(hIdx<history.length-1){hIdx++;cwd=history[hIdx];selected={};render()}});
+    upBtn.addEventListener('click',function(){
+      if(!cwd) return;
+      var parts=cwd.split('/');parts.pop();
+      goto(parts.join('/'));
+    });
+    homeBtn.addEventListener('click',function(){goto('Users/user')});
+
+    $('[data-act="new-folder"]',body).addEventListener('click',function(){
+      var name=fsUniqueName(cwd,'Новая папка');
+      if(fsCreate(cwd,name,'dir')){render();toast('Папка создана',name)}
+    });
+    $('[data-act="new-file"]',body).addEventListener('click',function(){
+      var name=fsUniqueName(cwd,'Новый файл','.txt');
+      if(fsCreate(cwd,name,'file','')){render();toast('Файл создан',name)}
+    });
+    $('[data-act="del"]',body).addEventListener('click',function(){
+      var names=Object.keys(selected);
+      if(names.length===0) return;
+      if(!confirm('Удалить '+names.length+' объект(ов)?')) return;
+      names.forEach(function(n){fsDelete(cwd+'/'+n)});
+      selected={};render();toast('Удалено','Объектов: '+names.length);
+    });
+
+    // Контекст на пустом месте списка
+    listEl.addEventListener('contextmenu',function(e){
+      if(e.target!==listEl) return;
+      e.preventDefault();
+      showCtx([
+        {label:'Создать папку',icon:I.folder,action:function(){
+          var name=fsUniqueName(cwd,'Новая папка');
+          if(fsCreate(cwd,name,'dir')){render();toast('Папка создана',name)}
+        }},
+        {label:'Создать текстовый документ',icon:I.file,action:function(){
+          var name=fsUniqueName(cwd,'Новый файл','.txt');
+          if(fsCreate(cwd,name,'file','')){render();toast('Файл создан',name)}
+        }},
+        {sep:true},
+        {label:'Вставить',icon:I.paste,disabled:!clipboard,action:function(){
+          if(!clipboard) return;
+          var src=fsResolve(clipboard.path);
+          if(!src) return;
+          var name=src.name;
+          if(clipboard.op==='cut'){fsMove(clipboard.path,cwd)}
+          else {
+            var newName=fsUniqueName(cwd,name.replace(/\.[^.]+$/,''),name.match(/\.[^.]+$/)?name.match(/\.[^.]+$/)[0]:'');
+            var n=fsCreate(cwd,newName,src.type,src.type==='file'?src.content:'');
+          }
+          clipboard=null;render();
+        }},
+        {sep:true},
+        {label:'Обновить',icon:I.refresh,action:render}
+      ],e.clientX,e.clientY);
+    });
+
+    render();
+  }
+};
+
+function renameItem(el,oldName,dir,cb){
+  var lbl=$('.fname',el);
+  if(!lbl) return;
+  lbl.classList.add('editing');
+  lbl.contentEditable='true';
+  lbl.textContent=oldName;
+  var range=document.createRange();
+  range.selectNodeContents(lbl);
+  var sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  lbl.focus();
+  function done(commit){
+    lbl.contentEditable='false';
+    lbl.classList.remove('editing');
+    var nn=lbl.textContent.trim();
+    if(commit&&nn&&nn!==oldName){
+      fsRename(dir+'/'+oldName,nn);
+    }
+    cb&&cb();
+  }
+  lbl.addEventListener('blur',function(){done(true)},{once:true});
+  lbl.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();lbl.blur()}
+    else if(e.key==='Escape'){lbl.textContent=oldName;lbl.blur()}
+    e.stopPropagation();
+  });
+}
+
+/* ---------- БЛОКНОТ ---------- */
+APPS.notepad={
+  title:'Блокнот',icon:I.note,width:640,height:500,
+  render:function(body,win,opts){
+    var path=opts.path||null;
+    var content=path?(fsRead(path)||''):'';
+    var fileName=path?path.split('/').pop():'Без имени';
+
+    body.innerHTML=
+      '<div class="pad">'+
+        '<div class="pad-bar">'+
+          '<button class="btn" data-act="save" type="button">'+I.check+' Сохранить</button>'+
+          '<button class="btn" data-act="saveas" type="button">Сохранить как…</button>'+
+          '<button class="btn" data-act="new" type="button">Новый</button>'+
+          '<span class="pad-info"></span>'+
+        '</div>'+
+        '<textarea class="pad-area" spellcheck="false" placeholder="Начните печатать…"></textarea>'+
+      '</div>';
+
+    var area=$('.pad-area',body);
+    var info=$('.pad-info',body);
+    area.value=content;
+
+    function upd(){
+      var s=area.value;
+      info.textContent=(path?fileName:'Без имени')+' • '+s.length+' симв. • '+s.split(/\n/).length+' стр.';
+      if(path) setWinTitle(win.id,fileName+' — Блокнот');
+    }
+    upd();
+    area.addEventListener('input',upd);
+    area.addEventListener('contextmenu',function(e){e.stopPropagation()});
+
+    function doSave(saveAs){
+      var target=path;
+      if(!target||saveAs){
+        var name=prompt('Имя файла:',fileName==='Без имени'?'document.txt':fileName);
+        if(!name) return;
+        if(!/\./.test(name)) name+='.txt';
+        var dir=DOCS_PATH;
+        target=dir+'/'+name;
+        if(fsResolve(target)){
+          if(!confirm('Файл существует. Перезаписать?')) return;
+        }
+        fsCreate(dir,name,'file',area.value);
+      }
+      fsWrite(target,area.value);
+      path=target;
+      fileName=target.split('/').pop();
+      upd();
+      toast('Сохранено',fileName);
+    }
+
+    $('[data-act="save"]',body).addEventListener('click',function(){doSave(false)});
+    $('[data-act="saveas"]',body).addEventListener('click',function(){doSave(true)});
+    $('[data-act="new"]',body).addEventListener('click',function(){
+      if(area.value&&!confirm('Создать новый? Несохранённое будет потеряно.')) return;
+      path=null;fileName='Без имени';area.value='';upd();
+    });
+
+    // Автосохранение
+    var autoTimer=null;
+    area.addEventListener('input',function(){
+      if(autoTimer) clearTimeout(autoTimer);
+      autoTimer=setTimeout(function(){if(path) doSave(false)},3000);
+    });
+
+    setTimeout(function(){area.focus()},80);
+  }
+};
+
+/* ---------- КАЛЬКУЛЯТОР ---------- */
+APPS.calc={
+  title:'Калькулятор',icon:I.calc,width:340,height:520,singleton:true,
+  render:function(body,win,opts){
+    var cur='0',acc=null,op=null,fresh=true;
+
+    body.innerHTML=
+      '<div class="calc">'+
+        '<div class="calc-scr">'+
+          '<div class="calc-expr"></div>'+
+          '<div class="calc-cur">0</div>'+
+        '</div>'+
+        '<div class="calc-pad">'+
+          '<button class="cb fn" data-k="C" type="button">C</button>'+
+          '<button class="cb fn" data-k="back" type="button">⌫</button>'+
+          '<button class="cb fn" data-k="%" type="button">%</button>'+
+          '<button class="cb op" data-k="/" type="button">÷</button>'+
+          '<button class="cb" data-k="7" type="button">7</button>'+
+          '<button class="cb" data-k="8" type="button">8</button>'+
+          '<button class="cb" data-k="9" type="button">9</button>'+
+          '<button class="cb op" data-k="*" type="button">×</button>'+
+          '<button class="cb" data-k="4" type="button">4</button>'+
+          '<button class="cb" data-k="5" type="button">5</button>'+
+          '<button class="cb" data-k="6" type="button">6</button>'+
+          '<button class="cb op" data-k="-" type="button">−</button>'+
+          '<button class="cb" data-k="1" type="button">1</button>'+
+          '<button class="cb" data-k="2" type="button">2</button>'+
+          '<button class="cb" data-k="3" type="button">3</button>'+
+          '<button class="cb op" data-k="+" type="button">+</button>'+
+          '<button class="cb fn" data-k="sign" type="button">±</button>'+
+          '<button class="cb" data-k="0" type="button">0</button>'+
+          '<button class="cb" data-k="." type="button">.</button>'+
+          '<button class="cb eq" data-k="=" type="button">=</button>'+
+        '</div>'+
+      '</div>';
+
+    var curEl=$('.calc-cur',body);
+    var exprEl=$('.calc-expr',body);
+
+    function fmt(n){
+      if(typeof n!=='number'||!isFinite(n)) return 'Ошибка';
+      var r=Math.round(n*1e12)/1e12;
+      var s=String(r);
+      if(s.replace('-','').replace('.','').length>14) s=r.toExponential(8);
       return s;
     }
-
-    function sym(o) {
-      return o === '*' ? '×' : o === '/' ? '÷' : o === '-' ? '−' : o;
-    }
-
-    function compute(a, b, o) {
-      if (o === '+') return a + b;
-      if (o === '-') return a - b;
-      if (o === '*') return a * b;
-      if (o === '/') return b === 0 ? null : a / b;
+    function sym(o){return o==='*'?'×':o==='/'?'÷':o==='-'?'−':o}
+    function upd(){curEl.textContent=cur}
+    function compute(a,b,o){
+      if(o==='+') return a+b;
+      if(o==='-') return a-b;
+      if(o==='*') return a*b;
+      if(o==='/') return b===0?null:a/b;
       return b;
     }
-
-    function update() {
-      curEl.textContent = cur;
-    }
-
-    function setError() {
-      cur = 'Ошибка';
-      acc = null;
-      op = null;
-      fresh = true;
-      exprEl.textContent = '';
-      update();
-    }
-
-    function digit(d) {
-      if (cur === 'Ошибка') { cur = '0'; acc = null; op = null; fresh = true; }
-      if (fresh) {
-        cur = (d === '.') ? '0.' : d;
-        fresh = false;
-      } else {
-        if (d === '.' && cur.indexOf('.') !== -1) return;
-        var digits = cur.replace('-', '').replace('.', '');
-        if (digits.length >= 13 && d !== '.') return;
-        cur = (cur === '0' && d !== '.') ? d : (cur + d);
+    function err(){cur='Ошибка';acc=null;op=null;fresh=true;exprEl.textContent='';upd()}
+    function digit(d){
+      if(cur==='Ошибка'){cur='0';acc=null;op=null;fresh=true}
+      if(fresh){cur=(d==='.')?'0.':d;fresh=false}
+      else{
+        if(d==='.'&&cur.indexOf('.')!==-1) return;
+        var digits=cur.replace('-','').replace('.','');
+        if(digits.length>=13&&d!=='.') return;
+        cur=(cur==='0'&&d!=='.')?d:(cur+d);
       }
-      update();
+      upd();
+    }
+    function chooseOp(o){
+      if(cur==='Ошибка') return;
+      var v=parseFloat(cur);
+      if(op!==null&&!fresh){
+        var r=compute(acc,v,op);
+        if(r===null||!isFinite(r)){err();return}
+        acc=r;cur=fmt(r);
+      } else acc=v;
+      op=o;fresh=true;
+      exprEl.textContent=fmt(acc)+' '+sym(o);
+      upd();
+    }
+    function equals(){
+      if(op===null||cur==='Ошибка') return;
+      var v=parseFloat(cur);
+      var r=compute(acc,v,op);
+      exprEl.textContent=fmt(acc)+' '+sym(op)+' '+fmt(v)+' =';
+      if(r===null||!isFinite(r)){err();return}
+      cur=fmt(r);acc=null;op=null;fresh=true;upd();
+    }
+    function clearAll(){cur='0';acc=null;op=null;fresh=true;exprEl.textContent='';upd()}
+    function back(){
+      if(cur==='Ошибка'){clearAll();return}
+      if(fresh) return;
+      cur=cur.slice(0,-1);
+      if(cur===''||cur==='-') cur='0';
+      upd();
+    }
+    function percent(){
+      if(cur==='Ошибка') return;
+      cur=fmt(parseFloat(cur)/100);fresh=true;upd();
+    }
+    function sign(){
+      if(cur==='Ошибка'||cur==='0') return;
+      cur=cur.charAt(0)==='-'?cur.slice(1):'-'+cur;
+      upd();
     }
 
-    function chooseOp(o) {
-      if (cur === 'Ошибка') return;
-      var val = parseFloat(cur);
-      if (op !== null && !fresh) {
-        var r = compute(acc, val, op);
-        if (r === null || !isFinite(r)) { setError(); return; }
-        acc = r;
-        cur = fmt(r);
-      } else {
-        acc = val;
-      }
-      op = o;
-      fresh = true;
-      exprEl.textContent = fmt(acc) + ' ' + sym(o);
-      update();
-    }
-
-    function equals() {
-      if (op === null || cur === 'Ошибка') return;
-      var val = parseFloat(cur);
-      var r = compute(acc, val, op);
-      exprEl.textContent = fmt(acc) + ' ' + sym(op) + ' ' + fmt(val) + ' =';
-      if (r === null || !isFinite(r)) { setError(); return; }
-      cur = fmt(r);
-      acc = null;
-      op = null;
-      fresh = true;
-      update();
-    }
-
-    function clearAll() {
-      cur = '0'; acc = null; op = null; fresh = true;
-      exprEl.textContent = '';
-      update();
-    }
-
-    function backspace() {
-      if (cur === 'Ошибка') { clearAll(); return; }
-      if (fresh) return;
-      cur = cur.slice(0, -1);
-      if (cur === '' || cur === '-' ) cur = '0';
-      update();
-    }
-
-    function percent() {
-      if (cur === 'Ошибка') return;
-      cur = fmt(parseFloat(cur) / 100);
-      fresh = true;
-      update();
-    }
-
-    function sign() {
-      if (cur === 'Ошибка' || cur === '0') return;
-      cur = cur.charAt(0) === '-' ? cur.slice(1) : '-' + cur;
-      update();
-    }
-
-    body.querySelector('.calc-pad').addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-k]');
-      if (!btn) return;
-      var k = btn.getAttribute('data-k');
-      if (k >= '0' && k <= '9') { digit(k); return; }
-      if (k === '.') { digit('.'); return; }
-      if (k === '+' || k === '-' || k === '*' || k === '/') { chooseOp(k); return; }
-      if (k === '=') { equals(); return; }
-      if (k === 'C') { clearAll(); return; }
-      if (k === 'back') { backspace(); return; }
-      if (k === '%') { percent(); return; }
-      if (k === 'sign') { sign(); return; }
+    $('.calc-pad',body).addEventListener('click',function(e){
+      var b=e.target.closest('[data-k]');
+      if(!b) return;
+      var k=b.getAttribute('data-k');
+      if(k>='0'&&k<='9') digit(k);
+      else if(k==='.') digit('.');
+      else if(k==='+'||k==='-'||k==='*'||k==='/') chooseOp(k);
+      else if(k==='=') equals();
+      else if(k==='C') clearAll();
+      else if(k==='back') back();
+      else if(k==='%') percent();
+      else if(k==='sign') sign();
     });
 
-    /* поддержка клавиатуры */
-    body.tabIndex = 0;
-    body.addEventListener('keydown', function (e) {
-      var k = e.key;
-      if (k >= '0' && k <= '9') { digit(k); e.preventDefault(); }
-      else if (k === '.' || k === ',') { digit('.'); e.preventDefault(); }
-      else if (k === '+' || k === '-' || k === '*' || k === '/') { chooseOp(k); e.preventDefault(); }
-      else if (k === 'Enter' || k === '=') { equals(); e.preventDefault(); }
-      else if (k === 'Backspace') { backspace(); e.preventDefault(); }
-      else if (k === 'Escape') { clearAll(); e.preventDefault(); }
-      else if (k === '%') { percent(); e.preventDefault(); }
+    body.tabIndex=0;
+    body.addEventListener('keydown',function(e){
+      var k=e.key;
+      if(k>='0'&&k<='9'){digit(k);e.preventDefault()}
+      else if(k==='.'||k===','){digit('.');e.preventDefault()}
+      else if(k==='+'||k==='-'||k==='*'||k==='/'){chooseOp(k);e.preventDefault()}
+      else if(k==='Enter'||k==='='){equals();e.preventDefault()}
+      else if(k==='Backspace'){back();e.preventDefault()}
+      else if(k==='Escape'){clearAll();e.preventDefault()}
+      else if(k==='%'){percent();e.preventDefault()}
     });
-    setTimeout(function () { body.focus(); }, 0);
+    setTimeout(function(){body.focus()},50);
   }
+};
 
-  /* ---------- БЛОКНОТ ---------- */
-  function renderNotepad(body) {
-    var saved = '';
-    try { saved = localStorage.getItem('myos.notepad') || ''; } catch (e) { saved = ''; }
+/* ---------- ТЕРМИНАЛ ---------- */
+APPS.terminal={
+  title:'Терминал',icon:I.term,width:720,height:480,
+  render:function(body,win,opts){
+    var user=settings.user||'user';
+    var cwd='Users/user';
+    function promptStr(){return user+'@myos:'+(cwd==='Users/user'?'~':cwd.split('/').pop())+'$'}
 
-    body.innerHTML =
-      '<div class="pad">' +
-        '<div class="pad-toolbar">' +
-          '<button class="btn" data-act="save" type="button">Сохранить</button>' +
-          '<button class="btn" data-act="clear" type="button">Очистить</button>' +
-          '<span class="pad-status"></span>' +
-        '</div>' +
-        '<textarea class="pad-area" spellcheck="false" placeholder="Пиши здесь..."></textarea>' +
+    body.innerHTML=
+      '<div class="term">'+
+        '<div class="term-out"></div>'+
+        '<div class="term-line">'+
+          '<span class="term-prompt"></span>'+
+          '<input class="term-in" type="text" autocomplete="off" spellcheck="false">'+
+        '</div>'+
       '</div>';
 
-    var area = body.querySelector('.pad-area');
-    var status = body.querySelector('.pad-status');
-    area.value = saved;
+    var out=$('.term-out',body);
+    var input=$('.term-in',body);
+    var promptEl=$('.term-prompt',body);
+    promptEl.textContent=promptStr();
 
-    body.querySelector('[data-act="save"]').addEventListener('click', function () {
-      try {
-        localStorage.setItem('myos.notepad', area.value);
-        status.textContent = 'Сохранено в ' + new Date().toLocaleTimeString('ru-RU');
-      } catch (e) {
-        status.textContent = 'Ошибка сохранения';
-      }
-    });
-
-    body.querySelector('[data-act="clear"]').addEventListener('click', function () {
-      if (area.value && !window.confirm('Очистить весь текст?')) return;
-      area.value = '';
-      status.textContent = 'Очищено';
-    });
-
-    area.addEventListener('input', function () { status.textContent = ''; });
-  }
-
-  /* ---------- ТЕРМИНАЛ ---------- */
-  function renderTerminal(body) {
-    var s = getSettings();
-    var promptText = s.user + '@myos:~$';
-
-    body.innerHTML =
-      '<div class="term">' +
-        '<div class="term-out"></div>' +
-        '<div class="term-line">' +
-          '<span class="term-prompt"></span>' +
-          '<input class="term-in" type="text" autocomplete="off" spellcheck="false">' +
-        '</div>' +
-      '</div>';
-
-    var out = body.querySelector('.term-out');
-    var input = body.querySelector('.term-in');
-    var promptEl = body.querySelector('.term-prompt');
-    promptEl.textContent = promptText;
-
-    function print(text, cls) {
-      var d = document.createElement('div');
-      if (cls) d.className = cls;
-      d.textContent = text;
+    function print(text,cls){
+      var d=document.createElement('div');
+      if(cls) d.className=cls;
+      d.textContent=text==null?'':String(text);
       out.appendChild(d);
-      out.scrollTop = out.scrollHeight;
+      out.scrollTop=out.scrollHeight;
     }
 
     print('MyOS Terminal v1.0');
-    print('Введите "help" для списка команд.');
+    print('Наберите "help" для списка команд.','info');
     print('');
 
-    function run(raw) {
-      var parts = raw.split(/\s+/);
-      var cmd = (parts[0] || '').toLowerCase();
-      var rest = raw.slice(parts[0].length).trim();
+    var cmdHist=[],histIdx=-1;
 
-      switch (cmd) {
-        case '':
-          break;
+    function run(raw){
+      var parts=raw.trim().split(/\s+/);
+      var cmd=(parts[0]||'').toLowerCase();
+      var args=parts.slice(1);
 
+      switch(cmd){
+        case '': break;
         case 'help':
           print('Доступные команды:');
           print('  help              — этот список');
@@ -822,647 +2468,937 @@
           print('  date              — текущая дата');
           print('  time              — текущее время');
           print('  whoami            — имя пользователя');
-          print('  ls                — список приложений');
-          print('  open <app>        — открыть приложение');
+          print('  pwd               — текущая папка');
+          print('  ls                — содержимое папки');
+          print('  cd <path>         — перейти в папку');
+          print('  cat <file>        — вывести файл');
+          print('  mkdir <name>      — создать папку');
+          print('  touch <name>      — создать файл');
+          print('  rm <name>         — удалить');
+          print('  open <app>        — запустить приложение');
+          print('  apps              — список приложений');
           print('  theme dark|light  — сменить тему');
           print('  clear             — очистить экран');
           print('  about             — о системе');
-          print('Приложения: ' + APP_ORDER.join(', '));
           break;
-
-        case 'echo':
-          print(rest);
+        case 'echo': print(args.join(' ')); break;
+        case 'date': print(new Date().toLocaleDateString('ru-RU',{weekday:'long',year:'numeric',month:'long',day:'numeric'})); break;
+        case 'time': print(new Date().toLocaleTimeString('ru-RU')); break;
+        case 'whoami': print(user); break;
+        case 'pwd': print('/'+cwd); break;
+        case 'ls': {
+          var items=fsList(cwd);
+          if(items.length===0){print('(пусто)');break}
+          items.forEach(function(it){
+            print('  '+(it.type==='dir'?'[+] ':'    ')+it.name+(it.type==='dir'?'/':''));
+          });
           break;
-
-        case 'date':
-          print(new Date().toLocaleDateString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+        }
+        case 'cd': {
+          var t=args[0]||'~';
+          var np;
+          if(t==='~') np='Users/user';
+          else if(t==='..'){var p=cwd.split('/');p.pop();np=p.join('/')}
+          else if(t==='/') np='';
+          else if(t.charAt(0)==='/') np=t.slice(1);
+          else np=(cwd?cwd+'/':'')+t;
+          var n=fsResolve(np);
+          if(!n||n.type!=='dir'){print('Папка не найдена: '+t,'err');break}
+          cwd=np;
+          promptEl.textContent=promptStr();
           break;
-
-        case 'time':
-          print(new Date().toLocaleTimeString('ru-RU'));
+        }
+        case 'cat': {
+          if(!args[0]){print('Использование: cat <файл>','err');break}
+          var f=fsResolve((cwd?cwd+'/':'')+args[0]);
+          if(!f||f.type!=='file'){print('Файл не найден','err');break}
+          print(f.content||'(пусто)');
           break;
-
-        case 'whoami':
-          print(getSettings().user);
+        }
+        case 'mkdir': {
+          if(!args[0]){print('Использование: mkdir <имя>','err');break}
+          var name=fsUniqueName(cwd,args[0]);
+          if(fsCreate(cwd,name,'dir')) print('Папка создана: '+name,'ok');
           break;
-
-        case 'ls':
-          APP_ORDER.forEach(function (id) { print('  ' + id + '  —  ' + APPS[id].title); });
+        }
+        case 'touch': {
+          if(!args[0]){print('Использование: touch <имя>','err');break}
+          var name=fsUniqueName(cwd,args[0]);
+          if(fsCreate(cwd,name,'file','')) print('Файл создан: '+name,'ok');
           break;
-
+        }
+        case 'rm': {
+          if(!args[0]){print('Использование: rm <имя>','err');break}
+          if(fsDelete((cwd?cwd+'/':'')+args[0])) print('Удалено','ok');
+          else print('Не найдено','err');
+          break;
+        }
+        case 'apps':
+          Object.keys(APPS).forEach(function(k){print('  '+k+'  —  '+APPS[k].title)});
+          break;
         case 'open': {
-          var key = (parts[1] || '').toLowerCase();
-          if (!key) { print('Использование: open <app>', 'err'); break; }
-          if (!APPS[key]) { print('Приложение "' + key + '" не найдено.', 'err'); break; }
-          openApp(key);
-          print('Запуск: ' + APPS[key].title);
+          var k=(args[0]||'').toLowerCase();
+          if(!k){print('Использование: open <app>','err');break}
+          if(!APPS[k]){print('Приложение "'+k+'" не найдено. Введите "apps"','err');break}
+          openApp(k);
+          print('Запуск: '+APPS[k].title,'info');
           break;
         }
-
         case 'theme': {
-          var t = (parts[1] || '').toLowerCase();
-          if (t !== 'dark' && t !== 'light') { print('Использование: theme dark|light', 'err'); break; }
-          var st = getSettings();
-          st.theme = t;
-          saveSettings(st);
-          applySettings(st);
-          print('Тема изменена на "' + t + '".');
+          var t=(args[0]||'').toLowerCase();
+          if(t!=='dark'&&t!=='light'){print('Использование: theme dark|light','err');break}
+          settings.theme=t;saveSettings();applySettings();
+          print('Тема: '+t,'ok');
           break;
         }
-
-        case 'clear':
-          out.innerHTML = '';
-          break;
-
+        case 'clear': out.innerHTML=''; break;
         case 'about':
-          print('MyOS v1.0 — личная операционная система в браузере.');
-          print('Ядро: HTML + CSS + JavaScript. Никаких зависимостей.');
+          print('MyOS v1.0 — персональная ОС в браузере.');
+          print('HTML + CSS + JavaScript. Никаких зависимостей.');
           break;
-
         default:
-          print('Команда не найдена: ' + cmd + '. Введите "help".', 'err');
+          print('Команда не найдена: '+cmd+'. Введите "help".','err');
       }
     }
 
-    input.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      var value = input.value.trim();
-      input.value = '';
-      print(promptText + ' ' + value);
-      run(value);
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        var v=input.value;
+        if(v.trim()){
+          cmdHist.unshift(v);
+          if(cmdHist.length>50) cmdHist.pop();
+        }
+        histIdx=-1;
+        input.value='';
+        print(promptStr()+' '+v);
+        run(v);
+      } else if(e.key==='ArrowUp'){
+        e.preventDefault();
+        if(histIdx<cmdHist.length-1){histIdx++;input.value=cmdHist[histIdx]}
+      } else if(e.key==='ArrowDown'){
+        e.preventDefault();
+        if(histIdx>0){histIdx--;input.value=cmdHist[histIdx]}
+        else if(histIdx===0){histIdx=-1;input.value=''}
+      }
     });
-
-    setTimeout(function () { input.focus(); }, 0);
-    body.addEventListener('click', function (e) {
-      if (window.getSelection().toString() === '') input.focus();
-      if (e.target === body) input.focus();
+    setTimeout(function(){input.focus()},80);
+    body.addEventListener('click',function(e){
+      if(window.getSelection().toString()===''&&e.target===body) input.focus();
     });
   }
+};
 
-  /* ---------- ФАЙЛЫ ---------- */
-  var FS = {
-    name: 'Этот компьютер',
-    type: 'dir',
-    children: [
-      {
-        name: 'Документы', type: 'dir', children: [
-          { name: 'заметка.txt', type: 'file', content: 'Привет! Это мой первый файл в MyOS.' },
-          { name: 'список.txt', type: 'file', content: '1. Сделать свою ОС\n2. Сделать чёрно-белый интерфейс\n3. Пользоваться' }
-        ]
-      },
-      {
-        name: 'Изображения', type: 'dir', children: [
-          { name: 'схема.txt', type: 'file', content: '[ монитор ] -- (кабель) -- [ системный блок ]' }
-        ]
-      },
-      { name: 'Музыка', type: 'dir', children: [] },
-      {
-        name: 'Система', type: 'dir', children: [
-          { name: 'readme.txt', type: 'file', content: 'MyOS v1.0\nСобрано вручную. Все кнопки работают.' },
-          { name: 'лицензия.txt', type: 'file', content: 'Делай что хочешь. Личная ОС.' }
-        ]
-      }
-    ]
-  };
+/* ---------- НАСТРОЙКИ ---------- */
+APPS.settings={
+  title:'Параметры',icon:I.gear,width:620,height:600,singleton:true,
+  render:function(body,win){
+    function renderBody(){
+      var s=settings;
+      var accents=['#4a8cff','#a05aff','#ff4d5e','#3ecf8e','#ffb648','#3ecfcf','#e0538a','#8a8a98'];
+      body.innerHTML=
+        '<div class="set">'+
+          '<div class="set-sec">'+
+            '<div class="set-sec-title">Оформление</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.img+'</div>'+
+              '<div class="set-txt"><h4>Тема</h4><p>Цветовая схема интерфейса</p></div>'+
+              '<div class="set-ctrl">'+
+                '<button class="btn'+(s.theme==='dark'?' on':'')+'" data-theme="dark" type="button">Тёмная</button>'+
+                '<button class="btn'+(s.theme==='light'?' on':'')+'" data-theme="light" type="button">Светлая</button>'+
+              '</div>'+
+            '</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.brush+'</div>'+
+              '<div class="set-txt"><h4>Акцентный цвет</h4><p>Цвет выделения и кнопок</p></div>'+
+              '<div class="set-ctrl"><div class="swatches">'+
+                accents.map(function(c){return '<div class="swatch'+(s.accent===c?' on':'')+'" data-accent="'+c+'" style="background:'+c+'"></div>'}).join('')+
+              '</div></div>'+
+            '</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.img+'</div>'+
+              '<div class="set-txt"><h4>Обои</h4><p>Фон рабочего стола</p></div>'+
+              '<div class="set-ctrl">'+
+                ['aurora','grid','dots','none'].map(function(w){
+                  var lbl={aurora:'Аврора',grid:'Сетка',dots:'Точки',none:'Пусто'}[w];
+                  return '<button class="btn'+(s.wall===w?' on':'')+'" data-wall="'+w+'" type="button">'+lbl+'</button>';
+                }).join('')+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="set-sec">'+
+            '<div class="set-sec-title">Учётная запись</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.info+'</div>'+
+              '<div class="set-txt"><h4>Имя пользователя</h4><p>Отображается в меню «Пуск»</p></div>'+
+              '<div class="set-ctrl"><input class="inp" id="setUser" maxlength="24" value="'+esc(s.user)+'"></div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="set-sec">'+
+            '<div class="set-sec-title">Система</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.disk+'</div>'+
+              '<div class="set-txt"><h4>Хранилище</h4><p>Использовано в localStorage</p></div>'+
+              '<div class="set-ctrl">'+
+                '<button class="btn" id="setWipe" type="button">Очистить систему</button>'+
+              '</div>'+
+            '</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.task+'</div>'+
+              '<div class="set-txt"><h4>Диспетчер задач</h4><p>Список запущенных окон</p></div>'+
+              '<div class="set-ctrl"><button class="btn" id="setTask" type="button">Открыть</button></div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="set-sec">'+
+            '<div class="set-sec-title">О системе</div>'+
+            '<div class="set-item">'+
+              '<div class="set-ic">'+I.info+'</div>'+
+              '<div class="set-txt"><h4>MyOS v1.0</h4><p>Персональная ОС в браузере</p></div>'+
+              '<div class="set-ctrl"><button class="btn" id="setAbout" type="button">Подробнее</button></div>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
 
-  function renderFiles(body) {
-    var stack = [FS];
+      $$('[data-theme]',body).forEach(function(b){
+        b.addEventListener('click',function(){settings.theme=b.getAttribute('data-theme');saveSettings();applySettings();renderBody()});
+      });
+      $$('[data-wall]',body).forEach(function(b){
+        b.addEventListener('click',function(){settings.wall=b.getAttribute('data-wall');saveSettings();applySettings();renderBody()});
+      });
+      $$('[data-accent]',body).forEach(function(b){
+        b.addEventListener('click',function(){settings.accent=b.getAttribute('data-accent');saveSettings();applySettings();renderBody()});
+      });
+      var u=$('#setUser',body);
+      if(u) u.addEventListener('input',function(){settings.user=u.value.trim()||'Пользователь';saveSettings();applySettings()});
+      var w=$('#setWipe',body);
+      if(w) w.addEventListener('click',function(){
+        if(!confirm('Полностью сбросить файлы и настройки?')) return;
+        try{localStorage.clear()}catch(e){}
+        location.reload();
+      });
+      var t=$('#setTask',body);
+      if(t) t.addEventListener('click',function(){openApp('taskmgr')});
+      var a=$('#setAbout',body);
+      if(a) a.addEventListener('click',function(){openApp('about')});
+    }
+    renderBody();
+  }
+};
 
-    body.innerHTML =
-      '<div class="files">' +
-        '<div class="files-bar">' +
-          '<button class="btn" data-act="up" type="button">↑ Вверх</button>' +
-          '<div class="files-path"></div>' +
-        '</div>' +
-        '<div class="files-main">' +
-          '<div class="files-list"></div>' +
-          '<div class="files-view"><div class="empty">Выбери файл справа или слева</div></div>' +
-        '</div>' +
+/* ---------- О СИСТЕМЕ ---------- */
+APPS.about={
+  title:'О системе',icon:I.info,width:480,height:520,singleton:true,
+  render:function(body){
+    var used=0;
+    try{used=(JSON.stringify(vfs).length/1024).toFixed(1)}catch(e){}
+    body.innerHTML=
+      '<div class="about">'+
+        '<div class="logo">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">'+
+            '<rect x="3" y="3" width="7.5" height="7.5" rx="1.8"/>'+
+            '<rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8"/>'+
+            '<rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8"/>'+
+            '<rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8"/>'+
+          '</svg>'+
+        '</div>'+
+        '<h2>MyOS</h2>'+
+        '<p>Персональная операционная система, работающая прямо в браузере. '+
+        'Чёрный контурный интерфейс, SVG-иконки, виртуальная файловая система, '+
+        'многозадачность и приложения.</p>'+
+        '<div class="stats">'+
+          '<div class="stat"><b>'+wins.length+'</b><span>Окон</span></div>'+
+          '<div class="stat"><b>'+Object.keys(APPS).length+'</b><span>Приложений</span></div>'+
+          '<div class="stat"><b>'+used+' КБ</b><span>Данных</span></div>'+
+        '</div>'+
+        '<div class="ver">Версия 1.0 • сборка '+new Date().getFullYear()+'</div>'+
+      '</div>';
+  }
+};
+
+/* ---------- ДИСПЕТЧЕР ЗАДАЧ ---------- */
+APPS.taskmgr={
+  title:'Диспетчер задач',icon:I.task,width:520,height:420,singleton:true,
+  render:function(body){
+    function renderBody(){
+      var totalMem=0;
+      wins.forEach(function(){totalMem+=Math.round(Math.random()*40)+20});
+      body.innerHTML=
+        '<div class="manager">'+
+          '<h3>Запущенные приложения ('+wins.length+')</h3>'+
+          '<table>'+
+            '<thead><tr><th>Приложение</th><th>Окон</th><th>Память</th><th></th></tr></thead>'+
+            '<tbody>'+
+              (wins.length===0?'<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--fg-mute)">Нет активных окон</td></tr>':
+                wins.map(function(w){
+                  var mem=Math.round(Math.random()*40)+20;
+                  return '<tr data-id="'+w.id+'">'+
+                    '<td>'+(APPS[w.appId].icon||'')+' '+esc(w.title||APPS[w.appId].title)+'</td>'+
+                    '<td>1</td>'+
+                    '<td>'+mem+' МБ <span class="bar-wrap"><span class="bar" style="width:'+Math.min(100,mem/2)+'%"></span></span></td>'+
+                    '<td><button class="btn" data-close="'+w.id+'" style="padding:3px 8px;font-size:11px">Завершить</button></td>'+
+                  '</tr>';
+                }).join(''))+
+            '</tbody>'+
+          '</table>'+
+        '</div>';
+      body.querySelectorAll('[data-close]').forEach(function(b){
+        b.addEventListener('click',function(){closeWin(b.getAttribute('data-close'));renderBody()});
+      });
+    }
+    renderBody();
+    var t=setInterval(function(){if(!document.body.contains(body)){clearInterval(t);return}renderBody()},2000);
+  }
+};
+
+/* ---------- PAINT ---------- */
+APPS.paint={
+  title:'Paint',icon:I.brush,width:760,height:560,
+  render:function(body,win){
+    body.innerHTML=
+      '<div class="paint">'+
+        '<div class="paint-bar">'+
+          '<button class="tool on" data-tool="brush" title="Кисть">'+I.brush+'</button>'+
+          '<button class="tool" data-tool="eraser" title="Ластик">'+I.eraser+'</button>'+
+          '<button class="tool" data-tool="line" title="Линия">'+I.line+'</button>'+
+          '<button class="tool" data-tool="rect" title="Прямоугольник">'+I.rect+'</button>'+
+          '<button class="tool" data-tool="circle" title="Круг">'+I.circle+'</button>'+
+          '<div class="sep"></div>'+
+          '<div class="colors"></div>'+
+          '<div class="sep"></div>'+
+          '<input type="range" min="1" max="30" value="4" id="paintSize">'+
+          '<div class="sep"></div>'+
+          '<button class="tool" data-act="undo" title="Отменить">'+I.undo+'</button>'+
+          '<button class="tool" data-act="clear" title="Очистить">'+I.trash2+'</button>'+
+          '<button class="tool" data-act="save" title="Сохранить в Файлы">'+I.ext+'</button>'+
+        '</div>'+
+        '<div class="paint-canvas-wrap"><canvas width="800" height="500"></canvas></div>'+
       '</div>';
 
-    var listEl = body.querySelector('.files-list');
-    var pathEl = body.querySelector('.files-path');
-    var viewEl = body.querySelector('.files-view');
-    var upBtn = body.querySelector('[data-act="up"]');
+    var canvas=$('canvas',body);
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
 
-    function current() { return stack[stack.length - 1]; }
+    var colors=['#000000','#ffffff','#ff4d5e','#4a8cff','#3ecf8e','#ffb648','#a05aff','#3ecfcf','#e0538a','#8a8a98'];
+    var colorsEl=$('.colors',body);
+    colors.forEach(function(c,i){
+      var d=document.createElement('div');
+      d.className='c'+(i===0?' on':'');
+      d.style.background=c;
+      d.addEventListener('click',function(){
+        $$('.c',colorsEl).forEach(function(x){x.classList.remove('on')});
+        d.classList.add('on');ctx.strokeStyle=c;ctx.fillStyle=c;
+      });
+      colorsEl.appendChild(d);
+    });
+    ctx.strokeStyle='#000';
+    ctx.fillStyle='#000';
 
-    function render() {
-      var dir = current();
-      pathEl.textContent = stack.map(function (n) { return n.name; }).join('  /  ');
-      upBtn.disabled = stack.length <= 1;
-      upBtn.style.opacity = stack.length <= 1 ? '0.4' : '1';
-      upBtn.style.cursor = stack.length <= 1 ? 'default' : 'pointer';
+    var tool='brush';
+    var drawing=false;
+    var sx=0,sy=0;
+    var snapshot=null;
+    var undoStack=[];
 
-      listEl.innerHTML = '';
+    function pushUndo(){
+      undoStack.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+      if(undoStack.length>30) undoStack.shift();
+    }
 
-      if (!dir.children || dir.children.length === 0) {
-        var e = document.createElement('div');
-        e.className = 'empty';
-        e.textContent = 'Папка пуста';
-        listEl.appendChild(e);
+    $$('[data-tool]',body).forEach(function(b){
+      b.addEventListener('click',function(){
+        $$('[data-tool]',body).forEach(function(x){x.classList.remove('on')});
+        b.classList.add('on');
+        tool=b.getAttribute('data-tool');
+      });
+    });
+
+    var sizeInput=$('#paintSize',body);
+    function getSize(){return parseInt(sizeInput.value,10)}
+    ctx.lineWidth=getSize();
+    sizeInput.addEventListener('input',function(){ctx.lineWidth=getSize()});
+
+    function pos(e){
+      var r=canvas.getBoundingClientRect();
+      return {x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)};
+    }
+
+    canvas.addEventListener('mousedown',function(e){
+      pushUndo();
+      drawing=true;
+      var p=pos(e);
+      sx=p.x;sy=p.y;
+      ctx.beginPath();ctx.moveTo(sx,sy);
+      if(tool==='brush'||tool==='eraser'){
+        ctx.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';
+        ctx.strokeStyle=tool==='eraser'?'rgba(0,0,0,1)':($('.c.on',colorsEl)?getComputedStyle($('.c.on',colorsEl)).backgroundColor:'#000');
+        ctx.lineWidth=tool==='eraser'?getSize()*3:getSize();
+      }
+      snapshot=ctx.getImageData(0,0,canvas.width,canvas.height);
+    });
+    canvas.addEventListener('mousemove',function(e){
+      if(!drawing) return;
+      var p=pos(e);
+      if(tool==='brush'||tool==='eraser'){
+        ctx.lineTo(p.x,p.y);ctx.stroke();
+      } else if(tool==='line'||tool==='rect'||tool==='circle'){
+        ctx.putImageData(snapshot,0,0);
+        ctx.beginPath();
+        if(tool==='line'){ctx.moveTo(sx,sy);ctx.lineTo(p.x,p.y);ctx.stroke()}
+        else if(tool==='rect'){ctx.strokeRect(sx,sy,p.x-sx,p.y-sy)}
+        else{
+          var r=Math.hypot(p.x-sx,p.y-sy);
+          ctx.arc(sx,sy,r,0,Math.PI*2);ctx.stroke();
+        }
+      }
+    });
+    canvas.addEventListener('mouseup',function(){
+      drawing=false;
+      ctx.globalCompositeOperation='source-over';
+      ctx.lineWidth=getSize();
+    });
+    canvas.addEventListener('mouseleave',function(){drawing=false});
+
+    $('[data-act="undo"]',body).addEventListener('click',function(){
+      if(undoStack.length){ctx.putImageData(undoStack.pop(),0,0)}
+    });
+    $('[data-act="clear"]',body).addEventListener('click',function(){
+      pushUndo();
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    });
+    $('[data-act="save"]',body).addEventListener('click',function(){
+      var name=prompt('Имя файла:','рисунок.txt');
+      if(!name) return;
+      if(!/\./.test(name)) name+='.txt';
+      // Сохраняем как текстовое описание (canvas → dataURL не влезет)
+      fsCreate(PICS_PATH,name,'file','[Рисунок сохранён из Paint]');
+      toast('Рисунок сохранён',name);
+    });
+  }
+};
+
+/* ---------- САПЁР ---------- */
+APPS.minesweeper={
+  title:'Сапёр',icon:I.flag,width:420,height:520,singleton:true,
+  render:function(body){
+    var W=9,H=9,MINES=10;
+    var grid,revealed,flagged,started,dead,won,flags,moves;
+
+    body.innerHTML=
+      '<div class="mines">'+
+        '<div class="mines-top">'+
+          '<div class="info">💣 <b id="msMines">'+MINES+'</b></div>'+
+          '<div class="info">🚩 <b id="msFlags">0</b></div>'+
+          '<div class="info">⏱ <b id="msTime">0</b></div>'+
+        '</div>'+
+        '<div class="mines-grid" id="msGrid"></div>'+
+        '<div class="mines-msg" id="msMsg"></div>'+
+        '<button class="btn primary" id="msNew" type="button">Новая игра</button>'+
+      '</div>';
+
+    var gridEl=$('#msGrid',body);
+    var msg=$('#msMsg',body);
+    var minesEl=$('#msMines',body);
+    var flagsEl=$('#msFlags',body);
+    var timeEl=$('#msTime',body);
+    var timer=null,seconds=0;
+
+    function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+
+    function init(){
+      stopTimer();seconds=0;timeEl.textContent='0';
+      grid=[];revealed=[];flagged=[];started=false;dead=false;won=false;flags=0;moves=0;
+      for(var y=0;y<H;y++){
+        grid[y]=[];revealed[y]=[];flagged[y]=[];
+        for(var x=0;x<W;x++){grid[y][x]=0;revealed[y][x]=false;flagged[y][x]=false}
+      }
+      msg.textContent='';
+      render();
+    }
+
+    function placeMines(sx,sy){
+      var placed=0;
+      while(placed<MINES){
+        var x=Math.floor(Math.random()*W);
+        var y=Math.floor(Math.random()*H);
+        if(grid[y][x]===-1) continue;
+        if(Math.abs(x-sx)<=1&&Math.abs(y-sy)<=1) continue;
+        grid[y][x]=-1;placed++;
+      }
+      for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+        if(grid[y][x]===-1) continue;
+        var c=0;
+        for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+          var ny=y+dy,nx=x+dx;
+          if(ny>=0&&ny<H&&nx>=0&&nx<W&&grid[ny][nx]===-1) c++;
+        }
+        grid[y][x]=c;
+      }
+    }
+
+    function reveal(x,y){
+      if(x<0||x>=W||y<0||y>=H) return;
+      if(revealed[y][x]||flagged[y][x]) return;
+      revealed[y][x]=true;
+      if(grid[y][x]===-1){dead=true;return}
+      if(grid[y][x]===0){
+        for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){
+          if(dx||dy) reveal(x+dx,y+dy);
+        }
+      }
+    }
+
+    function checkWin(){
+      var cnt=0;
+      for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+        if(revealed[y][x]) cnt++;
+      }
+      if(cnt===W*H-MINES){won=true}
+    }
+
+    function render(){
+      gridEl.innerHTML='';
+      gridEl.style.gridTemplateColumns='repeat('+W+',30px)';
+      for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+        var cell=document.createElement('div');
+        cell.className='ms-cell';
+        if(revealed[y][x]){
+          cell.classList.add('open');
+          if(grid[y][x]===-1){cell.classList.add('mine','revealed');cell.textContent='💥'}
+          else if(grid[y][x]>0){
+            cell.textContent=grid[y][x];
+            cell.classList.add('n'+grid[y][x]);
+          }
+        } else if(flagged[y][x]){
+          cell.classList.add('flag');
+          cell.textContent='🚩';
+        }
+        if(dead&&grid[y][x]===-1&&!revealed[y][x]){
+          cell.classList.add('mine');
+          if(!flagged[y][x]) cell.textContent='💣';
+        }
+        (function(x,y,cell){
+          cell.addEventListener('click',function(){onClick(x,y)});
+          cell.addEventListener('contextmenu',function(e){e.preventDefault();onFlag(x,y)});
+        })(x,y,cell);
+        gridEl.appendChild(cell);
+      }
+      minesEl.textContent=MINES-flags;
+      flagsEl.textContent=flags;
+    }
+
+    function onClick(x,y){
+      if(dead||won) return;
+      if(flagged[y][x]) return;
+      if(!started){
+        started=true;
+        placeMines(x,y);
+        timer=setInterval(function(){seconds++;timeEl.textContent=seconds},1000);
+      }
+      reveal(x,y);
+      checkWin();
+      if(dead){
+        stopTimer();
+        msg.textContent='💥 Вы проиграли!';
+        msg.style.color='var(--danger)';
+      } else if(won){
+        stopTimer();
+        msg.textContent='🎉 Победа!';
+        msg.style.color='var(--success)';
+      }
+      render();
+    }
+
+    function onFlag(x,y){
+      if(dead||won||revealed[y][x]) return;
+      flagged[y][x]=!flagged[y][x];
+      flags+=flagged[y][x]?1:-1;
+      render();
+    }
+
+    $('#msNew',body).addEventListener('click',init);
+    init();
+  }
+};
+
+/* ---------- МЕДИАПЛЕЕР (синтезатор) ---------- */
+APPS.media={
+  title:'Медиаплеер',icon:I.music,width:400,height:520,singleton:true,
+  render:function(body){
+    body.innerHTML=
+      '<div class="media">'+
+        '<div class="media-art" id="mediaArt">'+I.music+'</div>'+
+        '<div style="text-align:center">'+
+          '<div class="media-title" id="mediaTitle">Синтезатор</div>'+
+          '<div class="media-artist" id="mediaArtist">Нажмите клавишу для воспроизведения</div>'+
+        '</div>'+
+        '<div class="media-keys">'+
+          ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'].map(function(n,i){
+            var freq=[261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88][i];
+            return '<button data-note="'+n+'" data-freq="'+freq+'">'+n+'</button>';
+          }).join('')+
+        '</div>'+
+        '<div class="media-ctrl">'+
+          '<button data-act="play" class="play">'+I.play+'</button>'+
+          '<button data-act="stop">'+I.pause+'</button>'+
+        '</div>'+
+      '</div>';
+
+    var audioCtx=null;
+    var current=null;
+
+    function getCtx(){
+      if(!audioCtx){
+        try{audioCtx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}
+      }
+      return audioCtx;
+    }
+
+    function playNote(freq,btn){
+      var ctx=getCtx();
+      if(!ctx) return;
+      if(ctx.state==='suspended') ctx.resume();
+      var osc=ctx.createOscillator();
+      var gain=ctx.createGain();
+      osc.type='sine';
+      osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.0001,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+1.0);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start();osc.stop(ctx.currentTime+1.05);
+      if(current) current();
+      var on=setTimeout(function(){if(btn)btn.classList.remove('on')},200);
+      current=function(){clearTimeout(on)};
+      if(btn){btn.classList.add('on');setTimeout(function(){btn.classList.remove('on')},180)}
+      var art=$('#mediaArt',body);
+      if(art){art.classList.add('playing');setTimeout(function(){art.classList.remove('playing')},400)}
+    }
+
+    body.querySelectorAll('[data-note]').forEach(function(b){
+      b.addEventListener('click',function(){playNote(parseFloat(b.getAttribute('data-freq')),b)});
+    });
+
+    var playBtn=$('[data-act="play"]',body);
+    var stopBtn=$('[data-act="stop"]',body);
+    var autoplayTimer=null;
+    playBtn.addEventListener('click',function(){
+      if(autoplayTimer){
+        clearInterval(autoplayTimer);autoplayTimer=null;
+        playBtn.innerHTML=I.play;
         return;
       }
+      playBtn.innerHTML=I.pause;
+      var i=0;
+      var seq=[261.63,293.66,329.63,349.23,392.00,349.23,329.63,293.66];
+      autoplayTimer=setInterval(function(){
+        playNote(seq[i%seq.length]);
+        i++;
+      },400);
+      playNote(seq[0]);
+    });
+    stopBtn.addEventListener('click',function(){
+      if(autoplayTimer){clearInterval(autoplayTimer);autoplayTimer=null}
+      playBtn.innerHTML=I.play;
+      if(audioCtx&&audioCtx.state==='running') audioCtx.suspend();
+    });
 
-      dir.children.forEach(function (item) {
-        var row = document.createElement('div');
-        row.className = 'file-item';
-        row.innerHTML = (item.type === 'dir' ? ICONS.folder : ICONS.file) +
-                        '<span class="fi-name">' + escapeHtml(item.name) + '</span>';
-        row.addEventListener('click', function () {
-          if (item.type === 'dir') {
-            stack.push(item);
-            viewEl.innerHTML = '<div class="empty">Выбери файл</div>';
-            render();
-          } else {
-            viewEl.innerHTML =
-              '<div class="fv-title">' + escapeHtml(item.name) + '</div>' +
-              '<pre class="fv-content">' + escapeHtml(item.content || '(пусто)') + '</pre>';
-          }
-        });
-        listEl.appendChild(row);
-      });
-    }
-
-    upBtn.addEventListener('click', function () {
-      if (stack.length > 1) {
-        stack.pop();
-        viewEl.innerHTML = '<div class="empty">Выбери файл</div>';
-        render();
+    // Клавиатура
+    var keyMap={'a':0,'w':1,'s':2,'e':3,'d':4,'f':5,'t':6,'g':7,'y':8,'h':9,'u':10,'j':11};
+    var freqs=[261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88];
+    function onKey(e){
+      if(e.repeat) return;
+      if(!document.body.contains(body)){document.removeEventListener('keydown',onKey);return}
+      var k=e.key.toLowerCase();
+      if(k in keyMap){
+        playNote(freqs[keyMap[k]]);
+        e.preventDefault();
       }
-    });
-
-    render();
-  }
-
-  /* ---------- НАСТРОЙКИ ---------- */
-  function renderSettings(body) {
-    var s = getSettings();
-
-    body.innerHTML =
-      '<div class="settings">' +
-        '<div class="set-row">' +
-          '<label>Тема оформления</label>' +
-          '<div class="set-ctrl">' +
-            '<button class="btn" data-theme="dark" type="button">Тёмная</button>' +
-            '<button class="btn" data-theme="light" type="button">Светлая</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="set-row">' +
-          '<label>Имя пользователя</label>' +
-          '<input class="inp" id="setUser" maxlength="24" value="' + escapeHtml(s.user) + '">' +
-        '</div>' +
-        '<div class="set-row">' +
-          '<label>Обои рабочего стола</label>' +
-          '<select class="inp" id="setWall">' +
-            '<option value="grid">Сетка</option>' +
-            '<option value="dots">Точки</option>' +
-            '<option value="none">Пусто</option>' +
-          '</select>' +
-        '</div>' +
-        '<div class="set-row">' +
-          '<button class="btn" id="setReset" type="button">Сбросить всё</button>' +
-        '</div>' +
-        '<div class="set-note">Изменения применяются сразу и сохраняются в браузере.</div>' +
-      '</div>';
-
-    var themeBtns = body.querySelectorAll('[data-theme]');
-    var userInp = body.querySelector('#setUser');
-    var wallSel = body.querySelector('#setWall');
-    var resetBtn = body.querySelector('#setReset');
-
-    function sync() {
-      var cur = getSettings();
-      themeBtns.forEach(function (b) {
-        b.classList.toggle('on', b.getAttribute('data-theme') === cur.theme);
-      });
-      userInp.value = cur.user;
-      wallSel.value = cur.wall;
     }
-
-    themeBtns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        var st = getSettings();
-        st.theme = b.getAttribute('data-theme');
-        saveSettings(st);
-        applySettings(st);
-        sync();
-        rebuildUI();
-      });
-    });
-
-    userInp.addEventListener('input', function () {
-      var st = getSettings();
-      st.user = userInp.value.trim() || 'user';
-      saveSettings(st);
-      rebuildUI();
-    });
-
-    wallSel.addEventListener('change', function () {
-      var st = getSettings();
-      st.wall = wallSel.value;
-      saveSettings(st);
-      applySettings(st);
-      sync();
-    });
-
-    resetBtn.addEventListener('click', function () {
-      if (!window.confirm('Сбросить все настройки?')) return;
-      saveSettings(Object.assign({}, DEFAULT_SETTINGS));
-      applySettings(DEFAULT_SETTINGS);
-      sync();
-      rebuildUI();
-    });
-
-    sync();
+    document.addEventListener('keydown',onKey);
   }
+};
 
-  /* ---------- О СИСТЕМЕ ---------- */
-  function renderAbout(body) {
-    body.innerHTML =
-      '<div class="about">' +
-        ICONS.info +
-        '<h2>MyOS</h2>' +
-        '<p>Личная операционная система, работающая прямо в браузере. ' +
-        'Чёрно-белый контурный интерфейс, SVG-иконки, окна, панель задач и приложения.</p>' +
-        '<div class="ver">Версия 1.0 &nbsp;•&nbsp; сборка ' + new Date().getFullYear() + '</div>' +
-      '</div>';
+/* ============================================================
+   ЧАСЫ И ТРЕЙ
+   ============================================================ */
+var clockEl=$('#clock');
+var dateSmall=$('#dateSmall');
+var lockTime=$('#lockTime');
+var lockDate=$('#lockDate');
+
+var WEEKDAYS=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+var MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
+function tick(){
+  var d=new Date();
+  var hh=String(d.getHours()).padStart(2,'0');
+  var mm=String(d.getMinutes()).padStart(2,'0');
+  var ss=String(d.getSeconds()).padStart(2,'0');
+  clockEl.textContent=hh+':'+mm+':'+ss;
+  dateSmall.textContent=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+  if(lockTime){
+    lockTime.textContent=hh+':'+mm;
+    lockDate.textContent=WEEKDAYS[d.getDay()]+', '+d.getDate()+' '+MONTHS[d.getMonth()];
   }
+}
 
-  /* ============================================================
-     РЕЕСТР ПРИЛОЖЕНИЙ
-     ============================================================ */
-  var APPS = {
-    files:    { title: 'Файлы',        icon: ICONS.folder, width: 720, height: 470, render: renderFiles },
-    notepad:  { title: 'Блокнот',      icon: ICONS.note,   width: 580, height: 440, render: renderNotepad },
-    calc:     { title: 'Калькулятор',  icon: ICONS.calc,   width: 320, height: 460, render: renderCalc },
-    terminal: { title: 'Терминал',     icon: ICONS.term,   width: 660, height: 420, render: renderTerminal },
-    settings: { title: 'Настройки',    icon: ICONS.gear,   width: 480, height: 430, render: renderSettings },
-    about:    { title: 'О системе',    icon: ICONS.info,   width: 440, height: 380, render: renderAbout }
-  };
-
-  var APP_ORDER = ['files', 'notepad', 'calc', 'terminal', 'settings', 'about'];
-
-  /* ============================================================
-     ОКОННЫЙ МЕНЕДЖЕР
-     ============================================================ */
-  var windows = [];
-  var activeId = null;
-  var zCounter = 100;
-
-  var layer = document.getElementById('windowLayer');
-
-  function openApp(appId) {
-    var app = APPS[appId];
-    if (!app) return;
-
-    var existing = windows.filter(function (w) { return w.appId === appId; })[0];
-    if (existing) {
-      if (existing.minimized) {
-        existing.minimized = false;
-        existing.el.style.display = '';
-      }
-      focusWindow(existing.id);
-      return;
-    }
-    createWindow(appId);
+/* Календарь */
+var calPopup=$('#calPopup');
+var calMonth=new Date();
+function renderCal(){
+  var y=calMonth.getFullYear(),m=calMonth.getMonth();
+  var title=$('#calTitle');
+  title.textContent=MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y;
+  var grid=$('#calGrid');
+  grid.innerHTML='';
+  ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(function(d){
+    var e=document.createElement('div');
+    e.className='cd hd';e.textContent=d;
+    grid.appendChild(e);
+  });
+  var first=new Date(y,m,1);
+  var startDay=(first.getDay()+6)%7;
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var prevDays=new Date(y,m,0).getDate();
+  var today=new Date();
+  for(var i=0;i<startDay;i++){
+    var e=document.createElement('div');
+    e.className='cd other';e.textContent=prevDays-startDay+1+i;
+    grid.appendChild(e);
   }
+  for(var d=1;d<=daysInMonth;d++){
+    var e=document.createElement('div');
+    e.className='cd';
+    if(d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear()) e.classList.add('today');
+    e.textContent=d;
+    grid.appendChild(e);
+  }
+  var total=startDay+daysInMonth;
+  var remaining=(7-total%7)%7;
+  for(var i=1;i<=remaining;i++){
+    var e=document.createElement('div');
+    e.className='cd other';e.textContent=i;
+    grid.appendChild(e);
+  }
+}
+$('#calPrev').addEventListener('click',function(e){e.stopPropagation();calMonth.setMonth(calMonth.getMonth()-1);renderCal()});
+$('#calNext').addEventListener('click',function(e){e.stopPropagation();calMonth.setMonth(calMonth.getMonth()+1);renderCal()});
+$('#clockBtn').addEventListener('click',function(e){
+  e.stopPropagation();
+  if(calPopup.classList.contains('open')) calPopup.classList.remove('open');
+  else {renderCal();calPopup.classList.add('open')}
+});
+document.addEventListener('click',function(e){
+  if(!calPopup.classList.contains('open')) return;
+  if(e.target.closest('#calPopup')||e.target.closest('#clockBtn')) return;
+  calPopup.classList.remove('open');
+});
 
-  function createWindow(appId) {
-    var app = APPS[appId];
-    var id = 'win-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
+$('#notifBtn').addEventListener('click',function(){
+  toast('MyOS','Новых уведомлений нет');
+});
 
-    var w = Math.min(app.width, Math.max(260, window.innerWidth - 40));
-    var h = Math.min(app.height, Math.max(180, window.innerHeight - 100));
+$('#showDesk').addEventListener('click',function(){
+  var anyVisible=wins.some(function(w){return !w.minimized});
+  wins.forEach(function(w){
+    if(anyVisible) minimizeWin(w.id);
+    else {w.minimized=false;w.el.style.display=''}
+  });
+  renderTasks();
+});
 
-    var el = document.createElement('div');
-    el.className = 'window';
-    el.style.width = w + 'px';
-    el.style.height = h + 'px';
+/* ============================================================
+   ALT+TAB ПЕРЕКЛЮЧАТЕЛЬ
+   ============================================================ */
+var switcher=$('#switcher');
+var swIdx=0;
+var swOpen=false;
 
-    var offset = (windows.length % 6) * 28;
-    var left = Math.max(10, Math.round((window.innerWidth - w) / 2) - 80 + offset);
-    var top = Math.max(10, Math.round((window.innerHeight - 48 - h) / 2) - 40 + offset);
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
-
-    el.innerHTML =
-      '<div class="titlebar">' +
-        '<div class="tb-left">' + app.icon + '<span class="tb-title">' + escapeHtml(app.title) + '</span></div>' +
-        '<div class="tb-right">' +
-          '<button class="win-btn" data-act="min" type="button" title="Свернуть">' + ICONS.min + '</button>' +
-          '<button class="win-btn" data-act="max" type="button" title="Развернуть">' + ICONS.max + '</button>' +
-          '<button class="win-btn close" data-act="close" type="button" title="Закрыть">' + ICONS.close + '</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="win-body"></div>' +
-      '<div class="resizer"></div>';
-
-    layer.appendChild(el);
-
-    var winObj = {
-      id: id,
-      appId: appId,
-      el: el,
-      minimized: false,
-      maximized: false,
-      prevBounds: null
-    };
-    windows.push(winObj);
-
-    /* --- контент --- */
-    var bodyEl = el.querySelector('.win-body');
-    try {
-      app.render(bodyEl);
-    } catch (err) {
-      bodyEl.innerHTML = '<div style="padding:16px;font-size:13px;">Ошибка приложения: ' + escapeHtml(err.message) + '</div>';
-    }
-
-    /* --- кнопки управления --- */
-    el.querySelector('.tb-right').addEventListener('click', function (e) {
-      var btn = e.target.closest('.win-btn');
-      if (!btn) return;
-      var act = btn.getAttribute('data-act');
-      if (act === 'min') minimizeWindow(id);
-      else if (act === 'max') toggleMaximize(id);
-      else if (act === 'close') closeWindow(id);
+function openSwitcher(){
+  if(wins.length===0) return;
+  swOpen=true;
+  swIdx=Math.min(swIdx,wins.length-1);
+  renderSwitcher();
+  switcher.classList.add('open');
+}
+function renderSwitcher(){
+  switcher.innerHTML='';
+  wins.forEach(function(w,i){
+    var app=APPS[w.appId];
+    var el=document.createElement('div');
+    el.className='sw-item'+(i===swIdx?' on':'');
+    el.innerHTML=(app.icon||'')+'<span>'+esc(w.title||app.title)+'</span>';
+    el.addEventListener('click',function(){
+      closeSwitcher();
+      if(w.minimized){w.minimized=false;w.el.style.display=''}
+      focusWin(w.id);
     });
-
-    /* --- перетаскивание --- */
-    var titlebar = el.querySelector('.titlebar');
-    titlebar.addEventListener('mousedown', function (e) {
-      if (e.target.closest('.win-btn')) return;
-      if (winObj.maximized) return;
-      if (e.button !== 0) return;
-      e.preventDefault();
-      focusWindow(id);
-
-      var startX = e.clientX, startY = e.clientY;
-      var startL = el.offsetLeft, startT = el.offsetTop;
-
-      function onMove(ev) {
-        var nl = startL + (ev.clientX - startX);
-        var nt = startT + (ev.clientY - startY);
-        var maxL = window.innerWidth - 80;
-        var maxT = window.innerHeight - 48 - 36;
-        nl = Math.max(-el.offsetWidth + 120, Math.min(maxL, nl));
-        nt = Math.max(0, Math.min(maxT, nt));
-        el.style.left = nl + 'px';
-        el.style.top = nt + 'px';
-      }
-      function onUp() {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      }
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-
-    /* --- изменение размера --- */
-    var resizer = el.querySelector('.resizer');
-    resizer.addEventListener('mousedown', function (e) {
-      if (winObj.maximized) return;
-      e.preventDefault();
-      e.stopPropagation();
-      focusWindow(id);
-
-      var startX = e.clientX, startY = e.clientY;
-      var startW = el.offsetWidth, startH = el.offsetHeight;
-
-      function onMove(ev) {
-        var nw = Math.max(260, startW + (ev.clientX - startX));
-        var nh = Math.max(180, startH + (ev.clientY - startY));
-        el.style.width = nw + 'px';
-        el.style.height = nh + 'px';
-      }
-      function onUp() {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      }
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-
-    /* --- фокус по клику --- */
-    el.addEventListener('mousedown', function () { focusWindow(id); });
-
-    focusWindow(id);
-    renderTasks();
+    switcher.appendChild(el);
+  });
+}
+function closeSwitcher(){
+  swOpen=false;
+  switcher.classList.remove('open');
+  if(wins[swIdx]){
+    var w=wins[swIdx];
+    if(w.minimized){w.minimized=false;w.el.style.display=''}
+    focusWin(w.id);
   }
+}
 
-  function focusWindow(id) {
-    var w = null;
-    for (var i = 0; i < windows.length; i++) {
-      if (windows[i].id === id) { w = windows[i]; break; }
-    }
-    if (!w) return;
-    activeId = id;
-    zCounter += 1;
-    w.el.style.zIndex = String(zCounter);
-    windows.forEach(function (x) {
-      x.el.classList.toggle('active', x.id === id);
-    });
-    renderTasks();
-  }
-
-  function minimizeWindow(id) {
-    var w = null;
-    for (var i = 0; i < windows.length; i++) {
-      if (windows[i].id === id) { w = windows[i]; break; }
-    }
-    if (!w) return;
-    w.minimized = true;
-    w.el.style.display = 'none';
-    if (activeId === id) activeId = null;
-    renderTasks();
-  }
-
-  function toggleMaximize(id) {
-    var w = null;
-    for (var i = 0; i < windows.length; i++) {
-      if (windows[i].id === id) { w = windows[i]; break; }
-    }
-    if (!w) return;
-    var el = w.el;
-
-    if (!w.maximized) {
-      w.prevBounds = {
-        left: el.style.left,
-        top: el.style.top,
-        width: el.style.width,
-        height: el.style.height
-      };
-      el.classList.add('maximized');
-      w.maximized = true;
+document.addEventListener('keydown',function(e){
+  if(e.altKey&&e.key==='Tab'){
+    e.preventDefault();
+    if(!swOpen){
+      openSwitcher();
     } else {
-      el.classList.remove('maximized');
-      w.maximized = false;
-      if (w.prevBounds) {
-        el.style.left = w.prevBounds.left;
-        el.style.top = w.prevBounds.top;
-        el.style.width = w.prevBounds.width;
-        el.style.height = w.prevBounds.height;
-      }
+      swIdx=(swIdx+1)%wins.length;
+      renderSwitcher();
     }
-    focusWindow(id);
   }
+  if(e.key==='Escape'&&swOpen){closeSwitcher()}
+});
+document.addEventListener('keyup',function(e){
+  if(e.key==='Alt'&&swOpen){closeSwitcher()}
+});
 
-  function closeWindow(id) {
-    var idx = -1;
-    for (var i = 0; i < windows.length; i++) {
-      if (windows[i].id === id) { idx = i; break; }
-    }
-    if (idx === -1) return;
-    var w = windows[idx];
-    if (w.el.parentNode) w.el.parentNode.removeChild(w.el);
-    windows.splice(idx, 1);
-    if (activeId === id) activeId = null;
-    renderTasks();
+/* Горячие клавиши */
+document.addEventListener('keydown',function(e){
+  // F2 — переименовать выделенную иконку
+  if(e.key==='F2'){
+    var sel=Object.keys(deskSelected)[0];
+    if(sel) startIconRename(sel);
   }
-
-  /* ============================================================
-     ПАНЕЛЬ ЗАДАЧ
-     ============================================================ */
-  var tasksEl = document.getElementById('tasks');
-
-  function renderTasks() {
-    tasksEl.innerHTML = '';
-    windows.forEach(function (w) {
-      var app = APPS[w.appId];
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'task' + (w.id === activeId && !w.minimized ? ' active' : '');
-      btn.innerHTML = app.icon + '<span>' + escapeHtml(app.title) + '</span>';
-      btn.addEventListener('click', function () {
-        if (w.minimized) {
-          w.minimized = false;
-          w.el.style.display = '';
-          focusWindow(w.id);
-        } else if (w.id === activeId) {
-          minimizeWindow(w.id);
-        } else {
-          focusWindow(w.id);
-        }
+  // Del — удалить выделенное
+  if(e.key==='Delete'){
+    var sel=Object.keys(deskSelected);
+    if(sel.length){
+      sel.forEach(function(n){
+        fsDelete(DESKTOP_PATH+'/'+n);
+        delete deskSelected[n];
+        delete deskPositions[n];
       });
-      tasksEl.appendChild(btn);
-    });
-  }
-
-  /* ============================================================
-     МЕНЮ ПУСК
-     ============================================================ */
-  var startMenu = document.getElementById('startMenu');
-  var startBtn = document.getElementById('startBtn');
-
-  function buildStartMenu() {
-    var s = getSettings();
-    var html = '<div class="start-head">' + escapeHtml(s.user) + '<span>MyOS v1.0</span></div>';
-
-    APP_ORDER.forEach(function (id) {
-      html += '<button class="start-item" data-app="' + id + '" type="button">' +
-                APPS[id].icon + '<span>' + escapeHtml(APPS[id].title) + '</span>' +
-              '</button>';
-    });
-
-    html += '<div class="start-sep"></div>';
-    html += '<button class="start-item" data-act="reload" type="button">' +
-              ICONS.power + '<span>Перезагрузить оболочку</span>' +
-            '</button>';
-
-    startMenu.innerHTML = html;
-  }
-
-  startMenu.addEventListener('click', function (e) {
-    var appBtn = e.target.closest('[data-app]');
-    if (appBtn) {
-      openApp(appBtn.getAttribute('data-app'));
-      closeStartMenu();
-      return;
+      saveDeskPositions();
+      renderDesktop();
+      toast('Удалено','Объектов: '+sel.length);
     }
-    var actBtn = e.target.closest('[data-act]');
-    if (actBtn && actBtn.getAttribute('data-act') === 'reload') {
-      window.location.reload();
+  }
+  // Ctrl+Shift+Esc — диспетчер задач
+  if(e.ctrlKey&&e.shiftKey&&(e.key==='Escape'||e.key==='Esc')){
+    e.preventDefault();
+    openApp('taskmgr');
+  }
+  // Meta — старт
+  if(e.key==='Meta'){
+    e.preventDefault();
+    if(startMenu.classList.contains('open')) hideStart();
+    else showStart();
+  }
+});
+
+/* ============================================================
+   ЭКРАН БЛОКИРОВКИ
+   ============================================================ */
+function lockScreen(){
+  var lock=$('#lock');
+  lock.classList.remove('hidden');
+  closeAllWins();
+  hideStart();
+}
+function unlockScreen(){
+  var lock=$('#lock');
+  lock.classList.add('hidden');
+}
+$('#lockUser').addEventListener('click',unlockScreen);
+document.addEventListener('keydown',function(e){
+  if($('#lock').classList.contains('hidden')) return;
+  if(e.key==='Enter'||e.key===' '||e.key==='Escape'){unlockScreen();e.preventDefault()}
+});
+
+/* ============================================================
+   ПЕРЕЗАГРУЗКА
+   ============================================================ */
+function restart(){
+  closeAllWins();
+  hideStart();
+  var lock=$('#lock');
+  lock.classList.add('hidden');
+  var boot=$('#boot');
+  boot.classList.remove('hidden');
+  var bar=$('.boot-bar span',boot);
+  if(bar){bar.style.animation='none';void bar.offsetWidth;bar.style.animation=''}
+  setTimeout(function(){
+    boot.classList.add('hidden');
+    lock.classList.remove('hidden');
+  },settings.bootTime||2400);
+}
+
+/* ============================================================
+   ЗАПУСК СИСТЕМЫ
+   ============================================================ */
+function boot(){
+  var bootEl=$('#boot');
+  var statusEl=$('#bootStatus');
+  var messages=['Инициализация ядра…','Загрузка файловой системы…','Запуск служб…','Подготовка рабочего стола…','Почти готово…'];
+  var i=0;
+  var iv=setInterval(function(){
+    i++;
+    if(i<messages.length) statusEl.textContent=messages[i];
+    else clearInterval(iv);
+  },420);
+
+  setTimeout(function(){
+    bootEl.classList.add('hidden');
+    var lock=$('#lock');
+    lock.classList.remove('hidden');
+    tick();
+    applySettings();
+    renderDesktop();
+    setTimeout(function(){unlockScreen()},200);
+  },settings.bootTime||2400);
+}
+
+/* Инициализация */
+applySettings();
+tick();
+setInterval(tick,1000);
+renderDesktop();
+renderTasks();
+buildDesktopIconsForApps();
+boot();
+
+/* Создание ярлыков приложений на рабочем столе */
+function buildDesktopIconsForApps(){
+  // Не добавляем — приложения уже в меню Пуск и на панели
+}
+
+/* Обновление при изменении окна */
+window.addEventListener('resize',function(){
+  // Подгоняем maximized окна
+  wins.forEach(function(w){
+    if(w.maximized){
+      w.el.style.width='100%';
+      w.el.style.height='100%';
     }
   });
-
-  function closeStartMenu() {
-    startMenu.classList.remove('open');
-    startBtn.classList.remove('on');
-  }
-
-  startBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    var isOpen = startMenu.classList.contains('open');
-    if (isOpen) {
-      closeStartMenu();
-    } else {
-      buildStartMenu();
-      startMenu.classList.add('open');
-      startBtn.classList.add('on');
+  // Перерисовываем иконки если они уехали за пределы
+  var maxY=desktopEl.clientHeight-100;
+  $$('.desk-icon').forEach(function(el){
+    if(el.offsetTop>maxY){
+      el.style.top=Math.max(16,maxY)+'px';
     }
   });
+  renderDesktop();
+});
 
-  document.addEventListener('click', function (e) {
-    if (!startMenu.classList.contains('open')) return;
-    if (e.target.closest('#startMenu')) return;
-    if (e.target.closest('#startBtn')) return;
-    closeStartMenu();
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeStartMenu();
-  });
-
-  /* ============================================================
-     ИКОНКИ РАБОЧЕГО СТОЛА
-     ============================================================ */
-  function buildDesktopIcons() {
-    var cont = document.getElementById('icons');
-    cont.innerHTML = '';
-    APP_ORDER.forEach(function (id) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'desk-icon';
-      btn.innerHTML = APPS[id].icon + '<span>' + escapeHtml(APPS[id].title) + '</span>';
-      btn.addEventListener('click', function () { openApp(id); });
-      cont.appendChild(btn);
-    });
-  }
-
-  /* ============================================================
-     ЧАСЫ
-     ============================================================ */
-  var clockEl = document.getElementById('clock');
-
-  function updateClock() {
-    var d = new Date();
-    var hh = String(d.getHours()).padStart(2, '0');
-    var mm = String(d.getMinutes()).padStart(2, '0');
-    var ss = String(d.getSeconds()).padStart(2, '0');
-    clockEl.textContent = hh + ':' + mm + ':' + ss;
-  }
-
-  /* ============================================================
-     ПЕРЕСБОРКА UI
-     ============================================================ */
-  function rebuildUI() {
-    buildStartMenu();
-    renderTasks();
-  }
-
-  /* ============================================================
-     СТАРТ
-     ============================================================ */
-  function init() {
-    applySettings(getSettings());
-    buildDesktopIcons();
-    buildStartMenu();
-    updateClock();
-    setInterval(updateClock, 1000);
-    renderTasks();
-  }
-
-  init();
+/* Сохраняем состояние при закрытии */
+window.addEventListener('beforeunload',function(){
+  saveSettings();
+  saveFS();
+  saveDeskPositions();
+});
 
 })();
 </script>
