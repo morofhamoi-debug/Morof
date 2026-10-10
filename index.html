@@ -1,269 +1,1059 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>OCTAGON KO — 3D MMA</title>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<title>VIBE — социальная сеть</title>
 <style>
-*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-html,body{margin:0;height:100%;background:#08080a;color:#fff;font-family:system-ui,Arial,sans-serif;overflow:hidden;touch-action:none}
-#c{position:fixed;inset:0;width:100%;height:100%;outline:0}
-.ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(6,6,9,.72);z-index:5;text-align:center;padding:12px}
-.ov.h,#hud.h{display:none}
-h1{margin:0 0 8px;font-size:clamp(30px,8vw,68px);letter-spacing:5px;font-weight:900}h1 b{color:#e0202c}
-button{background:#e0202c;color:#fff;border:0;border-radius:6px;padding:12px 26px;font:700 16px system-ui;min-width:240px}
-button.g{background:#2a2a32}button:active{filter:brightness(1.3)}
-p{margin:2px;color:#bbb;font-size:13px;max-width:520px}
-#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:10px;padding:8px 12px;z-index:3;pointer-events:none}
-.pn{flex:1;max-width:40%}.pn.r{text-align:right}.n{font-weight:800;font-size:14px}
-.b{height:12px;background:#222;border:1px solid #666;margin-top:3px}.b.s{height:6px}.b i{display:block;height:100%;width:100%}
-.pn.r .b i{margin-left:auto}
-#mid{text-align:center;font-weight:800;line-height:1.2}#tm{font-size:26px}
-#msg{position:fixed;top:30%;left:0;right:0;text-align:center;font-size:clamp(28px,8vw,76px);font-weight:900;text-shadow:0 0 24px #e0202c;pointer-events:none;z-index:3}
-#tc{display:none}body.t #tc{display:block}
-#js{position:fixed;left:18px;bottom:18px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12);z-index:4}
-#kn{position:absolute;left:45px;top:45px;width:40px;height:40px;border-radius:50%;background:rgba(224,32,44,.85)}
-.tb{position:fixed;z-index:4;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.4);font:700 11px system-ui;display:flex;align-items:center;justify-content:center}
-</style></head><body>
-<canvas id="c"></canvas>
-<div id="hud" class="h">
- <div class="pn"><div class="n" id="n1"></div><div class="b"><i id="hp1" style="background:#e0202c"></i></div><div class="b s"><i id="st1" style="background:#e8c13a"></i></div></div>
- <div id="mid"><div id="tm">1:00</div><div id="rd">R1/3</div></div>
- <div class="pn r"><div class="n" id="n2"></div><div class="b"><i id="hp2" style="background:#e0202c"></i></div><div class="b s"><i id="st2" style="background:#e8c13a"></i></div></div>
+/* ============ БАЗА ============ */
+:root {
+  --bg: #0a0a0f;
+  --bg-soft: #12121a;
+  --card: rgba(28, 28, 38, 0.75);
+  --card-solid: #1c1c26;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #f2f2f7;
+  --text-2: rgba(235, 235, 245, 0.65);
+  --text-3: rgba(235, 235, 245, 0.35);
+  --accent: #6e5cff;
+  --accent-2: #b23aff;
+  --accent-glow: rgba(110, 92, 255, 0.4);
+  --red: #ff3b5c;
+  --green: #30d158;
+  --gold: #ffd60a;
+  --radius: 20px;
+  --radius-sm: 14px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 64px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+body {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(110, 92, 255, 0.12), transparent),
+    radial-gradient(ellipse 50% 40% at 90% 10%, rgba(178, 58, 255, 0.08), transparent),
+    var(--bg);
+}
+button, input, textarea { font-family: inherit; }
+
+/* ============ ВЕРХНЯЯ ПАНЕЛЬ ============ */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  background: rgba(10, 10, 15, 0.75);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 0.5px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.logo {
+  font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  flex-shrink: 0;
+}
+.search {
+  flex: 1; min-width: 0;
+  padding: 9px 14px; border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text); font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search:focus { border-color: var(--accent); }
+.search::placeholder { color: var(--text-3); }
+
+.avatar-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  color: #fff; font-weight: 800; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.avatar-btn:active { transform: scale(0.9); }
+
+/* ============ СКРОЛЛ ============ */
+#feed {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 12px calc(var(--nav-h) + var(--safe-bottom) + 20px);
+  scroll-behavior: smooth;
+}
+#feed::-webkit-scrollbar { width: 0; }
+
+/* ============ ТАБЫ ============ */
+.tabs {
+  display: flex; gap: 6px; padding: 0 4px 12px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 8px 16px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-2);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+/* ============ ПОСТ ============ */
+.post {
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+  animation: postIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes postIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.post-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 14px 10px;
+}
+.post-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff;
+}
+.post-meta { flex: 1; min-width: 0; }
+.post-author {
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 5px;
+}
+.verified {
+  width: 14px; height: 14px;
+  background: var(--accent); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff;
+}
+.post-time { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.post-more {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: transparent;
+  color: var(--text-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.post-text {
+  padding: 0 14px 12px;
+  font-size: 14.5px; line-height: 1.45;
+  white-space: pre-wrap; word-break: break-word;
+}
+.post-text .tag { color: var(--accent); font-weight: 600; }
+
+.post-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
+}
+.post-media iframe {
+  width: 100%; height: 100%; border: 0;
+  display: block;
+}
+
+.post-actions {
+  display: flex; align-items: center;
+  padding: 10px 6px;
+  border-top: 0.5px solid var(--border);
+}
+.action {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 4px;
+  border: none; background: transparent;
+  color: var(--text-2); font-size: 13px; font-weight: 600;
+  cursor: pointer; border-radius: 12px;
+  transition: all 0.18s;
+}
+.action:active { transform: scale(0.94); }
+.action svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.action.liked { color: var(--red); }
+.action.liked svg { fill: var(--red); stroke: var(--red); }
+
+/* ============ КОММЕНТАРИИ ============ */
+.comments {
+  padding: 4px 14px 12px;
+  border-top: 0.5px solid var(--border);
+  display: none;
+}
+.comments.open { display: block; animation: commentsIn 0.3s ease; }
+@keyframes commentsIn { from { opacity: 0; } to { opacity: 1; } }
+.comment {
+  display: flex; gap: 10px; padding: 8px 0;
+  font-size: 13.5px; line-height: 1.4;
+}
+.comment-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+}
+.comment-body { flex: 1; min-width: 0; }
+.comment-author { font-weight: 700; font-size: 12.5px; margin-bottom: 2px; }
+.comment-text { color: var(--text-2); word-break: break-word; }
+
+.comment-input-row {
+  display: flex; gap: 8px; margin-top: 8px;
+}
+.comment-input {
+  flex: 1; min-width: 0;
+  padding: 10px 14px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text); font-size: 13px;
+  outline: none;
+}
+.comment-input:focus { border-color: var(--accent); }
+.comment-send {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.comment-send:active { transform: scale(0.9); }
+.comment-send svg { width: 18px; height: 18px; }
+
+/* ============ НИЖНЯЯ НАВИГАЦИЯ ============ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  display: flex; align-items: center; justify-content: space-around;
+  background: rgba(15, 15, 22, 0.85);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-top: 0.5px solid var(--border);
+}
+.nav-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  border: none; background: transparent;
+  color: var(--text-3); font-size: 10px; font-weight: 600;
+  cursor: pointer; padding: 6px 0;
+  transition: color 0.2s;
+}
+.nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn:active { opacity: 0.6; }
+.nav-btn.center svg {
+  width: 46px; height: 46px; padding: 10px;
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  border-radius: 50%; color: #fff; stroke-width: 2.4;
+  box-shadow: 0 4px 18px var(--accent-glow);
+  margin-top: -14px;
+}
+
+/* ============ МОДАЛКИ ============ */
+.overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s;
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+.sheet {
+  width: 100%; max-width: 540px; max-height: 88vh;
+  overflow-y: auto;
+  background: var(--card-solid);
+  border-radius: 24px 24px 0 0;
+  border: 1px solid var(--border-strong); border-bottom: none;
+  padding: 18px 18px calc(22px + var(--safe-bottom));
+  transform: translateY(30px);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.overlay.open .sheet { transform: translateY(0); }
+.handle {
+  width: 38px; height: 4px; border-radius: 2px;
+  background: var(--text-3); margin: 0 auto 16px;
+}
+.sheet h3 { font-size: 19px; font-weight: 800; margin-bottom: 14px; }
+
+.field {
+  width: 100%; padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text); font-size: 14px;
+  outline: none; resize: none;
+  margin-bottom: 10px;
+}
+.field:focus { border-color: var(--accent); }
+textarea.field { min-height: 90px; font-family: inherit; }
+
+.url-hint {
+  font-size: 12px; color: var(--text-3);
+  margin: -4px 0 12px 4px;
+  line-height: 1.4;
+}
+.url-hint b { color: var(--accent); font-weight: 600; }
+
+.btn-primary {
+  width: 100%; padding: 15px;
+  border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  color: #fff; font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 22px var(--accent-glow);
+  transition: transform 0.15s;
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.4; pointer-events: none; }
+
+.btn-ghost {
+  width: 100%; padding: 14px; margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-2);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+}
+
+/* превью видео в модалке */
+.video-preview {
+  width: 100%; aspect-ratio: 16/9; border-radius: 14px;
+  background: #000; overflow: hidden;
+  margin-bottom: 10px; display: none;
+}
+.video-preview.on { display: block; }
+.video-preview iframe { width: 100%; height: 100%; border: 0; }
+
+/* ============ ПРОФИЛЬ ============ */
+.profile-head {
+  text-align: center;
+  padding: 20px 0 24px;
+}
+.profile-avatar {
+  width: 88px; height: 88px; border-radius: 50%;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #6e5cff, #b23aff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 900; color: #fff;
+  box-shadow: 0 8px 28px var(--accent-glow);
+}
+.profile-name { font-size: 22px; font-weight: 800; }
+.profile-tag { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+.profile-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px; margin: 20px 0;
+}
+.pstat {
+  padding: 14px 8px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  text-align: center;
+}
+.pstat .n { font-size: 20px; font-weight: 800; }
+.pstat .l { font-size: 10px; color: var(--text-3); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+/* ============ УВЕДОМЛЕНИЯ ============ */
+.notif {
+  display: flex; gap: 12px; padding: 14px;
+  border-radius: var(--radius-sm); background: var(--card);
+  border: 1px solid var(--border); margin-bottom: 8px;
+  animation: postIn 0.35s;
+}
+.notif-icon {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+/* ============ ПУСТО ============ */
+.empty {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-3);
+}
+.empty .e-icon { font-size: 48px; margin-bottom: 12px; }
+.empty .e-text { font-size: 14px; line-height: 1.5; }
+
+/* ============ TOAST ============ */
+.toasts {
+  position: fixed; top: calc(var(--safe-top) + 12px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 300; display: flex; flex-direction: column; gap: 8px;
+  width: calc(100% - 32px); max-width: 400px;
+  pointer-events: none;
+}
+.toast {
+  padding: 12px 16px; border-radius: 14px;
+  background: rgba(28, 28, 38, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-strong);
+  font-size: 13px; font-weight: 600; text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: toastIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-14px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast.out { animation: toastOut 0.28s forwards; }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(0.95); } }
+
+@media (min-width: 700px) {
+  #feed { max-width: 600px; margin: 0 auto; width: 100%; }
+  .bottom-nav { max-width: 600px; left: 50%; transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="toasts" id="toasts"></div>
+
+<div class="topbar">
+  <div class="logo">VIBE</div>
+  <input class="search" id="searchInput" placeholder="🔍 Поиск постов...">
+  <button class="avatar-btn" onclick="App.openProfile()">Я</button>
 </div>
-<div id="msg"></div>
-<div id="menu" class="ov"><h1>OCTAGON <b>KO</b></h1>
- <button id="bq">БЫСТРЫЙ БОЙ</button><button id="bt" class="g">ТРЕНИРОВКА</button><button id="bs" class="g">НАСТРОЙКИ</button><p id="hint"></p></div>
-<div id="set" class="ov h"><h1>НАСТРОЙКИ</h1><button id="sd" class="g"></button><button id="ss" class="g"></button><button id="sq" class="g"></button><button id="sb">НАЗАД</button></div>
-<div id="pause" class="ov h"><h1>ПАУЗА</h1><button id="pr">ПРОДОЛЖИТЬ</button><button id="pm" class="g">В МЕНЮ</button></div>
-<div id="res" class="ov h"><h1 id="rt"></h1><p id="rs" style="font-size:18px;color:#fff"></p><button id="rr">РЕВАНШ</button><button id="rm" class="g">В МЕНЮ</button></div>
-<div id="err" class="ov h"><h1>ОШИБКА</h1><p id="et">Не удалось загрузить Babylon.js. Проверьте интернет и обновите страницу.</p></div>
-<div id="tc"><div id="js"><div id="kn"></div></div>
- <div class="tb" data-a="jab" style="right:170px;bottom:110px">ДЖЕБ</div><div class="tb" data-a="cross" style="right:95px;bottom:110px">КРОСС</div><div class="tb" data-a="hook" style="right:20px;bottom:110px">ХУК</div>
- <div class="tb" data-a="kick" style="right:170px;bottom:30px">НОГА</div><div class="tb" data-a="upper" style="right:95px;bottom:30px">АППЕР</div><div class="tb" data-a="blk" style="right:20px;bottom:30px;background:rgba(224,32,44,.4)">БЛОК</div>
- <div class="tb" id="bp" style="right:10px;top:78px;width:44px;height:44px">II</div></div>
+
+<div id="feed"></div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-nav="feed">
+    <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+    <span>Лента</span>
+  </button>
+  <button class="nav-btn" data-nav="notifications">
+    <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8M9 20a3 3 0 006 0"/></svg>
+    <span>Активность</span>
+  </button>
+  <button class="nav-btn center" data-nav="create">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <button class="nav-btn" data-nav="trends">
+    <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M21 7v6h-6"/></svg>
+    <span>Тренды</span>
+  </button>
+  <button class="nav-btn" data-nav="me">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+    <span>Профиль</span>
+  </button>
+</nav>
+
+<div class="overlay" id="overlay" onclick="App.closeSheet(event)">
+  <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div id="sheetContent"></div>
+  </div>
+</div>
+
 <script>
-// ===== Константы и данные =====
-const $=i=>document.getElementById(i),rnd=(a,b)=>a+Math.random()*(b-a),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-const touch='ontouchstart' in window||navigator.maxTouchPoints>0;
-const S={diff:1,sound:true,low:touch,train:false};
-const DIFF=[{n:'Лёгкая',t:1.3,ag:.3,bl:.1},{n:'Средняя',t:.9,ag:.5,bl:.3},{n:'Высокая',t:.55,ag:.7,bl:.55}];
-// w=подготовка, a=активная фаза, r=восстановление (сек); c=расход выносливости; rng=дальность
-const ATK={jab:{w:.08,a:.08,r:.12,dmg:4,c:5,rng:1.05},cross:{w:.14,a:.09,r:.24,dmg:8,c:9,rng:1.1},hook:{w:.18,a:.09,r:.3,dmg:11,c:12,rng:1},upper:{w:.2,a:.09,r:.32,dmg:12,c:13,rng:.9},kick:{w:.22,a:.1,r:.38,dmg:10,c:14,rng:1.35}};
-const KEYA={KeyJ:'jab',KeyK:'cross',KeyL:'kick',KeyU:'hook',KeyI:'upper'};
-const CFG=[{name:'ATLAS REED',skin:'#8b5a3c',shorts:'#b51f2a',glove:'#171717',sc:1,w:1.08,spd:.95,pow:1.1},
-           {name:'MIRA VALE',skin:'#c58b68',shorts:'#1d4f91',glove:'#111111',sc:.96,w:.9,spd:1.1,pow:.95}];
-const show=(id,v)=>$(id).classList.toggle('h',!v);
+/* ============================================================
+   КОНФИГ
+   ============================================================ */
+const CONFIG = {
+  version: 2,
+  storageKey: 'vibe_save_v2',
+  me: { id: 'me', name: 'Ты', handle: '@me', color: '#6e5cff', initial: 'Я' },
+};
 
-// ===== Аудио (Web Audio, без файлов) =====
-const AU={c:null,
- init(){try{this.c=this.c||new(window.AudioContext||window.webkitAudioContext)();if(this.c.resume)this.c.resume()}catch(e){this.c=null}},
- tone(f,d,ty,v,to){if(!this.c||!S.sound)return;try{const c=this.c,o=c.createOscillator(),g=c.createGain(),n=c.currentTime;o.type=ty;o.frequency.setValueAtTime(f,n);if(to)o.frequency.exponentialRampToValueAtTime(to,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(c.destination);o.start(n);o.stop(n+d)}catch(e){}},
- noise(d,v){if(!this.c||!S.sound)return;try{const c=this.c,b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*(1-i/a.length);const s=c.createBufferSource(),g=c.createGain();s.buffer=b;g.gain.value=v;s.connect(g);g.connect(c.destination);s.start()}catch(e){}},
- hit(){this.noise(.12,.4);this.tone(130,.15,'sine',.4,50)},block(){this.tone(320,.08,'square',.1,150);this.noise(.05,.2)},whoosh(){this.noise(.1,.1)},
- bell(){this.tone(880,.9,'triangle',.25);this.tone(1320,.6,'triangle',.1)},crowd(){this.noise(1,.15)}};
+/* ============================================================
+   СТАРТОВЫЕ ДАННЫЕ
+   Демо-посты с видео из YouTube (публичные)
+   ============================================================ */
+function defaultState() {
+  return {
+    version: CONFIG.version,
+    posts: [
+      {
+        id: 'p1',
+        author: { id: 'u1', name: 'Arctic Vibes', handle: '@arcticvibes', color: '#4aa3ff', initial: 'A', verified: true },
+        text: 'Полярное сияние над Норвегией 🌌 Невероятное зрелище, обязательно посмотрите в HD #природа #northernlights',
+        videoId: 'Cs6Y4mR3vUY',
+        videoTitle: 'Northern Lights in 4K',
+        createdAt: Date.now() - 3600_000 * 2,
+        likes: 1243,
+        liked: false,
+        comments: [
+          { id: 'c1', name: 'Alina', initial: 'A', color: '#ff5e8a', text: 'Невероятно красиво 😍' },
+          { id: 'c2', name: 'Max', initial: 'M', color: '#4caf50', text: 'Добавил в закладки' },
+        ],
+      },
+      {
+        id: 'p2',
+        author: { id: 'u2', name: 'Lo-Fi Room', handle: '@lofiroom', color: '#b23aff', initial: 'L', verified: true },
+        text: 'Треки для работы и учёбы. Включай и погружайся 🎧',
+        videoId: 'jfKfPfyJRdk',
+        videoTitle: 'lofi hip hop radio — beats to relax/study to',
+        createdAt: Date.now() - 3600_000 * 8,
+        likes: 8921,
+        liked: false,
+        comments: [],
+      },
+      {
+        id: 'p3',
+        author: { id: 'u3', name: 'Space Now', handle: '@spacenow', color: '#ff9f0a', initial: 'S', verified: false },
+        text: 'Как выглядит запуск ракеты с борта МКС 🚀 #космос #space',
+        videoId: '21X5lGlDOfg',
+        videoTitle: 'Rocket Launch from ISS',
+        createdAt: Date.now() - 3600_000 * 20,
+        likes: 567,
+        liked: false,
+        comments: [],
+      },
+      {
+        id: 'p4',
+        author: { id: 'u4', name: 'Coffee Lab', handle: '@coffeelab', color: '#c98b3a', initial: 'C', verified: false },
+        text: 'Как приготовить идеальный латте дома. Сохраняй рецепт ☕️',
+        videoId: 'Q4f4rS6vGxE',
+        videoTitle: 'Perfect Latte at Home',
+        createdAt: Date.now() - 3600_000 * 48,
+        likes: 342,
+        liked: false,
+        comments: [],
+      },
+      {
+        id: 'p5',
+        author: { id: 'u5', name: 'Tech Pulse', handle: '@techpulse', color: '#30d158', initial: 'T', verified: true },
+        text: 'Обзор нового смартфона. Стоит ли обновляться? 📱 #tech',
+        videoId: 'dQw4w9WgXcQ',
+        videoTitle: 'Phone Review 2026',
+        createdAt: Date.now() - 3600_000 * 72,
+        likes: 1892,
+        liked: false,
+        comments: [],
+      },
+    ],
+    myPosts: [],
+    notifications: [
+      { id: 'n1', icon: '❤️', color: '#ff3b5c', text: 'Arctic Vibes и ещё 42 оценили ваш пост', time: Date.now() - 600_000 },
+      { id: 'n2', icon: '💬', color: '#6e5cff', text: 'Max прокомментировал: «Круто!»', time: Date.now() - 3600_000 },
+      { id: 'n3', icon: '👤', color: '#30d158', text: 'Lo-Fi Room подписался на вас', time: Date.now() - 7200_000 },
+    ],
+    myStats: { likes: 0, posts: 0, followers: 12 },
+    currentFilter: 'all',
+  };
+}
 
-// ===== Загрузка Babylon.js (CDN с запасными адресами) =====
-const URLS=['https://cdn.jsdelivr.net/npm/babylonjs@6.49.0/babylon.js','https://cdn.babylonjs.com/babylon.js'];
-(function L(i){if(window.BABYLON)return go();if(i>=URLS.length)return show('err',1);const s=document.createElement('script');s.src=URLS[i];s.onload=()=>window.BABYLON?go():L(i+1);s.onerror=()=>L(i+1);document.head.appendChild(s)})(0);
+/* ============================================================
+   STATE
+   ============================================================ */
+let S = null;
 
-function go(){try{
-const cv=$('c'),eng=new BABYLON.Engine(cv,true,{adaptToDeviceRatio:true}),sc=new BABYLON.Scene(eng),V=BABYLON.Vector3,col=h=>BABYLON.Color3.FromHexString(h);
-sc.clearColor=new BABYLON.Color4(.02,.02,.03,1);sc.fogMode=BABYLON.Scene.FOGMODE_EXP2;sc.fogDensity=.012;sc.fogColor=new BABYLON.Color3(.02,.02,.03);
-const cam=new BABYLON.FreeCamera('cam',new V(0,3,-8),sc);cam.fov=.85;cam.minZ=.1;cam.maxZ=80;
-const hl=new BABYLON.HemisphericLight('h',new V(0,1,0),sc);hl.intensity=.6;hl.groundColor=new BABYLON.Color3(.15,.15,.2);
-const sp=new BABYLON.SpotLight('s',new V(0,9,0),new V(0,-1,0),1.4,2,sc);sp.intensity=2.2;
-const sg=new BABYLON.ShadowGenerator(1024,sp);sg.useBlurExponentialShadowMap=true;sg.blurKernel=12;
-const pbr=(h,r,m)=>{const x=new BABYLON.PBRMaterial('m',sc);x.albedoColor=col(h);x.roughness=r;x.metallic=m||0;return x};
-const emi=h=>{const x=new BABYLON.StandardMaterial('e',sc);x.emissiveColor=col(h);x.disableLighting=true;return x};
-const nd=(p,x,y,z)=>{const n=new BABYLON.TransformNode('n',sc);n.parent=p;n.position.set(x,y,z);return n};
-const mk=(t,o,m,p,pos,s)=>{const x=BABYLON.MeshBuilder['Create'+t]('m',o,sc);x.material=m;x.parent=p;if(pos)x.position.set(pos[0],pos[1],pos[2]);if(s)x.scaling.set(s[0],s[1],s[2]);sg.addShadowCaster(x);return x};
+function save() {
+  try { localStorage.setItem(CONFIG.storageKey, JSON.stringify(S)); }
+  catch (e) { console.warn('save error', e); toast('⚠️ Не удалось сохранить'); }
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    if (!raw) { S = defaultState(); return; }
+    const data = JSON.parse(raw);
+    if (data.version !== CONFIG.version) { S = defaultState(); return; }
+    S = { ...defaultState(), ...data };
+  } catch (e) {
+    console.warn('load error', e);
+    S = defaultState();
+  }
+}
 
-// ===== Арена: октагон, сетка, стойки, зрители =====
-const A=4.6,R=A/Math.cos(Math.PI/8);
-{const P=[0,0,0],N=[0,1,0],I=[];for(let k=0;k<8;k++){const a=k*Math.PI/4+Math.PI/8;P.push(Math.cos(a)*R,0,Math.sin(a)*R);N.push(0,1,0);I.push(0,1+k,1+(k+1)%8)}
- const f=new BABYLON.Mesh('floor',sc),vd=new BABYLON.VertexData();vd.positions=P;vd.normals=N;vd.indices=I;vd.applyToMesh(f);
- const fm=pbr('#1b1d24',.7);fm.backFaceCulling=false;f.material=fm;f.receiveShadows=true;
- const rg=BABYLON.MeshBuilder.CreateTorus('r',{diameter:5.6,thickness:.08,tessellation:48},sc);rg.position.y=.03;rg.material=emi('#c8202c');
- const gr=BABYLON.MeshBuilder.CreateDisc('g',{radius:40,tessellation:32},sc);gr.rotation.x=Math.PI/2;gr.position.y=-.02;gr.material=pbr('#0d0d12',.9);
- const ft=new BABYLON.DynamicTexture('ft',{width:256,height:128},sc,true),fc=ft.getContext();fc.strokeStyle='rgba(210,210,220,.6)';fc.lineWidth=2;
- for(let i=-8;i<24;i++){fc.beginPath();fc.moveTo(i*16,0);fc.lineTo(i*16+128,128);fc.moveTo(i*16+128,0);fc.lineTo(i*16,128);fc.stroke()}
- ft.update();ft.hasAlpha=true;
- const fn=new BABYLON.StandardMaterial('fn',sc);fn.diffuseTexture=ft;fn.useAlphaFromDiffuseTexture=true;fn.backFaceCulling=false;fn.emissiveColor=col('#666');
- const post=pbr('#8a8a90',.4,.8),pad=pbr('#b51f2a',.9);
- for(let k=0;k<8;k++){const th=k*Math.PI/4,pl=BABYLON.MeshBuilder.CreatePlane('f',{width:A*.8284,height:1.9},sc);pl.position.set(Math.cos(th)*A,1.35,Math.sin(th)*A);pl.rotation.y=-th-Math.PI/2;pl.material=fn;
-  const a2=th+Math.PI/8,x=Math.cos(a2)*R,z=Math.sin(a2)*R,po=BABYLON.MeshBuilder.CreateCylinder('p',{height:2.4,diameter:.2},sc);po.position.set(x,1.2,z);po.material=post;
-  const pd=BABYLON.MeshBuilder.CreateCylinder('pd',{height:1,diameter:.34},sc);pd.position.set(x,.5,z);pd.material=pad}
- const cm=['#5a2a2a','#2a3a5a','#4a4a4a','#6a5a2a'].map(h=>pbr(h,.9)),cb=cm.map(m=>{const b=BABYLON.MeshBuilder.CreateBox('b',{width:.5,height:.7,depth:.35},sc);b.material=m;b.position.y=-50;return b});
- for(let r=0;r<(S.low?2:4);r++){const n=28+r*6;for(let i=0;i<n;i++){const a=i/n*Math.PI*2,rr=8+r*1.5,x=cb[(i+r)%4].createInstance('c');x.position.set(Math.cos(a)*rr,.9+r*.7,Math.sin(a)*rr);x.rotation.y=-a-Math.PI/2;x.scaling.y=rnd(.9,1.25)}}
- const st=BABYLON.MeshBuilder.CreateCylinder('st',{diameterTop:34,diameterBottom:20,height:5,tessellation:32,sideOrientation:BABYLON.Mesh.BACKSIDE},sc);st.position.y=2.5;st.material=pbr('#111118',1);
- const tr=BABYLON.MeshBuilder.CreateTorus('tl',{diameter:7,thickness:.2,tessellation:32},sc);tr.position.y=9;tr.material=emi('#ffffff')}
+/* ============================================================
+   ВИДЕО: извлечение YouTube ID из ссылки
+   ============================================================ */
+function extractYouTubeId(url) {
+  if (!url) return null;
+  url = url.trim();
+  // прямой ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return m[1];
+  }
+  return null;
+}
 
-// ===== Процедурная модель бойца (иерархия суставов) =====
-function build(g){
- const sk=pbr(g.skin,.55),sh=pbr(g.shorts,.9),gl=pbr(g.glove,.45,.1),dk=pbr('#15100e',.8),W=g.w;
- const root=nd(null,0,0,0),body=nd(root,0,0,0),pel=nd(body,0,.92,0),tor=nd(pel,0,.05,0),hd=nd(tor,0,.78,0),j={tor,hd,sh:[],el:[],hp:[],kn:[]};
- root.scaling.setAll(g.sc);
- mk('Capsule',{height:.64,radius:.16,tessellation:16},sk,tor,[0,.32,0],[1.25*W,1,.78]);
- mk('Capsule',{height:.4,radius:.14,tessellation:14},sk,tor,[0,.05,0],[1.1,1,.8]);
- mk('Sphere',{diameter:.34},sh,pel,[0,-.04,0],[1.05,.85,.8]);
- mk('Cylinder',{height:.3,diameterTop:.33,diameterBottom:.4,tessellation:16},sh,pel,[0,-.14,0],[W,1,.78]);
- mk('Capsule',{height:.2,radius:.055,tessellation:10},sk,tor,[0,.68,0]);
- mk('Sphere',{diameter:.23,segments:16},sk,hd,[0,.1,0],[1,1.18,1.05]);
- mk('Sphere',{diameter:.17,segments:12},sk,hd,[0,-.01,.015],[1,.7,.95]);
- mk('Sphere',{diameter:.24,segments:12},dk,hd,[0,.14,-.015],[1,.65,1.05]);
- mk('Sphere',{diameter:.045,segments:8},sk,hd,[0,.08,.12]);
- [-1,1].forEach((s,i)=>{
-  mk('Sphere',{diameter:.04,segments:6},dk,hd,[s*.04,.13,.105]);
-  mk('Sphere',{diameter:.05,segments:8},sk,hd,[s*.118,.1,0],[.4,1,.8]);
-  const sd=nd(tor,s*.24*W,.52,0),el=nd(sd,0,-.3,0),hip=nd(pel,s*.1,-.02,0),kn=nd(hip,0,-.46,0);
-  mk('Sphere',{diameter:.15*W,segments:10},sk,sd);
-  mk('Capsule',{height:.34,radius:.055,tessellation:10},sk,sd,[0,-.15,0],[1.1,1,1.1]);
-  mk('Capsule',{height:.3,radius:.045,tessellation:10},sk,el,[0,-.13,0]);
-  mk('Sphere',{diameter:.17,segments:10},gl,el,[0,-.32,0],[1,1.1,1.15]);
-  mk('Capsule',{height:.5,radius:.085,tessellation:12},sk,hip,[0,-.22,0]);
-  mk('Capsule',{height:.3,radius:.1,tessellation:12},sh,hip,[0,-.12,0]);
-  mk('Capsule',{height:.46,radius:.06,tessellation:10},sk,kn,[0,-.2,0]);
-  mk('Sphere',{diameter:.12,segments:8},sk,kn,[0,-.44,.06],[.85,.6,2]);
-  j.sh[i]=sd;j.el[i]=el;j.hp[i]=hip;j.kn[i]=kn});
- return{root,body,j}}
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'только что';
+  if (s < 3600) return Math.floor(s / 60) + ' мин';
+  if (s < 86400) return Math.floor(s / 3600) + ' ч';
+  if (s < 604800) return Math.floor(s / 86400) + ' д';
+  return new Date(ts).toLocaleDateString('ru-RU');
+}
+function esc(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function renderTextWithTags(text) {
+  return esc(text).replace(/#(\w+)/g, '<span class="tag">#$1</span>');
+}
+function uid(prefix = 'x') { return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-// ===== Боец: состояния, боевая система, процедурная анимация =====
-const G={mode:'menu',prev:'fight',round:1,time:60,lock:0,brk:0,endT:0,mt:0,t:0};
-const msg=(t,s)=>{$('msg').textContent=t;G.mt=s||1.5};
-class F{
- constructor(g){this.cfg=g;this.b=build(g);this.c={};this.in={f:0,s:0,run:0,blk:0,atk:null};this.walk=0;this.sp=0;this.blk=false;this.d=2;this.ph=0;this.at=0;this.reset(0)}
- place(x){const r=this.b.root;r.position.set(x,0,0);r.rotation.y=x<0?Math.PI/2:-Math.PI/2;this.state='free';this.atk=null;this.tmr=0;this.fall=0;this.kx=0;this.kz=0}
- reset(x){this.hp=100;this.st=100;this.place(x)}
- start(n){const a=ATK[n];if(this.st<a.c*.4)return;this.st-=a.c;this.state='atk';this.atk={...a,n};this.ph=0;this.at=a.w*(this.st<20?1.3:1)}
- hit(o){const a=this.atk,reach=a.rng*this.cfg.sc+.4;
-  if(this.d>reach||o.state==='down'||o.state==='getup'||o.state==='ko'||o.state==='win'||Math.random()<.1){AU.whoosh();return}
-  let dmg=a.dmg*this.cfg.pow*(this.st<20?.7:1)*rnd(.85,1.15);
-  if(o.state==='free'&&o.blk){dmg*=.15;o.hp-=dmg;o.st-=dmg*1.5+4;o.kx+=this.ax*1.5;o.kz+=this.az*1.5;AU.block()}
-  else{if(o.state==='atk'&&o.ph===0)dmg*=1.3;o.hp-=dmg;AU.hit();o.state='hit';o.tmr=.22+dmg*.02;o.atk=null;o.kx+=this.ax*dmg*.35;o.kz+=this.az*dmg*.35;
-   if(o.hp<=0){o.hp=0;o.state='ko'}
-   else if(dmg>=9&&Math.random()<.15+(1-o.hp/100)*.45){o.state='down';o.tmr=2.6;msg('НОКДАУН!',1.2);AU.crowd()}}
-  o.st=Math.max(0,o.st)}
- upd(dt,o){
-  const p=this.b.root.position,q=o.b.root.position;let dx=q.x-p.x,dz=q.z-p.z;const d=Math.hypot(dx,dz)||.001;dx/=d;dz/=d;this.d=d;this.ax=dx;this.az=dz;
-  const s=this.state,r=this.b.root;
-  if(s==='free'||s==='atk'||s==='hit'){let da=Math.atan2(dx,dz)-r.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));r.rotation.y+=da*Math.min(1,dt*12)}
-  this.tmr-=dt;let mx=0,mz=0,spd=0,sl=this.st<20?.75:1;
-  if(s==='free'){
-   this.blk=!!this.in.blk&&this.st>0;
-   const f=this.in.f,sd=this.in.s;spd=(this.in.run?3.3:2.1)*this.cfg.spd*sl*(this.blk?.4:1);
-   mx=dx*f-dz*sd;mz=dz*f+dx*sd;const l=Math.hypot(mx,mz);if(l>1){mx/=l;mz/=l}
-   if(this.in.run&&l>.1)this.st-=6*dt;
-   this.st+=(this.blk?-2:l>.1?6:11)*dt;
-   if(this.in.atk&&!this.blk)this.start(this.in.atk);this.in.atk=null;if(l<.1)spd=0}
-  else if(s==='atk'){
-   this.at-=dt;
-   if(this.ph===0&&this.at<=0){this.ph=1;this.at=this.atk.a;this.hit(o)}
-   else if(this.ph===1&&this.at<=0){this.ph=2;this.at=this.atk.r*(this.st<20?1.4:1)}
-   else if(this.ph===2&&this.at<=0){this.state='free';this.atk=null}
-   if(this.ph<2){spd=.8;mx=dx;mz=dz}this.st+=4*dt}
-  else{this.st+=4*dt;
-   if(s==='hit'&&this.tmr<=0)this.state='free';
-   else if(s==='down'&&this.tmr<=0&&this.hp>0){this.state='getup';this.tmr=.9}
-   else if(s==='getup'&&this.tmr<=0){this.state='free';this.st=Math.max(this.st,30)}}
-  this.sp=spd;if(spd>0){p.x+=mx*spd*dt;p.z+=mz*spd*dt;this.walk+=spd*dt*4}
-  p.x+=this.kx*dt;p.z+=this.kz*dt;const dk=Math.pow(.003,dt);this.kx*=dk;this.kz*=dk;
-  this.st=cl(this.st,0,100);
-  const ft=(this.state==='down'||this.state==='ko')?1:0;this.fall+=(ft-this.fall)*Math.min(1,dt*(ft?9:2.5))}
- tg(){const s=this.state,a=this.atk,w=this.ph===0,t=G.t;
-  const T={tX:Math.sin(t*2+this.cfg.sc*5)*.02+.05,tY:0,hX:.05,ls:-.9,la:.12,le:-1.6,rs:-.9,ra:.12,re:-1.7,hl:-.25,kl:.3,hr:.25,kr:.35};
-  if(s==='free'&&this.blk){T.ls=T.rs=-1.25;T.le=T.re=-2.2;T.hX=.3;T.tX=.25}
-  if(s==='free'&&this.sp>0){const m=Math.sin(this.walk);T.hl=-.25+m*.5;T.hr=.25-m*.5;T.kl=.3+Math.max(0,-m)*.5;T.kr=.35+Math.max(0,m)*.5}
-  if(s==='atk'&&this.ph<2)switch(a.n){
-   case'jab':T.ls=w?-.9:-1.5;T.le=w?-1.9:-.12;T.tY=w?-.05:.25;break;
-   case'cross':T.rs=w?-.8:-1.5;T.re=w?-2.1:-.12;T.tY=w?.3:-.55;break;
-   case'hook':T.la=1.45;T.ls=-.15;T.le=w?.7:-1.55;T.tY=w?-.3:.7;break;
-   case'upper':T.rs=w?-.2:-.9;T.re=w?-1.2:-1.9;T.tX=w?.25:-.1;T.hl=-.4;T.kl=.6;break;
-   case'kick':T.hr=w?.2:-1.5;T.kr=w?1.2:.15;T.tX=w?.1:-.25;break}
-  if(s==='hit'){T.tX=-.35;T.hX=-.4;T.ls=T.rs=-.5;T.le=T.re=-1}
-  if(s==='down'||s==='ko'||s==='getup'){T.ls=T.rs=-.3;T.le=T.re=-.3;T.la=T.ra=.7;T.hl=T.hr=-.1;T.kl=T.kr=.1;T.tX=0}
-  if(s==='win'){T.ls=T.rs=-2.9;T.le=T.re=-.15;T.la=T.ra=.35}
-  return T}
- ap(dt){const T=this.tg(),c=this.c,k=Math.min(1,dt*(this.state==='atk'?30:14)),j=this.b.j;
-  for(const n in T){if(c[n]===undefined)c[n]=T[n];c[n]+=(T[n]-c[n])*k}
-  j.tor.rotation.set(c.tX,c.tY,0);j.hd.rotation.x=c.hX;
-  j.sh[0].rotation.set(c.ls,0,-c.la);j.sh[1].rotation.set(c.rs,0,c.ra);j.el[0].rotation.x=c.le;j.el[1].rotation.x=c.re;
-  j.hp[0].rotation.x=c.hl;j.hp[1].rotation.x=c.hr;j.kn[0].rotation.x=c.kl;j.kn[1].rotation.x=c.kr;
-  this.b.body.rotation.x=-this.fall*1.5;this.b.body.position.y=this.fall*.14}}
+function toast(msg) {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('out');
+    setTimeout(() => t.remove(), 300);
+  }, 2200);
+}
 
-// ===== ИИ соперника =====
-const AI={t:0,q:[],bk:0,cs:1,
- upd(f,o,dt){const D=DIFF[S.diff],i=f.in,d=f.d;i.f=0;i.s=0;i.blk=0;i.run=0;
-  if(S.train||f.state!=='free')return;
-  this.t-=dt;this.bk-=dt;const r=Math.hypot(f.b.root.position.x,f.b.root.position.z);
-  if(this.bk>0){i.blk=1;return}
-  if(o.state==='atk'&&o.ph<2&&d<1.6&&Math.random()<D.bl*dt*6){this.bk=rnd(.3,.7);return}
-  if(r>3.5){i.s=this.cs;i.f=-.3}
-  if(f.st<25){i.f=-1;return}
-  if(this.q.length&&d<1.5){i.atk=this.q.shift();return}
-  if(this.t>0){if(d>1.4)i.f=1;else if(d<.9)i.f=-.6;return}
-  this.t=rnd(.6,1.4)*D.t;this.cs=Math.random()<.5?1:-1;
-  if(d>1.3){i.f=1;return}
-  if(Math.random()<D.ag+(o.hp<25?.2:0)){const N=['jab','cross','hook','upper','kick'],n=1+(Math.random()<D.ag?1:0)+(Math.random()<D.ag*.5?1:0);this.q=[];for(let k=0;k<n;k++)this.q.push(N[Math.random()*5|0]);i.atk=this.q.shift()}
-  else if(Math.random()<.5)this.bk=rnd(.3,.8);else i.f=-1}};
+/* ============================================================
+   РЕНДЕР ЛЕНТЫ
+   ============================================================ */
+function allPosts() {
+  return [...S.myPosts, ...S.posts].sort((a, b) => b.createdAt - a.createdAt);
+}
 
-// ===== Ввод: клавиатура и сенсор =====
-const P=new F(CFG[0]),E=new F(CFG[1]);
-const K={};let jx=0,jy=0,tb=0,jid=null;
-addEventListener('keydown',e=>{K[e.code]=1;AU.init();if(e.code==='Escape')pause();if(e.code==='Space')e.preventDefault();if(KEYA[e.code]&&G.mode==='fight')P.in.atk=KEYA[e.code]},{passive:false});
-addEventListener('keyup',e=>{K[e.code]=0});
-document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
-const js=$('js'),kn=$('kn');
-const jm=e=>{const r=js.getBoundingClientRect(),dx=e.clientX-(r.left+65),dy=e.clientY-(r.top+65),l=Math.hypot(dx,dy)||1,m=Math.min(l,45);kn.style.transform='translate('+dx/l*m+'px,'+dy/l*m+'px)';jx=dx/l*m/45;jy=-dy/l*m/45};
-js.addEventListener('pointerdown',e=>{jid=e.pointerId;js.setPointerCapture(jid);jm(e)});
-js.addEventListener('pointermove',e=>{if(e.pointerId===jid)jm(e)});
-const jr=e=>{if(e.pointerId===jid){jid=null;jx=jy=0;kn.style.transform=''}};js.addEventListener('pointerup',jr);js.addEventListener('pointercancel',jr);
-document.querySelectorAll('.tb[data-a]').forEach(b=>{const a=b.dataset.a;
- b.addEventListener('pointerdown',e=>{b.setPointerCapture(e.pointerId);AU.init();if(a==='blk')tb=1;else P.in.atk=a});
- const u=()=>{if(a==='blk')tb=0};b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u)});
-$('bp').addEventListener('pointerdown',()=>pause());
-const pin=()=>{const i=P.in;i.f=cl((K.KeyD?1:0)-(K.KeyA?1:0)+jx,-1,1);i.s=cl((K.KeyW?1:0)-(K.KeyS?1:0)+jy,-1,1);i.run=K.ShiftLeft||K.ShiftRight?1:0;i.blk=K.Space||tb?1:0};
-const zero=f=>{f.in.f=f.in.s=f.in.run=f.in.blk=0;f.in.atk=null};
+function filteredPosts() {
+  let posts = allPosts();
+  const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  if (q) {
+    posts = posts.filter(p =>
+      p.text.toLowerCase().includes(q) ||
+      p.author.name.toLowerCase().includes(q) ||
+      (p.videoTitle || '').toLowerCase().includes(q)
+    );
+  }
+  if (S.currentFilter === 'video') posts = posts.filter(p => p.videoId);
+  if (S.currentFilter === 'text') posts = posts.filter(p => !p.videoId);
+  if (S.currentFilter === 'mine') posts = S.myPosts;
+  return posts;
+}
 
-// ===== Состояния игры =====
-function setMode(m){G.mode=m;show('menu',m==='menu');show('set',m==='set');show('pause',m==='pause');show('res',m==='result');
- show('hud',m==='fight'||m==='break'||m==='pause'||m==='result');document.body.classList.toggle('t',touch&&(m==='fight'||m==='break'))}
-function pause(){if(G.mode==='fight'||G.mode==='break'){G.prev=G.mode;setMode('pause')}else if(G.mode==='pause')setMode(G.prev)}
-function begin(tr){S.train=tr;P.reset(-1.3);E.reset(1.3);AI.q=[];G.round=1;G.time=60;G.lock=1.6;G.endT=0;setMode('fight');msg(tr?'ТРЕНИРОВКА':'РАУНД 1',1.4);AU.bell();
- try{if(touch&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
-function menu(){P.reset(-1.3);E.reset(1.3);setMode('menu')}
-function finish(w,how){setMode('result');if(w&&w.state!=='ko')w.state='win';
- $('rt').textContent=w?(w===P?'ПОБЕДА':'ПОРАЖЕНИЕ'):'НИЧЬЯ';$('rs').textContent=how+(w?' — '+w.cfg.name:'');AU.crowd();AU.bell()}
-function newRound(){P.place(-1.3);E.place(1.3);P.hp=Math.min(100,P.hp+15);E.hp=Math.min(100,E.hp+15);P.st=E.st=100;AI.q=[];G.time=60;G.lock=1.2;G.endT=0;setMode('fight');msg('РАУНД '+G.round,1.4);AU.bell()}
-const lab=()=>{$('sd').textContent='СЛОЖНОСТЬ: '+DIFF[S.diff].n;$('ss').textContent='ЗВУК: '+(S.sound?'ВКЛ':'ВЫКЛ');$('sq').textContent='ГРАФИКА: '+(S.low?'НИЗКАЯ':'ВЫСОКАЯ')};
-const applyQ=()=>{eng.setHardwareScalingLevel(S.low?1.5:1);sp.shadowEnabled=!S.low;lab()};
-$('bq').onclick=()=>{AU.init();begin(false)};$('bt').onclick=()=>{AU.init();begin(true)};$('bs').onclick=()=>{AU.init();setMode('set')};$('sb').onclick=()=>setMode('menu');
-$('sd').onclick=()=>{S.diff=(S.diff+1)%3;lab()};$('ss').onclick=()=>{S.sound=!S.sound;lab()};$('sq').onclick=()=>{S.low=!S.low;applyQ()};
-$('pr').onclick=pause;$('pm').onclick=menu;$('rr').onclick=()=>begin(S.train);$('rm').onclick=menu;
-$('n1').textContent=CFG[0].name;$('n2').textContent=CFG[1].name;
-$('hint').textContent=touch?'Джойстик — движение. Кнопки справа — удары и блок.':'WASD — движение (D — к сопернику) · J джеб · K кросс · L нога · U хук · I апперкот · Пробел — блок · Shift — бег · Esc — пауза';
-applyQ();setMode('menu');
+function renderFeed() {
+  const feed = document.getElementById('feed');
+  const posts = filteredPosts();
 
-// ===== Камера и игровой цикл =====
-let tg=new V(0,1.2,0);const cd={x:0,z:-1};
-function camUpd(dt){const a=P.b.root.position,b=E.b.root.position,dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||1,k=Math.min(1,dt*2);
- cd.x+=(dz/d-cd.x)*k;cd.z+=(-dx/d-cd.z)*k;const l=Math.hypot(cd.x,cd.z)||1,dist=cl(3.4+d*.85,4.3,7.5),cx=(a.x+b.x)/2,cz=(a.z+b.z)/2;
- cam.position=V.Lerp(cam.position,new V(cx+cd.x/l*dist,1.7+d*.1,cz+cd.z/l*dist),Math.min(1,dt*3));tg=V.Lerp(tg,new V(cx,1.15,cz),Math.min(1,dt*4));cam.setTarget(tg)}
-function sep(){const a=P.b.root.position,b=E.b.root.position,dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||.01;
- if(d<.75){const k=(.75-d)/2/d;a.x-=dx*k;a.z-=dz*k;b.x+=dx*k;b.z+=dz*k}
- for(const p of[a,b]){const r=Math.hypot(p.x,p.z);if(r>4){p.x*=4/r;p.z*=4/r}}}
-function tick(dt){const m=G.mode;if(m==='pause')return;G.t+=dt;
- if(G.mt>0){G.mt-=dt;if(G.mt<=0)$('msg').textContent=''}
- if(m==='fight'&&G.lock<=0){pin();AI.upd(E,P,dt)}else{zero(P);zero(E);if(G.lock>0)G.lock-=dt}
- P.upd(dt,E);E.upd(dt,P);sep();P.ap(dt);E.ap(dt);
- if(m==='menu'||m==='set'){const a=G.t*.25;cam.position=V.Lerp(cam.position,new V(Math.sin(a)*7.5,2.6,Math.cos(a)*7.5),Math.min(1,dt*2));tg=V.Lerp(tg,new V(0,1.1,0),Math.min(1,dt*3));cam.setTarget(tg)}else camUpd(dt);
- if(m==='fight'&&G.lock<=0){
-  if(!S.train){G.time-=dt;
-   if(P.state==='ko'||E.state==='ko'){G.endT+=dt;if(G.endT>1.8)finish(P.state==='ko'?E:P,'НОКАУТ')}
-   else if(G.time<=0){if(G.round<3){setMode('break');G.brk=4;msg('КОНЕЦ РАУНДА '+G.round,3.5);AU.bell()}else{const df=P.hp-E.hp;finish(df>0?P:df<0?E:null,'РЕШЕНИЕ СУДЕЙ')}}}
-  else if(E.state==='ko'){G.endT+=dt;if(G.endT>1.5){E.reset(1.3);G.endT=0}}}
- if(m==='break'){G.brk-=dt;if(G.brk<=0){G.round++;newRound()}}
- $('hp1').style.width=P.hp+'%';$('hp2').style.width=E.hp+'%';$('st1').style.width=P.st+'%';$('st2').style.width=E.st+'%';
- const s=Math.max(0,Math.ceil(G.time));$('tm').textContent=S.train?'∞':(s/60|0)+':'+String(s%60).padStart(2,'0');$('rd').textContent=S.train?'ТРЕН.':'R'+G.round+'/3'}
-eng.runRenderLoop(()=>{tick(Math.min(eng.getDeltaTime()/1000,.05));sc.render()});
-addEventListener('resize',()=>eng.resize());
-}catch(e){console.error(e);$('et').textContent='Не удалось запустить WebGL/Babylon.js: '+e.message;show('err',1)}}
-</script></body></html>
+  let html = `
+    <div class="tabs">
+      <button class="tab ${S.currentFilter === 'all' ? 'active' : ''}" onclick="App.setFilter('all')">Все</button>
+      <button class="tab ${S.currentFilter === 'video' ? 'active' : ''}" onclick="App.setFilter('video')">🎬 Видео</button>
+      <button class="tab ${S.currentFilter === 'text' ? 'active' : ''}" onclick="App.setFilter('text')">💬 Текст</button>
+      <button class="tab ${S.currentFilter === 'mine' ? 'active' : ''}" onclick="App.setFilter('mine')">Мои</button>
+    </div>
+  `;
+
+  if (!posts.length) {
+    html += `<div class="empty"><div class="e-icon">📭</div><div class="e-text">Здесь пока пусто<br>Создайте первый пост!</div></div>`;
+    feed.innerHTML = html;
+    return;
+  }
+
+  html += posts.map(renderPost).join('');
+  feed.innerHTML = html;
+}
+
+function renderPost(p) {
+  const liked = p.liked;
+  const comments = p.comments || [];
+  const videoBlock = p.videoId ? `
+    <div class="post-media">
+      <iframe
+        src="https://www.youtube.com/embed/${p.videoId}?rel=0&modestbranding=1"
+        title="${esc(p.videoTitle || 'video')}"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>` : '';
+
+  return `
+    <div class="post" data-post="${p.id}">
+      <div class="post-head">
+        <div class="post-avatar" style="background:${p.author.color}">${p.author.initial}</div>
+        <div class="post-meta">
+          <div class="post-author">
+            ${esc(p.author.name)}
+            ${p.author.verified ? '<span class="verified">✓</span>' : ''}
+          </div>
+          <div class="post-time">${esc(p.author.handle)} · ${timeAgo(p.createdAt)}</div>
+        </div>
+        <button class="post-more" onclick="App.postMenu('${p.id}')">⋯</button>
+      </div>
+      <div class="post-text">${renderTextWithTags(p.text)}</div>
+      ${videoBlock}
+      <div class="post-actions">
+        <button class="action ${liked ? 'liked' : ''}" onclick="App.toggleLike('${p.id}')">
+          <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 000-7.8z"/></svg>
+          <span>${p.likes}</span>
+        </button>
+        <button class="action" onclick="App.toggleComments('${p.id}')">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-9 8.4 8.5 8.5 0 01-3.9-.9L3 21l2-4.6A8.4 8.4 0 013 11.5a8.4 8.4 0 019-8.4 8.4 8.4 0 019 8.4z"/></svg>
+          <span>${comments.length}</span>
+        </button>
+        <button class="action" onclick="App.share('${p.id}')">
+          <svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>
+          <span>Поделиться</span>
+        </button>
+      </div>
+      <div class="comments ${comments.length ? '' : ''}" id="c-${p.id}">
+        ${comments.map(c => `
+          <div class="comment">
+            <div class="comment-avatar" style="background:${c.color}">${c.initial}</div>
+            <div class="comment-body">
+              <div class="comment-author">${esc(c.name)}</div>
+              <div class="comment-text">${esc(c.text)}</div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="comment-input-row">
+          <input class="comment-input" id="ci-${p.id}" placeholder="Написать комментарий..." onkeydown="if(event.key==='Enter')App.addComment('${p.id}')">
+          <button class="comment-send" onclick="App.addComment('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   ЛОГИКА
+   ============================================================ */
+function findPost(id) {
+  return S.posts.find(p => p.id === id) || S.myPosts.find(p => p.id === id);
+}
+
+function toggleLike(id) {
+  const p = findPost(id);
+  if (!p) return;
+  if (p.liked) { p.likes = Math.max(0, p.likes - 1); p.liked = false; }
+  else { p.likes++; p.liked = true; }
+  save();
+  // локальное обновление кнопки без полной перерисовки (чтобы видео не перезагружалось)
+  const postEl = document.querySelector(`[data-post="${id}"]`);
+  if (postEl) {
+    const btn = postEl.querySelector('.action');
+    btn.classList.toggle('liked', p.liked);
+    btn.querySelector('span').textContent = p.likes;
+  }
+}
+
+function toggleComments(id) {
+  const el = document.getElementById('c-' + id);
+  if (!el) return;
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) {
+    setTimeout(() => document.getElementById('ci-' + id)?.focus(), 200);
+  }
+}
+
+function addComment(id) {
+  const input = document.getElementById('ci-' + id);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const p = findPost(id);
+  if (!p) return;
+  p.comments = p.comments || [];
+  p.comments.push({
+    id: uid('c'),
+    name: CONFIG.me.name,
+    initial: CONFIG.me.initial,
+    color: CONFIG.me.color,
+    text,
+  });
+  input.value = '';
+  save();
+  // Обновляем DOM
+  const box = document.getElementById('c-' + id);
+  const newC = document.createElement('div');
+  newC.className = 'comment';
+  newC.innerHTML = `
+    <div class="comment-avatar" style="background:${CONFIG.me.color}">${CONFIG.me.initial}</div>
+    <div class="comment-body">
+      <div class="comment-author">${esc(CONFIG.me.name)}</div>
+      <div class="comment-text">${esc(text)}</div>
+    </div>`;
+  box.insertBefore(newC, box.querySelector('.comment-input-row'));
+  // счётчик
+  const postEl = document.querySelector(`[data-post="${id}"]`);
+  if (postEl) {
+    const btns = postEl.querySelectorAll('.action');
+    if (btns[1]) btns[1].querySelector('span').textContent = p.comments.length;
+  }
+}
+
+function share(id) {
+  const p = findPost(id);
+  if (!p) return;
+  const url = p.videoId ? `https://youtu.be/${p.videoId}` : location.href;
+  if (navigator.share) {
+    navigator.share({ title: p.author.name, text: p.text, url }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+    toast('🔗 Ссылка скопирована');
+  } else {
+    toast('Скопируйте ссылку: ' + url);
+  }
+}
+
+function postMenu(id) {
+  const p = findPost(id);
+  if (!p) return;
+  const isMine = S.myPosts.some(x => x.id === id);
+  showSheet(`
+    <h3>Пост</h3>
+    <button class="btn-ghost" onclick="App.share('${id}');App.closeSheet();">🔗 Скопировать ссылку</button>
+    ${isMine ? `<button class="btn-ghost" style="color:var(--red);" onclick="App.deletePost('${id}')">🗑 Удалить пост</button>` : ''}
+    <button class="btn-ghost" onclick="App.closeSheet()">Отмена</button>
+  `);
+}
+
+function deletePost(id) {
+  const idx = S.myPosts.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  S.myPosts.splice(idx, 1);
+  S.myStats.posts = Math.max(0, S.myStats.posts - 1);
+  save();
+  closeSheetDirect();
+  renderFeed();
+  toast('Пост удалён');
+}
+
+function setFilter(f) {
+  S.currentFilter = f;
+  save();
+  renderFeed();
+}
+
+/* ============================================================
+   МОДАЛКА: СОЗДАНИЕ ПОСТА
+   ============================================================ */
+function openCreate() {
+  showSheet(`
+    <h3>Новый пост</h3>
+    <textarea class="field" id="newText" placeholder="Что нового?"></textarea>
+    <input class="field" id="newVideo" placeholder="Ссылка на YouTube (необязательно)" oninput="App.previewVideo(this.value)">
+    <div class="url-hint">
+      Вставьте ссылку на видео с YouTube — например<br>
+      <b>https://youtu.be/dQw4w9WgXcQ</b> или <b>https://www.youtube.com/watch?v=dQw4w9WgXcQ</b>
+    </div>
+    <div class="video-preview" id="videoPreview"></div>
+    <button class="btn-primary" id="publishBtn" onclick="App.publishPost()">Опубликовать</button>
+    <button class="btn-ghost" onclick="App.closeSheet()">Отмена</button>
+  `);
+  setTimeout(() => document.getElementById('newText')?.focus(), 300);
+}
+
+function previewVideo(url) {
+  const box = document.getElementById('videoPreview');
+  if (!box) return;
+  const id = extractYouTubeId(url);
+  if (id) {
+    box.classList.add('on');
+    box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?rel=0&modestbranding=1" allowfullscreen></iframe>`;
+  } else {
+    box.classList.remove('on');
+    box.innerHTML = '';
+  }
+}
+
+function publishPost() {
+  const text = document.getElementById('newText')?.value.trim();
+  const videoUrl = document.getElementById('newVideo')?.value.trim();
+  if (!text && !videoUrl) { toast('⚠️ Добавьте текст или видео'); return; }
+
+  const videoId = videoUrl ? extractYouTubeId(videoUrl) : null;
+  if (videoUrl && !videoId) { toast('⚠️ Некорректная ссылка на YouTube'); return; }
+
+  const post = {
+    id: uid('mp'),
+    author: { ...CONFIG.me, verified: false },
+    text: text || '(без текста)',
+    videoId: videoId || null,
+    videoTitle: videoId ? 'Video' : null,
+    createdAt: Date.now(),
+    likes: 0,
+    liked: false,
+    comments: [],
+  };
+
+  S.myPosts.unshift(post);
+  S.myStats.posts++;
+  save();
+  closeSheetDirect();
+  S.currentFilter = 'all';
+  renderFeed();
+  toast('✅ Пост опубликован');
+  document.getElementById('feed').scrollTop = 0;
+}
+
+/* ============================================================
+   ПРОФИЛЬ
+   ============================================================ */
+function openProfile() {
+  const myPosts = S.myPosts.length;
+  const totalLikes = S.myPosts.reduce((s, p) => s + p.likes, 0);
+  showSheet(`
+    <div class="profile-head">
+      <div class="profile-avatar">Я</div>
+      <div class="profile-name">Ты</div>
+      <div class="profile-tag">@me</div>
+    </div>
+    <div class="profile-stats">
+      <div class="pstat"><div class="n">${myPosts}</div><div class="l">Постов</div></div>
+      <div class="pstat"><div class="n">${totalLikes}</div><div class="l">Лайков</div></div>
+      <div class="pstat"><div class="n">${S.myStats.followers}</div><div class="l">Подписчиков</div></div>
+    </div>
+    <button class="btn-primary" onclick="App.closeSheet();App.setFilter('mine');document.getElementById('feed').scrollTop=0;">Мои посты</button>
+    <button class="btn-ghost" onclick="App.openCreate()">➕ Создать пост</button>
+    <button class="btn-ghost" style="color:var(--red);" onclick="App.resetAll()">🗑 Сбросить всё</button>
+  `);
+}
+
+function resetAll() {
+  if (!confirm('Удалить все данные и вернуть демо-посты?')) return;
+  localStorage.removeItem(CONFIG.storageKey);
+  S = defaultState();
+  save();
+  closeSheetDirect();
+  renderFeed();
+  toast('🔄 Данные сброшены');
+}
+
+/* ============================================================
+   УВЕДОМЛЕНИЯ
+   ============================================================ */
+function openNotifications() {
+  const items = S.notifications;
+  showSheet(`
+    <h3>Активность</h3>
+    ${items.length ? items.map(n => `
+      <div class="notif">
+        <div class="notif-icon" style="background:${n.color}22;color:${n.color};">${n.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;line-height:1.4;">${esc(n.text)}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px;">${timeAgo(n.time)}</div>
+        </div>
+      </div>
+    `).join('') : '<div class="empty"><div class="e-icon">🔔</div><div class="e-text">Пока нет активности</div></div>'}
+  `);
+}
+
+/* ============================================================
+   ТРЕНДЫ
+   ============================================================ */
+function openTrends() {
+  // Топ-5 постов по лайкам
+  const top = [...allPosts()].sort((a, b) => b.likes - a.likes).slice(0, 5);
+  showSheet(`
+    <h3>🔥 В тренде</h3>
+    ${top.map((p, i) => `
+      <div class="notif" onclick="App.closeSheet();document.getElementById('feed').scrollTop=0;">
+        <div class="notif-icon" style="background:linear-gradient(135deg,#6e5cff,#b23aff);color:#fff;font-weight:800;">${i+1}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13.5px;font-weight:600;line-height:1.35;">${esc(p.text.slice(0, 80))}${p.text.length > 80 ? '...' : ''}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px;">${esc(p.author.name)} · ❤️ ${p.likes}</div>
+        </div>
+      </div>
+    `).join('')}
+  `);
+}
+
+/* ============================================================
+   SHEET API
+   ============================================================ */
+function showSheet(html) {
+  document.getElementById('sheetContent').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSheet(e) {
+  if (e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('open');
+}
+function closeSheetDirect() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+function setActiveNav(name) {
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.nav === name);
+  });
+}
+
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ============================================================ */
+function init() {
+  load();
+  renderFeed();
+
+  // Нижняя навигация
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nav = btn.dataset.nav;
+      setActiveNav(nav);
+      if (nav === 'feed') { S.currentFilter = 'all'; save(); renderFeed(); document.getElementById('feed').scrollTop = 0; }
+      else if (nav === 'notifications') openNotifications();
+      else if (nav === 'create') { setActiveNav('feed'); openCreate(); }
+      else if (nav === 'trends') openTrends();
+      else if (nav === 'me') openProfile();
+    });
+  });
+
+  // Поиск
+  let searchTimer;
+  document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderFeed, 200);
+  });
+}
+
+/* ============================================================
+   API
+   ============================================================ */
+const App = {
+  toggleLike, toggleComments, addComment, share, postMenu, deletePost,
+  setFilter, openCreate, previewVideo, publishPost, openProfile, resetAll,
+  openNotifications, openTrends, closeSheet, openSheet: showSheet,
+};
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
