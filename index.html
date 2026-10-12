@@ -26,8 +26,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .screen.active{display:flex;opacity:1}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .fade-in{animation:fadeIn .6s ease forwards}
-
-/* МЕНЮ */
 #menu{justify-content:center;text-align:center}
 .title-block{margin-bottom:30px;z-index:3}
 .game-title{font-size:clamp(28px,7vw,64px);letter-spacing:.14em;font-weight:700;
@@ -54,8 +52,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .btn.small{padding:9px 14px;font-size:13px;letter-spacing:.08em}
 .menu-footer{margin-top:28px;font-size:12px;letter-spacing:.3em;color:var(--text-dim);
   z-index:3;text-transform:uppercase}
-
-/* ВЫБОР ПЕРСОНАЖА */
 #charSelect{padding:24px 14px}
 .cs-title{font-size:clamp(20px,5vw,32px);letter-spacing:.18em;color:var(--gold);
   text-align:center;margin-bottom:8px;text-transform:uppercase;text-shadow:0 0 20px rgba(212,175,55,.4)}
@@ -79,8 +75,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .cs-desc{font-size:12px;line-height:1.5;color:var(--text-dim);text-align:center;letter-spacing:.02em}
 .cs-actions{display:flex;gap:10px;width:min(360px,92vw)}
 .cs-actions .btn{flex:1;padding:12px;font-size:14px}
-
-/* ИГРА */
 #game{padding:0;justify-content:flex-start}
 #topbar{position:absolute;top:0;left:0;right:0;height:52px;display:flex;
   align-items:center;justify-content:space-between;padding:0 12px;z-index:20;
@@ -134,21 +128,16 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
   margin-top:12px;gap:10px;min-height:38px}
 #hint{font-size:11px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
 #continueBtn{padding:10px 22px;font-size:13px}
-
-/* IPHONE WIDGET */
 #iphoneWidget{position:fixed;left:14px;bottom:14px;width:70px;height:140px;z-index:40;
   cursor:pointer;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8));
   transition:transform .3s ease,filter .3s ease;display:none}
 #iphoneWidget.show{display:block}
-#iphoneWidget:hover{transform:translateY(-3px) scale(1.04);
-  filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
+#iphoneWidget:hover{transform:translateY(-3px) scale(1.04);filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
 #iphoneWidget .notif{position:absolute;top:6px;right:6px;min-width:18px;height:18px;
   border-radius:9px;background:#e63946;color:#fff;font-size:11px;font-family:-apple-system,sans-serif;
   display:flex;align-items:center;justify-content:center;padding:0 5px;
   box-shadow:0 0 10px rgba(230,57,70,.8);animation:notifPulse 1.8s ease-in-out infinite}
 @keyframes notifPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-
-/* ПОЛНОЭКРАННЫЙ ЧАТ */
 #chatView{position:fixed;inset:0;z-index:100;display:none;background:rgba(4,3,6,.96);
   backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:10px}
 #chatView.active{display:flex;animation:fadeIn .35s ease}
@@ -170,10 +159,11 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .chatName{font-size:15px;font-weight:600;font-family:-apple-system,'Segoe UI',sans-serif;
   letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chatStatus{font-size:11px;color:#8a8a90;font-family:-apple-system,sans-serif;margin-top:2px}
-.chatBody{flex:1;overflow-y:auto;padding:16px 12px;background:#0d0d12;
+.chatBody{flex:1;overflow-y:auto;padding:16px 12px 8px;background:#0d0d12;
   background-image:radial-gradient(circle at 20% 30%,rgba(122,15,28,.06),transparent 60%),
    radial-gradient(circle at 80% 70%,rgba(212,175,55,.04),transparent 60%)}
-.msgRow{display:flex;margin-bottom:10px;align-items:flex-end;gap:6px}
+.msgRow{display:flex;margin-bottom:10px;align-items:flex-end;gap:6px;animation:msgIn .35s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .msgRow.mine{flex-direction:row-reverse}
 .msgRow.sys{justify-content:center}
 .msgBubble{max-width:78%;padding:9px 13px;border-radius:16px;font-family:-apple-system,
@@ -182,20 +172,15 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .msgRow.them .msgBubble{background:#1f1f26;border-bottom-left-radius:5px}
 .msgRow.mine .msgBubble{background:linear-gradient(135deg,#2a5cd1,#1c47a8);border-bottom-right-radius:5px}
 .msgName{font-size:10.5px;font-weight:600;letter-spacing:.04em;margin-bottom:3px;
-  opacity:.8;text-transform:uppercase}
-.msgRow.them .msgName{color:#e0a04a}
+  opacity:.85;text-transform:uppercase}
 .msgRow.kop .msgName{color:#7ab8e0}
 .msgRow.ars .msgName{color:#c78fd9}
-.msgTime{font-size:10px;opacity:.55;margin-left:6px;display:inline-block;vertical-align:bottom}
 .msgSys{font-size:11.5px;color:#8a8a90;font-family:-apple-system,sans-serif;
   text-align:center;padding:6px 12px;background:rgba(255,255,255,.04);border-radius:10px;
   letter-spacing:.02em;max-width:80%}
-
-/* ГОЛОСОВОЕ */
 .voiceMsg{display:flex;align-items:center;gap:10px;min-width:160px;cursor:pointer;user-select:none}
 .voicePlay{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);
-  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
-  transition:all .2s}
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
 .voiceMsg:hover .voicePlay{background:rgba(255,255,255,.3)}
 .voiceMsg.playing .voicePlay{background:#fff;color:#2a5cd1}
 .voiceWave{display:flex;align-items:center;gap:2px;flex:1;height:22px}
@@ -213,21 +198,16 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .voiceMsg:not(.playing) .voiceWave span{animation-play-state:paused;opacity:.6}
 @keyframes waveBounce{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.1)}}
 .voiceDur{font-size:11px;opacity:.7;margin-left:6px;flex-shrink:0}
-
-.chatInput{height:60px;flex-shrink:0;background:#14141a;border-top:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;padding:8px 12px;gap:8px}
-.chatInputBox{flex:1;background:#22222a;border-radius:18px;height:36px;
-  display:flex;align-items:center;padding:0 14px;color:#fff;font-size:14px;
-  font-family:-apple-system,sans-serif;letter-spacing:.01em}
-.chatInputBox.disabled{opacity:.5}
-.chatMicBtn{width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,#2a5cd1,#1c47a8);border:0;color:#fff;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;
-  transition:all .2s;flex-shrink:0;font-family:inherit}
-.chatMicBtn:hover{transform:scale(1.06);box-shadow:0 0 18px rgba(42,92,209,.6)}
-.chatMicBtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-
-/* НАКЛАДКИ */
+.chatNext{flex-shrink:0;padding:14px 16px 22px;background:#14141a;
+  border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:center}
+.chatNextBtn{font-family:-apple-system,'Segoe UI',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:.06em;padding:11px 32px;border-radius:22px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#2a5cd1,#1c47a8);color:#fff;
+  transition:all .2s;box-shadow:0 4px 14px rgba(42,92,209,.4)}
+.chatNextBtn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(42,92,209,.6)}
+.chatNextBtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.chatChoiceWrap{padding:6px 12px 12px;background:#0d0d12;display:flex;flex-direction:column;gap:7px}
+.chatChoiceWrap .choice-btn{font-size:13.5px;padding:11px 12px 11px 38px}
 .overlay{position:absolute;inset:0;background:rgba(4,3,6,.86);backdrop-filter:blur(8px);
   display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
 .overlay.active{display:flex;animation:fadeIn .3s ease}
@@ -269,7 +249,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 #endingTitle{font-size:clamp(22px,6vw,40px);letter-spacing:.2em;color:var(--gold);
   text-align:center;margin-bottom:14px;text-transform:uppercase;text-shadow:0 0 30px rgba(212,175,55,.5)}
 #endingText{font-size:16px;line-height:1.7;color:var(--text);text-align:center;
-  max-width:560px;margin-bottom:24px}
+  max-width:560px;margin-bottom:24px;white-space:pre-line}
 @media (min-width:900px){#photoWrap{width:300px}#stage{padding-top:70px}}
 @media (max-height:640px){#photoWrap{width:min(40vw,150px)}#dialogText{min-height:50px;font-size:14px}}
 ::-webkit-scrollbar{width:6px}
@@ -282,7 +262,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
   <div id="bgLayer"></div>
   <div id="vignette"></div>
 
-  <!-- МЕНЮ -->
   <div id="menu" class="screen active">
     <div class="title-block">
       <div class="game-title">МАФИЯ<span class="sub">ИСТОРИЯ ДРУЗЕЙ</span></div>
@@ -295,10 +274,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <button class="btn" id="btnSettings">Настройки</button>
       <button class="btn" id="btnAbout">Об авторах</button>
     </div>
-    <div class="menu-footer">18+ · Жёсткая драма · v2.0</div>
+    <div class="menu-footer">18+ · Жёсткая драма · v3.0</div>
   </div>
 
-  <!-- ВЫБОР ПЕРСОНАЖА -->
   <div id="charSelect" class="screen">
     <div class="cs-title">Выбери, за кого играешь</div>
     <div class="cs-sub">Остальные двое станут твоими друзьями</div>
@@ -309,7 +287,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- ИГРА -->
   <div id="game" class="screen">
     <div id="topbar">
       <div class="chapter-ind" id="chapterInd">Глава 1</div>
@@ -339,7 +316,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     <div id="progressWrap"><div id="progressBar"></div></div>
   </div>
 
-  <!-- IPHONE WIDGET -->
   <div id="iphoneWidget" title="iPhone">
     <svg viewBox="0 0 70 140" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -364,17 +340,15 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <rect x="1" y="44" width="1.5" height="14" rx="0.7" fill="#5a5450"/>
       <rect x="1" y="62" width="1.5" height="14" rx="0.7" fill="#5a5450"/>
       <rect x="67.5" y="42" width="1.5" height="22" rx="0.7" fill="#5a5450"/>
-      <rect x="0.5" y="80" width="1" height="16" rx="0.5" fill="#5a5450"/>
       <text x="35" y="72" text-anchor="middle" font-family="-apple-system,sans-serif"
         font-size="22" fill="rgba(255,255,255,.15)" font-weight="300">11:47</text>
       <circle cx="35" cy="100" r="12" fill="none" stroke="rgba(212,175,55,.4)" stroke-width="1.5"/>
       <text x="35" y="105" text-anchor="middle" font-family="-apple-system,sans-serif"
         font-size="11" fill="rgba(212,175,55,.8)" font-weight="600">М</text>
     </svg>
-    <div class="notif" id="iphoneNotif">3</div>
+    <div class="notif" id="iphoneNotif">1</div>
   </div>
 
-  <!-- ПОЛНОЭКРАННЫЙ ЧАТ -->
   <div id="chatView">
     <div class="phoneWrap">
       <svg class="phoneSvg" viewBox="0 0 420 880" preserveAspectRatio="xMidYMid meet">
@@ -411,15 +385,14 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
           </div>
         </div>
         <div class="chatBody" id="chatBody"></div>
-        <div class="chatInput">
-          <div class="chatInputBox" id="chatInputBox">Сообщение</div>
-          <button class="chatMicBtn" id="chatMicBtn" title="Записать голосовое">🎤</button>
+        <div class="chatChoiceWrap" id="chatChoiceWrap" style="display:none"></div>
+        <div class="chatNext" id="chatNextWrap">
+          <button class="chatNextBtn" id="chatNextBtn">Следующее</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ПАУЗА -->
   <div id="pauseOverlay" class="overlay">
     <div class="panel">
       <h2>Пауза</h2>
@@ -430,7 +403,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- НАСТРОЙКИ -->
   <div id="settingsOverlay" class="overlay">
     <div class="panel">
       <h2>Настройки</h2>
@@ -444,7 +416,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- ЖУРНАЛ -->
   <div id="historyOverlay" class="overlay">
     <div class="panel" style="width:min(560px,94vw)">
       <h2>Журнал диалогов</h2>
@@ -453,7 +424,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- КОНЦОВКИ -->
   <div id="endingsOverlay" class="overlay">
     <div class="panel">
       <h2>Концовки</h2>
@@ -462,23 +432,21 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- ОБ АВТОРАХ -->
   <div id="aboutOverlay" class="overlay">
     <div class="panel">
       <h2>Об авторах</h2>
       <p style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px">
         «МАФИЯ: ИСТОРИЯ ДРУЗЕЙ» — интерактивная криминальная новелла
-        о трёх друзьях, одном деле, предательстве и групповом чате, который всё меняет.
+        о трёх друзьях, одном деле, предательстве и групповом чате.
       </p>
       <p style="font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:18px">
-        Выбор персонажа меняет взгляд на историю. Мишулик Пупулик — единственный,
-        у кого в руках iPhone 16 Pro Max с чатом «Шныри».
+        Каждый выбор ведёт по своему сюжету. Мишулик Пупулик —
+        единственный, у кого в руках iPhone 16 Pro Max с чатом «Шныри».
       </p>
       <button class="btn primary" id="btnCloseAbout">Назад</button>
     </div>
   </div>
 
-  <!-- ФИНАЛ -->
   <div id="endingOverlay" class="overlay">
     <div class="panel" style="text-align:center">
       <div id="endingTitle">ФИНАЛ</div>
@@ -487,7 +455,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     </div>
   </div>
 
-  <!-- ПОДТВЕРЖДЕНИЕ -->
   <div id="confirmOverlay" class="overlay">
     <div class="panel">
       <h2 id="confirmTitle">Подтверждение</h2>
@@ -500,183 +467,284 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 
 <script>
 /* ============================================================
-   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v2
+   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3
+   Ветвление через label/goto. Кавказский стиль речи.
    ============================================================ */
 
 const CHARS = {
-  sem: { name:'Уебок', img:'sem.jpg', color:'#e07a5f',
-         voice:{rate:1.08,pitch:0.85,vol:1},
-         desc:'Дерзкий, самоуверенный, лезет в драку первым. Постоянно пытается казаться главным.' },
-  rus: { name:'Секс парень', img:'rus%20.jpg', color:'#81b29a',
-         voice:{rate:1.0,pitch:1.15,vol:1},
-         desc:'Трикстер и провокатор. Шутит даже когда не надо. Умеет договариваться со всеми — но только за себя.' },
+  sem: { name:'Семь', img:'sem.jpg', color:'#e07a5f',
+         voice:{rate:1.10,pitch:0.85,vol:1},
+         desc:'Дерзкий, самоуверенный, лезет в драку первым. Каждый раз доказывает, что он главный. Хотя не он.' },
+  rus: { name:'Ростик', img:'rus%20.jpg', color:'#81b29a',
+         voice:{rate:1.02,pitch:1.18,vol:1},
+         desc:'Трикстер. Ржёт даже когда не надо. Договаривается со всеми — но только за себя. Скрывает больше, чем говорит.' },
   mih: { name:'Мишулик Пупулик', img:'mih%20.jpg', color:'#f2cc8f',
          voice:{rate:0.84,pitch:0.68,vol:1},
-         desc:'Старший. Немногословный, принципиальный. Не терпит фамильярности. У него свой iPhone и свои шныри.' }
+         desc:'Старший. Немногословный. Не терпит фамильярности. У него iPhone 16 Pro Max и свои шныри.' }
 };
 const CHAT_PEERS = {
-  kop: { name:'Копатыч', color:'#7ab8e0', initial:'К' },
-  ars: { name:'Арсенчик', color:'#c78fd9', initial:'А' }
+  kop:{ name:'Копатыч', color:'#7ab8e0' },
+  ars:{ name:'Арсенчик', color:'#c78fd9' }
 };
 
-/* ---------- ГЛАВЫ ---------- */
+/* ---------- ГЛАВЫ ----------
+   label:'x' — метка для goto. goto:'x' — прыжок.
+   Ветка после choice идёт: label → шаги → {goto:'common'} → label:'common'.
+*/
 const CHAPTERS = [
 {
-  id:'ch1', title:'Глава 1. Стрелка в гараже',
+  id:'ch1', title:'Глава 1. Стрелка',
   steps:[
-    {t:'n', text:'Пятница. Заброшенный гараж на окраине. Пахнет бензином, ржавчиной и дешёвым пивом.'},
-    {t:'n', text:'Трое собрались, как обычно. Только в этот раз что-то висело в воздухе. Что-то тяжёлое.'},
-    {t:'sem', text:'Ну чё, бойцы. Собрались. Я уж думал, вы зассали.'},
-    {t:'rus', text:'Зассали? Я, блять, через весь город на двух автобусах ехал. Ты бы хоть пива нормального взял.'},
-    {t:'sem', text:'Не нравится — не пей. Мне пох.'},
-    {t:'mih', text:'Хватит орать. Говори, зачем позвал.'},
-    {t:'sem', text:'О, Мишулик включил старшего. Как всегда.'},
+    {t:'n', text:'Пятница. Заброшенный гараж. Пахнет бензином и старым пивом.'},
+    {t:'n', text:'Трое снова вместе. Только воздух сегодня густой. Как будто что-то висит.'},
+    {t:'sem', text:'Э, слышь. Ну чё, собрались наконец. Я уж думал, вы зассали.'},
+    {t:'rus', text:'Зассали? Я, бля, через весь город на двух автобусах ехал. Ты бы хоть пива нормального взял, а не это пойло.'},
+    {t:'sem', text:'Не нравится — не пей. Мне пох, я не барыга.'},
+    {t:'mih', text:'Хорош орать. Говори, зачем позвал.'},
+    {t:'sem', text:'О, Мишулик включил старшего. Как всегда, бля.'},
     {t:'mih', text:'Ты как общаешься.'},
-    {t:'sem', text:'Да нормально я общаюсь! Как с равным!'},
+    {t:'sem', text:'Нормально я общаюсь! Как с равным!'},
     {t:'mih', text:'Мы не равные. Я старше.'},
     {t:'rus', text:'О боже, опять эта тема. Ты старше нас на два месяца, Мишулик. Два. Месяца.'},
-    {t:'mih', text:'Два месяца — это два месяца. Старший младших знай.'},
-    {t:'sem', text:'Слышь, а чё это у тебя в руках? Новый айфон что ли?'},
+    {t:'mih', text:'Старший младших знай. Всё.'},
+    {t:'sem', text:'Э, а чё это у тебя в руках? Новый айфон, что ли?'},
     {t:'mih', text:'iPhone 16 Pro Max.'},
     {t:'rus', text:'Ох ты ж, бля. С какого перепугу?'},
     {t:'mih', text:'Заработал. У меня мозги есть. В отличие от некоторых.'},
-    {t:'sem', text:'Ты чё, намекаешь?'},
-    {t:'mih', text:'Я не намекаю. Я говорю прямо.'},
-    {t:'n', text:'Семён напрягся. Руслан сделал вид, что ему похуй. Но все поняли: вечер будет длинным.'},
+    {t:'sem', text:'Э, ты чё, намекаешь, да?'},
+    {t:'mih', text:'Я не намекаю. Я прямо говорю.'},
     {choice:[
-      {text:'Спросить Мишулика, как он заработал на iPhone.', trust:{mih:1}, flag:{asked_iphone:true}},
-      {text:'Осадить Мишулика, чтоб не выёбывался.', trust:{mih:-1}, conflict:1, flag:{pressed_mih_ch1:true}},
-      {text:'Промолчать и наблюдать.', reputation:1, flag:{watcher_ch1:true}}
+      {text:'Э, Мишулик, хорош выёбываться. Расскажи нормально.', trust:{mih:-1}, conflict:1, goto:'b1a'},
+      {text:'Слушай, а чё реально заработал? Научи.', trust:{mih:1}, goto:'b1b'},
+      {text:'Промолчать. Пусть сами разбираются.', reputation:1, goto:'b1c'}
     ]},
-    {t:'sem', text:'Короче, слушайте сюда. У меня тема есть. Серьёзная.'},
-    {t:'rus', text:'О, началось. Опять «тема». Прошлая «тема» закончилась тем, что ты три месяца отдавал мне долг.'},
-    {t:'sem', text:'Это была не тема. Это была хуйня. А сейчас — тема.'},
+    {label:'b1a', t:'mih', text:'Ты чё, аухел, долбоёб? Я тебе чё, отчёт должен давать?'},
+    {t:'mih', text:'Ты как общаешься. Я старший. Понял, да?'},
+    {t:'sem', text:'Э, хорош, хорош. Я просто спросил.'},
+    {t:'mih', text:'Спрашивай вежливо. Тогда отвечу.'},
+    {goto:'b1_common'},
+
+    {label:'b1b', t:'mih', text:'Ничего не буду рассказывать. Просто работал. И тебе советую.'},
+    {t:'sem', text:'О, бля, начал. Работал он.'},
+    {t:'mih', text:'А ты чё сделал, кроме того, что пиздишь?'},
+    {t:'sem', text:'Э, ты полегче.'},
+    {t:'mih', text:'Я полегче не умею. Я старший, я тяжёлый.'},
+    {goto:'b1_common'},
+
+    {label:'b1c', t:'n', text:'Семь смотрит на тебя с прищуром. Мишулик — с холодком. Никто не проронил ни слова.'},
+    {t:'rus', text:'Э, чё притихли? Дальше чё?'},
+    {goto:'b1_common'},
+
+    {label:'b1_common', t:'sem', text:'Короче, слушайте сюда. Тема серьёзная.'},
+    {t:'rus', text:'О, началось. Опять «тема». Прошлая «тема» закончилась тем, что ты мне три месяца долг отдавал.'},
+    {t:'sem', text:'Это хуйня была, а не тема. Сейчас — тема.'},
     {t:'mih', text:'Ну говори.'},
-    {t:'sem', text:'Есть один человек. Гриша. Вы его знаете.'},
-    {t:'mih', text:'Знаем. Мутный тип.'},
-    {t:'rus', text:'Мутный — это мягко сказано. Он мне однажды предлагал «работу» в каком-то подвале.'},
-    {t:'sem', text:'Так вот. У него есть предложение. За нехуй делать — поднять нормальные бабки.'},
-    {t:'mih', text:'Опиши «нехуй делать».'},
-    {t:'sem', text:'Ночью на один склад зайти. Взять что плохо лежит. Уйти.'},
+    {t:'sem', text:'Есть один человек. Гриша. Знаете его?'},
+    {t:'mih', text:'Знаю. Мутный.'},
+    {t:'rus', text:'Мутный — это мягко сказано. Он мне как-то «работу» предлагал в подвале. Я отказался, но до сих пор в дрожь бросает.'},
+    {t:'sem', text:'Так вот. У него есть предложение. Поднять нормальные бабки за одну ночь.'},
+    {t:'mih', text:'Опиши «одну ночь». Подробно.'},
+    {t:'sem', text:'Ночью на склад зайти. Взять что плохо лежит. Уйти.'},
     {t:'rus', text:'А если «плохо лежит» — это чьи-то документы, и за них потом спросят?'},
-    {t:'sem', text:'Ты чё, пророк? За базар отвечаю — всё чисто.'},
-    {t:'mih', text:'Ты за базар уже отвечал. В прошлый раз. Закончилось плохо.'},
-    {t:'n', text:'Семён зло сплюнул. Руслан хмыкнул. Мишулик спрятал айфон в карман.'},
+    {t:'sem', text:'Ты чё, пророк? Отвечаю — чисто всё.'},
+    {t:'mih', text:'Ты уже отвечал. В прошлый раз. Плохо кончилось.'},
     {choice:[
-      {text:'Я в деле, если Мишулик тоже.', flag:{need_mih_agree:true}},
-      {text:'Отказываюсь. И вам не советую.', trust:{mih:1}, flag:{refused_ch1:true}},
-      {text:'А что нам за это будет?', flag:{asked_pay:true}}
+      {text:'Я в деле, если Мишулик тоже.', goto:'b1d'},
+      {text:'Отказываюсь. И вам не советую.', trust:{mih:1}, goto:'b1e'},
+      {text:'А что нам за это будет?', goto:'b1f'}
     ]},
-    {t:'n', text:'Разговор прервался. Где-то вдалеке завыла собака. Как будто предупреждала.'},
+    {label:'b1d', t:'sem', text:'О, вот это по-нашему! Слышал, Мишулик? Вон как надо.'},
+    {t:'mih', text:'Ты чё, за него решаешь? Пусть сам скажет.'},
+    {t:'sem', text:'Да он всегда молчит. Толку с него.'},
+    {t:'mih', text:'Я твой рот ебал. Ещё раз так скажешь — я тебе сам всё объясню.'},
+    {goto:'b1_end'},
+
+    {label:'b1e', t:'mih', text:'Во. Вот это ответ. А ты, Семь, головой думай хоть иногда.'},
+    {t:'sem', text:'Э, чё вы оба как бабы? Одна ночь — и всё.'},
+    {t:'mih', text:'Одна ночь может стать последней. Ты это в голове держи.'},
+    {goto:'b1_end'},
+
+    {label:'b1f', t:'sem', text:'Много. Очень много. Тебе и не снилось столько.'},
+    {t:'mih', text:'Если обещают много — значит, рискуешь всем. Это азы, Семь.'},
+    {t:'sem', text:'Да я знаю, знаю. Но попробовать-то можно?'},
+    {goto:'b1_end'},
+
+    {label:'b1_end', t:'n', text:'Разговор повис. Где-то вдалеке завыла собака. Как будто предупреждала.'},
   ]
 },
 {
-  id:'ch2', title:'Глава 2. Кто здесь главный',
+  id:'ch2', title:'Глава 2. Кто тут главный',
   steps:[
-    {t:'n', text:'Кухня Руслана. Утро. Три чашки, один разговор и слишком много самолюбия.'},
-    {t:'rus', text:'Итак. Вчера мы ничё не решили. Совсем ничё.'},
-    {t:'sem', text:'Мы решили подумать. Я подумал. Я — за.'},
+    {t:'n', text:'Кухня Ростика. Утро. Три чашки и слишком много самолюбия.'},
+    {t:'rus', text:'Итак. Вчера ничё не решили. Совсем ничё.'},
+    {t:'sem', text:'Я подумал. Я — за.'},
     {t:'mih', text:'Я тоже подумал. Я — против.'},
     {t:'sem', text:'Кто бы сомневался. Ты всегда против. Ты вообще против всего.'},
     {t:'mih', text:'Не против всего. Против хуйни.'},
     {t:'sem', text:'А это, по-твоему, хуйня?'},
     {t:'mih', text:'Это, по-моему, пиздец. Разные вещи.'},
     {t:'rus', text:'Ребят, вы вообще слышите друг друга? Или вам просто нравится орать по утрам?'},
-    {t:'sem', text:'Слышь, Руслан, а ты вообще за кого?'},
+    {t:'sem', text:'Слышь, Ростик, а ты вообще за кого?'},
     {t:'rus', text:'Я за себя.'},
     {t:'sem', text:'Вот и я о том же. Ты всегда за себя.'},
     {t:'rus', text:'А ты всегда за всех, да? Прям благодетель хуев.'},
     {t:'mih', text:'Хватит.'},
     {t:'n', text:'Оба замолчали. Мишулик говорил редко. Но если говорил — все затыкались.'},
-    {t:'mih', text:'Мы не будем решать это так. Не втроём. Не сейчас.'},
-    {t:'sem', text:'А как будем? На собрании? С повесткой дня?'},
+    {t:'mih', text:'Мы не будем решать так. Не втроём. Не сейчас.'},
+    {t:'sem', text:'А как будем? Собрание устроим, с повесткой?'},
     {t:'mih', text:'Ты как общаешься.'},
-    {t:'sem', text:'Да бля, опять ты со своим «как общаешься». Заебал!'},
+    {t:'sem', text:'Да бля, опять ты со своим «как общаешься». Заебал, честное слово!'},
     {t:'mih', text:'Старший младших знай. Привыкай.'},
-    {t:'rus', text:'Слышите? Вот из-за этого мы и срёмся. Все время одно и то же.'},
+    {t:'rus', text:'Слышите? Вот из-за этого мы и срёмся. Всё время одно и то же.'},
     {choice:[
-      {text:'Поддержать Мишулика: он прав, надо остыть.', trust:{mih:2}, trust2:{sem:-1}, flag:{sided_mih_ch2:true}},
-      {text:'Поддержать Уебка: хватит строить из себя батю.', trust:{sem:2}, trust2:{mih:-1}, conflict:1, flag:{sided_sem_ch2:true}},
-      {text:'Встать на сторону Секс парня: он единственный тут думает.', trust:{rus:2}, flag:{sided_rus_ch2:true}}
+      {text:'Э, Мишулик реально прав. Хорош бузить.', trust:{mih:2}, trust2:{sem:-1}, goto:'b2a'},
+      {text:'Семь дело говорит. Хватит из себя батю строить.', trust:{sem:2}, trust2:{mih:-1}, conflict:1, goto:'b2b'},
+      {text:'Ростик один тут думает. За ним и пойдём.', trust:{rus:2}, goto:'b2c'}
     ]},
-    {t:'sem', text:'Знаете что? Идите вы оба. Я сам всё сделаю.'},
-    {t:'mih', text:'Ты сам только до первого угла дойдёшь. Потом сядешь и заплачешь.'},
+    {label:'b2a', t:'sem', text:'Э, ты чё, сдурел? Он же просто выёбывается!'},
+    {t:'mih', text:'Я не выёбываюсь. Я старший. Это разные вещи, дорогой.'},
+    {t:'sem', text:'Да пошёл ты.'},
+    {t:'mih', text:'Я твой рот ебал. Ещё раз так скажешь — я тебя сам отведу куда надо.'},
+    {t:'rus', text:'Э, э, э. Хорош, пацаны. Хорош.'},
+    {goto:'b2_mid'},
+
+    {label:'b2b', t:'mih', text:'Значит, я батя? Хорошо. Тогда слушай, что батя говорит.'},
+    {t:'sem', text:'О, началось.'},
+    {t:'mih', text:'Я говорю: в это дело мы не лезем. Точка.'},
+    {t:'sem', text:'А ты кто такой вообще, чтобы решать?'},
+    {t:'mih', text:'Я тот, кто тебя из дерьма вытаскивал. Дважды. Забыл?'},
+    {goto:'b2_mid'},
+
+    {label:'b2c', t:'rus', text:'О, наконец-то. Хоть один нормальный человек здесь.'},
+    {t:'mih', text:'Ты чё, Ростик, самый умный?'},
+    {t:'rus', text:'Я не самый умный. Я самый трезвый.'},
+    {t:'sem', text:'Э, а чё это значит?'},
+    {t:'rus', text:'Это значит, что вы двое как дети малые. Один орёт, второй молчит. А решать-то надо.'},
+    {goto:'b2_mid'},
+
+    {label:'b2_mid', t:'sem', text:'Знаете что? Идите вы оба. Я сам всё сделаю.'},
+    {t:'mih', text:'Сам ты только до первого угла дойдёшь. Потом сядешь и заплачешь.'},
     {t:'sem', text:'Ты меня плохо знаешь.'},
     {t:'mih', text:'Я тебя с семи лет знаю. Ты в семь лет плакал, когда мороженое не купили.'},
-    {t:'rus', text:'О, помню! Ты там ещё продавщице что-то орал про справедливость!'},
-    {t:'sem', text:'Заткнись, Руслан.'},
+    {t:'rus', text:'О, помню-помню! Ты там ещё продавщице что-то орал про справедливость, ага!'},
+    {t:'sem', text:'Заткнись, Ростик.'},
     {t:'rus', text:'Не заткнусь. Это мой дом. Я тут главный.'},
     {t:'mih', text:'Ты? Главный?'},
     {t:'rus', text:'А кто? Ты, что ли?'},
     {t:'mih', text:'Я. Старший младших знай.'},
-    {t:'n', text:'Руслан заржал. Мишулик не заржал. Тишина стала тяжёлой, как мокрое пальто.'},
+    {t:'n', text:'Ростик заржал. Мишулик не заржал. Тишина стала тяжёлой, как мокрое пальто.'},
     {t:'n', text:'И тут у Мишулика в кармане завибрировал телефон. Он достал iPhone, глянул на экран и помрачнел.'},
     {t:'sem', text:'Чё там у тебя?'},
     {t:'mih', text:'Не твоё дело.'},
     {t:'rus', text:'О-о-о, у нашего старшего секреты.'},
     {t:'mih', text:'Сказал — не твоё дело.'},
-    {t:'n', text:'Он убрал телефон. Но было видно: что-то его зацепило.'},
     {choice:[
-      {text:'Спросить прямо: кто написал?', trust:{mih:-1}, flag:{pressed_about_chat:true}},
-      {text:'Оставить в покое. У каждого свои дела.', trust:{mih:1}, flag:{respect_chat_private:true}},
-      {text:'Подколоть: «Наверное, баба пишет».', trust:{mih:-2}, conflict:1, flag:{mocked_chat:true}}
+      {text:'Спросить прямо: кто написал?', trust:{mih:-1}, goto:'b2d'},
+      {text:'Оставить в покое. У каждого свои дела.', trust:{mih:1}, goto:'b2e'},
+      {text:'Подколоть: «Наверное, баба пишет».', trust:{mih:-2}, conflict:1, goto:'b2f'}
     ]},
+    {label:'b2d', t:'mih', text:'Слушай, ты чё такой любопытный? Тебе какое дело?'},
+    {t:'sem', text:'Ну интересно же.'},
+    {t:'mih', text:'Интересно у бабы под юбкой. А тут — моё.'},
+    {t:'rus', text:'Ох, жёстко.'},
+    {goto:'b2_end'},
+
+    {label:'b2e', t:'mih', text:'Спасибо. Хоть кто-то понимает, что бывает личное.'},
+    {t:'rus', text:'Да ладно, чё ты. Мы же друзья.'},
+    {t:'mih', text:'Друзья — это когда не лезут в чужое. Запомни.'},
+    {goto:'b2_end'},
+
+    {label:'b2f', t:'mih', text:'Ты чё, аухел, долбоёб? Ты как со старшим разговариваешь?'},
+    {t:'sem', text:'Э, да я шучу!'},
+    {t:'mih', text:'Шутки у тебя как у базарной бабы. Думай, что говоришь.'},
+    {t:'rus', text:'Так, всё. Хорош.'},
+    {goto:'b2_end'},
+
+    {label:'b2_end', t:'n', text:'Вечер повис. Никто не знал, что дальше. Но все чувствовали — что-то будет.'},
   ]
 },
 {
-  id:'ch3', title:'Глава 3. Странное предложение',
+  id:'ch3', title:'Глава 3. Мутное предложение',
   steps:[
     {t:'n', text:'Вечер. Кинотеатр, у которого горит только половина букв. Моросит.'},
     {t:'sem', text:'Я встретился с Гришей.'},
-    {t:'rus', text:'Один?! Ты совсем ебанулся?'},
+    {t:'rus', text:'Один?! Ты чё, совсем ебанулся?'},
     {t:'sem', text:'Я хотел детали. И услышал.'},
     {t:'mih', text:'Ну.'},
-    {t:'sem', text:'Он предложил не склад. Он предложил кое-что другое.'},
+    {t:'sem', text:'Он предложил не склад. Другое.'},
     {t:'rus', text:'Что именно?'},
-    {t:'sem', text:'У него есть «документы». За них дадут больше, чем за любой склад. В разы.'},
-    {t:'mih', text:'Документы. Ты как общаешься. Ты понимаешь, во что лезешь?'},
+    {t:'sem', text:'У него есть документы. За них дадут больше, чем за любой склад. В разы.'},
+    {t:'mih', text:'Документы. Ты как общаешься. Ты вообще понимаешь, во что лезешь?'},
     {t:'sem', text:'Понимаю. Понимаю, что опасно. Понимаю, что глупо. Но я устал считать копейки.'},
     {t:'rus', text:'Ты преувеличиваешь.'},
-    {t:'sem', text:'Я не преувеличиваю. Я просто устал слушать, как вы двое спорите, кто из вас главный.'},
-    {t:'n', text:'Сказал тихо. Так, что никто не стал спорить.'},
+    {t:'sem', text:'Я не преувеличиваю. Я устал слушать, как вы двое спорите, кто из вас главный.'},
     {choice:[
-      {text:'Расскажи всё. Решим вместе.', trust:{sem:1}, flag:{full_trust_ch3:true}},
-      {text:'Мы не будем в этом участвовать. Точка.', trust:{mih:1}, flag:{refuse_ch3:true}},
-      {text:'А что за документы? Кто хозяин?', flag:{curious_ch3:true}}
+      {text:'Расскажи всё. Решим вместе.', trust:{sem:1}, goto:'b3a'},
+      {text:'Мы не будем в этом участвовать. Точка.', trust:{mih:1}, goto:'b3b'},
+      {text:'А что за документы? Кто хозяин?', goto:'b3c'}
     ]},
-    {t:'sem', text:'Это бумаги одного человека. Большого. Если они всплывут — у него будут проблемы. Очень большие.'},
-    {t:'mih', text:'А если не всплывут — проблемы будут у нас.'},
-    {t:'rus', text:'Или у нас будут деньги.'},
-    {t:'mih', text:'Или у нас будут деньги. Как повезёт. Ты вообще не думаешь о последствиях?'},
-    {t:'rus', text:'Я думаю о том, что живём один раз.'},
-    {t:'n', text:'Руслан улыбнулся. Ему нравилось, когда всё звучало как игра. Мишулику — нет.'},
+    {label:'b3a', t:'sem', text:'Спасибо. Хоть кто-то меня слышит.'},
+    {t:'mih', text:'Слышим. Но не значит, что соглашаемся.'},
+    {t:'rus', text:'И это правильно. Мы решаем вместе.'},
+    {goto:'b3_mid'},
+
+    {label:'b3b', t:'sem', text:'Э, ты чё, серьёзно? Ты понимаешь, что мы всё теряем?'},
+    {t:'mih', text:'Мы уже всё потеряли. Осталось не потерять себя.'},
+    {t:'sem', text:'Красиво говоришь. А жрать что будем?'},
+    {t:'mih', text:'Не ссы. Пробьёмся.'},
+    {goto:'b3_mid'},
+
+    {label:'b3c', t:'sem', text:'Хозяин — большой человек. Если документы всплывут — у него будут проблемы. Огромные.'},
+    {t:'mih', text:'А если не всплывут — проблемы будут у нас. Ты это понимаешь?'},
+    {t:'sem', text:'Понимаю.'},
+    {t:'rus', text:'Так, стоп. Давайте без паники. Думаем.'},
+    {goto:'b3_mid'},
+
+    {label:'b3_mid', t:'mih', text:'Это бумаги одного человека. Большого. Если всплывут — у него будут проблемы.'},
+    {t:'rus', text:'А если не всплывут — проблемы будут у нас.'},
+    {t:'mih', text:'Или у нас будут деньги.'},
+    {t:'rus', text:'Или у нас будут деньги. Как повезёт. Ты вообще о последствиях думаешь?'},
+    {t:'mih', text:'Я думаю о том, что живём один раз.'},
+    {t:'n', text:'Ростик улыбнулся. Ему нравилось, когда всё звучало как игра. Мишулику — нет.'},
     {choice:[
-      {text:'Я — за. Идём вместе.', trust:{sem:1}, flag:{in_deal:true}},
-      {text:'Я — против. И вам не советую.', trust:{mih:1}, flag:{against_deal:true}},
-      {text:'Давайте сначала проверим самого Гришу.', reputation:1, flag:{check_gref:true}}
+      {text:'Я — за. Идём вместе.', trust:{sem:1}, goto:'b3d'},
+      {text:'Я — против. И вам не советую.', trust:{mih:1}, goto:'b3e'},
+      {text:'Сначала проверим самого Гришу.', reputation:1, goto:'b3f'}
     ]},
-    {t:'rus', text:'Ну наконец хоть кто-то что-то решил.'},
-    {t:'mih', text:'Ты как общаешься. Мы не бабы на базаре. Мы идиоты, которые связываются с Гришей. Это другое.'},
-    {t:'sem', text:'Значит, идём. Завтра вечером он ждёт.'},
+    {label:'b3d', t:'sem', text:'Вот! Вот это мужик! А вы двое — бабы.'},
+    {t:'mih', text:'Я твой рот ебал. Ещё раз так скажешь — я тебе лично всё объясню.'},
+    {t:'rus', text:'Э, э. Хорош, пацаны.'},
+    {goto:'b3_end'},
+
+    {label:'b3e', t:'mih', text:'Уважаю. Не все умеют сказать «нет».'},
+    {t:'sem', text:'Э, вы чё, серьёзно? Оба?'},
+    {t:'mih', text:'Оба. И тебе советую.'},
+    {t:'sem', text:'Я один пойду тогда.'},
+    {t:'mih', text:'Иди. Только потом не приползай.'},
+    {goto:'b3_end'},
+
+    {label:'b3f', t:'rus', text:'О, наконец-то умная мысль. Гриша — мутный тип.'},
+    {t:'mih', text:'Согласен. Прежде чем лезть — узнаем, с кем имеем дело.'},
+    {t:'sem', text:'Да знаю я его! Нормальный мужик!'},
+    {t:'mih', text:'Ты много кого знаешь. И все оказываются «нормальными». До первого кидка.'},
+    {goto:'b3_end'},
+
+    {label:'b3_end', t:'sem', text:'Значит, идём. Завтра вечером он ждёт.'},
     {t:'n', text:'Никто не сказал «нет». И это было самое страшное.'},
   ]
 },
 {
   id:'ch4', title:'Глава 4. Шныри',
   steps:[
-    {t:'n', text:'Ночь. Мишулик один в своей квартире. В руках — iPhone 16 Pro Max.'},
+    {t:'n', text:'Ночь. Мишулик один в квартире. В руках — iPhone 16 Pro Max.'},
     {t:'n', text:'Он открыл мессенджер. Группа «Шныри». Копатыч и Арсенчик.'},
-    {t:'mih', text:'Так. Двое. Опять молчат.'},
-    {t:'n', text:'Он нажал и удерживал кнопку записи. Голосовое полетело в чат.'},
+    {t:'mih', text:'Так. Двое. Опять молчат, суки.'},
+    {t:'n', text:'Он записал голосовое. Отправил. Потом ещё одно. И ещё.'},
     {t:'n', text:'[Открой iPhone в левом нижнем углу — прочитай чат]'},
     {t:'n', text:'Он отложил телефон. Через минуту — вибрация. Ещё одна. Ещё.'},
-    {t:'mih', text:'Ага. Зашевелились, суки.'},
-    {t:'n', text:'Он открыл чат и начал читать. Читал долго. Молча.'},
     {t:'n', text:'Чем дальше читал — тем темнее становилось лицо.'},
     {t:'n', text:'Когда дочитал — закрыл чат. Отложил телефон экраном вниз.'},
     {t:'n', text:'И не написал больше ни слова.'},
-    {t:'n', text:'Не в этот вечер. Ни на следующий. Ни через неделю.'},
-    {t:'n', text:'Его шныри впервые в жизни ответили ему так, что старший промолчал.'},
     {t:'n', text:'(Открой iPhone и пройди чат до конца, чтобы продолжить историю.)'},
   ],
   needChat:true
@@ -684,48 +752,81 @@ const CHAPTERS = [
 {
   id:'ch5', title:'Глава 5. Три дня молчания',
   steps:[
-    {t:'n', text:'Прошло три дня. Документы должны были быть у Семёна ещё вчера. Их не было.'},
+    {t:'n', text:'Прошло три дня. Документы должны были быть у Семя ещё вчера.'},
     {t:'rus', text:'Он не отвечает. Три дня. Три. Дня.'},
     {t:'mih', text:'Может, занят.'},
     {t:'rus', text:'Чем, Мишулик? Чем он занят? Тем, что нас сдаёт?'},
     {t:'mih', text:'Не ёрничай.'},
     {t:'rus', text:'Я не ёрничаю. Я замечаю. Ты тоже заметил. Просто молчишь.'},
-    {t:'n', text:'Мишулик отвернулся. Он действительно заметил. И это его бесило.'},
     {t:'mih', text:'А ты сам где был позавчера вечером?'},
     {t:'rus', text:'В смысле?'},
     {t:'mih', text:'В прямом. Я звонил — никто не взял.'},
     {t:'rus', text:'Я в душе был. Или спал.'},
     {t:'mih', text:'Разница есть. Всегда есть.'},
     {choice:[
-      {text:'Руслан, ответь честно. Где ты был?', trust:{rus:-1}, flag:{pressed_rus_ch5:true}},
-      {text:'Мишулик, не дави. У всех бывают дела.', trust:{rus:1}, trust2:{mih:-1}},
-      {text:'Хватит. Мы все на взводе. Спокойно.', reputation:1, conflict:-1}
+      {text:'Ростик, ответь честно. Где ты был?', trust:{rus:-1}, goto:'b5a'},
+      {text:'Мишулик, не дави. У всех бывают дела.', trust:{rus:1}, trust2:{mih:-1}, goto:'b5b'},
+      {text:'Хватит. Все на взводе. Спокойно.', reputation:1, conflict:-1, goto:'b5c'}
     ]},
-    {t:'n', text:'И тут в дверях появился Семён. Мокрый, злой, с пакетом в руках.'},
-    {t:'sem', text:'Что вы тут устроили? Я слышал ваши крики через дверь.'},
+    {label:'b5a', t:'rus', text:'Ты чё, аухел? Ты меня в чём обвиняешь?'},
+    {t:'mih', text:'Никто тебя не обвиняет. Просто ответь.'},
+    {t:'rus', text:'Я не обязан отчитываться! Понял, да?'},
+    {t:'mih', text:'Ты как общаешься. Мы тебе не менты. Мы друзья.'},
+    {goto:'b5_mid'},
+
+    {label:'b5b', t:'mih', text:'Ты чё меня учишь? Я старший, я и решаю, когда давить.'},
+    {t:'rus', text:'О, бля, началось. Старший-старший.'},
+    {t:'mih', text:'Я твой рот ебал. Ещё раз — сам всё узнаешь.'},
+    {goto:'b5_mid'},
+
+    {label:'b5c', t:'n', text:'Все замолчали. Мишулик смотрел в стену. Ростик — в пол. Тишина длилась долго.'},
+    {t:'rus', text:'Ладно. Я был у одной... знакомой. Довольны?'},
+    {t:'mih', text:'Вот и всё. Чего сразу не сказал?'},
+    {goto:'b5_mid'},
+
+    {label:'b5_mid', t:'n', text:'И тут в дверях появился Семь. Мокрый, злой, с пакетом.'},
+    {t:'sem', text:'Э, вы чё тут устроили? Я слышал ваши крики через дверь.'},
     {t:'rus', text:'Мы думали, ты нас кинул.'},
     {t:'sem', text:'Кинул? Я?!'},
-    {t:'mih', text:'Три дня молчания, Семён. Три дня. Ты как общаешься.'},
+    {t:'mih', text:'Три дня молчания, Семь. Три дня. Ты как общаешься.'},
     {t:'sem', text:'Телефон разбился. Вот, новый взял, еле деньги нашёл.'},
     {t:'rus', text:'Очень удобно.'},
-    {t:'sem', text:'Что — удобно?'},
-    {t:'rus', text:'То, что у тебя всегда есть объяснение. Ни одной дырки.'},
-    {t:'n', text:'Семён поставил пакет на стол. Внутри что-то тяжело звякнуло.'},
+    {t:'sem', text:'Э, ты чё, не веришь мне?'},
+    {t:'rus', text:'Я не верю, что у тебя всегда есть объяснение. Ни одной дырки.'},
+    {t:'sem', text:'Да пошёл ты.'},
+    {t:'n', text:'Семь поставил пакет на стол. Внутри что-то тяжело звякнуло.'},
     {t:'sem', text:'Вот. Документы. Не те, которые вы думаете. Другие. Я прочитал, пока ехал.'},
     {t:'mih', text:'И что там?'},
     {t:'sem', text:'Там про Гришу. И про нас есть строчка. Одна. Но она мне не понравилась.'},
     {choice:[
-      {text:'Читай вслух.', flag:{read_docs:true}},
-      {text:'Не читай. Сожги. И забудем.', trust:{mih:1}, flag:{burn_docs:true}},
-      {text:'Спрячь. Пока не решим.', trust:{rus:1}, flag:{hide_docs:true}}
+      {text:'Читай вслух.', goto:'b5d'},
+      {text:'Не читай. Сожги. И забудем.', trust:{mih:1}, goto:'b5e'},
+      {text:'Спрячь. Пока не решим.', trust:{rus:1}, goto:'b5f'}
     ]},
-    {t:'n', text:'И в этот момент они впервые поняли: никто из них не был до конца честен.'},
+    {label:'b5d', t:'n', text:'Семь развернул бумагу. Прочитал вслух.'},
+    {t:'sem', text:'Здесь написано: «Трое. Семь, Ростик, Михаил. Использовать. Потом убрать».'},
+    {t:'mih', text:'Убрать. Значит, мы — расходный материал.'},
+    {t:'rus', text:'Бля-я-я.'},
+    {goto:'b5_end'},
+
+    {label:'b5e', t:'mih', text:'Правильно. Сжечь и забыть. Меньше знаешь — крепче спишь.'},
+    {t:'sem', text:'Но там про нас!'},
+    {t:'mih', text:'Там про всех нас. И если мы это не сожжём — нас сожгут.'},
+    {t:'rus', text:'Жёстко, но справедливо.'},
+    {goto:'b5_end'},
+
+    {label:'b5f', t:'rus', text:'Согласен. Спрячем. Пусть будет козырь.'},
+    {t:'mih', text:'Козырь — это когда ты знаешь, как им пользоваться. А если не знаешь — это граната без чеки.'},
+    {t:'sem', text:'Разберёмся по ходу.'},
+    {goto:'b5_end'},
+
+    {label:'b5_end', t:'n', text:'Впервые все трое поняли: никто из них не был до конца честен.'},
   ]
 },
 {
   id:'ch6', title:'Глава 6. Предательство',
   steps:[
-    {t:'n', text:'Ночь. Гараж. Семён с телефоном, лицо серое.'},
+    {t:'n', text:'Ночь. Гараж. Семь с телефоном, лицо серое.'},
     {t:'sem', text:'Я узнал кое-что. Не знаю, как сказать.'},
     {t:'mih', text:'Говори как есть.'},
     {t:'sem', text:'Один из вас звонил Грише. Вчера. В 23:14.'},
@@ -736,27 +837,54 @@ const CHAPTERS = [
     {t:'rus', text:'Покажи.'},
     {t:'sem', text:'Не покажу. Не хочу смотреть, как вы будете врать друг другу в лицо. Скажите сами.'},
     {choice:[
-      {text:'Руслан, это был ты?', trust:{rus:-2}, flag:{blame_rus_ch6:true}},
-      {text:'Мишулик, это был ты?', trust:{mih:-2}, flag:{blame_mih_ch6:true}},
-      {text:'Никого не обвиняю. Но кто-то должен сказать правду.', reputation:1, flag:{neutral_ch6:true}}
+      {text:'Ростик, это был ты?', trust:{rus:-2}, goto:'b6a'},
+      {text:'Мишулик, это был ты?', trust:{mih:-2}, goto:'b6b'},
+      {text:'Никого не обвиняю. Но кто-то должен сказать правду.', reputation:1, goto:'b6c'}
     ]},
-    {t:'rus', text:'Я не звонил. Мне Гриша противен с детства.'},
-    {t:'mih', text:'А я звонил. Скажу прямо.'},
+    {label:'b6a', t:'rus', text:'Ты чё, аухел? Я?! Да я Гришу с детства ненавижу!'},
+    {t:'sem', text:'Тогда объясни, откуда твой номер в распечатке.'},
+    {t:'rus', text:'Я не знаю! Может, кто-то набрал с моего телефона?'},
+    {t:'mih', text:'Ага. Инопланетяне.'},
+    {goto:'b6_mid'},
+
+    {label:'b6b', t:'mih', text:'Я звонил.'},
     {t:'n', text:'Все замерли.'},
     {t:'mih', text:'Я звонил Грише. Но не чтобы предать. Я звонил отказаться. Сказать, что мы не в деле.'},
     {t:'rus', text:'А почему нам не сказал?'},
-    {t:'mih', text:'Потому что вы бы начали спорить. А я не хотел спорить. Я хотел решить. Один. За всех.'},
-    {t:'sem', text:'Ты не имел права решать за нас.'},
+    {t:'mih', text:'Потому что вы бы начали спорить. А я хотел решить. Один. За всех.'},
+    {goto:'b6_mid'},
+
+    {label:'b6c', t:'n', text:'Молчание. Долгое.'},
+    {t:'mih', text:'Я звонил. Скажу прямо.'},
+    {t:'rus', text:'Ты чё, серьёзно?!'},
+    {t:'mih', text:'Серьёзно. Я хотел отказаться. Один.'},
+    {goto:'b6_mid'},
+
+    {label:'b6_mid', t:'sem', text:'Ты не имел права решать за нас.'},
     {t:'mih', text:'Ты как общаешься. Я старший. Старший младших знай. Я и решаю.'},
     {t:'rus', text:'Ты не старший. Ты просто старше. Это разные вещи.'},
-    {t:'n', text:'Мишулик посмотрел на него. Долго. Так, что Руслан отвёл взгляд.'},
+    {t:'n', text:'Мишулик посмотрел на него. Долго. Так, что Ростик отвёл взгляд.'},
     {choice:[
-      {text:'Мишулик, ты должен был сказать. Это было не твоё решение.', trust:{mih:-1}, flag:{mih_guilty:true}},
-      {text:'Он хотел как лучше. Я его понимаю.', trust:{mih:1}, trust2:{rus:-1}},
-      {text:'Значит, звонок — не предательство. Предательство в другом.', flag:{saw_truth:true}, reputation:1}
+      {text:'Мишулик, ты должен был сказать. Это не твоё решение.', trust:{mih:-1}, goto:'b6d'},
+      {text:'Он хотел как лучше. Я его понимаю.', trust:{mih:1}, trust2:{rus:-1}, goto:'b6e'},
+      {text:'Значит, звонок — не предательство. Предательство в другом.', reputation:1, goto:'b6f'}
     ]},
-    {t:'sem', text:'Ты прав. Предательство не в звонке. Предательство в том, что кто-то уже отдал Грише копию документов.'},
+    {label:'b6d', t:'mih', text:'Может, и так. Но я не жалею.'},
+    {t:'sem', text:'Ты вообще о чём думаешь, Мишулик?'},
+    {t:'mih', text:'Я думаю о нас. О всех трёх. По-своему.'},
+    {goto:'b6_end'},
+
+    {label:'b6e', t:'mih', text:'Спасибо. Хоть кто-то понимает.'},
+    {t:'rus', text:'Э, а я, значит, не понимаю?'},
+    {t:'mih', text:'Ты — нет. Ты всегда за себя.'},
+    {goto:'b6_end'},
+
+    {label:'b6f', t:'mih', text:'Ты прав. Предательство не в звонке.'},
+    {t:'sem', text:'Вот именно. Предательство в том, что кто-то из вас уже отдал Грише копию документов.'},
     {t:'n', text:'Все трое переглянулись. Дружба дала первую настоящую трещину.'},
+    {goto:'b6_end'},
+
+    {label:'b6_end', t:'n', text:'Никто не спал в эту ночь. Никто не звонил. Все думали.'},
   ]
 },
 {
@@ -772,23 +900,56 @@ const CHAPTERS = [
     {t:'mih', text:'А если пойдёт за нами?'},
     {t:'n', text:'Никто не ответил. Ответа не было.'},
     {choice:[
-      {text:'Идём все вместе.', trust:{sem:1}, trust2:{rus:1}},
-      {text:'Пусть идёт один Семён. Он знает Гришу лучше.', trust:{sem:-1}, conflict:1},
-      {text:'Пусть идёт Мишулик. Он умеет говорить.', trust:{mih:1}, flag:{mih_envoy:true}}
+      {text:'Идём все вместе.', trust:{sem:1}, trust2:{rus:1}, goto:'b7a'},
+      {text:'Пусть идёт один Семь. Он знает Гришу лучше.', trust:{sem:-1}, conflict:1, goto:'b7b'},
+      {text:'Пусть идёт Мишулик. Он умеет говорить.', trust:{mih:1}, goto:'b7c'}
     ]},
-    {t:'n', text:'Дверь ангара открылась. Гриша. Худой, в дорогом пальто, с улыбкой человека, который никогда не проигрывает.'},
+    {label:'b7a', t:'sem', text:'Вот это по-нашему! Все вместе! Слышал, Мишулик?'},
+    {t:'mih', text:'Слышал. И надеюсь, что ты не облажаешься.'},
+    {t:'rus', text:'Хорош, пацаны. Идём.'},
+    {goto:'b7_mid'},
+
+    {label:'b7b', t:'sem', text:'Э, вы чё, меня одного кидаете?'},
+    {t:'mih', text:'Ты сам сказал, что Гришу знаешь лучше всех.'},
+    {t:'sem', text:'Да пошутил я!'},
+    {t:'rus', text:'Поздно шутить, дорогой. Иди.'},
+    {goto:'b7_mid'},
+
+    {label:'b7c', t:'mih', text:'Ладно. Я пойду. Но если что — вы за дверью.'},
+    {t:'sem', text:'Ага, брат. Мы рядом.'},
+    {t:'mih', text:'Не «брат». Я тебе не брат. Я старший.'},
+    {goto:'b7_mid'},
+
+    {label:'b7_mid', t:'n', text:'Дверь открылась. Гриша. Худой, в дорогом пальто, с улыбкой.'},
     {t:'n', text:'Разговор был коротким. И очень тяжёлым.'},
-    {t:'sem', text:'Гриша сказал: документы уже не важны. Важно то, что мы теперь «в системе». И просто так из неё не выходят.'},
+    {t:'sem', text:'Гриша сказал: документы уже не важны. Важно то, что мы теперь «в системе». И просто так не выходят.'},
     {t:'rus', text:'И что теперь?'},
     {t:'sem', text:'Либо работаем на него. Либо исчезаем.'},
     {t:'mih', text:'Третьего варианта нет?'},
     {t:'sem', text:'Есть. Но он плохой для всех.'},
     {choice:[
-      {text:'Работаем. Хотя бы временно.', flag:{work_for_gref:true}, conflict:1},
-      {text:'Исчезаем. Все трое. Сегодня же.', flag:{run_away:true}, trust:{mih:1}},
-      {text:'Идём к третьему варианту. Только вместе.', flag:{third_option:true}, reputation:2}
+      {text:'Работаем. Хотя бы временно.', conflict:1, goto:'b7d'},
+      {text:'Исчезаем. Все трое. Сегодня же.', trust:{mih:1}, goto:'b7e'},
+      {text:'Идём к третьему варианту. Только вместе.', reputation:2, goto:'b7f'}
     ]},
-    {t:'n', text:'Стало ясно: пути назад нет. Есть только вперёд. Или в никуда.'},
+    {label:'b7d', t:'mih', text:'Работаем. Но недолго. И по своим правилам.'},
+    {t:'sem', text:'Согласен. Временно.'},
+    {t:'rus', text:'Только чтоб не засосало.'},
+    {goto:'b7_end'},
+
+    {label:'b7e', t:'mih', text:'Правильно. Уходим. Всё, что нужно — уже сказано.'},
+    {t:'rus', text:'А куда?'},
+    {t:'mih', text:'Куда угодно. Лишь бы подальше от Гриши.'},
+    {t:'sem', text:'Я с вами.'},
+    {goto:'b7_end'},
+
+    {label:'b7f', t:'mih', text:'Третий вариант — самый опасный. Но и самый честный.'},
+    {t:'rus', text:'Ты уверен?'},
+    {t:'mih', text:'Нет. Но я выбираю его.'},
+    {t:'sem', text:'Тогда идём. Вместе.'},
+    {goto:'b7_end'},
+
+    {label:'b7_end', t:'n', text:'Стало ясно: пути назад нет. Есть только вперёд. Или в никуда.'},
     {t:'mih', text:'Что бы вы ни решили — я с вами. До конца. Но и вы будьте со мной. По-честному.'},
     {t:'rus', text:'Ты как общаешься. Как будто мы когда-то были не с тобой.'},
     {t:'mih', text:'Были. И будем. Если захотим.'},
@@ -800,7 +961,7 @@ const CHAPTERS = [
   steps:[
     {t:'n', text:'Прошло два месяца. Многое изменилось. Кое-что — нет.'},
     {t:'n', text:'Трое снова в гараже. Тот же стол. Другое пиво. Другие люди.'},
-    {t:'sem', text:'Ну что, бойцы. Мы прошли через многое. И знаете что? Я ни о чём не жалею.'},
+    {t:'sem', text:'Ну чё, бойцы. Мы прошли через многое. И знаете? Я ни о чём не жалею.'},
     {t:'rus', text:'Даже о Грише?'},
     {t:'sem', text:'Даже о нём. Он мразь. Но он показал, кто вы на самом деле.'},
     {t:'mih', text:'И кто мы?'},
@@ -824,45 +985,42 @@ const CHAPTERS = [
 }
 ];
 
-/* ---------- ЧАТ С КОПАТЫЧЕМ И АРСЕНЧИКОМ ---------- */
-/* Плейлист чата. step:
-   { from:'mih'|'kop'|'ars'|'sys', voice?:true, text, choices?:[...] } */
+/* ---------- ЧАТ: сценарные сообщения ---------- */
+/* step: {from:'sys'|'kop'|'ars'|'mih', text, voice?:true, choices?:[], result?:key} */
 const CHAT_SCRIPT = [
   { from:'sys', text:'Сегодня' },
-  { from:'mih', voice:true, text:'Слышь, шныри. Вы где шляетесь?' },
-  { from:'mih', voice:true, text:'Я вас, блять, второй час жду. Ни один не отвечает.' },
+  { from:'mih', voice:true, text:'Э, шныри. Вы где шляетесь?' },
+  { from:'mih', voice:true, text:'Я вас, бля, второй час жду. Ни один не отвечает.' },
   { from:'mih', voice:true, text:'Старший младших знай. Забыли, да?' },
   { from:'kop', text:'Слышь, Мишулик. Ты вообще кто такой?' },
-  { from:'ars', text:'Серьёзно. Мы тебе никто. Шныри какие-то, блять. Ты вообще охуел?' },
-  { from:'kop', text:'Голосовые он шлёт. Как будто мы его секретарши.' },
+  { from:'ars', text:'Серьёзно. Мы тебе никто. Шныри какие-то, бля. Ты вообще аухел?' },
+  { from:'kop', text:'Голосовые он шлёт. Как будто мы его секретарши, бля.' },
   { from:'mih', voice:true, text:'Ты как общаешься.' },
-  { from:'ars', text:'Как хочу, так и общаюсь. Понял?' },
+  { from:'ars', text:'Как хочу, так и общаюсь. Понял, да?' },
   { from:'kop', text:'Ты нам не старший. Ты просто старый долбоёб с айфоном.' },
   { from:'ars', text:'Иди нахуй со своими голосовыми.' },
   { from:'kop', text:'Он молчит. Слышь, Мишулик. Молчишь?' },
   { from:'ars', text:'Обиделся наш старший. Плачет в подушку, наверное.' },
-  { from:'kop', text:'Или строчит нам ответ. Мишулик, ну ты чё?' },
+  { from:'kop', text:'Или строчит ответ. Ну ты чё, Мишулик?' },
   { from:'sys', text:'Мишулик прочитал. Мишулик молчит.' },
   { from:'mih', voice:true, text:'...' },
-  { from:'sys', text:'Мишулик удалил одно сообщение' },
   { choices:[
     { text:'Отправить голосовое с угрозой', flag:'chat_threat', chatResult:'threat' },
     { text:'Написать спокойно: «Ладно, забыли. Всё»', flag:'chat_calm', chatResult:'calm' },
     { text:'Молчать и закрыть чат', flag:'chat_silent', chatResult:'silent' },
     { text:'Удалить чат и заблокировать обоих', flag:'chat_block', chatResult:'block' }
-  ]},
-  { from:'sys', text:'Конец переписки' }
+  ]}
 ];
 const CHAT_RESULTS = {
-  threat: [
-    { from:'mih', voice:true, text:'Вы пожалеете. Оба. Я вас, блять, найду.' },
-    { from:'kop', text:'Ой, напугал.' },
+  threat:[
+    { from:'mih', voice:true, text:'Вы пожалеете. Оба. Я вас, бля, найду.' },
+    { from:'kop', text:'Ой, напугал. Иди проспись, дед.' },
     { from:'ars', text:'Мишулик, ты чё, реально думаешь, что мы тебя боимся?' },
     { from:'sys', text:'Копатыч покинул чат' },
     { from:'sys', text:'Арсенчик покинул чат' },
     { from:'sys', text:'Чат пуст. Остался только ты.' }
   ],
-  calm: [
+  calm:[
     { from:'mih', voice:true, text:'Ладно, шныри. Забыли. Всё.' },
     { from:'kop', text:'...' },
     { from:'ars', text:'Ты чё, реально так просто?' },
@@ -873,13 +1031,13 @@ const CHAT_RESULTS = {
     { from:'sys', text:'Копатыч отправил 👍' },
     { from:'sys', text:'Арсенчик отправил 👍' }
   ],
-  silent: [
+  silent:[
     { from:'sys', text:'Ты закрыл чат. Ничего не ответил.' },
     { from:'sys', text:'Через час: 4 новых сообщения.' },
     { from:'sys', text:'Через день: 12.' },
     { from:'sys', text:'Через неделю: тишина. Чат мёртв.' }
   ],
-  block: [
+  block:[
     { from:'sys', text:'Ты удалил чат.' },
     { from:'sys', text:'Ты заблокировал Копатыча и Арсенчика.' },
     { from:'sys', text:'Они больше не напишут. Никогда.' },
@@ -888,52 +1046,41 @@ const CHAT_RESULTS = {
 };
 
 /* ---------- СОСТОЯНИЕ ---------- */
-const SAVE_KEY = 'mafia_friends_v2_save';
-const ENDINGS_KEY = 'mafia_friends_v2_endings';
-const SETTINGS_KEY = 'mafia_friends_v2_settings';
+const SAVE_KEY = 'mafia_friends_v3_save';
+const ENDINGS_KEY = 'mafia_friends_v3_endings';
+const SETTINGS_KEY = 'mafia_friends_v3_settings';
 
 let state = {
-  playerChar: null,
-  chapter: 0,
-  step: 0,
-  trust: { sem:0, rus:0, mih:0 },
-  conflict: 0,
-  reputation: 0,
-  flags: {},
-  history: [],
-  currentChoice: null,
-  chatStep: 0,
-  chatDone: false,
-  chatResult: null,
-  chatHistory: []
+  playerChar:null, chapter:0, step:0,
+  trust:{sem:0,rus:0,mih:0}, conflict:0, reputation:0,
+  flags:{}, history:[], currentChoice:null,
+  chatCursor:0, chatDone:false, chatResult:null, chatHistory:[],
+  chatChoicePending:null
 };
-
 let unlockedEndings = [];
 let settings = { voice:true, music:true, sfx:true, voiceVol:1, musicVol:0.45 };
 
-/* ---------- DOM ---------- */
 const $ = id => document.getElementById(id);
 
 /* ---------- АУДИО ---------- */
-let audioCtx = null, ambientNodes = [], ambientGain = null, ambientMood = null;
-
+let audioCtx=null, ambientNodes=[], ambientGain=null, ambientMood=null;
 function initAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function ensureAudio(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{}); }
 function stopAmbient(){
   if(!audioCtx) return;
   const now = audioCtx.currentTime;
   if(ambientGain){ try{ ambientGain.gain.cancelScheduledValues(now); ambientGain.gain.linearRampToValueAtTime(0, now+1.1); }catch(e){} }
-  const old = ambientNodes.slice(); ambientNodes = [];
+  const old = ambientNodes.slice(); ambientNodes=[];
   setTimeout(()=>{ old.forEach(n=>{ try{n.stop()}catch(e){} try{n.disconnect()}catch(e){} });
     if(ambientGain){ try{ambientGain.disconnect()}catch(e){} ambientGain=null; } }, 1300);
 }
 function startAmbient(mood){
   if(!audioCtx) return;
   if(ambientMood===mood && ambientNodes.length) return;
-  ambientMood = mood; stopAmbient();
+  ambientMood=mood; stopAmbient();
   setTimeout(()=>{
     if(!audioCtx) return;
-    ambientGain = audioCtx.createGain(); ambientGain.gain.value = 0;
+    ambientGain = audioCtx.createGain(); ambientGain.gain.value=0;
     const lp = audioCtx.createBiquadFilter(); lp.type='lowpass';
     lp.frequency.value = mood==='menu'?900:600; lp.Q.value=0.7;
     lp.connect(ambientGain); ambientGain.connect(audioCtx.destination);
@@ -988,7 +1135,7 @@ function sfx(type){
 }
 
 /* ---------- ОЗВУЧКА ---------- */
-let voices = [], currentUtt = null, speakLock = 0;
+let voices=[], currentUtt=null, speakLock=0;
 function loadVoices(){ if(!('speechSynthesis' in window)) return; try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
 if('speechSynthesis' in window){
   loadVoices();
@@ -1005,14 +1152,14 @@ function pickVoice(charId){
   return pool[idx%pool.length];
 }
 function stopVoice(){ if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} } currentUtt=null; }
-function speak(text, charId, opts){
-  if(!settings.voice && !(opts && opts.force)) return;
+function speak(text, charId, force){
+  if(!settings.voice && !force) return;
   if(!('speechSynthesis' in window)) return;
   if(!text||!text.trim()) return;
   const now = Date.now(); if(now-speakLock<80) return; speakLock = now;
   stopVoice();
   const u = new SpeechSynthesisUtterance(text);
-  const cfg = (CHARS[charId] && CHARS[charId].voice) || (opts && opts.voice) || { rate:1, pitch:1, vol:1 };
+  const cfg = (CHARS[charId] && CHARS[charId].voice) || { rate:1, pitch:1, vol:1 };
   const v = pickVoice(charId);
   if(v){ u.voice=v; u.lang=v.lang||'ru-RU'; } else { u.lang='ru-RU'; }
   u.rate = cfg.rate; u.pitch = cfg.pitch;
@@ -1030,9 +1177,7 @@ function hideOverlay(id){ const el=$(id); if(el) el.classList.remove('active'); 
 function hideAllOverlays(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('active')); }
 
 /* ---------- СОХРАНЕНИЕ ---------- */
-function saveGame(){
-  try{ localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ts:Date.now() })); }catch(e){}
-}
+function saveGame(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ts:Date.now() })); }catch(e){} }
 function loadGame(){
   try{
     const raw = localStorage.getItem(SAVE_KEY); if(!raw) return false;
@@ -1041,7 +1186,7 @@ function loadGame(){
       playerChar:null, chapter:0, step:0,
       trust:{sem:0,rus:0,mih:0}, conflict:0, reputation:0,
       flags:{}, history:[], currentChoice:null,
-      chatStep:0, chatDone:false, chatResult:null, chatHistory:[]
+      chatCursor:0, chatDone:false, chatResult:null, chatHistory:[], chatChoicePending:null
     }, data.state);
     state.trust = Object.assign({sem:0,rus:0,mih:0}, state.trust||{});
     state.flags = state.flags||{};
@@ -1058,13 +1203,16 @@ function saveEndings(){ try{ localStorage.setItem(ENDINGS_KEY, JSON.stringify(un
 function loadEndings(){ try{ const r=localStorage.getItem(ENDINGS_KEY); if(!r) return;
   const a=JSON.parse(r); if(Array.isArray(a)) unlockedEndings=a; }catch(e){} }
 
-/* ---------- ДИАЛОГ ---------- */
+/* ---------- ДВИЖОК ---------- */
 let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null;
 
 function getChapter(){ return CHAPTERS[state.chapter]; }
 function getSteps(){ const c=getChapter(); return c?c.steps:[]; }
-function shouldSkip(step){ if(!step||!step.req) return false; try{ return !step.req(state); }catch(e){ return false; } }
-
+function findLabel(label, fromIdx){
+  const steps = getSteps();
+  for(let i=fromIdx; i<steps.length; i++){ if(steps[i].label===label) return i; }
+  return -1;
+}
 function updateChapterInd(){
   const ch = getChapter(); if(!ch) return;
   $('chapterInd').textContent = ch.title;
@@ -1075,7 +1223,7 @@ function updateChapterInd(){
 function pushHistory(id, text){
   const name = id==='n' ? 'Сцена' : (CHARS[id]?CHARS[id].name:'');
   state.history.push({ who:name, text });
-  if(state.history.length>400) state.history.shift();
+  if(state.history.length>500) state.history.shift();
 }
 function setPhoto(charId){
   const wrap = $('photoWrap'); if(!wrap) return;
@@ -1092,7 +1240,7 @@ function setPhoto(charId){
     img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; img.style.opacity='1'; };
     img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; pname.textContent = ch.name; };
     img.src = ch.img;
-  }, 200);
+  }, 180);
 }
 function renderSpeaker(charId){
   const el = $('speakerName'); if(!el) return;
@@ -1106,7 +1254,7 @@ function typeText(text){
   typeTimer = setInterval(()=>{
     el.textContent += text[i++];
     if(i>=text.length){ clearInterval(typeTimer); typing=false; el.textContent = text; }
-  }, 18);
+  }, 16);
 }
 function skipTyping(){
   if(!typing) return false;
@@ -1115,7 +1263,7 @@ function skipTyping(){
   return true;
 }
 function renderChoices(choices){
-  const box = $('choices'); if(!box) return; box.innerHTML = '';
+  const box = $('choices'); if(!box) return; box.innerHTML='';
   if(!choices||!choices.length){
     state.currentChoice = null;
     $('continueBtn').disabled = false;
@@ -1142,27 +1290,42 @@ function applyChoice(idx){
   if(typeof c.conflict==='number') state.conflict += c.conflict;
   if(typeof c.reputation==='number') state.reputation += c.reputation;
   if(c.flag){ for(const k in c.flag) state.flags[k]=c.flag[k]; }
-  state.currentChoice = null; $('choices').innerHTML = '';
+  state.currentChoice = null; $('choices').innerHTML='';
   $('continueRow').style.display='flex'; $('hint').textContent='Enter / Пробел';
   $('continueBtn').disabled = false;
-  saveGame(); state.step++; renderStep();
+
+  if(c.goto){
+    const idx2 = findLabel(c.goto, state.step+1);
+    if(idx2>=0) state.step = idx2;
+    else state.step++;
+  } else {
+    state.step++;
+  }
+  saveGame(); renderStep();
 }
 function renderStep(){
   const steps = getSteps();
   if(state.step >= steps.length){ goToNextChapter(); return; }
   const step = steps[state.step];
   if(!step){ goToNextChapter(); return; }
-  if(shouldSkip(step)){ state.step++; return renderStep(); }
+
+  // переход без выбора
+  if(step.goto){
+    const idx = findLabel(step.goto, state.step+1);
+    if(idx>=0){ state.step = idx; return renderStep(); }
+    else { state.step++; return renderStep(); }
+  }
+  if(step.ending){ triggerEnding(); return; }
+
   updateChapterInd();
   $('choices').innerHTML=''; state.currentChoice=null; $('continueRow').style.display='flex';
 
   if(step.choice){
     renderSpeaker(lastSpeaker||'n');
     currentFullText=''; const dEl = $('dialogText'); if(dEl) dEl.textContent='';
-    typing = false; clearInterval(typeTimer); stopVoice();
+    typing=false; clearInterval(typeTimer); stopVoice();
     renderChoices(step.choice); return;
   }
-  if(step.ending){ triggerEnding(); return; }
 
   const speaker = step.t || 'n';
   const text = step.text || '';
@@ -1179,16 +1342,20 @@ function onContinue(){
   sfx('click'); state.step++; saveGame(); renderStep();
 }
 function onPrevLine(){
-  if(state.step>0){ state.step--; const s=getSteps(); while(state.step>0 && shouldSkip(s[state.step])) state.step--; renderStep(); }
-  else renderStep();
+  if(state.step>0){
+    state.step--;
+    const s = getSteps();
+    // пропустим goto-шаги назад, чтобы не зациклиться
+    let guard = 0;
+    while(state.step>0 && s[state.step] && s[state.step].goto && guard++<50) state.step--;
+    renderStep();
+  } else renderStep();
 }
 function goToNextChapter(){
   stopVoice();
   if(state.chapter+1 < CHAPTERS.length){
     state.chapter++; state.step = 0;
-    sfx('transition');
-    showChapterTransition();
-    saveGame();
+    sfx('transition'); showChapterTransition(); saveGame();
   } else triggerEnding();
 }
 function showChapterTransition(){
@@ -1208,42 +1375,44 @@ function showChapterTransition(){
     setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); renderStep(); }, 650); }, 1900);
 }
 
-/* ---------- ЧАТ МИШУЛИКА ---------- */
+/* ---------- ЧАТ ---------- */
+function updateIphoneBadge(){
+  const n = $('iphoneNotif'); if(!n) return;
+  n.style.display = state.chatDone ? 'none' : 'flex';
+}
 function openChat(){
   if(state.playerChar!=='mih') return;
   sfx('click');
   $('chatView').classList.add('active');
-  renderChat();
-  if(!state.chatDone && state.chatStep < CHAT_SCRIPT.length){
-    setTimeout(()=>{ playChatStep(); }, 350);
-  }
+  renderChatAll();
+  updateChatNextBtn();
 }
 function closeChat(){
   $('chatView').classList.remove('active');
   sfx('click');
-  // если чат завершён и игрок в главе 4 без чата — двигаем
-  if(state.chatDone && getChapter() && getChapter().id==='ch4'){
-    // проверим, ждём ли мы чат
-    const steps = getSteps();
-    // если мы на шаге «ожидание чата» — прокрутим
-    const cur = steps[state.step];
-    if(cur && cur.text && cur.text.indexOf('Открой iPhone')>=0){
-      // остаёмся, игрок сам нажмёт «Продолжить»
-    }
-  }
 }
-function chatBubbleRow(from, text, isVoice, opts){
-  opts = opts||{};
+function renderChatAll(){
+  const body = $('chatBody'); if(!body) return;
+  body.innerHTML = '';
+  state.chatHistory.forEach(item=>{
+    if(item.type==='msg'){
+      body.appendChild(makeBubble(item.from, item.text, !!item.voice));
+    } else if(item.type==='sys'){
+      body.appendChild(makeBubble('sys', item.text));
+    }
+  });
+  setTimeout(()=>{ body.scrollTop = body.scrollHeight; }, 20);
+}
+function makeBubble(from, text, isVoice){
   const row = document.createElement('div');
   if(from==='sys'){
     row.className = 'msgRow sys';
     const b = document.createElement('div');
-    b.className = 'msgSys';
-    b.textContent = text;
-    row.appendChild(b);
-    return row;
+    b.className = 'msgSys'; b.textContent = text;
+    row.appendChild(b); return row;
   }
-  row.className = 'msgRow ' + (from==='mih'?'mine':(from==='kop'?'them kop':'them ars'));
+  const cls = from==='mih' ? 'mine' : (from==='kop' ? 'them kop' : 'them ars');
+  row.className = 'msgRow ' + cls;
   const b = document.createElement('div');
   b.className = 'msgBubble';
   if(from!=='mih'){
@@ -1255,19 +1424,18 @@ function chatBubbleRow(from, text, isVoice, opts){
   if(isVoice){
     const v = document.createElement('div');
     v.className = 'voiceMsg';
-    const dur = Math.max(2, Math.round((text.length/14)));
+    const dur = Math.max(2, Math.round(text.length/14));
     const bars = '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>';
     v.innerHTML = `<div class="voicePlay">▶</div><div class="voiceWave">${bars}</div><div class="voiceDur">0:${String(dur).padStart(2,'0')}</div>`;
     v.onclick = ()=>{
       v.classList.add('playing');
-      const id = CHARS.mih.voice;
-      // говорим голосом Мишулика
       if(!('speechSynthesis' in window)) return;
       stopVoice();
       const u = new SpeechSynthesisUtterance(text);
+      const cfg = CHARS.mih.voice;
       const vv = pickVoice('mih');
       if(vv){ u.voice=vv; u.lang=vv.lang||'ru-RU'; } else { u.lang='ru-RU'; }
-      u.rate = id.rate; u.pitch = id.pitch;
+      u.rate = cfg.rate; u.pitch = cfg.pitch;
       u.volume = Math.max(0, Math.min(1, settings.voiceVol));
       u.onend = ()=>v.classList.remove('playing');
       u.onerror = ()=>v.classList.remove('playing');
@@ -1275,113 +1443,97 @@ function chatBubbleRow(from, text, isVoice, opts){
     };
     b.appendChild(v);
   } else {
-    const t = document.createElement('span');
-    t.textContent = text;
+    const t = document.createElement('span'); t.textContent = text;
     b.appendChild(t);
   }
   row.appendChild(b);
   return row;
 }
-function renderChat(){
-  const body = $('chatBody'); if(!body) return;
-  body.innerHTML = '';
-  state.chatHistory.forEach(item=>{
-    if(item.type==='msg'){
-      body.appendChild(chatBubbleRow(item.from, item.text, !!item.voice));
-    } else if(item.type==='sys'){
-      body.appendChild(chatBubbleRow('sys', item.text));
-    }
-  });
-  // Активные выборы чата
-  const last = state.chatHistory[state.chatHistory.length-1];
-  if(last && last.type==='choices'){
-    const row = document.createElement('div');
-    row.className = 'msgRow sys';
-    row.style.flexDirection = 'column';
-    row.style.gap = '8px';
-    row.style.maxWidth = '100%';
-    row.style.width = '100%';
-    last.choices.forEach((c,i)=>{
+function updateChatNextBtn(){
+  const btn = $('chatNextBtn');
+  const wrap = $('chatChoiceWrap');
+  if(!btn||!wrap) return;
+
+  // Если есть ожидающие выборы
+  if(state.chatChoicePending && !state.chatDone){
+    wrap.style.display = 'flex';
+    wrap.innerHTML = '';
+    state.chatChoicePending.forEach((c,i)=>{
       const b = document.createElement('button');
       b.className = 'choice-btn';
       b.setAttribute('data-num', String(i+1));
-      b.style.width = '100%';
       b.textContent = c.text;
       b.onclick = ()=>applyChatChoice(c);
-      row.appendChild(b);
+      wrap.appendChild(b);
     });
-    body.appendChild(row);
+    $('chatNextWrap').style.display = 'none';
+    return;
   }
-  setTimeout(()=>{ body.scrollTop = body.scrollHeight; }, 30);
-}
-function playChatStep(){
-  if(state.chatStep >= CHAT_SCRIPT.length) return;
-  const step = CHAT_SCRIPT[state.chatStep];
+  wrap.style.display = 'none';
+  $('chatNextWrap').style.display = 'flex';
 
-  // Персонаж в чате — только Мишулик, там всегда голос Мишулика
+  if(state.chatDone){
+    btn.textContent = 'Закрыть';
+    btn.disabled = false;
+    return;
+  }
+  if(state.chatCursor >= CHAT_SCRIPT.length){
+    btn.textContent = 'Конец';
+    btn.disabled = true;
+    return;
+  }
+  btn.textContent = 'Следующее';
+  btn.disabled = false;
+}
+function chatNext(){
+  if(state.chatDone){ closeChat(); return; }
+  if(state.chatCursor >= CHAT_SCRIPT.length){ return; }
+  const step = CHAT_SCRIPT[state.chatCursor];
+
+  if(step.choices){
+    state.chatChoicePending = step.choices;
+    updateChatNextBtn();
+    return;
+  }
   if(step.from==='sys'){
     state.chatHistory.push({ type:'sys', text: step.text });
-    state.chatStep++;
-    renderChat();
-    setTimeout(()=>{ playChatStep(); }, 800);
+    state.chatCursor++;
+    renderChatAll();
+    updateChatNextBtn();
+    saveGame();
     return;
   }
-  if(step.choices){
-    state.chatHistory.push({ type:'choices', choices: step.choices });
-    renderChat();
-    // не двигаем chatStep — ждём выбора
-    return;
-  }
-  // обычное сообщение
-  state.chatHistory.push({ type:'msg', from: step.from, text: step.text, voice: !!step.voice });
-  state.chatStep++;
-  renderChat();
-  if(step.voice){
-    sfx('notify');
-    setTimeout(()=>{ playChatStep(); }, 900);
-  } else {
-    setTimeout(()=>{ playChatStep(); }, 1100);
-  }
+  state.chatHistory.push({ type:'msg', from:step.from, text:step.text, voice:!!step.voice });
+  state.chatCursor++;
+  renderChatAll();
+  if(step.voice) sfx('notify');
+  updateChatNextBtn();
+  saveGame();
 }
 function applyChatChoice(choice){
   sfx('choice');
-  // убираем блок выборов
-  state.chatHistory = state.chatHistory.filter(h=>h.type!=='choices');
   state.flags[choice.flag] = true;
   state.chatResult = choice.chatResult;
-  state.chatDone = true;
-  renderChat();
+  state.chatChoicePending = null;
+  state.chatCursor = CHAT_SCRIPT.length; // скрипт закончен, дальше только результат
   // доигрываем результат
   const result = CHAT_RESULTS[choice.chatResult] || [];
-  let i = 0;
+  let i=0;
   function next(){
-    if(i>=result.length){ saveGame(); updateIphoneBadge(); return; }
+    if(i>=result.length){ state.chatDone = true; updateChatNextBtn(); updateIphoneBadge(); saveGame(); return; }
     const r = result[i];
-    state.chatHistory.push({ type: r.from==='sys'?'sys':'msg', from: r.from, text: r.text, voice: !!r.voice });
+    state.chatHistory.push({ type: r.from==='sys'?'sys':'msg', from:r.from, text:r.text, voice:!!r.voice });
     i++;
-    renderChat();
+    renderChatAll();
     if(r.voice) sfx('notify');
-    setTimeout(next, r.from==='sys'?800:1000);
+    setTimeout(next, r.from==='sys'?400:600);
   }
+  renderChatAll();
   setTimeout(next, 300);
-  // финализируем шаг скрипта
-  state.chatStep = CHAT_SCRIPT.length;
   saveGame();
 }
-function updateIphoneBadge(){
-  const n = $('iphoneNotif'); if(!n) return;
-  if(state.chatDone) n.style.display = 'none';
-  else n.style.display = 'flex';
-}
-function resetChatState(){
-  state.chatStep = 0;
-  state.chatHistory = [];
-  state.chatDone = false;
-  state.chatResult = null;
-  renderChat();
-}
 
-/* ---------- СТАРТ ГЛАВЫ / ИГРЫ ---------- */
+/* ---------- СТАРТ ГЛАВЫ ---------- */
 function startChapter(idx){
   if(idx<0||idx>=CHAPTERS.length) idx=0;
   state.chapter = idx; state.step = 0; state.currentChoice = null; endingTriggered=false;
@@ -1390,7 +1542,6 @@ function startChapter(idx){
   currentPhotoChar = null; lastSpeaker = null;
   initAudio(); ensureAudio();
   startAmbient('story');
-  // виджет iPhone
   if(state.playerChar==='mih'){
     $('iphoneWidget').classList.add('show');
     updateIphoneBadge();
@@ -1402,12 +1553,11 @@ function startChapter(idx){
 }
 function startNewGame(charId){
   state = {
-    playerChar: charId, chapter:0, step:0,
+    playerChar:charId, chapter:0, step:0,
     trust:{sem:0,rus:0,mih:0}, conflict:0, reputation:0,
     flags:{}, history:[], currentChoice:null,
-    chatStep:0, chatDone:false, chatResult:null, chatHistory:[]
+    chatCursor:0, chatDone:false, chatResult:null, chatHistory:[], chatChoicePending:null
   };
-  // счётчик доверия самому себе не нужен
   clearSave();
   startChapter(0);
 }
@@ -1420,32 +1570,24 @@ function goToMenu(){
   startAmbient('menu');
   refreshMenuButtons();
 }
-function refreshMenuButtons(){
-  $('btnContinue').disabled = !localStorage.getItem(SAVE_KEY);
-}
+function refreshMenuButtons(){ $('btnContinue').disabled = !localStorage.getItem(SAVE_KEY); }
 
 /* ---------- ВЫБОР ПЕРСОНАЖА ---------- */
-let csSelected = null;
+let csSelected=null;
 function buildCharSelect(){
   const grid = $('csGrid'); if(!grid) return;
-  grid.innerHTML = '';
-  csSelected = null;
-  $('btnCsStart').disabled = true;
+  grid.innerHTML = ''; csSelected = null; $('btnCsStart').disabled = true;
   ['sem','rus','mih'].forEach(id=>{
     const ch = CHARS[id];
     const card = document.createElement('div');
     card.className = 'cs-card';
     card.dataset.id = id;
-    const ph = document.createElement('div');
-    ph.className = 'cs-photo';
-    const img = document.createElement('img');
-    img.src = ch.img;
-    img.alt = ch.name;
+    const ph = document.createElement('div'); ph.className='cs-photo';
+    const img = document.createElement('img'); img.src = ch.img; img.alt = ch.name;
     img.onerror = ()=>{ img.style.display='none';
       const p = ph.querySelector('.ph'); if(p) p.style.display='flex'; };
     ph.appendChild(img);
-    const pl = document.createElement('div');
-    pl.className = 'ph';
+    const pl = document.createElement('div'); pl.className='ph';
     pl.innerHTML = `<div style="font-size:34px;color:var(--crimson-light);opacity:.7">?</div><div>${ch.name}</div>`;
     ph.appendChild(pl);
     card.appendChild(ph);
@@ -1453,13 +1595,10 @@ function buildCharSelect(){
     card.appendChild(nm);
     const d = document.createElement('div'); d.className='cs-desc'; d.textContent = ch.desc;
     card.appendChild(d);
-    card.onclick = ()=>{
-      sfx('click');
+    card.onclick = ()=>{ sfx('click');
       document.querySelectorAll('.cs-card').forEach(c=>c.classList.remove('selected'));
       card.classList.add('selected');
-      csSelected = id;
-      $('btnCsStart').disabled = false;
-    };
+      csSelected = id; $('btnCsStart').disabled = false; };
     grid.appendChild(card);
   });
 }
@@ -1467,7 +1606,6 @@ function buildCharSelect(){
 /* ---------- ФИНАЛ ---------- */
 function computeEnding(){
   const t = state.trust; const avg = (t.sem+t.rus+t.mih)/3; const conf = state.conflict;
-  // секретная
   if(state.flags.saw_truth && state.flags.forgave_sem && state.flags.third_option && avg>=2 && conf<=3) return 'secret';
   if(state.flags.choose_friendship && state.flags.final_third && avg>=3 && conf<=2) return 'secret';
   if(state.playerChar==='mih' && state.chatResult==='calm' && avg>=2 && conf<=3) return 'secret';
@@ -1477,9 +1615,9 @@ function computeEnding(){
   return 'bad';
 }
 const ENDINGS_DATA = {
-  good:{ title:'Друзья', text:'Дружба пережила всё. Споры, подозрения, предательство, бессонные ночи и чужие тайны.\n\nОни остались вместе — не потому что им было легко, а потому что они выбрали друг друга.' },
-  bad:{ title:'Осколки', text:'Они разошлись. Молча, без прощания, каждый своей дорогой.\n\nИногда кто-то из них вспоминал старый гараж, дешёвое пиво и тот вечер, когда всё началось. Но вспоминал — и шёл дальше.' },
-  secret:{ title:'Тайна', text:'Они не просто выжили. Они узнали то, что не должен был знать никто.\n\nДокументы оказались не тем, чем казались. Но трое, знающих правду, стали опаснее всех.\n\nИх история только началась.' }
+  good:{ title:'Друзья', text:'Дружба пережила всё.\n\nСпоры, подозрения, предательство, бессонные ночи и чужие тайны.\n\nОни остались вместе — не потому что им было легко, а потому что выбрали друг друга.' },
+  bad:{ title:'Осколки', text:'Они разошлись. Молча, без прощания, каждый своей дорогой.\n\nИногда кто-то из них вспоминал старый гараж, дешёвое пиво и тот вечер, когда всё началось.\n\nНо вспоминал — и шёл дальше.' },
+  secret:{ title:'Тайна', text:'Они не просто выжили.\n\nОни узнали то, что не должен был знать никто.\n\nДокументы оказались не тем, чем казались. Но трое, знающих правду, стали опаснее всех.\n\nИх история только началась.' }
 };
 function triggerEnding(){
   if(endingTriggered) return; endingTriggered=true;
@@ -1525,7 +1663,6 @@ function syncSettingsUI(){
 
 /* ---------- СОБЫТИЯ ---------- */
 function bindEvents(){
-  // Меню
   $('btnNew').onclick = ()=>{
     sfx('click');
     if(localStorage.getItem(SAVE_KEY)){
@@ -1555,14 +1692,12 @@ function bindEvents(){
   $('btnCloseEndings').onclick = ()=>hideOverlay('endingsOverlay');
   $('btnCloseAbout').onclick = ()=>hideOverlay('aboutOverlay');
 
-  // Выбор персонажа
   $('btnCsBack').onclick = ()=>{ sfx('click'); goToMenu(); };
   $('btnCsStart').onclick = ()=>{
     if(!csSelected) return;
     sfx('click'); initAudio(); ensureAudio(); startNewGame(csSelected);
   };
 
-  // Игра
   $('continueBtn').onclick = onContinue;
   $('btnPause').onclick = ()=>{ sfx('click'); showOverlay('pauseOverlay'); stopVoice(); };
   $('btnResume').onclick = ()=>hideOverlay('pauseOverlay');
@@ -1577,29 +1712,35 @@ function bindEvents(){
   };
   $('btnToMenu').onclick = ()=>{ saveGame(); hideOverlay('pauseOverlay'); goToMenu(); };
 
-  // Настройки
   $('tgVoice').onclick = ()=>{ settings.voice=!settings.voice; syncSettingsUI(); saveSettings(); if(!settings.voice) stopVoice(); };
   $('tgMusic').onclick = ()=>{ settings.music=!settings.music; syncSettingsUI(); saveSettings(); updateAmbientVol(); };
   $('tgSfx').onclick = ()=>{ settings.sfx=!settings.sfx; syncSettingsUI(); saveSettings(); };
   $('rngVoiceVol').oninput = (e)=>{ settings.voiceVol=(parseInt(e.target.value,10)||0)/100; saveSettings(); };
   $('rngMusicVol').oninput = (e)=>{ settings.musicVol=(parseInt(e.target.value,10)||0)/100; saveSettings(); updateAmbientVol(); };
-  $('btnTestVoice').onclick = ()=>{ initAudio(); ensureAudio(); speak('Старший младших знай. Ты как общаешься.', 'mih'); };
+  $('btnTestVoice').onclick = ()=>{ initAudio(); ensureAudio(); speak('Э, слышь, ты как общаешься. Я старший младших знай.', 'mih', true); };
 
-  // iPhone widget
   $('iphoneWidget').onclick = openChat;
   $('chatBackBtn').onclick = closeChat;
+  $('chatNextBtn').onclick = chatNext;
 
-  // Финал
   $('btnEndingMenu').onclick = ()=>{ hideOverlay('endingOverlay'); goToMenu(); };
 
-  // Клавиатура
   document.addEventListener('keydown', (e)=>{
     const menuActive = $('menu').classList.contains('active');
     const gameActive = $('game').classList.contains('active');
     const chatActive = $('chatView').classList.contains('active');
     const anyOverlay = document.querySelector('.overlay.active');
     if(anyOverlay){ if(e.key==='Escape'){ hideAllOverlays(); } return; }
-    if(chatActive){ if(e.key==='Escape'){ closeChat(); } return; }
+    if(chatActive){
+      if(e.key==='Escape'){ closeChat(); return; }
+      if(state.chatChoicePending){
+        const n = parseInt(e.key,10);
+        if(n>=1 && n<=state.chatChoicePending.length){ applyChatChoice(state.chatChoicePending[n-1]); e.preventDefault(); }
+        return;
+      }
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); chatNext(); }
+      return;
+    }
     if(menuActive) return;
     if(gameActive){
       if(state.currentChoice){
@@ -1611,7 +1752,6 @@ function bindEvents(){
     }
   });
 
-  // Активация звука
   const unlock = ()=>{ initAudio(); ensureAudio();
     document.removeEventListener('pointerdown', unlock);
     document.removeEventListener('keydown', unlock);
