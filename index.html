@@ -1,2064 +1,1612 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NFC Studio</title>
-    <style>
-        /* --- CSS Переменные и Сброс --- */
-        :root {
-            --bg-color: #000000;
-            --glass-bg: rgba(28, 28, 30, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --text-primary: #ffffff;
-            --text-secondary: rgba(235, 235, 245, 0.6);
-            --accent-purple: #a855f7;
-            --accent-pink: #ec4899;
-            --accent-gradient: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-            --danger-color: #ef4444;
-            --success-color: #22c55e;
-            --warning-color: #f59e0b;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-left: env(safe-area-inset-left, 0px);
-            --safe-right: env(safe-area-inset-right, 0px);
-            --radius-lg: 28px;
-            --radius-md: 18px;
-            --radius-sm: 12px;
-            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* --- Фоновое свечение --- */
-        #bg-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background:
-                radial-gradient(circle at 20% 10%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 90%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(88, 28, 135, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        /* --- Основной контейнер --- */
-        #app {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            width: 100%;
-            max-width: 480px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            padding-top: calc(var(--safe-top) + 8px);
-            padding-bottom: calc(var(--safe-bottom) + 8px);
-            padding-left: calc(var(--safe-left) + 12px);
-            padding-right: calc(var(--safe-right) + 12px);
-        }
-
-        /* --- Шапка (Header) --- */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 8px 8px 8px;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: var(--accent-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
-            flex-shrink: 0;
-        }
-
-        .app-logo svg {
-            width: 24px;
-            height: 24px;
-            fill: white;
-        }
-
-        .app-title {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            transition: var(--transition-smooth);
-        }
-
-        .status-badge.available {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success-color);
-            border-color: rgba(34, 197, 94, 0.3);
-        }
-
-        .status-badge.unavailable {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger-color);
-            border-color: rgba(239, 68, 68, 0.3);
-        }
-
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
-
-        /* --- Вкладки --- */
-        .tab-bar {
-            display: flex;
-            gap: 6px;
-            padding: 4px;
-            margin: 4px 0 12px 0;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: var(--radius-md);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            flex-shrink: 0;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 8px;
-            border: none;
-            border-radius: 14px;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab-btn.active {
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
-        }
-
-        .tab-btn:not(.active):active {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        /* --- Скроллируемая область --- */
-        .scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 4px 0 16px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .scroll-area::-webkit-scrollbar { display: none; }
-
-        /* --- Стеклянные карточки --- */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-smooth);
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-        }
-
-        /* --- Область сканирования --- */
-        .scan-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px 20px;
-            min-height: 240px;
-            text-align: center;
-        }
-
-        .scan-visual {
-            position: relative;
-            width: 140px;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .scan-ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid var(--accent-purple);
-            opacity: 0;
-        }
-
-        .scan-ring:nth-child(1) { width: 60px; height: 60px; }
-        .scan-ring:nth-child(2) { width: 90px; height: 90px; }
-        .scan-ring:nth-child(3) { width: 120px; height: 120px; }
-        .scan-ring:nth-child(4) { width: 150px; height: 150px; }
-
-        .scan-area.scanning .scan-ring {
-            animation: scan-wave 2s ease-out infinite;
-        }
-        .scan-area.scanning .scan-ring:nth-child(1) { animation-delay: 0s; }
-        .scan-area.scanning .scan-ring:nth-child(2) { animation-delay: 0.4s; }
-        .scan-area.scanning .scan-ring:nth-child(3) { animation-delay: 0.8s; }
-        .scan-area.scanning .scan-ring:nth-child(4) { animation-delay: 1.2s; }
-
-        @keyframes scan-wave {
-            0% { opacity: 0.8; transform: scale(0.5); border-color: var(--accent-purple); }
-            100% { opacity: 0; transform: scale(1.4); border-color: var(--accent-pink); }
-        }
-
-        .scan-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.5);
-            transition: var(--transition-smooth);
-        }
-
-        .scan-area.scanning .scan-icon {
-            animation: pulse-icon 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse-icon {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); }
-            50% { transform: scale(1.08); box-shadow: 0 0 60px rgba(168, 85, 247, 0.7); }
-        }
-
-        .scan-icon svg {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-
-        .scan-text {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .scan-subtext {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        /* --- Форма записи --- */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding-left: 4px;
-        }
-
-        .record-type-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .record-type-btn {
-            padding: 14px 12px;
-            border: 1.5px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .record-type-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-
-        .record-type-btn.active {
-            border-color: var(--accent-purple);
-            background: rgba(168, 85, 247, 0.15);
-            color: var(--accent-purple);
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
-        }
-
-        .record-type-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* --- Поля ввода --- */
-        .input-field {
-            width: 100%;
-            padding: 16px;
-            border: 1.5px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-primary);
-            font-size: 16px;
-            font-family: inherit;
-            transition: var(--transition-smooth);
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            resize: none;
-        }
-
-        .input-field:focus {
-            border-color: var(--accent-purple);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
-        }
-
-        .input-field::placeholder {
-            color: rgba(235, 235, 245, 0.3);
-        }
-
-        textarea.input-field {
-            min-height: 100px;
-            line-height: 1.5;
-        }
-
-        /* --- Счетчик символов --- */
-        .char-counter {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-secondary);
-            padding: 0 4px;
-        }
-
-        .char-counter.over {
-            color: var(--danger-color);
-        }
-
-        /* --- Предварительный просмотр --- */
-        .preview-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: var(--radius-md);
-            padding: 14px;
-            font-size: 13px;
-            font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-            color: var(--text-secondary);
-            word-break: break-all;
-            line-height: 1.5;
-            max-height: 120px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .preview-box.visible {
-            display: block;
-        }
-
-        /* --- Кнопки --- */
-        .btn {
-            padding: 16px 20px;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-primary {
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
-        }
-
-        .btn-primary:not(:disabled):hover {
-            box-shadow: 0 6px 28px rgba(168, 85, 247, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-secondary:not(:disabled):hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger-color);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-row .btn {
-            flex: 1;
-        }
-
-        /* --- Индикатор выполнения --- */
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar.visible {
-            display: block;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--accent-gradient);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            animation: progress-indeterminate 1.5s ease-in-out infinite;
-        }
-
-        @keyframes progress-indeterminate {
-            0% { width: 0%; margin-left: 0%; }
-            50% { width: 60%; margin-left: 20%; }
-            100% { width: 0%; margin-left: 100%; }
-        }
-
-        /* --- Результаты --- */
-        .result-box {
-            display: none;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
-            line-height: 1.5;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-
-        .result-box.visible {
-            display: block;
-        }
-
-        .result-box.success {
-            background: rgba(34, 197, 94, 0.12);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #86efac;
-        }
-
-        .result-box.error {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-        }
-
-        .result-box.info {
-            background: rgba(168, 85, 247, 0.12);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #d8b4fe;
-        }
-
-        /* --- Уведомления --- */
-        #toast-container {
-            position: fixed;
-            top: calc(var(--safe-top) + 16px);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 90%;
-            max-width: 440px;
-            pointer-events: none;
-        }
-
-        .toast {
-            padding: 14px 18px;
-            border-radius: var(--radius-md);
-            background: rgba(28, 28, 30, 0.9);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            animation: toast-in 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            pointer-events: auto;
-        }
-
-        .toast.removing {
-            animation: toast-out 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-        }
-
-        .toast-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 12px;
-        }
-
-        .toast.success .toast-icon { background: var(--success-color); }
-        .toast.error .toast-icon { background: var(--danger-color); }
-        .toast.info .toast-icon { background: var(--accent-purple); }
-
-        @keyframes toast-in {
-            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes toast-out {
-            from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(-20px) scale(0.95); }
-        }
-
-        /* --- История --- */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: var(--radius-md);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .history-item:active {
-            background: rgba(255, 255, 255, 0.08);
-            transform: scale(0.98);
-        }
-
-        .history-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
-        }
-
-        .history-icon.write { background: rgba(168, 85, 247, 0.2); }
-        .history-icon.read { background: rgba(34, 197, 94, 0.2); }
-        .history-icon.error { background: rgba(239, 68, 68, 0.2); }
-
-        .history-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .history-title {
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .history-meta {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        .history-arrow {
-            color: var(--text-secondary);
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .empty-state svg {
-            width: 48px;
-            height: 48px;
-            fill: rgba(255, 255, 255, 0.15);
-            margin-bottom: 12px;
-        }
-
-        /* --- Модальное окно --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 500;
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 0 12px calc(var(--safe-bottom) + 12px) 12px;
-        }
-
-        .modal-overlay.visible {
-            display: flex;
-            animation: modal-bg-in 0.3s ease forwards;
-        }
-
-        @keyframes modal-bg-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            width: 100%;
-            max-width: 460px;
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            padding: 24px 20px calc(var(--safe-bottom) + 20px) 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: modal-slide-up 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-        }
-
-        @keyframes modal-slide-up {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .modal-handle {
-            width: 36px;
-            height: 5px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.2);
-            margin: 0 auto 20px auto;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        /* --- Экран помощи --- */
-        .help-content {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-        }
-
-        .help-content h3 {
-            color: var(--text-primary);
-            font-size: 15px;
-            margin: 18px 0 8px 0;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .help-content h3:first-child {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
-        }
-
-        .help-content ul {
-            padding-left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .help-content li {
-            font-size: 13px;
-        }
-
-        .help-content strong {
-            color: var(--text-primary);
-        }
-
-        /* --- Режим совместимости --- */
-        .compat-warning {
-            display: none;
-            padding: 16px;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: var(--radius-md);
-            color: #fcd34d;
-            font-size: 13px;
-            line-height: 1.6;
-            gap: 10px;
-            align-items: flex-start;
-        }
-
-        .compat-warning.visible {
-            display: flex;
-        }
-
-        .compat-warning svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .hidden { display: none !important; }
-
-        /* --- Адаптивность --- */
-        @media (max-height: 700px) {
-            .scan-area { min-height: 180px; padding: 20px 16px; }
-            .scan-visual { width: 110px; height: 110px; }
-            .scan-ring:nth-child(1) { width: 50px; height: 50px; }
-            .scan-ring:nth-child(2) { width: 75px; height: 75px; }
-            .scan-ring:nth-child(3) { width: 100px; height: 100px; }
-            .scan-ring:nth-child(4) { width: 125px; height: 125px; }
-            .scan-icon { width: 48px; height: 48px; }
-            .scan-icon svg { width: 22px; height: 22px; }
-        }
-
-        @media (min-width: 500px) {
-            #app {
-                border-radius: 20px;
-                margin: 20px auto;
-                height: calc(100% - 40px);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                box-shadow: 0 0 80px rgba(168, 85, 247, 0.15);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#06060a">
+<title>МАФИЯ: ИСТОРИЯ ДРУЗЕЙ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d0;
+  font-family:'Georgia','Times New Roman',serif;user-select:none}
+:root{
+  --gold:#d4af37;--gold-soft:#c9a961;--crimson:#7a0f1c;--crimson-light:#a81f2e;
+  --panel:rgba(18,16,20,0.82);--panel-2:rgba(28,24,30,0.9);
+  --text:#ece5d3;--text-dim:#9a917f;
+}
+#app{position:fixed;inset:0;overflow:hidden}
+
+/* FON */
+#bgLayer{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 50% 20%,#1a1016 0%,#0a0710 55%,#050408 100%);z-index:0}
+#bgLayer::after{content:'';position:absolute;inset:0;
+  background:
+   radial-gradient(circle at 15% 85%,rgba(122,15,28,.15),transparent 45%),
+   radial-gradient(circle at 85% 15%,rgba(212,175,55,.08),transparent 45%);
+  animation:bgPulse 12s ease-in-out infinite alternate}
+@keyframes bgPulse{from{opacity:.6}to{opacity:1}}
+#grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>")}
+#vignette{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.75) 100%)}
+
+/* ЭКРАНЫ */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:18px;z-index:5;opacity:0;
+  transition:opacity .55s ease;overflow-y:auto;overflow-x:hidden}
+.screen.active{display:flex;opacity:1}
+.screen.fade-in{animation:fadeIn .6s ease forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ГЛАВНОЕ МЕНЮ */
+#menu{justify-content:center;text-align:center}
+.title-block{position:relative;margin-bottom:30px;z-index:3}
+.game-title{font-size:clamp(28px,7vw,64px);letter-spacing:.14em;font-weight:700;
+  color:var(--gold);text-shadow:0 0 30px rgba(212,175,55,.35),0 4px 20px rgba(0,0,0,.8);
+  animation:titleIn 1.4s cubic-bezier(.2,.8,.2,1)}
+.game-title .sub{display:block;font-size:.42em;letter-spacing:.5em;color:var(--crimson-light);
+  margin-top:10px;text-shadow:0 0 20px rgba(168,31,46,.6)}
+@keyframes titleIn{from{opacity:0;letter-spacing:.6em;filter:blur(8px)}to{opacity:1;letter-spacing:.14em;filter:blur(0)}}
+.title-line{height:1px;width:70%;max-width:420px;margin:14px auto;background:
+  linear-gradient(90deg,transparent,var(--gold-soft),transparent);opacity:.7}
+.menu-buttons{display:flex;flex-direction:column;gap:12px;width:min(340px,88vw);z-index:3}
+.btn{font-family:inherit;font-size:16px;letter-spacing:.12em;padding:14px 22px;
+  background:linear-gradient(180deg,rgba(40,32,38,.85),rgba(18,14,20,.9));
+  color:var(--text);border:1px solid rgba(212,175,55,.35);border-radius:8px;
+  cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;
+  text-transform:uppercase;backdrop-filter:blur(6px)}
+.btn:hover:not(:disabled),.btn:focus-visible{border-color:var(--gold);
+  color:#fff;box-shadow:0 0 22px rgba(212,175,55,.3);transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0) scale(.985)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.primary{background:linear-gradient(180deg,rgba(122,15,28,.9),rgba(60,8,16,.95));
+  border-color:rgba(212,175,55,.6)}
+.btn.primary:hover{box-shadow:0 0 26px rgba(168,31,46,.5)}
+.btn.small{padding:9px 14px;font-size:13px;letter-spacing:.08em}
+.menu-footer{margin-top:28px;font-size:12px;letter-spacing:.3em;color:var(--text-dim);
+  z-index:3;text-transform:uppercase}
+
+/* ЭКРАН ИГРЫ */
+#game{padding:0;justify-content:flex-start}
+#topbar{position:absolute;top:0;left:0;right:0;height:52px;display:flex;
+  align-items:center;justify-content:space-between;padding:0 12px;z-index:20;
+  background:linear-gradient(180deg,rgba(0,0,0,.75),transparent)}
+.chapter-ind{font-size:12px;letter-spacing:.18em;color:var(--gold-soft);
+  text-transform:uppercase;text-shadow:0 0 8px rgba(0,0,0,.9)}
+.top-actions{display:flex;gap:8px}
+.icon-btn{width:38px;height:38px;border-radius:50%;background:rgba(20,18,24,.7);
+  border:1px solid rgba(212,175,55,.3);color:var(--gold-soft);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:all .2s;backdrop-filter:blur(6px)}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 14px rgba(212,175,55,.3)}
+.icon-btn.off{opacity:.4}
+
+#stage{position:relative;flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;width:100%;padding:64px 12px 12px;
+  max-height:100%;overflow:hidden}
+
+/* ФОТО */
+#photoWrap{position:relative;width:min(58vw,260px);aspect-ratio:3/4;
+  margin:0 auto 10px;flex-shrink:0;transition:opacity .35s,filter .35s}
+#photoWrap.dim{filter:brightness(.55) saturate(.7)}
+.photo-frame{position:absolute;inset:-6px;border:1px solid rgba(212,175,55,.5);
+  border-radius:6px;pointer-events:none;box-shadow:
+  0 0 0 1px rgba(0,0,0,.7), 0 12px 40px rgba(0,0,0,.75),
+  inset 0 0 30px rgba(0,0,0,.5)}
+.photo-frame::before,.photo-frame::after{content:'';position:absolute;width:14px;height:14px;
+  border:2px solid var(--gold);}
+.photo-frame::before{top:-3px;left:-3px;border-right:0;border-bottom:0}
+.photo-frame::after{bottom:-3px;right:-3px;border-left:0;border-top:0}
+#charPhoto{width:100%;height:100%;object-fit:contain;display:block;
+  border-radius:3px;background:#0d0a0f;transition:opacity .4s ease}
+#photoPlaceholder{display:none;position:absolute;inset:0;border-radius:3px;
+  background:linear-gradient(150deg,#241820,#0e0a12);color:var(--gold-soft);
+  align-items:center;justify-content:center;text-align:center;font-size:14px;
+  letter-spacing:.15em;padding:12px;flex-direction:column;gap:8px}
+#photoPlaceholder .big{font-size:38px;color:var(--crimson-light);opacity:.7}
+
+/* ДИАЛОГ */
+#dialogPanel{width:min(760px,96vw);background:var(--panel);border:1px solid rgba(212,175,55,.25);
+  border-radius:10px;padding:16px 18px 14px;backdrop-filter:blur(10px);
+  box-shadow:0 14px 44px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);
+  position:relative;z-index:5;flex-shrink:0}
+#speakerName{font-size:14px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;
+  margin-bottom:8px;text-shadow:0 0 12px rgba(212,175,55,.35);min-height:18px}
+#dialogText{font-size:clamp(15px,3.6vw,18px);line-height:1.62;color:var(--text);
+  min-height:66px;letter-spacing:.01em}
+#dialogText::after{content:'';display:inline-block}
+.cursor-blink{display:inline-block;width:.55em;height:1em;background:var(--gold);
+  vertical-align:-.12em;margin-left:3px;animation:blink 1s steps(2) infinite;opacity:.8}
+@keyframes blink{50%{opacity:0}}
+
+#choices{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.choice-btn{font-family:inherit;font-size:14.5px;text-align:left;padding:12px 14px 12px 40px;
+  background:linear-gradient(90deg,rgba(40,26,32,.85),rgba(20,14,20,.85));
+  color:var(--text);border:1px solid rgba(212,175,55,.3);border-radius:7px;cursor:pointer;
+  transition:all .2s;position:relative;line-height:1.4}
+.choice-btn::before{content:attr(data-num);position:absolute;left:12px;top:50%;
+  transform:translateY(-50%);color:var(--gold);font-size:12px;letter-spacing:.1em;
+  border:1px solid rgba(212,175,55,.45);border-radius:4px;padding:2px 6px;min-width:20px;
+  text-align:center}
+.choice-btn:hover,.choice-btn:focus-visible{border-color:var(--gold);color:#fff;
+  background:linear-gradient(90deg,rgba(122,15,28,.6),rgba(28,18,24,.9));
+  box-shadow:0 0 18px rgba(212,175,55,.25);transform:translateX(3px)}
+
+#continueRow{display:flex;justify-content:space-between;align-items:center;
+  margin-top:12px;gap:10px;min-height:38px}
+#hint{font-size:11px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
+#continueBtn{padding:10px 22px;font-size:13px}
+
+/* НАКЛАДКИ */
+.overlay{position:absolute;inset:0;background:rgba(4,3,6,.86);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.overlay.active{display:flex;animation:fadeIn .3s ease}
+.panel{background:var(--panel-2);border:1px solid rgba(212,175,55,.3);border-radius:12px;
+  padding:24px;width:min(420px,92vw);max-height:86vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.85)}
+.panel h2{color:var(--gold);font-size:19px;letter-spacing:.16em;text-transform:uppercase;
+  text-align:center;margin-bottom:18px;font-weight:600}
+.panel .btn{width:100%;margin-bottom:9px;font-size:14px;padding:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:14px;font-size:14px;color:var(--text)}
+.row label{letter-spacing:.06em}
+input[type=range]{-webkit-appearance:none;appearance:none;width:140px;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--crimson));border-radius:3px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 8px rgba(212,175,55,.7)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--gold);cursor:pointer;border:0}
+.toggle{width:52px;height:26px;border-radius:14px;background:rgba(80,70,80,.5);
+  position:relative;cursor:pointer;transition:.25s;border:1px solid rgba(212,175,55,.25)}
+.toggle.on{background:rgba(122,15,28,.8);border-color:var(--gold)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;
+  border-radius:50%;background:var(--gold-soft);transition:.25s}
+.toggle.on::after{left:28px;background:var(--gold)}
+
+/* СПИСКИ */
+.list-item{display:block;width:100%;text-align:left;padding:13px 15px;margin-bottom:8px;
+  background:rgba(30,24,30,.7);border:1px solid rgba(212,175,55,.18);border-radius:7px;
+  color:var(--text);font-family:inherit;font-size:14px;cursor:pointer;transition:.2s;
+  letter-spacing:.03em}
+.list-item:hover{border-color:var(--gold);background:rgba(60,32,40,.7);transform:translateX(3px)}
+.list-item.locked{opacity:.4;cursor:not-allowed}
+.list-item.locked:hover{transform:none;border-color:rgba(212,175,55,.18);background:rgba(30,24,30,.7)}
+.list-item .meta{display:block;font-size:11px;color:var(--text-dim);margin-top:4px;
+  letter-spacing:.12em;text-transform:uppercase}
+
+/* ЖУРНАЛ */
+#historyList{max-height:66vh;overflow-y:auto;padding-right:6px}
+.hist-entry{padding:10px 12px;margin-bottom:8px;border-left:2px solid rgba(212,175,55,.35);
+  background:rgba(20,16,22,.55);border-radius:0 6px 6px 0;font-size:13.5px;line-height:1.5}
+.hist-entry .who{color:var(--gold);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;display:block;margin-bottom:4px}
+
+/* ПРОГРЕСС */
+#progressWrap{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.06);z-index:15}
+#progressBar{height:100%;width:0;background:linear-gradient(90deg,var(--crimson),var(--gold));
+  transition:width .5s ease;box-shadow:0 0 10px rgba(212,175,55,.5)}
+
+/* ФИНАЛ */
+#endingTitle{font-size:clamp(22px,6vw,40px);letter-spacing:.2em;color:var(--gold);
+  text-align:center;margin-bottom:14px;text-transform:uppercase;
+  text-shadow:0 0 30px rgba(212,175,55,.5)}
+#endingText{font-size:16px;line-height:1.7;color:var(--text);text-align:center;
+  max-width:560px;margin-bottom:24px}
+
+/* АДАПТИВ */
+@media (min-width:900px){
+  #photoWrap{width:300px}
+  #stage{padding-top:70px}
+}
+@media (max-height:640px){
+  #photoWrap{width:min(40vw,150px)}
+  #dialogText{min-height:50px;font-size:14px}
+  #stage{padding-top:56px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  #stage{flex-direction:row;gap:16px;align-items:center;padding-top:56px}
+  #photoWrap{width:min(28vw,170px);margin:0}
+  #dialogPanel{width:min(62vw,560px)}
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:rgba(212,175,55,.35);border-radius:3px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}
+</style>
 </head>
 <body>
-    <div id="bg-glow"></div>
+<div id="app">
+  <div id="bgLayer"></div>
+  <div id="grain"></div>
+  <div id="vignette"></div>
 
-    <div id="app">
-        <!-- Шапка -->
-        <header class="header">
-            <div class="header-left">
-                <div class="app-logo">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                </div>
-                <div>
-                    <div class="app-title">NFC Studio</div>
-                </div>
-            </div>
-            <div class="status-badge" id="status-badge">
-                <span class="status-dot"></span>
-                <span id="status-text">Проверка...</span>
-            </div>
-        </header>
+  <!-- ГЛАВНОЕ МЕНЮ -->
+  <div id="menu" class="screen active">
+    <div class="title-block">
+      <div class="game-title">МАФИЯ<span class="sub">ИСТОРИЯ ДРУЗЕЙ</span></div>
+      <div class="title-line"></div>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn primary" id="btnNew">Новая игра</button>
+      <button class="btn" id="btnContinue">Продолжить</button>
+      <button class="btn" id="btnChapters">Главы</button>
+      <button class="btn" id="btnSettings">Настройки</button>
+      <button class="btn" id="btnEndings">Концовки</button>
+      <button class="btn" id="btnAbout">Об авторах</button>
+    </div>
+    <div class="menu-footer">18+ · Криминальная драма · v1.0</div>
+  </div>
 
-        <!-- Вкладки -->
-        <nav class="tab-bar">
-            <button class="tab-btn active" data-tab="read" id="tab-read">
-                <span>📖</span> Чтение NFC
-            </button>
-            <button class="tab-btn" data-tab="write" id="tab-write">
-                <span>✍️</span> Запись NFC
-            </button>
-        </nav>
-
-        <!-- Скроллируемая область -->
-        <div class="scroll-area" id="scroll-area">
-
-            <!-- ======================== ВКЛАДКА ЧТЕНИЯ ======================== -->
-            <div id="panel-read" class="tab-panel">
-                <!-- Предупреждение о совместимости -->
-                <div class="compat-warning" id="read-compat-warning">
-                    <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-                    <div>
-                        <strong>Web NFC недоступен на этом устройстве.</strong><br>
-                        Safari на iPhone не поддерживает Web NFC API. Для чтения NFC-меток на iPhone используйте встроенное приложение «Команды» или сторонние приложения из App Store (например, NFC Tools). На Android используйте Chrome.
-                    </div>
-                </div>
-
-                <div class="glass-card scan-area" id="read-scan-area">
-                    <div class="scan-visual">
-                        <div class="scan-ring"></div>
-                        <div class="scan-ring"></div>
-                        <div class="scan-ring"></div>
-                        <div class="scan-ring"></div>
-                        <div class="scan-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                        </div>
-                    </div>
-                    <div class="scan-text" id="read-scan-text">Сканирование NFC</div>
-                    <div class="scan-subtext" id="read-scan-subtext">Приложите метку к верхней части телефона</div>
-                </div>
-
-                <div class="progress-bar" id="read-progress">
-                    <div class="progress-fill"></div>
-                </div>
-
-                <div class="result-box" id="read-result"></div>
-
-                <div class="btn-row" id="read-buttons">
-                    <button class="btn btn-primary" id="btn-start-scan" disabled>
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                        Начать сканирование
-                    </button>
-                    <button class="btn btn-secondary" id="btn-stop-scan" disabled>
-                        <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                        Стоп
-                    </button>
-                </div>
-
-                <button class="btn btn-secondary" id="btn-copy-read" style="display: none;">
-                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Скопировать данные
-                </button>
-            </div>
-
-            <!-- ======================== ВКЛАДКА ЗАПИСИ ======================== -->
-            <div id="panel-write" class="tab-panel hidden">
-                <!-- Предупреждение о совместимости -->
-                <div class="compat-warning" id="write-compat-warning">
-                    <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
-                    <div>
-                        <strong>Web NFC недоступен на этом устройстве.</strong><br>
-                        Safari на iPhone не поддерживает Web NFC API. Запись NFC-меток возможна только на Android в Chrome. Для записи на iPhone используйте приложение «NFC Tools» или аналогичное из App Store.
-                    </div>
-                </div>
-
-                <!-- Тип данных -->
-                <div class="glass-card" id="write-type-card">
-                    <div class="form-group">
-                        <label class="form-label">Тип данных</label>
-                        <div class="record-type-grid" id="record-types">
-                            <button class="record-type-btn active" data-type="url">
-                                <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-                                URL
-                            </button>
-                            <button class="record-type-btn" data-type="text">
-                                <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
-                                Текст
-                            </button>
-                            <button class="record-type-btn" data-type="contact">
-                                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                                Контакт
-                            </button>
-                            <button class="record-type-btn" data-type="raw">
-                                <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                                Другое
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Поля ввода -->
-                <div class="glass-card" id="write-input-card">
-                    <!-- URL -->
-                    <div class="form-group" id="input-url-group">
-                        <label class="form-label">URL-ссылка</label>
-                        <input type="url" class="input-field" id="input-url" placeholder="https://www.youtube.com/" value="https://www.youtube.com/" inputmode="url" autocomplete="url">
-                        <div class="char-counter" id="counter-url"><span>0 символов</span><span>0 байт</span></div>
-                    </div>
-
-                    <!-- Текст -->
-                    <div class="form-group hidden" id="input-text-group">
-                        <label class="form-label">Текст</label>
-                        <textarea class="input-field" id="input-text" placeholder="Введите текст для записи..." rows="4"></textarea>
-                        <div class="char-counter" id="counter-text"><span>0 символов</span><span>0 байт</span></div>
-                    </div>
-
-                    <!-- Контакт -->
-                    <div class="form-group hidden" id="input-contact-group">
-                        <label class="form-label">Имя</label>
-                        <input type="text" class="input-field" id="input-contact-name" placeholder="Иван Иванов" autocomplete="name">
-                        <label class="form-label" style="margin-top: 8px;">Телефон</label>
-                        <input type="tel" class="input-field" id="input-contact-phone" placeholder="+7 999 123-45-67" inputmode="tel" autocomplete="tel">
-                        <label class="form-label" style="margin-top: 8px;">Email</label>
-                        <input type="email" class="input-field" id="input-contact-email" placeholder="ivan@example.com" inputmode="email" autocomplete="email">
-                        <div class="char-counter" id="counter-contact"><span>0 символов</span><span>0 байт</span></div>
-                    </div>
-
-                    <!-- Другое (raw) -->
-                    <div class="form-group hidden" id="input-raw-group">
-                        <label class="form-label">Данные (JSON или текст)</label>
-                        <textarea class="input-field" id="input-raw" placeholder='{"key": "value"}' rows="3"></textarea>
-                        <div class="char-counter" id="counter-raw"><span>0 символов</span><span>0 байт</span></div>
-                    </div>
-                </div>
-
-                <!-- Предварительный просмотр -->
-                <div class="glass-card" id="write-preview-card">
-                    <div class="form-group">
-                        <label class="form-label">Предварительный просмотр</label>
-                        <div class="preview-box" id="preview-box">Введите данные для предварительного просмотра...</div>
-                    </div>
-                </div>
-
-                <!-- Кнопки действий -->
-                <div class="glass-card" id="write-actions-card">
-                    <div class="form-group">
-                        <button class="btn btn-secondary" id="btn-prepare">
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Подготовить запись
-                        </button>
-                        <div class="btn-row">
-                            <button class="btn btn-primary" id="btn-write" disabled>
-                                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                Записать на NFC
-                            </button>
-                            <button class="btn btn-secondary" id="btn-verify" disabled>
-                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                                Проверить
-                            </button>
-                        </div>
-                        <button class="btn btn-danger" id="btn-clear">
-                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                            Очистить поля
-                        </button>
-                    </div>
-                    <div class="progress-bar" id="write-progress" style="margin-top: 14px;">
-                        <div class="progress-fill"></div>
-                    </div>
-                </div>
-
-                <div class="result-box" id="write-result"></div>
-            </div>
-
-            <!-- ======================== ИСТОРИЯ ======================== -->
-            <div class="glass-card hidden" id="history-section" style="margin-top: 4px;">
-                <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label class="form-label" style="margin-bottom: 0;">История операций</label>
-                        <button class="btn btn-danger" id="btn-clear-history" style="width: auto; padding: 8px 14px; font-size: 12px; border-radius: 10px;">
-                            Очистить
-                        </button>
-                    </div>
-                    <div class="history-list" id="history-list">
-                        <div class="empty-state">
-                            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                            <div>История пуста</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Кнопка помощи внизу -->
-        <div style="flex-shrink: 0; padding: 4px 0 0 0;">
-            <button class="btn btn-secondary" id="btn-help" style="padding: 12px;">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-                Помощь и совместимость
-            </button>
-        </div>
+  <!-- ИГРА -->
+  <div id="game" class="screen">
+    <div id="topbar">
+      <div class="chapter-ind" id="chapterInd">Глава 1</div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btnReplayLine" title="Повторить реплику">↺</button>
+        <button class="icon-btn" id="btnVoiceQuick" title="Озвучка">🔊</button>
+        <button class="icon-btn" id="btnHistoryQuick" title="Журнал">≡</button>
+        <button class="icon-btn" id="btnPause" title="Пауза">❚❚</button>
+      </div>
     </div>
 
-    <!-- Контейнер уведомлений -->
-    <div id="toast-container"></div>
-
-    <!-- Модальное окно помощи -->
-    <div class="modal-overlay" id="help-modal">
-        <div class="modal-content">
-            <div class="modal-handle"></div>
-            <div class="modal-title">Помощь и совместимость</div>
-            <div class="help-content">
-                <h3>📱 iPhone (Safari)</h3>
-                <ul>
-                    <li><strong>Web NFC не поддерживается.</strong> Safari на iOS не предоставляет API для прямого чтения или записи NFC-меток из браузера.</li>
-                    <li>Для чтения NFC-меток на iPhone используйте встроенное приложение <strong>«Команды»</strong> (Shortcuts) — создайте автоматизацию по тегу NFC.</li>
-                    <li>Для записи используйте приложения из App Store, например <strong>«NFC Tools»</strong> или <strong>«NXP TagWriter»</strong>.</li>
-                    <li>Это ограничение связано с политикой безопасности Apple и не может быть обойдено из браузера.</li>
-                </ul>
-                <h3>🤖 Android (Chrome)</h3>
-                <ul>
-                    <li>Web NFC <strong>поддерживается в Chrome 89+</strong> на устройствах с NFC-адаптером.</li>
-                    <li>Требуется <strong>HTTPS</strong> или <strong>localhost</strong> (безопасный контекст).</li>
-                    <li>При первом использовании браузер запросит разрешение на доступ к NFC.</li>
-                    <li>Приложите метку к задней панели телефона (обычно в верхней части).</li>
-                </ul>
-                <h3>🏷️ Поддерживаемые метки</h3>
-                <ul>
-                    <li>NTAG213 — <strong>144 байта</strong> пользовательской памяти</li>
-                    <li>NTAG215 — <strong>504 байта</strong> пользовательской памяти</li>
-                    <li>NTAG216 — <strong>888 байт</strong> пользовательской памяти</li>
-                    <li>Также поддерживаются другие метки с NDEF-форматированием.</li>
-                </ul>
-                <h3>🔒 Безопасность</h3>
-                <ul>
-                    <li>Приложение работает только с <strong>обычными перезаписываемыми NDEF-метками</strong>.</li>
-                    <li>Оно <strong>не может</strong> читать или изменять защищённые банковские чипы, платёжные приложения или данные Apple Pay.</li>
-                    <li>Вся история операций хранится <strong>локально</strong> в вашем браузере и не отправляется на сервер.</li>
-                </ul>
-                <h3>⚠️ Ошибки и их причины</h3>
-                <ul>
-                    <li><strong>«Метка не обнаружена»</strong> — поднесите метку ближе или перезапустите сканирование.</li>
-                    <li><strong>«Недостаточно памяти»</strong> — сообщение превышает объём памяти метки. Сократите данные.</li>
-                    <li><strong>«Запись запрещена»</strong> — метка защищена от записи или уже содержит данные (при overwrite: false).</li>
-                    <li><strong>«Разрешение не получено»</strong> — предоставьте доступ к NFC в настройках браузера.</li>
-                </ul>
-            </div>
-            <button class="btn btn-secondary" id="btn-close-help" style="margin-top: 20px;">Понятно</button>
+    <div id="stage">
+      <div id="photoWrap">
+        <div class="photo-frame"></div>
+        <img id="charPhoto" alt="" draggable="false">
+        <div id="photoPlaceholder"><div class="big">?</div><div id="placeholderName">Персонаж</div></div>
+      </div>
+      <div id="dialogPanel">
+        <div id="speakerName"></div>
+        <div id="dialogText"></div>
+        <div id="choices"></div>
+        <div id="continueRow">
+          <div id="hint">Enter / Пробел</div>
+          <button class="btn small primary" id="continueBtn">Продолжить</button>
         </div>
+      </div>
     </div>
-
-    <script>
-        // ============================================================
-        //  NFC Studio — Главный скрипт
-        //  Реальная работа с Web NFC API (только там, где он доступен)
-        // ============================================================
-
-        (function() {
-            'use strict';
-
-            // --------------------------------------------------------
-            //  1. Состояние приложения
-            // --------------------------------------------------------
-            const state = {
-                nfcSupported: false,
-                scanning: false,
-                ndefReader: null,
-                abortController: null,
-                currentTab: 'read',
-                recordType: 'url',
-                preparedMessage: null,
-                lastReadData: null,
-                writeInProgress: false,
-                history: []
-            };
-
-            // --------------------------------------------------------
-            //  2. DOM-элементы
-            // --------------------------------------------------------
-            const $ = (sel) => document.querySelector(sel);
-            const $$ = (sel) => document.querySelectorAll(sel);
-
-            const els = {
-                statusBadge: $('#status-badge'),
-                statusText: $('#status-text'),
-                tabRead: $('#tab-read'),
-                tabWrite: $('#tab-write'),
-                panelRead: $('#panel-read'),
-                panelWrite: $('#panel-write'),
-                scrollArea: $('#scroll-area'),
-                readScanArea: $('#read-scan-area'),
-                readScanText: $('#read-scan-text'),
-                readScanSubtext: $('#read-scan-subtext'),
-                readProgress: $('#read-progress'),
-                readResult: $('#read-result'),
-                btnStartScan: $('#btn-start-scan'),
-                btnStopScan: $('#btn-stop-scan'),
-                btnCopyRead: $('#btn-copy-read'),
-                readCompatWarning: $('#read-compat-warning'),
-                writeCompatWarning: $('#write-compat-warning'),
-                recordTypes: $('#record-types'),
-                recordTypeBtns: $$('#record-types .record-type-btn'),
-                inputUrlGroup: $('#input-url-group'),
-                inputTextGroup: $('#input-text-group'),
-                inputContactGroup: $('#input-contact-group'),
-                inputRawGroup: $('#input-raw-group'),
-                inputUrl: $('#input-url'),
-                inputText: $('#input-text'),
-                inputContactName: $('#input-contact-name'),
-                inputContactPhone: $('#input-contact-phone'),
-                inputContactEmail: $('#input-contact-email'),
-                inputRaw: $('#input-raw'),
-                counterUrl: $('#counter-url'),
-                counterText: $('#counter-text'),
-                counterContact: $('#counter-contact'),
-                counterRaw: $('#counter-raw'),
-                previewBox: $('#preview-box'),
-                btnPrepare: $('#btn-prepare'),
-                btnWrite: $('#btn-write'),
-                btnVerify: $('#btn-verify'),
-                btnClear: $('#btn-clear'),
-                writeProgress: $('#write-progress'),
-                writeResult: $('#write-result'),
-                historySection: $('#history-section'),
-                historyList: $('#history-list'),
-                btnClearHistory: $('#btn-clear-history'),
-                btnHelp: $('#btn-help'),
-                helpModal: $('#help-modal'),
-                btnCloseHelp: $('#btn-close-help'),
-                toastContainer: $('#toast-container')
-            };
-
-            // --------------------------------------------------------
-            //  3. Утилиты
-            // --------------------------------------------------------
-
-            /** Безопасное экранирование HTML */
-            function escapeHtml(str) {
-                if (!str) return '';
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;');
-            }
-
-            /** Форматирование даты */
-            function formatDate(ts) {
-                const d = new Date(ts);
-                const now = new Date();
-                const diff = now - d;
-                if (diff < 60000) return 'Только что';
-                if (diff < 3600000) return `${Math.floor(diff / 60000)} мин назад`;
-                if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч назад`;
-                return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-            }
-
-            /** Показать уведомление */
-            function showToast(message, type = 'info', duration = 3500) {
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                const icons = { success: '✓', error: '✕', info: 'ℹ' };
-                toast.innerHTML = `
-                    <div class="toast-icon">${icons[type] || 'ℹ'}</div>
-                    <div>${escapeHtml(message)}</div>
-                `;
-                els.toastContainer.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('removing');
-                    setTimeout(() => toast.remove(), 400);
-                }, duration);
-            }
-
-            /** Показать результат в блоке */
-            function showResult(container, message, type = 'info') {
-                container.className = `result-box visible ${type}`;
-                container.textContent = message;
-            }
-
-            /** Скрыть результат */
-            function hideResult(container) {
-                container.className = 'result-box';
-                container.textContent = '';
-            }
-
-            /** Показать/скрыть прогресс */
-            function setProgress(container, visible) {
-                container.classList.toggle('visible', visible);
-            }
-
-            /** Подсчет байт в UTF-8 */
-            function byteLength(str) {
-                return new Blob([str]).size;
-            }
-
-            /** Валидация URL */
-            function isValidUrl(str) {
-                if (!str || !str.trim()) return false;
-                try {
-                    const url = new URL(str.trim());
-                    return url.protocol === 'http:' || url.protocol === 'https:';
-                } catch (e) {
-                    return false;
-                }
-            }
-
-            // --------------------------------------------------------
-            //  4. Проверка поддержки Web NFC
-            // --------------------------------------------------------
-            function checkNfcSupport() {
-                const hasNDEFReader = 'NDEFReader' in window;
-                state.nfcSupported = hasNDEFReader;
-
-                if (hasNDEFReader) {
-                    els.statusBadge.className = 'status-badge available';
-                    els.statusText.textContent = 'NFC доступен';
-                    els.btnStartScan.disabled = false;
-                    els.readCompatWarning.classList.remove('visible');
-                    els.writeCompatWarning.classList.remove('visible');
-                } else {
-                    els.statusBadge.className = 'status-badge unavailable';
-                    els.statusText.textContent = 'NFC недоступен';
-                    els.btnStartScan.disabled = true;
-                    els.btnWrite.disabled = true;
-                    els.btnVerify.disabled = true;
-                    els.readCompatWarning.classList.add('visible');
-                    els.writeCompatWarning.classList.add('visible');
-                }
-
-                // Проверка наличия NFC-адаптера (если API есть)
-                if (hasNDEFReader) {
-                    try {
-                        const testReader = new NDEFReader();
-                        // Если конструктор не выбросил ошибку, адаптер, скорее всего, есть
-                        state.ndefReader = testReader;
-                    } catch (e) {
-                        state.nfcSupported = false;
-                        els.statusBadge.className = 'status-badge unavailable';
-                        els.statusText.textContent = 'NFC-адаптер не найден';
-                        els.btnStartScan.disabled = true;
-                        els.btnWrite.disabled = true;
-                        els.btnVerify.disabled = true;
-                        els.readCompatWarning.classList.add('visible');
-                        els.writeCompatWarning.classList.add('visible');
-                    }
-                }
-            }
-
-            // --------------------------------------------------------
-            //  5. Переключение вкладок
-            // --------------------------------------------------------
-            function switchTab(tab) {
-                state.currentTab = tab;
-                els.tabRead.classList.toggle('active', tab === 'read');
-                els.tabWrite.classList.toggle('active', tab === 'write');
-                els.panelRead.classList.toggle('hidden', tab !== 'read');
-                els.panelWrite.classList.toggle('hidden', tab !== 'write');
-
-                // Показать историю на обеих вкладках
-                els.historySection.classList.remove('hidden');
-
-                // Прокрутить вверх
-                els.scrollArea.scrollTop = 0;
-            }
-
-            // --------------------------------------------------------
-            //  6. Выбор типа записи
-            // --------------------------------------------------------
-            function selectRecordType(type) {
-                state.recordType = type;
-                els.recordTypeBtns.forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.type === type);
-                });
-
-                // Показать соответствующие поля
-                els.inputUrlGroup.classList.toggle('hidden', type !== 'url');
-                els.inputTextGroup.classList.toggle('hidden', type !== 'text');
-                els.inputContactGroup.classList.toggle('hidden', type !== 'contact');
-                els.inputRawGroup.classList.toggle('hidden', type !== 'raw');
-
-                // Обновить предпросмотр
-                updatePreview();
-
-                // Сбросить подготовленное сообщение
-                state.preparedMessage = null;
-                els.btnWrite.disabled = true;
-                els.btnVerify.disabled = true;
-                hideResult(els.writeResult);
-            }
-
-            // --------------------------------------------------------
-            //  7. Подсчет символов и байт
-            // --------------------------------------------------------
-            function updateCounters() {
-                // URL
-                const urlVal = els.inputUrl.value;
-                const urlBytes = byteLength(urlVal);
-                els.counterUrl.innerHTML = `<span>${urlVal.length} символов</span><span>${urlBytes} байт</span>`;
-                els.counterUrl.classList.toggle('over', urlBytes > 800);
-
-                // Текст
-                const textVal = els.inputText.value;
-                const textBytes = byteLength(textVal);
-                els.counterText.innerHTML = `<span>${textVal.length} символов</span><span>${textBytes} байт</span>`;
-                els.counterText.classList.toggle('over', textBytes > 800);
-
-                // Контакт
-                const contactStr = getContactString();
-                const contactBytes = byteLength(contactStr);
-                els.counterContact.innerHTML = `<span>${contactStr.length} символов</span><span>${contactBytes} байт</span>`;
-                els.counterContact.classList.toggle('over', contactBytes > 800);
-
-                // Raw
-                const rawVal = els.inputRaw.value;
-                const rawBytes = byteLength(rawVal);
-                els.counterRaw.innerHTML = `<span>${rawVal.length} символов</span><span>${rawBytes} байт</span>`;
-                els.counterRaw.classList.toggle('over', rawBytes > 800);
-            }
-
-            /** Формирование строки контакта (vCard-подобный формат) */
-            function getContactString() {
-                const name = els.inputContactName.value.trim();
-                const phone = els.inputContactPhone.value.trim();
-                const email = els.inputContactEmail.value.trim();
-                const parts = [];
-                if (name) parts.push(`FN:${name}`);
-                if (phone) parts.push(`TEL:${phone}`);
-                if (email) parts.push(`EMAIL:${email}`);
-                return parts.join('\n');
-            }
-
-            // --------------------------------------------------------
-            //  8. Предварительный просмотр
-            // --------------------------------------------------------
-            function updatePreview() {
-                let content = '';
-                switch (state.recordType) {
-                    case 'url':
-                        content = els.inputUrl.value.trim() || '(пусто)';
-                        break;
-                    case 'text':
-                        content = els.inputText.value.trim() || '(пусто)';
-                        break;
-                    case 'contact':
-                        content = getContactString() || '(пусто)';
-                        break;
-                    case 'raw':
-                        content = els.inputRaw.value.trim() || '(пусто)';
-                        break;
-                }
-
-                if (content === '(пусто)') {
-                    els.previewBox.textContent = 'Введите данные для предварительного просмотра...';
-                    els.previewBox.classList.remove('visible');
-                } else {
-                    const bytes = byteLength(content);
-                    els.previewBox.textContent = `[${state.recordType.toUpperCase()}] ${bytes} байт\n\n${content}`;
-                    els.previewBox.classList.add('visible');
-                }
-            }
-
-            // --------------------------------------------------------
-            //  9. Подготовка NDEF-сообщения
-            // --------------------------------------------------------
-            function prepareMessage() {
-                const type = state.recordType;
-                let record = null;
-
-                switch (type) {
-                    case 'url': {
-                        const url = els.inputUrl.value.trim();
-                        if (!url) {
-                            showToast('Введите URL-ссылку', 'error');
-                            return null;
-                        }
-                        if (!isValidUrl(url)) {
-                            showToast('Некорректный URL. Убедитесь, что ссылка начинается с http:// или https://', 'error');
-                            return null;
-                        }
-                        record = { recordType: 'url', data: url };
-                        break;
-                    }
-                    case 'text': {
-                        const text = els.inputText.value.trim();
-                        if (!text) {
-                            showToast('Введите текст', 'error');
-                            return null;
-                        }
-                        record = { recordType: 'text', data: text, lang: 'ru', encoding: 'utf-8' };
-                        break;
-                    }
-                    case 'contact': {
-                        const contactStr = getContactString();
-                        if (!contactStr) {
-                            showToast('Заполните хотя бы одно поле контакта', 'error');
-                            return null;
-                        }
-                        record = { recordType: 'mime', mediaType: 'text/vcard', data: contactStr };
-                        break;
-                    }
-                    case 'raw': {
-                        const raw = els.inputRaw.value.trim();
-                        if (!raw) {
-                            showToast('Введите данные', 'error');
-                            return null;
-                        }
-                        // Пытаемся определить JSON
-                        try {
-                            JSON.parse(raw);
-                            record = { recordType: 'mime', mediaType: 'application/json', data: raw };
-                        } catch (e) {
-                            record = { recordType: 'text', data: raw, lang: 'ru', encoding: 'utf-8' };
-                        }
-                        break;
-                    }
-                }
-
-                if (!record) return null;
-
-                const message = { records: [record] };
-                const size = byteLength(JSON.stringify(message));
-
-                // Проверка на превышение памяти NTAG213 (144 байта) — предупреждение
-                if (size > 800) {
-                    showToast(`Внимание: сообщение ~${size} байт. Может не поместиться на NTAG213 (144 Б). Рекомендуется NTAG215/216.`, 'info', 5000);
-                } else if (size > 137) {
-                    showToast(`Сообщение ~${size} байт. Может не поместиться на NTAG213 (137 Б доступно).`, 'info', 4000);
-                }
-
-                return message;
-            }
-
-            // --------------------------------------------------------
-            //  10. ЧТЕНИЕ NFC
-            // --------------------------------------------------------
-            async function startScan() {
-                if (!state.nfcSupported) {
-                    showToast('Web NFC недоступен на этом устройстве', 'error');
-                    return;
-                }
-
-                if (state.scanning) return;
-
-                try {
-                    state.abortController = new AbortController();
-                    state.ndefReader = new NDEFReader();
-
-                    state.scanning = true;
-                    els.btnStartScan.disabled = true;
-                    els.btnStopScan.disabled = false;
-                    els.readScanArea.classList.add('scanning');
-                    els.readScanText.textContent = 'Сканирование...';
-                    els.readScanSubtext.textContent = 'Приложите NFC-метку к верхней части телефона';
-                    setProgress(els.readProgress, true);
-                    hideResult(els.readResult);
-                    els.btnCopyRead.style.display = 'none';
-
-                    await state.ndefReader.scan({ signal: state.abortController.signal });
-
-                    state.ndefReader.onreading = (event) => {
-                        const { message, serialNumber } = event;
-                        handleReadResult(message, serialNumber);
-                    };
-
-                    state.ndefReader.onreadingerror = () => {
-                        showToast('Не удалось прочитать метку. Попробуйте ещё раз.', 'error');
-                        addHistory('read', state.recordType, 'Ошибка чтения');
-                    };
-
-                } catch (error) {
-                    handleScanError(error);
-                }
-            }
-
-            function stopScan() {
-                if (state.abortController) {
-                    state.abortController.abort();
-                    state.abortController = null;
-                }
-                state.scanning = false;
-                els.btnStartScan.disabled = false;
-                els.btnStopScan.disabled = true;
-                els.readScanArea.classList.remove('scanning');
-                els.readScanText.textContent = 'Сканирование NFC';
-                els.readScanSubtext.textContent = 'Приложите метку к верхней части телефона';
-                setProgress(els.readProgress, false);
-                showToast('Сканирование остановлено', 'info');
-            }
-
-            function handleScanError(error) {
-                state.scanning = false;
-                els.btnStartScan.disabled = false;
-                els.btnStopScan.disabled = true;
-                els.readScanArea.classList.remove('scanning');
-                setProgress(els.readProgress, false);
-
-                let message = '';
-                switch (error.name) {
-                    case 'AbortError':
-                        message = 'Сканирование остановлено';
-                        break;
-                    case 'NotAllowedError':
-                        message = 'Доступ к NFC запрещён. Разрешите доступ в настройках браузера.';
-                        break;
-                    case 'NotSupportedError':
-                        message = 'NFC-адаптер не найден или не поддерживается.';
-                        break;
-                    case 'NotReadableError':
-                        message = 'Не удалось получить доступ к NFC-адаптеру.';
-                        break;
-                    default:
-                        message = `Ошибка: ${error.message || 'Неизвестная ошибка'}`;
-                }
-                showResult(els.readResult, message, 'error');
-                addHistory('read', state.recordType, message);
-                showToast(message, 'error');
-            }
-
-            function handleReadResult(message, serialNumber) {
-                // Остановить сканирование после первого чтения
-                stopScan();
-
-                const records = message.records || [];
-                let output = '';
-                let copyText = '';
-
-                output += `📋 Метка: ${serialNumber || 'неизвестно'}\n`;
-                output += `📊 Записей: ${records.length}\n`;
-                output += `━━━━━━━━━━━━━━━━━━\n\n`;
-
-                let hasUrl = false;
-                let hasText = false;
-
-                records.forEach((record, index) => {
-                    output += `Запись ${index + 1}:\n`;
-
-                    try {
-                        switch (record.recordType) {
-                            case 'text': {
-                                const decoder = new TextDecoder(record.encoding || 'utf-8');
-                                const text = decoder.decode(record.data);
-                                output += `  Тип: Текст\n`;
-                                output += `  Язык: ${record.lang || 'не указан'}\n`;
-                                output += `  Содержимое: ${text}\n`;
-                                copyText += text + '\n';
-                                hasText = true;
-                                break;
-                            }
-                            case 'url': {
-                                const decoder = new TextDecoder();
-                                const url = decoder.decode(record.data);
-                                output += `  Тип: URL\n`;
-                                output += `  Ссылка: ${url}\n`;
-                                copyText += url + '\n';
-                                hasUrl = true;
-                                break;
-                            }
-                            case 'mime': {
-                                const decoder = new TextDecoder();
-                                const data = decoder.decode(record.data);
-                                output += `  Тип: MIME (${record.mediaType || 'неизвестно'})\n`;
-                                output += `  Содержимое: ${data.substring(0, 200)}${data.length > 200 ? '...' : ''}\n`;
-                                copyText += data + '\n';
-                                break;
-                            }
-                            case 'empty': {
-                                output += `  Тип: Пустая запись\n`;
-                                break;
-                            }
-                            default: {
-                                output += `  Тип: ${record.recordType || 'неизвестно'}\n`;
-                                try {
-                                    const decoder = new TextDecoder();
-                                    const data = decoder.decode(record.data);
-                                    output += `  Данные: ${data.substring(0, 100)}...\n`;
-                                    copyText += data + '\n';
-                                } catch (e) {
-                                    output += `  Данные: [двоичные]\n`;
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        output += `  Ошибка декодирования: ${e.message}\n`;
-                    }
-                    output += '\n';
-                });
-
-                output += `━━━━━━━━━━━━━━━━━━\n`;
-                output += `🕐 Прочитано: ${new Date().toLocaleString('ru-RU')}`;
-
-                showResult(els.readResult, output, 'success');
-                addHistory('read', state.recordType, `Прочитано записей: ${records.length}`);
-
-                // Сохранить для копирования
-                state.lastReadData = {
-                    serialNumber,
-                    recordCount: records.length,
-                    text: copyText.trim() || output
-                };
-
-                if (records.length > 0) {
-                    els.btnCopyRead.style.display = 'flex';
-                }
-
-                showToast(`Метка прочитана: ${records.length} записей`, 'success');
-            }
-
-            // --------------------------------------------------------
-            //  11. ЗАПИСЬ NFC
-            // --------------------------------------------------------
-            async function writeToTag() {
-                if (!state.nfcSupported) {
-                    showToast('Web NFC недоступен на этом устройстве', 'error');
-                    return;
-                }
-
-                if (!state.preparedMessage) {
-                    showToast('Сначала нажмите «Подготовить запись»', 'error');
-                    return;
-                }
-
-                if (state.writeInProgress) return;
-
-                try {
-                    state.writeInProgress = true;
-                    els.btnWrite.disabled = true;
-                    els.btnVerify.disabled = true;
-                    els.btnPrepare.disabled = true;
-                    setProgress(els.writeProgress, true);
-                    hideResult(els.writeResult);
-
-                    const ndef = new NDEFReader();
-
-                    // Запись с overwrite: true (перезапись существующих данных)
-                    await ndef.write(state.preparedMessage, { overwrite: true });
-
-                    // Успех
-                    setProgress(els.writeProgress, false);
-                    const size = byteLength(JSON.stringify(state.preparedMessage));
-                    showResult(els.writeResult,
-                        `✅ Запись успешно завершена!\n\n` +
-                        `Тип: ${state.recordType.toUpperCase()}\n` +
-                        `Размер: ${size} байт\n` +
-                        `Время: ${new Date().toLocaleString('ru-RU')}\n\n` +
-                        `Метка перезаписываема и готова к использованию.`,
-                        'success'
-                    );
-                    addHistory('write', state.recordType, `Успешно записано (${size} байт)`);
-                    showToast('Данные успешно записаны на метку!', 'success');
-
-                } catch (error) {
-                    setProgress(els.writeProgress, false);
-                    let message = '';
-
-                    switch (error.name) {
-                        case 'NotAllowedError':
-                            message = '❌ Запись запрещена. Метка защищена от записи или доступ отклонён.';
-                            break;
-                        case 'NotSupportedError':
-                            message = '❌ NFC-адаптер не поддерживает запись или метка не совместима.';
-                            break;
-                        case 'NotReadableError':
-                            message = '❌ Не удалось получить доступ к NFC-адаптеру.';
-                            break;
-                        case 'NetworkError':
-                            message = '❌ Ошибка передачи. Метка была убрана во время записи.';
-                            break;
-                        case 'NotEnoughSpaceError':
-                            message = '❌ Недостаточно памяти на метке. Сократите объём данных.';
-                            break;
-                        default:
-                            message = `❌ Ошибка записи: ${error.message || 'Неизвестная ошибка'}`;
-                    }
-
-                    showResult(els.writeResult, message, 'error');
-                    addHistory('write', state.recordType, message);
-                    showToast(message, 'error', 5000);
-
-                } finally {
-                    state.writeInProgress = false;
-                    els.btnPrepare.disabled = false;
-                    els.btnWrite.disabled = !state.preparedMessage;
-                    els.btnVerify.disabled = !state.preparedMessage;
-                }
-            }
-
-            async function verifyTag() {
-                if (!state.nfcSupported) {
-                    showToast('Web NFC недоступен на этом устройстве', 'error');
-                    return;
-                }
-
-                try {
-                    setProgress(els.writeProgress, true);
-                    hideResult(els.writeResult);
-
-                    const ndef = new NDEFReader();
-                    const abortController = new AbortController();
-
-                    showToast('Приложите метку для проверки...', 'info', 4000);
-
-                    await ndef.scan({ signal: abortController.signal });
-
-                    ndef.onreading = (event) => {
-                        abortController.abort();
-                        setProgress(els.writeProgress, false);
-
-                        const records = event.message.records || [];
-                        let output = `🔍 Проверка метки\n━━━━━━━━━━━━━━━━━━\n\n`;
-                        output += `Записей: ${records.length}\n\n`;
-
-                        records.forEach((record, i) => {
-                            output += `Запись ${i + 1}: ${record.recordType}\n`;
-                            try {
-                                const decoder = new TextDecoder();
-                                output += `  ${decoder.decode(record.data).substring(0, 100)}\n`;
-                            } catch (e) {
-                                output += `  [двоичные данные]\n`;
-                            }
-                        });
-
-                        output += `\n✅ Метка доступна для чтения и записи`;
-
-                        showResult(els.writeResult, output, 'success');
-                        showToast('Проверка завершена', 'success');
-                        addHistory('read', state.recordType, `Проверка: ${records.length} записей`);
-                    };
-
-                    ndef.onreadingerror = () => {
-                        abortController.abort();
-                        setProgress(els.writeProgress, false);
-                        showResult(els.writeResult, '❌ Не удалось прочитать метку', 'error');
-                        showToast('Ошибка чтения метки', 'error');
-                    };
-
-                } catch (error) {
-                    setProgress(els.writeProgress, false);
-                    showResult(els.writeResult, `❌ Ошибка проверки: ${error.message}`, 'error');
-                    showToast('Ошибка проверки', 'error');
-                }
-            }
-
-            // --------------------------------------------------------
-            //  12. ИСТОРИЯ ОПЕРАЦИЙ
-            // --------------------------------------------------------
-            function loadHistory() {
-                try {
-                    const stored = localStorage.getItem('nfc_studio_history');
-                    state.history = stored ? JSON.parse(stored) : [];
-                } catch (e) {
-                    state.history = [];
-                }
-                renderHistory();
-            }
-
-            function saveHistory() {
-                try {
-                    // Храним последние 50 записей
-                    const trimmed = state.history.slice(0, 50);
-                    localStorage.setItem('nfc_studio_history', JSON.stringify(trimmed));
-                } catch (e) {
-                    // localStorage может быть недоступен
-                }
-            }
-
-            function addHistory(type, dataType, result) {
-                const entry = {
-                    id: Date.now() + Math.random(),
-                    timestamp: Date.now(),
-                    type: type,
-                    dataType: dataType,
-                    result: result,
-                    details: ''
-                };
-                state.history.unshift(entry);
-                saveHistory();
-                renderHistory();
-            }
-
-            function renderHistory() {
-                if (state.history.length === 0) {
-                    els.historyList.innerHTML = `
-                        <div class="empty-state">
-                            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                            <div>История пуста</div>
-                        </div>`;
-                    return;
-                }
-
-                els.historyList.innerHTML = state.history.map((entry, index) => {
-                    const iconClass = entry.type === 'write' ? 'write' : (entry.result.includes('Ошибка') || entry.result.includes('❌') ? 'error' : 'read');
-                    const icon = entry.type === 'write' ? '✍️' : (iconClass === 'error' ? '⚠️' : '📖');
-                    return `
-                        <div class="history-item" data-index="${index}">
-                            <div class="history-icon ${iconClass}">${icon}</div>
-                            <div class="history-info">
-                                <div class="history-title">${entry.type === 'write' ? 'Запись' : 'Чтение'} — ${escapeHtml(entry.dataType)}</div>
-                                <div class="history-meta">${formatDate(entry.timestamp)} · ${escapeHtml(entry.result.substring(0, 50))}</div>
-                            </div>
-                            <div class="history-arrow">›</div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Обработчики кликов по элементам истории
-                els.historyList.querySelectorAll('.history-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const idx = parseInt(item.dataset.index, 10);
-                        const entry = state.history[idx];
-                        if (entry) {
-                            showResult(els.writeResult,
-                                `📋 Детали операции\n━━━━━━━━━━━━━━━━━━\n\n` +
-                                `Тип: ${entry.type === 'write' ? 'Запись' : 'Чтение'}\n` +
-                                `Тип данных: ${entry.dataType}\n` +
-                                `Результат: ${entry.result}\n` +
-                                `Дата: ${new Date(entry.timestamp).toLocaleString('ru-RU')}`,
-                                'info'
-                            );
-                            // Переключить на вкладку записи для отображения
-                            switchTab('write');
-                            els.scrollArea.scrollTo({ top: els.scrollArea.scrollHeight, behavior: 'smooth' });
-                        }
-                    });
-                });
-            }
-
-            function clearHistory() {
-                state.history = [];
-                saveHistory();
-                renderHistory();
-                showToast('История очищена', 'info');
-            }
-
-            // --------------------------------------------------------
-            //  13. КОПИРОВАНИЕ
-            // --------------------------------------------------------
-            async function copyReadData() {
-                if (!state.lastReadData) {
-                    showToast('Нет данных для копирования', 'error');
-                    return;
-                }
-
-                const text = state.lastReadData.text;
-                try {
-                    await navigator.clipboard.writeText(text);
-                    showToast('Данные скопированы в буфер обмена', 'success');
-                } catch (e) {
-                    // Fallback
-                    try {
-                        const ta = document.createElement('textarea');
-                        ta.value = text;
-                        ta.style.position = 'fixed';
-                        ta.style.opacity = '0';
-                        document.body.appendChild(ta);
-                        ta.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(ta);
-                        showToast('Данные скопированы', 'success');
-                    } catch (e2) {
-                        showToast('Не удалось скопировать данные', 'error');
-                    }
-                }
-            }
-
-            // --------------------------------------------------------
-            //  14. ИНИЦИАЛИЗАЦИЯ
-            // --------------------------------------------------------
-            function init() {
-                // Проверка NFC
-                checkNfcSupport();
-
-                // Загрузка истории
-                loadHistory();
-
-                // ---- Обработчики вкладок ----
-                els.tabRead.addEventListener('click', () => switchTab('read'));
-                els.tabWrite.addEventListener('click', () => switchTab('write'));
-
-                // ---- Обработчики типов записей ----
-                els.recordTypeBtns.forEach(btn => {
-                    btn.addEventListener('click', () => selectRecordType(btn.dataset.type));
-                });
-
-                // ---- Обработчики полей ввода ----
-                els.inputUrl.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-                els.inputText.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-                els.inputContactName.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-                els.inputContactPhone.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-                els.inputContactEmail.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-                els.inputRaw.addEventListener('input', () => { updateCounters(); updatePreview(); state.preparedMessage = null; els.btnWrite.disabled = true; });
-
-                // ---- Кнопки чтения ----
-                els.btnStartScan.addEventListener('click', startScan);
-                els.btnStopScan.addEventListener('click', stopScan);
-                els.btnCopyRead.addEventListener('click', copyReadData);
-
-                // ---- Кнопки записи ----
-                els.btnPrepare.addEventListener('click', () => {
-                    const message = prepareMessage();
-                    if (message) {
-                        state.preparedMessage = message;
-                        els.btnWrite.disabled = false;
-                        els.btnVerify.disabled = false;
-                        showToast('Сообщение подготовлено. Приложите метку и нажмите «Записать».', 'success');
-                        updatePreview();
-                    }
-                });
-
-                els.btnWrite.addEventListener('click', writeToTag);
-                els.btnVerify.addEventListener('click', verifyTag);
-
-                els.btnClear.addEventListener('click', () => {
-                    els.inputUrl.value = 'https://www.youtube.com/';
-                    els.inputText.value = '';
-                    els.inputContactName.value = '';
-                    els.inputContactPhone.value = '';
-                    els.inputContactEmail.value = '';
-                    els.inputRaw.value = '';
-                    state.preparedMessage = null;
-                    els.btnWrite.disabled = true;
-                    els.btnVerify.disabled = true;
-                    hideResult(els.writeResult);
-                    updateCounters();
-                    updatePreview();
-                    showToast('Поля очищены', 'info');
-                });
-
-                // ---- История ----
-                els.btnClearHistory.addEventListener('click', clearHistory);
-
-                // ---- Помощь ----
-                els.btnHelp.addEventListener('click', () => {
-                    els.helpModal.classList.add('visible');
-                });
-                els.btnCloseHelp.addEventListener('click', () => {
-                    els.helpModal.classList.remove('visible');
-                });
-                els.helpModal.addEventListener('click', (e) => {
-                    if (e.target === els.helpModal) {
-                        els.helpModal.classList.remove('visible');
-                    }
-                });
-
-                // ---- Начальная настройка ----
-                updateCounters();
-                updatePreview();
-
-                // Если NFC недоступен, показать предупреждение сразу
-                if (!state.nfcSupported) {
-                    setTimeout(() => {
-                        showToast('Web NFC недоступен. Чтение и запись возможны только на Android в Chrome.', 'info', 6000);
-                    }, 1000);
-                } else {
-                    showToast('Web NFC доступен. Можно читать и записывать метки.', 'success', 4000);
-                }
-
-                // Предотвращение масштабирования двойным тапом на iOS
-                let lastTouchEnd = 0;
-                document.addEventListener('touchend', (e) => {
-                    const now = Date.now();
-                    if (now - lastTouchEnd <= 300) {
-                        e.preventDefault();
-                    }
-                    lastTouchEnd = now;
-                }, { passive: false });
-            }
-
-            // Запуск после загрузки DOM
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-
-        })();
-    </script>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+  </div>
+
+  <!-- ПАУЗА -->
+  <div id="pauseOverlay" class="overlay">
+    <div class="panel">
+      <h2>Пауза</h2>
+      <button class="btn primary" id="btnResume">Продолжить</button>
+      <button class="btn" id="btnRestartCh">Перезапустить главу</button>
+      <button class="btn" id="btnHistory">Журнал диалогов</button>
+      <button class="btn" id="btnSettingsFromPause">Настройки</button>
+      <button class="btn" id="btnToMenu">В главное меню</button>
+    </div>
+  </div>
+
+  <!-- НАСТРОЙКИ -->
+  <div id="settingsOverlay" class="overlay">
+    <div class="panel">
+      <h2>Настройки</h2>
+      <div class="row"><label>Озвучка персонажей</label><div class="toggle on" id="tgVoice"></div></div>
+      <div class="row"><label>Громкость голоса</label><input type="range" id="rngVoiceVol" min="0" max="100" value="100"></div>
+      <div class="row"><label>Фоновая музыка</label><div class="toggle on" id="tgMusic"></div></div>
+      <div class="row"><label>Громкость музыки</label><input type="range" id="rngMusicVol" min="0" max="100" value="45"></div>
+      <div class="row"><label>Звуковые эффекты</label><div class="toggle on" id="tgSfx"></div></div>
+      <button class="btn" id="btnTestVoice">Проверить голос</button>
+      <button class="btn primary" id="btnCloseSettings">Назад</button>
+    </div>
+  </div>
+
+  <!-- ГЛАВЫ -->
+  <div id="chaptersOverlay" class="overlay">
+    <div class="panel">
+      <h2>Главы</h2>
+      <div id="chaptersList"></div>
+      <button class="btn primary" id="btnCloseChapters" style="margin-top:10px">Назад</button>
+    </div>
+  </div>
+
+  <!-- ОБ АВТОРАХ -->
+  <div id="aboutOverlay" class="overlay">
+    <div class="panel">
+      <h2>Об авторах</h2>
+      <p style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px">
+        «МАФИЯ: ИСТОРИЯ ДРУЗЕЙ» — интерактивная криминальная новелла
+        о трёх друзьях, одном деле и одном предательстве.
+      </p>
+      <p style="font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:18px">
+        Идея и сценарий — автор проекта.<br>
+        Движок, дизайн, код — чистый HTML/CSS/JS.<br>
+        Озвучка — Web Speech API браузера.<br>
+        Музыка — процедурный атмосферный генератор.
+      </p>
+      <button class="btn primary" id="btnCloseAbout">Назад</button>
+    </div>
+  </div>
+
+  <!-- ЖУРНАЛ -->
+  <div id="historyOverlay" class="overlay">
+    <div class="panel" style="width:min(560px,94vw)">
+      <h2>Журнал диалогов</h2>
+      <div id="historyList"></div>
+      <button class="btn primary" id="btnCloseHistory" style="margin-top:10px">Назад</button>
+    </div>
+  </div>
+
+  <!-- КОНЦОВКИ -->
+  <div id="endingsOverlay" class="overlay">
+    <div class="panel">
+      <h2>Концовки</h2>
+      <div id="endingsList"></div>
+      <button class="btn primary" id="btnCloseEndings" style="margin-top:10px">Назад</button>
+    </div>
+  </div>
+
+  <!-- ФИНАЛ -->
+  <div id="endingOverlay" class="overlay">
+    <div class="panel" style="text-align:center">
+      <div id="endingTitle">ФИНАЛ</div>
+      <div id="endingText"></div>
+      <button class="btn primary" id="btnEndingMenu">В главное меню</button>
+    </div>
+  </div>
+
+  <!-- ПОДТВЕРЖДЕНИЕ -->
+  <div id="confirmOverlay" class="overlay">
+    <div class="panel">
+      <h2 id="confirmTitle">Подтверждение</h2>
+      <p id="confirmText" style="text-align:center;font-size:14px;color:var(--text);margin-bottom:18px"></p>
+      <button class="btn primary" id="btnConfirmYes">Да</button>
+      <button class="btn" id="btnConfirmNo">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ
+   Архитектура: данные сценария + движок + UI
+   ============================================================ */
+
+/* ---------- ПЕРСОНАЖИ ---------- */
+const CHARS = {
+  n:   { name: '',                img: null,        color: '#c9b27a',
+         voice: { rate: 0.9, pitch: 0.75, vol: 1 } },
+  sem: { name: 'Уебок',           img: 'sem.jpg',   color: '#e07a5f',
+         voice: { rate: 1.06, pitch: 0.88, vol: 1 } },
+  rus: { name: 'Секс парень',     img: 'rus%20.jpg',color: '#81b29a',
+         voice: { rate: 1.0,  pitch: 1.12, vol: 1 } },
+  mih: { name: 'Мишулик Пупулик', img: 'mih%20.jpg',color: '#f2cc8f',
+         voice: { rate: 0.88, pitch: 0.72, vol: 1 } }
+};
+
+/* ---------- СЦЕНАРИЙ ----------
+   step: { t: 'sem'|'rus'|'mih'|'n', text: '...', req?: s=>bool }
+   choice: { choice: [ { text, trust?, conflict?, reputation?, flag?, say? } ] }
+*/
+const CHAPTERS = [
+/* ============================ ГЛАВА 1 ============================ */
+{
+  id: 'ch1',
+  title: 'Глава 1. Необычный вечер',
+  steps: [
+    { t:'n', text:'Пятница. Старый гараж на окраине города. Здесь пахнет бензином, ржавчиной и чужими тайнами.' },
+    { t:'n', text:'Семён позвал своих — тех, с кем прошёл огонь, воду и пару мутных историй.' },
+    { t:'sem', text:'Ну наконец-то! Я уж думал, вы двое опять заняты своей «важной жизнью».' },
+    { t:'rus', text:'Я и был занят. Уговаривал бармена налить бесплатно. Проиграл. Бармен оказался принципиальным.' },
+    { t:'mih', text:'Я пришёл. Считай, уже праздник.' },
+    { t:'sem', text:'Мишулик, ты как всегда — коротко и по делу.' },
+    { t:'mih', text:'Старший младших знай.' },
+    { t:'sem', text:'Ты старше меня на два месяца! Два! Месяца!' },
+    { t:'mih', text:'Два месяца — это два месяца. Не спорь со старшим.' },
+    { t:'rus', text:'Так, бойцы, не начинайте. Я даже пиво ещё не открыл, а вы уже делите трон.' },
+    { t:'n', text:'Семён достал три бутылки из ящика на верстаке. Движения — быстрые, нервные. Слишком нервные для обычной пятницы.' },
+    { t:'sem', text:'Слушайте. У меня разговор. Серьёзный.' },
+    { t:'rus', text:'О, началось. Сейчас будет «займи до зарплаты, я отдам в четверг».' },
+    { t:'sem', text:'Не в этот раз.' },
+    { t:'mih', text:'Тогда говори прямо. Терпеть не могу, когда мнут слова, как тесто.' },
+    { choice: [
+      { text:'Давай, выкладывай. Мы слушаем.', trust:{sem:1} },
+      { text:'Может, сначала выпьем? Разговор пойдёт легче.', trust:{rus:1} },
+      { text:'С чего вдруг такая серьёзность? Ты сам не свой.', trust:{mih:1}, flag:{noticed_worry:true} }
+    ]},
+    { t:'sem', text:'Дело в деньгах. Больших. И в одном человеке, которого вы оба знаете.' },
+    { t:'rus', text:'О-о-о. Только не говори, что это Гриша.' },
+    { t:'sem', text:'Гриша.' },
+    { t:'mih', text:'Ты как общаешься. Мы же договаривались — с Гришей дел не имеем. Совсем.' },
+    { t:'sem', text:'Договаривались. А потом он предложил такое, что я не смог отказаться.' },
+    { t:'rus', text:'И ты, конечно, согласился. Не посоветовавшись. Классика.' },
+    { t:'sem', text:'Я советуюсь сейчас. Вот. Прямо сейчас.' },
+    { t:'n', text:'Повисла пауза. Такая, в которой слышно, как капает масло с верстака и тикают чьи-то наручные часы.' },
+    { choice: [
+      { text:'Что именно он предложил?', flag:{asked_offer:true} },
+      { text:'Ты нас втягиваешь в дерьмо, Семён.', trust:{sem:-1}, conflict:1 },
+      { text:'Гриша — мутный тип. Я бы с ним даже не разговаривал.', trust:{mih:1} }
+    ]},
+    { t:'sem', text:'Короче. Есть один склад. Ночью там никого нет. Он предложил взять то, что «всё равно пропадёт».' },
+    { t:'rus', text:'«Всё равно пропадёт» — это как «я не виноват, оно само ко мне пришло».' },
+    { t:'mih', text:'Это называется не «взять». Это называется по-другому, и ты знаешь, как.' },
+    { t:'sem', text:'Знаю. Но там сумма такая, что мы втроём закроем все долги разом. Все. Понимаете?' },
+    { t:'n', text:'Он посмотрел на них. Впервые за вечер — не дерзко, а почти просяще.' },
+    { t:'rus', text:'И ты хочешь, чтобы мы пошли с тобой.' },
+    { t:'sem', text:'Я хочу, чтобы вы хотя бы подумали. Не больше.' },
+    { t:'mih', text:'Я подумаю. Но обещать не буду. Старший младших знай — но и старший ошибаться может. Запомни это.' },
+    { t:'n', text:'Так закончился обычный вечер. Только он уже не был обычным. И все это чувствовали.' }
+  ]
+},
+/* ============================ ГЛАВА 2 ============================ */
+{
+  id: 'ch2',
+  title: 'Глава 2. Кто здесь главный?',
+  steps: [
+    { t:'n', text:'Утро. Кухня у Руслана. Три чашки, один разговор и слишком много самолюбия на квадратный метр.' },
+    { t:'rus', text:'Итак. Вчера мы ничего не решили. Совсем.' },
+    { t:'sem', text:'Мы решили подумать. Я подумал. Я — за.' },
+    { t:'mih', text:'Я тоже подумал. Я — против.' },
+    { t:'sem', text:'Кто бы сомневался.' },
+    { t:'mih', text:'Ты как общаешься.' },
+    { t:'sem', text:'Нормально я общаюсь! Как с равным!' },
+    { t:'mih', text:'Старший младших знай. Вот так и общайся. Учись.' },
+    { t:'rus', text:'Ребят, вы вообще слышите друг друга? Или вам просто нравится орать по утрам?' },
+    { choice: [
+      { text:'Мишулик прав. Это слишком опасно.', trust:{mih:1}, conflict:-1 },
+      { text:'Уебок дело говорит. Риск того стоит.', trust:{sem:1}, conflict:1 },
+      { text:'Может, решим вместе, без криков?', reputation:1, conflict:-1 }
+    ]},
+    { t:'sem', text:'Слушайте, я не собираюсь вас уговаривать. Хотите — идите. Не хотите — я один пойду.' },
+    { t:'mih', text:'Один ты пойдёшь только до первого угла. Потом сядешь на бордюр и заплачешь.' },
+    { t:'sem', text:'Ты меня плохо знаешь.' },
+    { t:'mih', text:'Я тебя знаю с семи лет. Ты в семь лет плакал, когда тебе мороженое не купили.' },
+    { t:'rus', text:'О, я помню эту историю! Ты там ещё продавщице что-то кричал про справедливость!' },
+    { t:'sem', text:'Заткнись, Руслан.' },
+    { t:'rus', text:'Не заткнусь. Это мой дом. Я тут главный.' },
+    { t:'mih', text:'Ты? Главный?' },
+    { t:'rus', text:'А кто? Ты, что ли?' },
+    { t:'mih', text:'Я. Старший младших знай.' },
+    { t:'n', text:'Руслан засмеялся. Мишулик не засмеялся. Тишина стала тяжёлой, как мокрое пальто.' },
+    { choice: [
+      { text:'Хватит. Мишулик, он не хотел тебя задеть.', trust:{mih:1} },
+      { text:'Руслан, ты реально перегнул.', trust:{rus:-1}, trust2:{mih:1} },
+      { text:'Промолчать и посмотреть, что будет.', conflict:1, flag:{stayed_silent_ch2:true} }
+    ]},
+    { t:'rus', text:'Ладно, ладно. Извини. Просто ты иногда ведёшь себя так, будто тебе все что-то должны.' },
+    { t:'mih', text:'Мне никто ничего не должен. Мне нужно уважение. Это разные вещи. Совсем разные.' },
+    { t:'sem', text:'Так, всё. Мы не о том спорим.' },
+    { t:'rus', text:'А о чём мы спорим, Семён? О том, идти ли на дело, которое может нас посадить?' },
+    { t:'sem', text:'Мы спорим о том, кто здесь решает. И ты это прекрасно понимаешь.' },
+    { t:'n', text:'И это была правда. Куда более правда, чем им всем хотелось бы.' }
+  ]
+},
+/* ============================ ГЛАВА 3 ============================ */
+{
+  id: 'ch3',
+  title: 'Глава 3. Странное предложение',
+  steps: [
+    { t:'n', text:'Вечер. Они встретились втроём у старого кинотеатра. На улице моросит, вывеска мигает и половина букв не горит.' },
+    { t:'sem', text:'Я встретился с Гришей.' },
+    { t:'rus', text:'Один?! Ты совсем, что ли?' },
+    { t:'sem', text:'Я хотел услышать детали. И услышал.' },
+    { t:'mih', text:'Ну. Говори.' },
+    { t:'sem', text:'Он предложил не склад. Он предложил кое-что другое.' },
+    { t:'rus', text:'Что именно?' },
+    { t:'sem', text:'У него есть «документы». И за них дадут больше, чем за любой склад. В разы.' },
+    { t:'mih', text:'Документы. Ты как общаешься. Ты вообще понимаешь, во что лезешь?' },
+    { t:'sem', text:'Понимаю. Понимаю, что это опасно. Понимаю, что это глупо. Но я также понимаю, что мы третий месяц сидим без работы.' },
+    { t:'rus', text:'Ты преувеличиваешь.' },
+    { t:'sem', text:'Я не преувеличиваю. Я просто устал. Устал считать копейки и слушать, как вы двое спорите о том, кто из вас главный.' },
+    { t:'n', text:'Он сказал это тихо. Так, что никто не стал спорить.' },
+    { choice: [
+      { text:'Расскажи всё. Мы решим вместе.', trust:{sem:1}, flag:{full_trust_path:true} },
+      { text:'Мы не будем в этом участвовать. Точка.', trust:{mih:1}, flag:{refuse_path:true} },
+      { text:'А что именно за документы?', flag:{curious_path:true} }
+    ]},
+    { t:'sem', text:'Это бумаги одного человека. Большого человека. Если они всплывут — у него будут проблемы. Очень большие проблемы.' },
+    { t:'mih', text:'А если они не всплывут — проблемы будут у нас.' },
+    { t:'rus', text:'Или у нас будут деньги.' },
+    { t:'mih', text:'Или у нас будут деньги. Как повезёт. Ты вообще не думаешь о последствиях, да?' },
+    { t:'rus', text:'Я думаю о том, что мы живём один раз.' },
+    { t:'n', text:'Руслан улыбнулся. Ему нравилось, когда всё звучало как игра. Мишулику — нет. Он смотрел на вывеску кинотеатра, и лицо у него было каменное.' },
+    { choice: [
+      { text:'Я — за. Идём вместе.', trust:{sem:1}, flag:{in_deal:true} },
+      { text:'Я — против. И вам не советую.', trust:{mih:1}, flag:{against_deal:true} },
+      { text:'Давайте сначала проверим самого Гришу.', reputation:1, flag:{check_gref:true} }
+    ]},
+    { t:'rus', text:'Ну наконец-то хоть кто-то что-то решил. А то мы как три бабы на базаре.' },
+    { t:'mih', text:'Ты как общаешься. Мы не бабы. Мы — идиоты, которые связываются с Гришей. Это другое.' },
+    { t:'sem', text:'Значит, идём. Завтра вечером он ждёт.' },
+    { t:'n', text:'Никто не сказал «нет». И это было самое страшное.' }
+  ]
+},
+/* ============================ ГЛАВА 4 ============================ */
+{
+  id: 'ch4',
+  title: 'Глава 4. Подозрения',
+  steps: [
+    { t:'n', text:'Прошло три дня. Документы должны были быть у Семёна ещё вчера. Их не было.' },
+    { t:'rus', text:'Он не отвечает на звонки. Три дня. Три. Дня.' },
+    { t:'mih', text:'Может, он просто занят. Может, у него дела.' },
+    { t:'rus', text:'Какие дела, Мишулик? Какие дела у человека, который сидит без работы? Ну кроме наших.' },
+    { t:'mih', text:'Не ёрничай.' },
+    { t:'rus', text:'Я не ёрничаю. Я просто замечаю. Ты тоже заметил, я знаю. Ты просто молчишь.' },
+    { t:'n', text:'Мишулик отвернулся. Он действительно заметил. И это его бесило больше всего.' },
+    { t:'mih', text:'Слушай. А ты сам где был позавчера вечером?' },
+    { t:'rus', text:'В смысле?' },
+    { t:'mih', text:'В прямом. Позавчера. Вечером. Ты сказал, что дома. Я звонил — никто не взял.' },
+    { t:'rus', text:'Я в душе был. Или спал. Какая разница?' },
+    { t:'mih', text:'Разница есть. Всегда есть разница.' },
+    { choice: [
+      { text:'Руслан, ответь честно. Где ты был?', trust:{rus:-1}, flag:{pressed_rus:true} },
+      { text:'Мишулик, не дави. У всех бывают дела.', trust:{rus:1}, trust2:{mih:-1} },
+      { text:'Хватит. Мы все на взводе. Давайте спокойно.', reputation:1, conflict:-1 }
+    ]},
+    { t:'n', text:'И тут в дверях появился Семён. Мокрый, злой и с пакетом в руках.' },
+    { t:'sem', text:'Что вы тут устроили? Я слышал ваши крики через дверь.' },
+    { t:'rus', text:'Мы думали, ты нас кинул.' },
+    { t:'sem', text:'Кинул? Я?!' },
+    { t:'mih', text:'Три дня молчания, Семён. Три дня. Ты как общаешься.' },
+    { t:'sem', text:'Я не мог писать. Телефон разбился. Вот, новый взял, еле деньги нашёл.' },
+    { t:'rus', text:'Очень удобно.' },
+    { t:'sem', text:'Что — удобно?' },
+    { t:'rus', text:'То, что у тебя всегда есть объяснение. Всегда. Ни одной дырки.' },
+    { t:'n', text:'Семён поставил пакет на стол. Внутри что-то тяжело звякнуло.' },
+    { t:'sem', text:'Вот. Документы. Не те, которые вы думаете. Другие. Я прочитал их, пока ехал.' },
+    { t:'mih', text:'И что там?' },
+    { t:'sem', text:'Там про Гришу. Про его дела. И про нас тоже есть строчка. Одна. Но она мне не понравилась.' },
+    { choice: [
+      { text:'Прочитай вслух.', flag:{read_docs:true} },
+      { text:'Не читай. Сожги. И забудем.', trust:{mih:1}, flag:{burn_docs:true} },
+      { text:'Спрячь. Пока не решим, что делать.', trust:{rus:1}, flag:{hide_docs:true} }
+    ]},
+    { t:'n', text:'И в этот момент они впервые поняли: никто из них не был до конца честен. И, возможно, никогда не был.' }
+  ]
+},
+/* ============================ ГЛАВА 5 ============================ */
+{
+  id: 'ch5',
+  title: 'Глава 5. Предательство',
+  steps: [
+    { t:'n', text:'Ночь. Семён позвал всех в гараж. В руках у него был телефон, и лицо у него было серое.' },
+    { t:'sem', text:'Я узнал кое-что. И я не знаю, как это сказать.' },
+    { t:'mih', text:'Скажи как есть. Мы тут все взрослые. Ну, почти.' },
+    { t:'sem', text:'Один из вас звонил Грише. Вчера. В 23:14.' },
+    { t:'n', text:'Повисла тишина. Такая, что стало слышно, как капает вода из крана в углу.' },
+    { t:'rus', text:'Это не я.' },
+    { t:'mih', text:'И не я.' },
+    { t:'sem', text:'У меня распечатка. Номер — ваш. Один из двух.' },
+    { t:'rus', text:'Покажи.' },
+    { t:'sem', text:'Не покажу. Не хочу смотреть, как вы будете врать друг другу в лицо. Я хочу, чтобы вы сами сказали.' },
+    { choice: [
+      { text:'Руслан, это был ты?', trust:{rus:-2}, flag:{blame_rus:true} },
+      { text:'Мишулик, это был ты?', trust:{mih:-2}, flag:{blame_mih:true} },
+      { text:'Я никого не обвиняю. Но кто-то должен сказать правду.', reputation:1, flag:{neutral_ch5:true} }
+    ]},
+    { t:'rus', text:'Я не звонил. Мне вообще Гриша противен. С детства.' },
+    { t:'mih', text:'А я звонил. Я позвоню и скажу это прямо.' },
+    { t:'n', text:'Все замерли.' },
+    { t:'mih', text:'Я звонил Грише. Но не для того, чтобы предать вас. Я звонил, чтобы отказаться. Сказать, что мы не в деле. Что мы не будем.' },
+    { t:'rus', text:'А почему нам не сказал?' },
+    { t:'mih', text:'Потому что вы бы начали спорить. А я не хотел спорить. Я хотел решить. Один. За всех.' },
+    { t:'sem', text:'Ты не имел права решать за нас.' },
+    { t:'mih', text:'Ты как общаешься. Я старший. Старший младших знай. Я и решаю.' },
+    { t:'rus', text:'Ты не старший. Ты просто старше. Это разные вещи.' },
+    { t:'n', text:'Мишулик посмотрел на него. Долго. Так, что Руслан отвёл взгляд.' },
+    { choice: [
+      { text:'Мишулик, ты должен был сказать. Это было не твоё решение.', trust:{mih:-1}, flag:{mih_guilty:true} },
+      { text:'Он хотел как лучше. Я его понимаю.', trust:{mih:1}, trust2:{rus:-1} },
+      { text:'Значит, звонок был не предательством. Предательство — в другом.', flag:{saw_truth:true}, reputation:1 }
+    ]},
+    { t:'sem', text:'Ты прав. Предательство не в звонке. Предательство в том, что кто-то из вас уже отдал Грише копию документов.' },
+    { t:'n', text:'Все трое переглянулись. И в этот момент дружба дала первую настоящую трещину.' }
+  ]
+},
+/* ============================ ГЛАВА 6 ============================ */
+{
+  id: 'ch6',
+  title: 'Глава 6. Последний разговор',
+  steps: [
+    { t:'n', text:'Они встретились втроём. Без Гриши. Без денег. Без документов. Только трое друзей и стол между ними.' },
+    { t:'mih', text:'Я предлагаю разойтись. Каждый своей дорогой.' },
+    { t:'rus', text:'Вот так просто?' },
+    { t:'mih', text:'Не просто. Тяжело. Но честно.' },
+    { t:'sem', text:'Я не хочу расходиться. Мы слишком долго вместе.' },
+    { t:'rus', text:'А я не хочу притворяться, что ничего не было.' },
+    { t:'n', text:'Они смотрели друг на друга. И каждый ждал, что скажет четвёртый. Но четвёртого не было.' },
+    { choice: [
+      { text:'Я хочу, чтобы мы остались друзьями. Что бы ни было.', reputation:1, flag:{choose_friendship:true} },
+      { text:'Семён, расскажи всё про Гришу. До конца.', flag:{demand_truth:true} },
+      { text:'Давайте решим: идём до конца или сдаём назад.', flag:{decide_final:true} }
+    ]},
+    { t:'sem', text:'Хорошо. Скажу всё. Гриша — не просто посредник. Он работает на людей, которых лучше не знать.' },
+    { t:'rus', text:'Насколько «лучше не знать»?' },
+    { t:'sem', text:'Настолько, что если мы откажемся — они придут. Не за документами. За нами.' },
+    { t:'mih', text:'И ты молчал всё это время?' },
+    { t:'sem', text:'Я не хотел вас пугать. Думал, справлюсь сам.' },
+    { t:'mih', text:'Ты как общаешься. Мы тебе не дети. Мы твои друзья. Друзьям говорят правду.' },
+    { t:'n', text:'Семён опустил голову. Впервые за всю историю. И это было честнее любых слов.' },
+    { choice: [
+      { text:'Прощаю. Все ошибаются.', trust:{sem:2}, flag:{forgave_sem:true} },
+      { text:'Не прощаю. Но и не бросаю.', trust:{sem:1}, flag:{half_forgave:true} },
+      { text:'Это было слишком. Я не знаю, смогу ли дальше.', trust:{sem:-1}, conflict:2, flag:{not_forgave:true} }
+    ]},
+    { t:'rus', text:'Ладно. Мы тут все хороши. Давайте решать, что делать сейчас.' },
+    { t:'mih', text:'Есть только два пути. Уйти тихо — или идти до конца. Середины нет.' },
+    { t:'sem', text:'И я не могу решить за вас. В этот раз — не могу.' },
+    { t:'n', text:'И все посмотрели на тебя. На того, кто всё это время молчал и слушал. На того, кто был четвёртым.' },
+    { choice: [
+      { text:'Идём до конца. Вместе.', flag:{final_forward:true}, trust:{sem:1}, conflict:1 },
+      { text:'Уходим тихо. Все трое.', flag:{final_retreat:true}, trust:{mih:1}, conflict:-1 },
+      { text:'Я предлагаю свой путь. Третий.', flag:{final_third:true}, reputation:2 }
+    ]},
+    { t:'n', text:'Так решилась судьба их дружбы. И судьба каждого из них.' }
+  ]
+},
+/* ============================ ГЛАВА 7 ============================ */
+{
+  id: 'ch7',
+  title: 'Глава 7. Всё решается',
+  steps: [
+    { t:'n', text:'Ночь. Промзона. Три фигуры у старого ангара. За спиной — город, впереди — неизвестность.' },
+    { t:'sem', text:'Гриша внутри. Он ждёт документы. У нас их нет. Но у нас есть план.' },
+    { t:'rus', text:'План — это громко сказано. У нас есть идея. Плохая идея.' },
+    { t:'mih', text:'Плохая идея лучше, чем никакой. Иногда.' },
+    { t:'sem', text:'Мы скажем ему, что документы у нас, но мы не отдадим их без гарантий. Потребуем, чтобы он оставил нас в покое.' },
+    { t:'rus', text:'А если он не согласится?' },
+    { t:'sem', text:'Тогда мы уйдём. Просто уйдём. И будем жить дальше.' },
+    { t:'mih', text:'А если он пойдёт за нами?' },
+    { t:'n', text:'Никто не ответил. Ответа не было.' },
+    { choice: [
+      { text:'Идём все вместе. Так надёжнее.', trust:{sem:1}, trust2:{rus:1} },
+      { text:'Пусть идёт один Семён. Он знает Гришу лучше.', trust:{sem:-1}, conflict:1 },
+      { text:'Пусть идёт Мишулик. Он умеет говорить.', trust:{mih:1}, flag:{mih_envoy:true} }
+    ]},
+    { t:'n', text:'Дверь ангара открылась. На пороге стоял Гриша. Худой, в дорогом пальто, с улыбкой человека, который никогда не проигрывает.' },
+    { t:'n', text:'Разговор был коротким. И очень тяжёлым.' },
+    { t:'sem', text:'Гриша сказал, что документы уже не важны. Важно то, что мы теперь «в системе». И просто так из неё не выходят.' },
+    { t:'rus', text:'И что теперь?' },
+    { t:'sem', text:'Теперь мы либо работаем на него. Либо исчезаем.' },
+    { t:'mih', text:'Третьего варианта нет?' },
+    { t:'sem', text:'Есть. Но он плохой для всех.' },
+    { choice: [
+      { text:'Работаем. Хотя бы временно.', flag:{work_for_gref:true}, conflict:1 },
+      { text:'Исчезаем. Все трое. Сегодня же.', flag:{run_away:true}, trust:{mih:1} },
+      { text:'Идём к третьему варианту. Только вместе.', flag:{third_option:true}, reputation:2 } 
+    ]},
+    { t:'n', text:'И в этот момент стало ясно: пути назад нет. Есть только путь вперёд. Или в никуда.' },
+    { t:'mih', text:'Что бы вы ни решили — я с вами. До конца. Но и вы будьте со мной. По-честному.' },
+    { t:'rus', text:'Ты как общаешься. Как будто мы когда-то были не с тобой.' },
+    { t:'mih', text:'Были. И будем. Если захотим.' },
+    { t:'sem', text:'Захотим.' },
+    { t:'n', text:'Слово прозвучало в холодном воздухе и растаяло. Но что-то в них всё-таки изменилось.' }
+  ]
+},
+/* ============================ ГЛАВА 8 ============================ */
+{
+  id: 'ch8',
+  title: 'Глава 8. Финал',
+  steps: [
+    { t:'n', text:'Прошло два месяца. Многое изменилось. Но кое-что осталось прежним.' },
+    { t:'n', text:'Трое друзей снова собрались вместе. В том же гараже. За тем же столом.' },
+    { t:'sem', text:'Ну что, бойцы. Мы прошли через многое. И знаете что? Я ни о чём не жалею.' },
+    { t:'rus', text:'Даже о Грише?' },
+    { t:'sem', text:'Даже о нём. Он, конечно, мразь. Но он показал мне, кто вы на самом деле.' },
+    { t:'mih', text:'И кто мы?' },
+    { t:'sem', text:'Друзья. Настоящие. Которые ругаются, спорят, но остаются.' },
+    { t:'n', text:'Мишулик впервые за долгое время улыбнулся. По-настоящему.' },
+    { t:'mih', text:'Старший младших знай. Но иногда и старший должен сказать спасибо. Спасибо, парни.' },
+    { t:'rus', text:'О, Мишулик расчувствовался! Это надо записать!' },
+    { t:'mih', text:'Ты как общаешься. Я тут душу открываю, а ты записываешь.' },
+    { t:'rus', text:'Я шучу. Я всегда шучу, когда мне страшно. Это моя защита.' },
+    { t:'n', text:'И они засмеялись. Все трое. Тепло, по-настоящему. И в этом смехе было больше правды, чем во всех их разговорах за последние месяцы.' },
+    { t:'sem', text:'Слушайте. У меня снова есть предложение.' },
+    { t:'rus', text:'Только не говори «дело».' },
+    { t:'sem', text:'Не дело. Шашлыки. Завтра. У меня на даче.' },
+    { t:'mih', text:'Вот это дело. Хорошее. Я — за.' },
+    { t:'rus', text:'Я тоже. А кто мясо режет?' },
+    { t:'mih', text:'Тот, кто старший. То есть — я.' },
+    { t:'sem', text:'Начинается...' },
+    { t:'n', text:'Так заканчивается эта история. Или начинается новая. Это уж решать вам.' },
+    { ending: true }
+  ]
+}
+];
+
+/* ---------- СОСТОЯНИЕ ---------- */
+const SAVE_KEY = 'mafia_friends_save_v1';
+const ENDINGS_KEY = 'mafia_friends_endings_v1';
+const SETTINGS_KEY = 'mafia_friends_settings_v1';
+
+let state = {
+  chapter: 0,
+  step: 0,
+  trust: { sem: 0, rus: 0, mih: 0 },
+  conflict: 0,
+  reputation: 0,
+  flags: {},
+  history: [],
+  currentChoice: null
+};
+
+let unlockedChapters = { ch1: true };
+let unlockedEndings = [];
+let settings = {
+  voice: true,
+  music: true,
+  sfx: true,
+  voiceVol: 1,
+  musicVol: 0.45
+};
+
+/* ---------- DOM ---------- */
+const $ = id => document.getElementById(id);
+
+/* ---------- АУДИО ---------- */
+let audioCtx = null;
+let ambientNodes = [];
+let ambientGain = null;
+let currentAmbientMood = null;
+
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { audioCtx = null; }
+}
+
+function ensureAudioResume() {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+}
+
+function stopAmbient() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  if (ambientGain) {
+    try { ambientGain.gain.cancelScheduledValues(now); } catch(e){}
+    try { ambientGain.gain.linearRampToValueAtTime(0, now + 1.2); } catch(e){}
+  }
+  const nodes = ambientNodes.slice();
+  ambientNodes = [];
+  setTimeout(() => {
+    nodes.forEach(n => { try { n.stop(); } catch(e){} try { n.disconnect(); } catch(e){} });
+    if (ambientGain) { try { ambientGain.disconnect(); } catch(e){} ambientGain = null; }
+  }, 1400);
+}
+
+function startAmbient(mood) {
+  if (!audioCtx) return;
+  if (currentAmbientMood === mood && ambientNodes.length) return;
+  currentAmbientMood = mood;
+  stopAmbient();
+  setTimeout(() => {
+    if (!audioCtx) return;
+    ambientGain = audioCtx.createGain();
+    ambientGain.gain.value = 0;
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = mood === 'menu' ? 900 : 620;
+    lp.Q.value = 0.7;
+    lp.connect(ambientGain);
+    ambientGain.connect(audioCtx.destination);
+
+    const freqs = mood === 'menu'
+      ? [55, 82.5, 110, 164.8, 220]
+      : [65.4, 98, 130.8, 155.6, 196];
+
+    freqs.forEach((f, i) => {
+      const o = audioCtx.createOscillator();
+      o.type = i % 2 ? 'sine' : 'triangle';
+      o.frequency.value = f;
+      const g = audioCtx.createGain();
+      g.gain.value = 0.09 / (i + 1);
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 0.04 + i * 0.026;
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 0.028 / (i + 1);
+      lfo.connect(lfoGain).connect(g.gain);
+      o.connect(g).connect(lp);
+      lfo.start();
+      o.start();
+      ambientNodes.push(o, lfo);
+    });
+
+    const target = settings.music ? 0.32 * settings.musicVol : 0;
+    ambientGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    ambientGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 3);
+  }, 80);
+}
+
+function updateAmbientVolume() {
+  if (!audioCtx || !ambientGain) return;
+  const t = audioCtx.currentTime;
+  const target = settings.music ? 0.32 * settings.musicVol : 0;
+  try { ambientGain.gain.cancelScheduledValues(t); ambientGain.gain.linearRampToValueAtTime(target, t + 0.5); } catch(e){}
+}
+
+function sfx(type) {
+  if (!settings.sfx) return;
+  initAudio(); ensureAudioResume();
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g).connect(audioCtx.destination);
+  if (type === 'click') {
+    o.type = 'square';
+    o.frequency.setValueAtTime(760, t);
+    o.frequency.exponentialRampToValueAtTime(300, t + 0.07);
+    g.gain.setValueAtTime(0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.1);
+    o.start(t); o.stop(t + 0.11);
+  } else if (type === 'transition') {
+    o.type = 'sine';
+    o.frequency.setValueAtTime(180, t);
+    o.frequency.exponentialRampToValueAtTime(920, t + 0.32);
+    g.gain.setValueAtTime(0.07, t);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.36);
+    o.start(t); o.stop(t + 0.38);
+  } else if (type === 'scene') {
+    const o2 = audioCtx.createOscillator();
+    const g2 = audioCtx.createGain();
+    o.type = 'triangle'; o2.type = 'sine';
+    o.frequency.value = 320; o2.frequency.value = 480;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.07, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.9);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.linearRampToValueAtTime(0.04, t + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.0008, t + 0.9);
+    o.connect(g).connect(audioCtx.destination);
+    o2.connect(g2).connect(audioCtx.destination);
+    o.start(t); o.stop(t + 1); o2.start(t); o2.stop(t + 1);
+  } else if (type === 'choice') {
+    o.type = 'sine';
+    o.frequency.setValueAtTime(500, t);
+    o.frequency.exponentialRampToValueAtTime(880, t + 0.12);
+    g.gain.setValueAtTime(0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.18);
+    o.start(t); o.stop(t + 0.2);
+  }
+}
+
+/* ---------- ОЗВУЧКА ---------- */
+let voices = [];
+let currentUtterance = null;
+let voiceSpeakLock = 0;
+
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  try { voices = window.speechSynthesis.getVoices() || []; } catch(e) { voices = []; }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  setTimeout(loadVoices, 500);
+  setTimeout(loadVoices, 1500);
+}
+
+function pickVoiceFor(charId) {
+  if (!voices.length) loadVoices();
+  const ruVoices = voices.filter(v => v && v.lang && v.lang.toLowerCase().indexOf('ru') === 0);
+  const pool = ruVoices.length ? ruVoices : voices;
+  if (!pool.length) return null;
+  const map = { sem: 0, rus: 1, mih: 2, n: 3 };
+  const idx = map[charId] != null ? map[charId] : 0;
+  return pool[idx % pool.length];
+}
+
+function stopVoice() {
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.cancel(); } catch(e) {}
+  }
+  currentUtterance = null;
+}
+
+function speak(text, charId) {
+  if (!settings.voice) return;
+  if (!('speechSynthesis' in window)) return;
+  if (!text || !text.trim()) return;
+
+  const now = Date.now();
+  if (now - voiceSpeakLock < 120) return;
+  voiceSpeakLock = now;
+
+  stopVoice();
+
+  const u = new SpeechSynthesisUtterance(text);
+  const cfg = (CHARS[charId] && CHARS[charId].voice) || { rate: 1, pitch: 1, vol: 1 };
+  const v = pickVoiceFor(charId);
+  if (v) { u.voice = v; u.lang = v.lang || 'ru-RU'; }
+  else { u.lang = 'ru-RU'; }
+  u.rate = cfg.rate;
+  u.pitch = cfg.pitch;
+  u.volume = Math.max(0, Math.min(1, settings.voiceVol * cfg.vol));
+
+  u.onend = () => { if (currentUtterance === u) currentUtterance = null; };
+  u.onerror = () => { if (currentUtterance === u) currentUtterance = null; };
+
+  currentUtterance = u;
+  setTimeout(() => {
+    try { window.speechSynthesis.speak(u); } catch(e) {}
+  }, 40);
+}
+
+/* ---------- УТИЛИТЫ ---------- */
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $(id);
+  if (el) el.classList.add('active');
+}
+
+function showOverlay(id) {
+  const el = $(id);
+  if (el) el.classList.add('active');
+}
+function hideOverlay(id) {
+  const el = $(id);
+  if (el) el.classList.remove('active');
+}
+function hideAllOverlays() {
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
+}
+
+/* ---------- СОХРАНЕНИЕ ---------- */
+function saveGame() {
+  try {
+    const data = {
+      state, unlockedChapters, unlockedEndings,
+      ts: Date.now()
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data.state) return false;
+    state = Object.assign({
+      chapter: 0, step: 0,
+      trust: { sem: 0, rus: 0, mih: 0 },
+      conflict: 0, reputation: 0, flags: {}, history: [], currentChoice: null
+    }, data.state);
+    state.trust = Object.assign({ sem: 0, rus: 0, mih: 0 }, state.trust || {});
+    state.flags = state.flags || {};
+    state.history = state.history || [];
+    if (data.unlockedChapters) unlockedChapters = data.unlockedChapters;
+    if (data.unlockedEndings) unlockedEndings = data.unlockedEndings;
+    return true;
+  } catch(e) { return false; }
+}
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
+function saveSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch(e) {}
+}
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s && typeof s === 'object') {
+      settings = Object.assign(settings, s);
+    }
+  } catch(e) {}
+}
+function saveEndings() {
+  try { localStorage.setItem(ENDINGS_KEY, JSON.stringify(unlockedEndings)); } catch(e) {}
+}
+function loadEndings() {
+  try {
+    const raw = localStorage.getItem(ENDINGS_KEY);
+    if (!raw) return;
+    const a = JSON.parse(raw);
+    if (Array.isArray(a)) unlockedEndings = a;
+  } catch(e) {}
+}
+
+/* ---------- ДВИЖОК ДИАЛОГА ---------- */
+let typing = false;
+let typeTimer = null;
+let currentFullText = '';
+let currentStepData = null;
+let currentPhotoChar = null;
+let lastSpeaker = null;
+let endingTriggered = false;
+
+function getChapter() { return CHAPTERS[state.chapter]; }
+function getSteps() { return getChapter() ? getChapter().steps : []; }
+function getStep(idx) { const s = getSteps(); return (idx >= 0 && idx < s.length) ? s[idx] : null; }
+
+function updateChapterIndicator() {
+  const ch = getChapter();
+  if (!ch) return;
+  $('chapterInd').textContent = ch.title;
+  const total = CHAPTERS.length;
+  const pct = ((state.chapter + Math.min(1, state.step / Math.max(1, getSteps().length))) / total) * 100;
+  $('progressBar').style.width = pct.toFixed(1) + '%';
+}
+
+function pushHistory(speakerId, text) {
+  const name = speakerId === 'n' ? 'Сцена' : (CHARS[speakerId] ? CHARS[speakerId].name : '');
+  state.history.push({ who: name, text });
+  if (state.history.length > 400) state.history.shift();
+}
+
+function setPhoto(charId) {
+  const wrap = $('photoWrap');
+  if (!wrap) return;
+  if (charId === 'n') {
+    wrap.classList.add('dim');
+    return;
+  }
+  wrap.classList.remove('dim');
+  if (currentPhotoChar === charId) return;
+  currentPhotoChar = charId;
+
+  const img = $('charPhoto');
+  const ph = $('photoPlaceholder');
+  const pname = $('placeholderName');
+
+  if (!img || !ph) return;
+  img.style.opacity = '0';
+  setTimeout(() => {
+    const ch = CHARS[charId];
+    if (!ch || !ch.img) { img.style.display = 'none'; ph.style.display = 'flex'; return; }
+    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; img.style.opacity = '1'; };
+    img.onerror = () => {
+      img.style.display = 'none';
+      ph.style.display = 'flex';
+      pname.textContent = ch.name;
+    };
+    img.src = ch.img;
+  }, 220);
+}
+
+function renderSpeaker(charId) {
+  const nameEl = $('speakerName');
+  if (!nameEl) return;
+  if (charId === 'n') {
+    nameEl.textContent = '· Сцена ·';
+    nameEl.style.color = '#9a917f';
+  } else {
+    const ch = CHARS[charId];
+    nameEl.textContent = ch ? ch.name : '';
+    nameEl.style.color = ch ? ch.color : 'var(--gold)';
+  }
+}
+
+function typeText(text) {
+  const el = $('dialogText');
+  if (!el) return;
+  el.textContent = '';
+  currentFullText = text;
+  typing = true;
+  let i = 0;
+  clearInterval(typeTimer);
+  typeTimer = setInterval(() => {
+    el.textContent += text[i++];
+    if (i >= text.length) {
+      clearInterval(typeTimer);
+      typing = false;
+      el.textContent = text;
+    }
+  }, 20);
+}
+
+function skipTyping() {
+  if (!typing) return false;
+  clearInterval(typeTimer);
+  typing = false;
+  const el = $('dialogText');
+  if (el) el.textContent = currentFullText;
+  return true;
+}
+
+function renderChoices(choices) {
+  const box = $('choices');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!choices || !choices.length) {
+    state.currentChoice = null;
+    $('continueBtn').disabled = false;
+    $('continueRow').style.display = 'flex';
+    $('hint').textContent = 'Enter / Пробел';
+    return;
+  }
+  state.currentChoice = choices;
+  $('continueRow').style.display = 'none';
+  choices.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.setAttribute('data-num', String(i + 1));
+    b.textContent = c.text;
+    b.onclick = () => applyChoice(i);
+    box.appendChild(b);
+  });
+}
+
+function applyChoice(idx) {
+  const choices = state.currentChoice;
+  if (!choices || !choices[idx]) return;
+  const c = choices[idx];
+  sfx('choice');
+
+  if (c.trust) {
+    for (const k in c.trust) {
+      if (state.trust[k] == null) state.trust[k] = 0;
+      state.trust[k] += c.trust[k];
+    }
+  }
+  if (c.trust2) {
+    for (const k in c.trust2) {
+      if (state.trust[k] == null) state.trust[k] = 0;
+      state.trust[k] += c.trust2[k];
+    }
+  }
+  if (typeof c.conflict === 'number') state.conflict += c.conflict;
+  if (typeof c.reputation === 'number') state.reputation += c.reputation;
+  if (c.flag) {
+    for (const k in c.flag) state.flags[k] = c.flag[k];
+  }
+
+  state.currentChoice = null;
+  $('choices').innerHTML = '';
+  $('continueRow').style.display = 'flex';
+  $('hint').textContent = 'Enter / Пробел';
+  $('continueBtn').disabled = false;
+
+  saveGame();
+  state.step++;
+  renderStep();
+}
+
+function shouldSkipStep(step) {
+  if (!step || !step.req) return false;
+  try { return !step.req(state); } catch(e) { return false; }
+}
+
+function findNextVisibleStep(from) {
+  const steps = getSteps();
+  let i = from;
+  while (i < steps.length) {
+    const s = steps[i];
+    if (!shouldSkipStep(s)) return i;
+    i++;
+  }
+  return i;
+}
+
+function renderStep() {
+  const steps = getSteps();
+  if (state.step >= steps.length) {
+    goToNextChapter();
+    return;
+  }
+  const step = steps[state.step];
+  if (!step) { goToNextChapter(); return; }
+  if (shouldSkipStep(step)) { state.step++; return renderStep(); }
+
+  updateChapterIndicator();
+  $('choices').innerHTML = '';
+  state.currentChoice = null;
+  $('continueRow').style.display = 'flex';
+
+  if (step.choice) {
+    renderSpeaker(lastSpeaker || 'n');
+    currentFullText = '';
+    const dEl = $('dialogText');
+    if (dEl) dEl.textContent = '';
+    typing = false;
+    clearInterval(typeTimer);
+    stopVoice();
+    renderChoices(step.choice);
+    return;
+  }
+
+  const speaker = step.t || 'n';
+  const text = step.text || '';
+  lastSpeaker = speaker;
+  setPhoto(speaker);
+  renderSpeaker(speaker);
+
+  if (step.say) {} // placeholder for audio file override
+
+  stopVoice();
+  typeText(text);
+  if (settings.voice && text) {
+    setTimeout(() => speak(text, speaker), 80);
+  }
+
+  pushHistory(speaker, text);
+
+  $('continueBtn').disabled = false;
+}
+
+function onContinue() {
+  if (state.currentChoice) return;
+  if (skipTyping()) return;
+  sfx('click');
+  state.step = state.step + 1;
+  saveGame();
+  renderStep();
+}
+
+function onPrevLine() {
+  const steps = getSteps();
+  if (state.step > 0) {
+    state.step = state.step - 1;
+    // skip backward over hidden steps
+    while (state.step > 0 && shouldSkipStep(steps[state.step])) state.step--;
+    renderStep();
+  } else {
+    // restart current line
+    renderStep();
+  }
+}
+
+/* ---------- ПЕРЕХОД МЕЖДУ ГЛАВАМИ ---------- */
+function goToNextChapter() {
+  stopVoice();
+  if (state.chapter + 1 < CHAPTERS.length) {
+    state.chapter++;
+    state.step = 0;
+    const ch = getChapter();
+    if (ch) {
+      unlockedChapters[ch.id] = true;
+    }
+    sfx('transition');
+    showChapterTransition();
+    saveGame();
+  } else {
+    triggerEnding();
+  }
+}
+
+function showChapterTransition() {
+  const ch = getChapter();
+  if (!ch) return;
+  const stage = $('stage');
+  const div = document.createElement('div');
+  div.style.cssText = `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    z-index:30;background:rgba(4,3,6,.94);backdrop-filter:blur(10px);text-align:center;padding:24px;`;
+  div.innerHTML = `<div>
+    <div style="font-size:12px;letter-spacing:.5em;color:#9a917f;margin-bottom:16px;text-transform:uppercase">Глава ${state.chapter+1} из ${CHAPTERS.length}</div>
+    <div style="font-size:clamp(22px,5vw,36px);letter-spacing:.14em;color:var(--gold);text-shadow:0 0 30px rgba(212,175,55,.5);text-transform:uppercase">${ch.title.replace(/^Глава \d+\. /,'')}</div>
+  </div>`;
+  div.style.opacity = '0';
+  div.style.transition = 'opacity .6s';
+  if (stage) stage.appendChild(div);
+  requestAnimationFrame(() => { div.style.opacity = '1'; });
+  setTimeout(() => {
+    div.style.opacity = '0';
+    setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); renderStep(); }, 650);
+  }, 1900);
+}
+
+/* ---------- ФИНАЛ ---------- */
+function computeEnding() {
+  const t = state.trust;
+  const avg = (t.sem + t.rus + t.mih) / 3;
+  const conf = state.conflict;
+
+  // секретная концовка
+  if (state.flags.saw_truth && state.flags.forgave_sem && state.flags.third_option &&
+      avg >= 2 && conf <= 3) {
+    return 'secret';
+  }
+  if (state.flags.choose_friendship && state.flags.final_third && avg >= 3 && conf <= 2) {
+    return 'secret';
+  }
+
+  if (avg >= 1.5 && conf <= 4 && state.flags.forgave_sem) return 'good';
+  if (avg >= 2 && conf <= 3) return 'good';
+  if (conf >= 6 || avg <= -1) return 'bad';
+  return 'bad';
+}
+
+const ENDINGS_DATA = {
+  good: {
+    title: 'Друзья',
+    text: `Дружба пережила всё. Споры, подозрения, предательство, бессонные ночи и чужие тайны.\n\nОни остались вместе — не потому что им было легко, а потому что они выбрали друг друга. И в этом был весь смысл.\n\nГриша остался в прошлом. А они — в настоящем. И, может быть, в будущем.`,
+    key: 'good'
+  },
+  bad: {
+    title: 'Осколки',
+    text: `Они разошлись. Молча, без прощания, каждый своей дорогой.\n\nИногда кто-то из них вспоминал старый гараж, дешёвое пиво и тот вечер, когда всё началось. Но вспоминал — и шёл дальше.\n\nТак заканчиваются истории, в которых никто не захотел услышать другого.`,
+    key: 'bad'
+  },
+  secret: {
+    title: 'Тайна',
+    text: `Они не просто выжили. Они узнали то, что не должен был знать никто.\n\nДокументы оказались не тем, чем казались. За ними стояли люди, о которых лучше не думать. Но трое друзей, знающих правду, стали опаснее этих людей.\n\nИх история только началась. И она ещё напишет свои главы.`,
+    key: 'secret'
+  }
+};
+
+function triggerEnding() {
+  if (endingTriggered) return;
+  endingTriggered = true;
+  const key = computeEnding();
+  const e = ENDINGS_DATA[key];
+  if (!unlockedEndings.includes(key)) {
+    unlockedEndings.push(key);
+    saveEndings();
+  }
+  sfx('transition');
+  stopVoice();
+
+  $('endingTitle').textContent = e.title;
+  $('endingText').textContent = e.text;
+  showOverlay('endingOverlay');
+}
+
+/* ---------- ЗАПУСК ГЛАВЫ ---------- */
+function startChapter(idx) {
+  if (idx < 0 || idx >= CHAPTERS.length) idx = 0;
+  state.chapter = idx;
+  state.step = 0;
+  state.currentChoice = null;
+  endingTriggered = false;
+  hideAllOverlays();
+  showScreen('game');
+  currentPhotoChar = null;
+  lastSpeaker = null;
+  initAudio(); ensureAudioResume();
+  startAmbient('story');
+  renderStep();
+  saveGame();
+}
+
+function startNewGame() {
+  state = {
+    chapter: 0, step: 0,
+    trust: { sem: 0, rus: 0, mih: 0 },
+    conflict: 0, reputation: 0,
+    flags: {}, history: [], currentChoice: null
+  };
+  unlockedChapters = { ch1: true };
+  endingTriggered = false;
+  clearSave();
+  startChapter(0);
+}
+
+/* ---------- МЕНЮ ---------- */
+function goToMenu() {
+  stopVoice();
+  hideAllOverlays();
+  showScreen('menu');
+  startAmbient('menu');
+  refreshMenuButtons();
+}
+
+function refreshMenuButtons() {
+  const has = !!localStorage.getItem(SAVE_KEY);
+  $('btnContinue').disabled = !has;
+}
+
+/* ---------- СПИСКИ ГЛАВ / КОНЦОВОК / ЖУРНАЛА ---------- */
+function buildChaptersList() {
+  const box = $('chaptersList');
+  if (!box) return;
+  box.innerHTML = '';
+  CHAPTERS.forEach((ch, i) => {
+    const unlocked = !!unlockedChapters[ch.id];
+    const b = document.createElement('button');
+    b.className = 'list-item' + (unlocked ? '' : ' locked');
+    b.innerHTML = `${ch.title}<span class="meta">${unlocked ? 'Доступно' : 'Закрыто'}</span>`;
+    if (unlocked) {
+      b.onclick = () => { sfx('click'); hideOverlay('chaptersOverlay'); startChapter(i); };
+    } else {
+      b.disabled = true;
+    }
+    box.appendChild(b);
+  });
+}
+
+function buildEndingsList() {
+  const box = $('endingsList');
+  if (!box) return;
+  box.innerHTML = '';
+  const keys = ['good','bad','secret'];
+  const names = { good: 'Друзья', bad: 'Осколки', secret: 'Тайна' };
+  keys.forEach(k => {
+    const opened = unlockedEndings.includes(k);
+    const d = document.createElement('div');
+    d.className = 'list-item' + (opened ? '' : ' locked');
+    d.innerHTML = `${opened ? names[k] : '???'}<span class="meta">${opened ? 'Открыто' : 'Не найдено'}</span>`;
+    box.appendChild(d);
+  });
+}
+
+function buildHistoryList() {
+  const box = $('historyList');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!state.history.length) {
+    box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px">Журнал пуст</div>';
+    return;
+  }
+  state.history.slice().reverse().forEach(h => {
+    const d = document.createElement('div');
+    d.className = 'hist-entry';
+    d.innerHTML = `<span class="who">${h.who || ''}</span>${h.text}`;
+    box.appendChild(d);
+  });
+}
+
+/* ---------- НАСТРОЙКИ UI ---------- */
+function syncSettingsUI() {
+  $('tgVoice').classList.toggle('on', settings.voice);
+  $('tgMusic').classList.toggle('on', settings.music);
+  $('tgSfx').classList.toggle('on', settings.sfx);
+  $('rngVoiceVol').value = Math.round(settings.voiceVol * 100);
+  $('rngMusicVol').value = Math.round(settings.musicVol * 100);
+  $('btnVoiceQuick').classList.toggle('off', !settings.voice);
+}
+
+/* ---------- СОБЫТИЯ ---------- */
+function bindEvents() {
+  // Меню
+  $('btnNew').onclick = () => {
+    sfx('click');
+    if (localStorage.getItem(SAVE_KEY)) {
+      $('confirmTitle').textContent = 'Новая игра';
+      $('confirmText').textContent = 'У вас есть сохранение. Начать новую игру? Прогресс будет сброшен.';
+      showOverlay('confirmOverlay');
+      $('btnConfirmYes').onclick = () => {
+        hideOverlay('confirmOverlay');
+        initAudio(); ensureAudioResume();
+        startNewGame();
+      };
+      $('btnConfirmNo').onclick = () => hideOverlay('confirmOverlay');
+    } else {
+      initAudio(); ensureAudioResume();
+      startNewGame();
+    }
+  };
+  $('btnContinue').onclick = () => {
+    sfx('click');
+    if (loadGame()) {
+      initAudio(); ensureAudioResume();
+      startChapter(state.chapter);
+      // восстановим step
+      const loadedStep = Math.min(state.step, getSteps().length - 1);
+      state.step = Math.max(0, loadedStep);
+      renderStep();
+    }
+  };
+  $('btnChapters').onclick = () => { sfx('click'); buildChaptersList(); showOverlay('chaptersOverlay'); };
+  $('btnSettings').onclick = () => { sfx('click'); syncSettingsUI(); showOverlay('settingsOverlay'); };
+  $('btnEndings').onclick = () => { sfx('click'); buildEndingsList(); showOverlay('endingsOverlay'); };
+  $('btnAbout').onclick = () => { sfx('click'); showOverlay('aboutOverlay'); };
+
+  $('btnCloseSettings').onclick = () => hideOverlay('settingsOverlay');
+  $('btnCloseChapters').onclick = () => hideOverlay('chaptersOverlay');
+  $('btnCloseAbout').onclick = () => hideOverlay('aboutOverlay');
+  $('btnCloseHistory').onclick = () => hideOverlay('historyOverlay');
+  $('btnCloseEndings').onclick = () => hideOverlay('endingsOverlay');
+
+  $('btnEndingMenu').onclick = () => {
+    hideOverlay('endingOverlay');
+    goToMenu();
+  };
+
+  // Игра
+  $('continueBtn').onclick = onContinue;
+  $('btnPause').onclick = () => { sfx('click'); showOverlay('pauseOverlay'); stopVoice(); };
+  $('btnResume').onclick = () => hideOverlay('pauseOverlay');
+  $('btnRestartCh').onclick = () => {
+    hideOverlay('pauseOverlay');
+    startChapter(state.chapter);
+  };
+  $('btnHistory').onclick = () => { buildHistoryList(); showOverlay('historyOverlay'); };
+  $('btnHistoryQuick').onclick = () => { sfx('click'); buildHistoryList(); showOverlay('historyOverlay'); };
+  $('btnReplayLine').onclick = () => { sfx('click'); onPrevLine(); };
+  $('btnVoiceQuick').onclick = () => {
+    settings.voice = !settings.voice;
+    saveSettings();
+    syncSettingsUI();
+    sfx('click');
+    if (settings.voice && currentFullText) speak(currentFullText, lastSpeaker || 'n');
+    else stopVoice();
+  };
+  $('btnSettingsFromPause').onclick = () => { hideOverlay('pauseOverlay'); syncSettingsUI(); showOverlay('settingsOverlay'); };
+  $('btnToMenu').onclick = () => { saveGame(); hideOverlay('pauseOverlay'); goToMenu(); };
+
+  // Настройки
+  $('tgVoice').onclick = () => {
+    settings.voice = !settings.voice;
+    syncSettingsUI(); saveSettings();
+    if (!settings.voice) stopVoice();
+  };
+  $('tgMusic').onclick = () => {
+    settings.music = !settings.music;
+    syncSettingsUI(); saveSettings();
+    updateAmbientVolume();
+  };
+  $('tgSfx').onclick = () => {
+    settings.sfx = !settings.sfx;
+    syncSettingsUI(); saveSettings();
+  };
+  $('rngVoiceVol').oninput = (e) => {
+    settings.voiceVol = (parseInt(e.target.value, 10) || 0) / 100;
+    saveSettings();
+  };
+  $('rngMusicVol').oninput = (e) => {
+    settings.musicVol = (parseInt(e.target.value, 10) || 0) / 100;
+    saveSettings();
+    updateAmbientVolume();
+  };
+  $('btnTestVoice').onclick = () => {
+    initAudio(); ensureAudioResume();
+    speak('Старший младших знай. Ты как общаешься.', 'mih');
+  };
+
+  // Клавиатура
+  document.addEventListener('keydown', (e) => {
+    const menuActive = $('menu').classList.contains('active');
+    const gameActive = $('game').classList.contains('active');
+    const anyOverlay = document.querySelector('.overlay.active');
+    if (menuActive && !anyOverlay) return;
+
+    if (e.key === 'Escape') {
+      if (anyOverlay) { hideAllOverlays(); return; }
+      if (gameActive) { showOverlay('pauseOverlay'); stopVoice(); }
+      return;
+    }
+
+    if (anyOverlay) return;
+
+    if (gameActive) {
+      if (state.currentChoice) {
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= state.currentChoice.length) {
+          applyChoice(n - 1);
+          e.preventDefault();
+          return;
+        }
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onContinue();
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        onPrevLine();
+      }
+    }
+  });
+
+  // Разблокировка звука при первом касании
+  const unlockAudioOnce = () => {
+    initAudio(); ensureAudioResume();
+    document.removeEventListener('pointerdown', unlockAudioOnce);
+    document.removeEventListener('keydown', unlockAudioOnce);
+    document.removeEventListener('touchstart', unlockAudioOnce);
+  };
+  document.addEventListener('pointerdown', unlockAudioOnce);
+  document.addEventListener('keydown', unlockAudioOnce);
+  document.addEventListener('touchstart', unlockAudioOnce);
+
+  // При уходе со страницы — остановить озвучку
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopVoice();
+  });
+}
+
+/* ---------- ИНИЦИАЛИЗАЦИЯ ---------- */
+function init() {
+  loadSettings();
+  loadEndings();
+  bindEvents();
+  syncSettingsUI();
+  refreshMenuButtons();
+  showScreen('menu');
+  startAmbient('menu');
+}
+
+window.addEventListener('load', () => {
+  init();
+  // повторная подгрузка голосов
+  setTimeout(loadVoices, 800);
+  setTimeout(loadVoices, 2200);
+});
+</script>
 </body>
 </html>
