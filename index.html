@@ -9,54 +9,43 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d0;
   font-family:'Georgia','Times New Roman',serif;user-select:none}
-:root{
-  --gold:#d4af37;--gold-soft:#c9a961;--crimson:#7a0f1c;--crimson-light:#a81f2e;
-  --panel:rgba(18,16,20,0.82);--panel-2:rgba(28,24,30,0.9);
-  --text:#ece5d3;--text-dim:#9a917f;
-}
+:root{--gold:#d4af37;--gold-soft:#c9a961;--crimson:#7a0f1c;--crimson-light:#a81f2e;
+  --panel:rgba(18,16,20,0.85);--panel-2:rgba(28,24,30,0.92);--text:#ece5d3;--text-dim:#9a917f;}
 #app{position:fixed;inset:0;overflow:hidden}
-
-/* FON */
-#bgLayer{position:absolute;inset:0;background:
-  radial-gradient(ellipse at 50% 20%,#1a1016 0%,#0a0710 55%,#050408 100%);z-index:0}
+#bgLayer{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 20%,#1a1016 0%,#0a0710 55%,#050408 100%);z-index:0}
 #bgLayer::after{content:'';position:absolute;inset:0;
-  background:
-   radial-gradient(circle at 15% 85%,rgba(122,15,28,.15),transparent 45%),
+  background:radial-gradient(circle at 15% 85%,rgba(122,15,28,.15),transparent 45%),
    radial-gradient(circle at 85% 15%,rgba(212,175,55,.08),transparent 45%);
   animation:bgPulse 12s ease-in-out infinite alternate}
 @keyframes bgPulse{from{opacity:.6}to{opacity:1}}
-#grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.045;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>")}
 #vignette{position:absolute;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.75) 100%)}
-
-/* ЭКРАНЫ */
-.screen{position:absolute;inset:0;display:none;flex-direction:column;
-  align-items:center;justify-content:center;padding:18px;z-index:5;opacity:0;
-  transition:opacity .55s ease;overflow-y:auto;overflow-x:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+  justify-content:center;padding:18px;z-index:5;opacity:0;transition:opacity .55s ease;
+  overflow-y:auto;overflow-x:hidden}
 .screen.active{display:flex;opacity:1}
-.screen.fade-in{animation:fadeIn .6s ease forwards}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .6s ease forwards}
 
-/* ГЛАВНОЕ МЕНЮ */
+/* МЕНЮ */
 #menu{justify-content:center;text-align:center}
-.title-block{position:relative;margin-bottom:30px;z-index:3}
+.title-block{margin-bottom:30px;z-index:3}
 .game-title{font-size:clamp(28px,7vw,64px);letter-spacing:.14em;font-weight:700;
   color:var(--gold);text-shadow:0 0 30px rgba(212,175,55,.35),0 4px 20px rgba(0,0,0,.8);
   animation:titleIn 1.4s cubic-bezier(.2,.8,.2,1)}
 .game-title .sub{display:block;font-size:.42em;letter-spacing:.5em;color:var(--crimson-light);
   margin-top:10px;text-shadow:0 0 20px rgba(168,31,46,.6)}
 @keyframes titleIn{from{opacity:0;letter-spacing:.6em;filter:blur(8px)}to{opacity:1;letter-spacing:.14em;filter:blur(0)}}
-.title-line{height:1px;width:70%;max-width:420px;margin:14px auto;background:
-  linear-gradient(90deg,transparent,var(--gold-soft),transparent);opacity:.7}
+.title-line{height:1px;width:70%;max-width:420px;margin:14px auto;
+  background:linear-gradient(90deg,transparent,var(--gold-soft),transparent);opacity:.7}
 .menu-buttons{display:flex;flex-direction:column;gap:12px;width:min(340px,88vw);z-index:3}
 .btn{font-family:inherit;font-size:16px;letter-spacing:.12em;padding:14px 22px;
   background:linear-gradient(180deg,rgba(40,32,38,.85),rgba(18,14,20,.9));
   color:var(--text);border:1px solid rgba(212,175,55,.35);border-radius:8px;
   cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;
   text-transform:uppercase;backdrop-filter:blur(6px)}
-.btn:hover:not(:disabled),.btn:focus-visible{border-color:var(--gold);
-  color:#fff;box-shadow:0 0 22px rgba(212,175,55,.3);transform:translateY(-1px)}
+.btn:hover:not(:disabled),.btn:focus-visible{border-color:var(--gold);color:#fff;
+  box-shadow:0 0 22px rgba(212,175,55,.3);transform:translateY(-1px)}
 .btn:active:not(:disabled){transform:translateY(0) scale(.985)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
 .btn.primary{background:linear-gradient(180deg,rgba(122,15,28,.9),rgba(60,8,16,.95));
@@ -66,59 +55,70 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .menu-footer{margin-top:28px;font-size:12px;letter-spacing:.3em;color:var(--text-dim);
   z-index:3;text-transform:uppercase}
 
-/* ЭКРАН ИГРЫ */
+/* ВЫБОР ПЕРСОНАЖА */
+#charSelect{padding:24px 14px}
+.cs-title{font-size:clamp(20px,5vw,32px);letter-spacing:.18em;color:var(--gold);
+  text-align:center;margin-bottom:8px;text-transform:uppercase;text-shadow:0 0 20px rgba(212,175,55,.4)}
+.cs-sub{font-size:12px;letter-spacing:.3em;color:var(--text-dim);text-align:center;
+  margin-bottom:24px;text-transform:uppercase}
+.cs-grid{display:grid;grid-template-columns:1fr;gap:16px;width:min(360px,92vw);margin-bottom:20px}
+@media(min-width:700px){.cs-grid{grid-template-columns:repeat(3,1fr);width:min(880px,94vw)}}
+.cs-card{background:var(--panel);border:1px solid rgba(212,175,55,.3);border-radius:12px;
+  padding:16px;display:flex;flex-direction:column;align-items:center;cursor:pointer;
+  transition:all .3s;backdrop-filter:blur(8px);position:relative;overflow:hidden}
+.cs-card:hover,.cs-card.selected{border-color:var(--gold);box-shadow:0 0 30px rgba(212,175,55,.3);
+  transform:translateY(-3px)}
+.cs-photo{width:100%;aspect-ratio:1;max-width:180px;border-radius:8px;overflow:hidden;
+  background:#0d0a10;margin-bottom:12px;position:relative;border:1px solid rgba(212,175,55,.2)}
+.cs-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.cs-photo .ph{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#241820,#0e0a12);color:var(--gold-soft);font-size:32px;
+  flex-direction:column;gap:6px}
+.cs-name{font-size:18px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;
+  margin-bottom:6px;text-align:center}
+.cs-desc{font-size:12px;line-height:1.5;color:var(--text-dim);text-align:center;letter-spacing:.02em}
+.cs-actions{display:flex;gap:10px;width:min(360px,92vw)}
+.cs-actions .btn{flex:1;padding:12px;font-size:14px}
+
+/* ИГРА */
 #game{padding:0;justify-content:flex-start}
 #topbar{position:absolute;top:0;left:0;right:0;height:52px;display:flex;
   align-items:center;justify-content:space-between;padding:0 12px;z-index:20;
   background:linear-gradient(180deg,rgba(0,0,0,.75),transparent)}
 .chapter-ind{font-size:12px;letter-spacing:.18em;color:var(--gold-soft);
-  text-transform:uppercase;text-shadow:0 0 8px rgba(0,0,0,.9)}
+  text-transform:uppercase;text-shadow:0 0 8px rgba(0,0,0,.9);max-width:55vw;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .top-actions{display:flex;gap:8px}
 .icon-btn{width:38px;height:38px;border-radius:50%;background:rgba(20,18,24,.7);
   border:1px solid rgba(212,175,55,.3);color:var(--gold-soft);cursor:pointer;
   display:flex;align-items:center;justify-content:center;font-size:16px;
-  transition:all .2s;backdrop-filter:blur(6px)}
+  transition:all .2s;backdrop-filter:blur(6px);font-family:inherit}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 14px rgba(212,175,55,.3)}
 .icon-btn.off{opacity:.4}
-
-#stage{position:relative;flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-start;width:100%;padding:64px 12px 12px;
-  max-height:100%;overflow:hidden}
-
-/* ФОТО */
-#photoWrap{position:relative;width:min(58vw,260px);aspect-ratio:3/4;
-  margin:0 auto 10px;flex-shrink:0;transition:opacity .35s,filter .35s}
+#stage{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;width:100%;padding:64px 12px 12px;max-height:100%;overflow:hidden}
+#photoWrap{position:relative;width:min(58vw,260px);aspect-ratio:3/4;margin:0 auto 10px;
+  flex-shrink:0;transition:opacity .35s,filter .35s}
 #photoWrap.dim{filter:brightness(.55) saturate(.7)}
 .photo-frame{position:absolute;inset:-6px;border:1px solid rgba(212,175,55,.5);
-  border-radius:6px;pointer-events:none;box-shadow:
-  0 0 0 1px rgba(0,0,0,.7), 0 12px 40px rgba(0,0,0,.75),
-  inset 0 0 30px rgba(0,0,0,.5)}
-.photo-frame::before,.photo-frame::after{content:'';position:absolute;width:14px;height:14px;
-  border:2px solid var(--gold);}
+  border-radius:6px;pointer-events:none;box-shadow:0 0 0 1px rgba(0,0,0,.7),0 12px 40px rgba(0,0,0,.75),inset 0 0 30px rgba(0,0,0,.5)}
+.photo-frame::before,.photo-frame::after{content:'';position:absolute;width:14px;height:14px;border:2px solid var(--gold)}
 .photo-frame::before{top:-3px;left:-3px;border-right:0;border-bottom:0}
 .photo-frame::after{bottom:-3px;right:-3px;border-left:0;border-top:0}
-#charPhoto{width:100%;height:100%;object-fit:contain;display:block;
-  border-radius:3px;background:#0d0a0f;transition:opacity .4s ease}
+#charPhoto{width:100%;height:100%;object-fit:contain;display:block;border-radius:3px;
+  background:#0d0a0f;transition:opacity .4s ease}
 #photoPlaceholder{display:none;position:absolute;inset:0;border-radius:3px;
   background:linear-gradient(150deg,#241820,#0e0a12);color:var(--gold-soft);
   align-items:center;justify-content:center;text-align:center;font-size:14px;
   letter-spacing:.15em;padding:12px;flex-direction:column;gap:8px}
 #photoPlaceholder .big{font-size:38px;color:var(--crimson-light);opacity:.7}
-
-/* ДИАЛОГ */
 #dialogPanel{width:min(760px,96vw);background:var(--panel);border:1px solid rgba(212,175,55,.25);
   border-radius:10px;padding:16px 18px 14px;backdrop-filter:blur(10px);
-  box-shadow:0 14px 44px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);
-  position:relative;z-index:5;flex-shrink:0}
+  box-shadow:0 14px 44px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);position:relative;z-index:5;flex-shrink:0}
 #speakerName{font-size:14px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;
   margin-bottom:8px;text-shadow:0 0 12px rgba(212,175,55,.35);min-height:18px}
 #dialogText{font-size:clamp(15px,3.6vw,18px);line-height:1.62;color:var(--text);
   min-height:66px;letter-spacing:.01em}
-#dialogText::after{content:'';display:inline-block}
-.cursor-blink{display:inline-block;width:.55em;height:1em;background:var(--gold);
-  vertical-align:-.12em;margin-left:3px;animation:blink 1s steps(2) infinite;opacity:.8}
-@keyframes blink{50%{opacity:0}}
-
 #choices{display:flex;flex-direction:column;gap:8px;margin-top:14px}
 .choice-btn{font-family:inherit;font-size:14.5px;text-align:left;padding:12px 14px 12px 40px;
   background:linear-gradient(90deg,rgba(40,26,32,.85),rgba(20,14,20,.85));
@@ -126,16 +126,106 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
   transition:all .2s;position:relative;line-height:1.4}
 .choice-btn::before{content:attr(data-num);position:absolute;left:12px;top:50%;
   transform:translateY(-50%);color:var(--gold);font-size:12px;letter-spacing:.1em;
-  border:1px solid rgba(212,175,55,.45);border-radius:4px;padding:2px 6px;min-width:20px;
-  text-align:center}
+  border:1px solid rgba(212,175,55,.45);border-radius:4px;padding:2px 6px;min-width:20px;text-align:center}
 .choice-btn:hover,.choice-btn:focus-visible{border-color:var(--gold);color:#fff;
   background:linear-gradient(90deg,rgba(122,15,28,.6),rgba(28,18,24,.9));
   box-shadow:0 0 18px rgba(212,175,55,.25);transform:translateX(3px)}
-
 #continueRow{display:flex;justify-content:space-between;align-items:center;
   margin-top:12px;gap:10px;min-height:38px}
 #hint{font-size:11px;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
 #continueBtn{padding:10px 22px;font-size:13px}
+
+/* IPHONE WIDGET */
+#iphoneWidget{position:fixed;left:14px;bottom:14px;width:70px;height:140px;z-index:40;
+  cursor:pointer;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8));
+  transition:transform .3s ease,filter .3s ease;display:none}
+#iphoneWidget.show{display:block}
+#iphoneWidget:hover{transform:translateY(-3px) scale(1.04);
+  filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
+#iphoneWidget .notif{position:absolute;top:6px;right:6px;min-width:18px;height:18px;
+  border-radius:9px;background:#e63946;color:#fff;font-size:11px;font-family:-apple-system,sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:0 5px;
+  box-shadow:0 0 10px rgba(230,57,70,.8);animation:notifPulse 1.8s ease-in-out infinite}
+@keyframes notifPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* ПОЛНОЭКРАННЫЙ ЧАТ */
+#chatView{position:fixed;inset:0;z-index:100;display:none;background:rgba(4,3,6,.96);
+  backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:10px}
+#chatView.active{display:flex;animation:fadeIn .35s ease}
+.phoneWrap{width:min(420px,96vw);height:min(880px,94vh);position:relative;
+  display:flex;align-items:center;justify-content:center}
+.phoneSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.phoneScreen{position:absolute;left:5%;right:5%;top:3.5%;bottom:3.5%;
+  border-radius:38px;overflow:hidden;background:#0a0a0a;display:flex;flex-direction:column}
+.chatHeader{height:78px;flex-shrink:0;background:linear-gradient(180deg,#1a1a20,#14141a);
+  border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;
+  padding:0 14px;gap:10px;color:#fff;padding-top:22px;position:relative}
+.chatBack{width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  color:#3a8ee6;cursor:pointer;font-size:22px;font-weight:300;background:transparent;
+  border:0;padding:0;font-family:inherit}
+.chatAvatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7a4a2a,#3a2010);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
+  font-weight:600;font-family:-apple-system,sans-serif;border:1px solid rgba(255,255,255,.15)}
+.chatInfo{flex:1;min-width:0}
+.chatName{font-size:15px;font-weight:600;font-family:-apple-system,'Segoe UI',sans-serif;
+  letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chatStatus{font-size:11px;color:#8a8a90;font-family:-apple-system,sans-serif;margin-top:2px}
+.chatBody{flex:1;overflow-y:auto;padding:16px 12px;background:#0d0d12;
+  background-image:radial-gradient(circle at 20% 30%,rgba(122,15,28,.06),transparent 60%),
+   radial-gradient(circle at 80% 70%,rgba(212,175,55,.04),transparent 60%)}
+.msgRow{display:flex;margin-bottom:10px;align-items:flex-end;gap:6px}
+.msgRow.mine{flex-direction:row-reverse}
+.msgRow.sys{justify-content:center}
+.msgBubble{max-width:78%;padding:9px 13px;border-radius:16px;font-family:-apple-system,
+  'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.42;position:relative;
+  word-wrap:break-word;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.msgRow.them .msgBubble{background:#1f1f26;border-bottom-left-radius:5px}
+.msgRow.mine .msgBubble{background:linear-gradient(135deg,#2a5cd1,#1c47a8);border-bottom-right-radius:5px}
+.msgName{font-size:10.5px;font-weight:600;letter-spacing:.04em;margin-bottom:3px;
+  opacity:.8;text-transform:uppercase}
+.msgRow.them .msgName{color:#e0a04a}
+.msgRow.kop .msgName{color:#7ab8e0}
+.msgRow.ars .msgName{color:#c78fd9}
+.msgTime{font-size:10px;opacity:.55;margin-left:6px;display:inline-block;vertical-align:bottom}
+.msgSys{font-size:11.5px;color:#8a8a90;font-family:-apple-system,sans-serif;
+  text-align:center;padding:6px 12px;background:rgba(255,255,255,.04);border-radius:10px;
+  letter-spacing:.02em;max-width:80%}
+
+/* ГОЛОСОВОЕ */
+.voiceMsg{display:flex;align-items:center;gap:10px;min-width:160px;cursor:pointer;user-select:none}
+.voicePlay{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+  transition:all .2s}
+.voiceMsg:hover .voicePlay{background:rgba(255,255,255,.3)}
+.voiceMsg.playing .voicePlay{background:#fff;color:#2a5cd1}
+.voiceWave{display:flex;align-items:center;gap:2px;flex:1;height:22px}
+.voiceWave span{width:2px;background:rgba(255,255,255,.7);border-radius:2px;
+  animation:waveBounce 1.2s ease-in-out infinite}
+.voiceWave span:nth-child(1){height:30%;animation-delay:0s}
+.voiceWave span:nth-child(2){height:60%;animation-delay:.1s}
+.voiceWave span:nth-child(3){height:90%;animation-delay:.2s}
+.voiceWave span:nth-child(4){height:50%;animation-delay:.3s}
+.voiceWave span:nth-child(5){height:75%;animation-delay:.4s}
+.voiceWave span:nth-child(6){height:40%;animation-delay:.5s}
+.voiceWave span:nth-child(7){height:65%;animation-delay:.6s}
+.voiceWave span:nth-child(8){height:35%;animation-delay:.7s}
+.voiceMsg.playing .voiceWave span{animation-play-state:running}
+.voiceMsg:not(.playing) .voiceWave span{animation-play-state:paused;opacity:.6}
+@keyframes waveBounce{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.1)}}
+.voiceDur{font-size:11px;opacity:.7;margin-left:6px;flex-shrink:0}
+
+.chatInput{height:60px;flex-shrink:0;background:#14141a;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;padding:8px 12px;gap:8px}
+.chatInputBox{flex:1;background:#22222a;border-radius:18px;height:36px;
+  display:flex;align-items:center;padding:0 14px;color:#fff;font-size:14px;
+  font-family:-apple-system,sans-serif;letter-spacing:.01em}
+.chatInputBox.disabled{opacity:.5}
+.chatMicBtn{width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#2a5cd1,#1c47a8);border:0;color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;
+  transition:all .2s;flex-shrink:0;font-family:inherit}
+.chatMicBtn:hover{transform:scale(1.06);box-shadow:0 0 18px rgba(42,92,209,.6)}
+.chatMicBtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* НАКЛАДКИ */
 .overlay{position:absolute;inset:0;background:rgba(4,3,6,.86);backdrop-filter:blur(8px);
@@ -149,7 +239,6 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 .panel .btn{width:100%;margin-bottom:9px;font-size:14px;padding:12px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;
   margin-bottom:14px;font-size:14px;color:var(--text)}
-.row label{letter-spacing:.06em}
 input[type=range]{-webkit-appearance:none;appearance:none;width:140px;height:4px;
   background:linear-gradient(90deg,var(--gold),var(--crimson));border-radius:3px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
@@ -162,52 +251,27 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 .toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;
   border-radius:50%;background:var(--gold-soft);transition:.25s}
 .toggle.on::after{left:28px;background:var(--gold)}
-
-/* СПИСКИ */
 .list-item{display:block;width:100%;text-align:left;padding:13px 15px;margin-bottom:8px;
   background:rgba(30,24,30,.7);border:1px solid rgba(212,175,55,.18);border-radius:7px;
-  color:var(--text);font-family:inherit;font-size:14px;cursor:pointer;transition:.2s;
-  letter-spacing:.03em}
+  color:var(--text);font-family:inherit;font-size:14px;cursor:pointer;transition:.2s;letter-spacing:.03em}
 .list-item:hover{border-color:var(--gold);background:rgba(60,32,40,.7);transform:translateX(3px)}
 .list-item.locked{opacity:.4;cursor:not-allowed}
-.list-item.locked:hover{transform:none;border-color:rgba(212,175,55,.18);background:rgba(30,24,30,.7)}
+.list-item.locked:hover{transform:none}
 .list-item .meta{display:block;font-size:11px;color:var(--text-dim);margin-top:4px;
   letter-spacing:.12em;text-transform:uppercase}
-
-/* ЖУРНАЛ */
-#historyList{max-height:66vh;overflow-y:auto;padding-right:6px}
 .hist-entry{padding:10px 12px;margin-bottom:8px;border-left:2px solid rgba(212,175,55,.35);
   background:rgba(20,16,22,.55);border-radius:0 6px 6px 0;font-size:13.5px;line-height:1.5}
 .hist-entry .who{color:var(--gold);font-size:11px;letter-spacing:.18em;
   text-transform:uppercase;display:block;margin-bottom:4px}
-
-/* ПРОГРЕСС */
 #progressWrap{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.06);z-index:15}
 #progressBar{height:100%;width:0;background:linear-gradient(90deg,var(--crimson),var(--gold));
   transition:width .5s ease;box-shadow:0 0 10px rgba(212,175,55,.5)}
-
-/* ФИНАЛ */
 #endingTitle{font-size:clamp(22px,6vw,40px);letter-spacing:.2em;color:var(--gold);
-  text-align:center;margin-bottom:14px;text-transform:uppercase;
-  text-shadow:0 0 30px rgba(212,175,55,.5)}
+  text-align:center;margin-bottom:14px;text-transform:uppercase;text-shadow:0 0 30px rgba(212,175,55,.5)}
 #endingText{font-size:16px;line-height:1.7;color:var(--text);text-align:center;
   max-width:560px;margin-bottom:24px}
-
-/* АДАПТИВ */
-@media (min-width:900px){
-  #photoWrap{width:300px}
-  #stage{padding-top:70px}
-}
-@media (max-height:640px){
-  #photoWrap{width:min(40vw,150px)}
-  #dialogText{min-height:50px;font-size:14px}
-  #stage{padding-top:56px}
-}
-@media (orientation:landscape) and (max-height:520px){
-  #stage{flex-direction:row;gap:16px;align-items:center;padding-top:56px}
-  #photoWrap{width:min(28vw,170px);margin:0}
-  #dialogPanel{width:min(62vw,560px)}
-}
+@media (min-width:900px){#photoWrap{width:300px}#stage{padding-top:70px}}
+@media (max-height:640px){#photoWrap{width:min(40vw,150px)}#dialogText{min-height:50px;font-size:14px}}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:rgba(212,175,55,.35);border-radius:3px}
 ::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}
@@ -216,10 +280,9 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 <body>
 <div id="app">
   <div id="bgLayer"></div>
-  <div id="grain"></div>
   <div id="vignette"></div>
 
-  <!-- ГЛАВНОЕ МЕНЮ -->
+  <!-- МЕНЮ -->
   <div id="menu" class="screen active">
     <div class="title-block">
       <div class="game-title">МАФИЯ<span class="sub">ИСТОРИЯ ДРУЗЕЙ</span></div>
@@ -228,12 +291,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     <div class="menu-buttons">
       <button class="btn primary" id="btnNew">Новая игра</button>
       <button class="btn" id="btnContinue">Продолжить</button>
-      <button class="btn" id="btnChapters">Главы</button>
-      <button class="btn" id="btnSettings">Настройки</button>
       <button class="btn" id="btnEndings">Концовки</button>
+      <button class="btn" id="btnSettings">Настройки</button>
       <button class="btn" id="btnAbout">Об авторах</button>
     </div>
-    <div class="menu-footer">18+ · Криминальная драма · v1.0</div>
+    <div class="menu-footer">18+ · Жёсткая драма · v2.0</div>
+  </div>
+
+  <!-- ВЫБОР ПЕРСОНАЖА -->
+  <div id="charSelect" class="screen">
+    <div class="cs-title">Выбери, за кого играешь</div>
+    <div class="cs-sub">Остальные двое станут твоими друзьями</div>
+    <div class="cs-grid" id="csGrid"></div>
+    <div class="cs-actions">
+      <button class="btn" id="btnCsBack">Назад</button>
+      <button class="btn primary" id="btnCsStart" disabled>Начать</button>
+    </div>
   </div>
 
   <!-- ИГРА -->
@@ -241,13 +314,12 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     <div id="topbar">
       <div class="chapter-ind" id="chapterInd">Глава 1</div>
       <div class="top-actions">
-        <button class="icon-btn" id="btnReplayLine" title="Повторить реплику">↺</button>
+        <button class="icon-btn" id="btnReplayLine" title="Повторить">↺</button>
         <button class="icon-btn" id="btnVoiceQuick" title="Озвучка">🔊</button>
         <button class="icon-btn" id="btnHistoryQuick" title="Журнал">≡</button>
         <button class="icon-btn" id="btnPause" title="Пауза">❚❚</button>
       </div>
     </div>
-
     <div id="stage">
       <div id="photoWrap">
         <div class="photo-frame"></div>
@@ -267,6 +339,86 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     <div id="progressWrap"><div id="progressBar"></div></div>
   </div>
 
+  <!-- IPHONE WIDGET -->
+  <div id="iphoneWidget" title="iPhone">
+    <svg viewBox="0 0 70 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="titanium" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#8a8070"/>
+          <stop offset="35%" stop-color="#5a5450"/>
+          <stop offset="55%" stop-color="#3a3530"/>
+          <stop offset="100%" stop-color="#6a6058"/>
+        </linearGradient>
+        <linearGradient id="screenGlow" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1a2a3a"/>
+          <stop offset="50%" stop-color="#0a0a12"/>
+          <stop offset="100%" stop-color="#2a1a2a"/>
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="66" height="136" rx="13" fill="url(#titanium)" stroke="#2a2520" stroke-width="0.8"/>
+      <rect x="5" y="5" width="60" height="130" rx="10" fill="#000"/>
+      <rect x="6" y="6" width="58" height="128" rx="9.5" fill="url(#screenGlow)"/>
+      <rect x="26" y="9" width="18" height="5" rx="2.5" fill="#0a0a0a"/>
+      <circle cx="41" cy="11.5" r="1.2" fill="#1a1a1a"/>
+      <rect x="1" y="32" width="1.5" height="6" rx="0.7" fill="#5a5450"/>
+      <rect x="1" y="44" width="1.5" height="14" rx="0.7" fill="#5a5450"/>
+      <rect x="1" y="62" width="1.5" height="14" rx="0.7" fill="#5a5450"/>
+      <rect x="67.5" y="42" width="1.5" height="22" rx="0.7" fill="#5a5450"/>
+      <rect x="0.5" y="80" width="1" height="16" rx="0.5" fill="#5a5450"/>
+      <text x="35" y="72" text-anchor="middle" font-family="-apple-system,sans-serif"
+        font-size="22" fill="rgba(255,255,255,.15)" font-weight="300">11:47</text>
+      <circle cx="35" cy="100" r="12" fill="none" stroke="rgba(212,175,55,.4)" stroke-width="1.5"/>
+      <text x="35" y="105" text-anchor="middle" font-family="-apple-system,sans-serif"
+        font-size="11" fill="rgba(212,175,55,.8)" font-weight="600">М</text>
+    </svg>
+    <div class="notif" id="iphoneNotif">3</div>
+  </div>
+
+  <!-- ПОЛНОЭКРАННЫЙ ЧАТ -->
+  <div id="chatView">
+    <div class="phoneWrap">
+      <svg class="phoneSvg" viewBox="0 0 420 880" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="titaniumBig" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#9a9078"/>
+            <stop offset="30%" stop-color="#5a5450"/>
+            <stop offset="55%" stop-color="#2a2620"/>
+            <stop offset="100%" stop-color="#7a7068"/>
+          </linearGradient>
+          <linearGradient id="screenBig" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#141418"/>
+            <stop offset="100%" stop-color="#0a0a0e"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="420" height="880" rx="56" fill="url(#titaniumBig)" stroke="#1a1814" stroke-width="1.5"/>
+        <rect x="8" y="8" width="404" height="864" rx="48" fill="#000"/>
+        <rect x="12" y="12" width="396" height="856" rx="44" fill="url(#screenBig)"/>
+        <rect x="165" y="22" width="90" height="30" rx="15" fill="#050505"/>
+        <circle cx="240" cy="37" r="5" fill="#0a0a12"/>
+        <circle cx="243" cy="34" r="1.5" fill="#1a2a3a"/>
+        <rect x="0" y="150" width="2" height="30" rx="1" fill="#6a6058"/>
+        <rect x="0" y="200" width="2" height="80" rx="1" fill="#6a6058"/>
+        <rect x="0" y="300" width="2" height="80" rx="1" fill="#6a6058"/>
+        <rect x="418" y="220" width="2" height="120" rx="1" fill="#6a6058"/>
+      </svg>
+      <div class="phoneScreen">
+        <div class="chatHeader">
+          <button class="chatBack" id="chatBackBtn">‹</button>
+          <div class="chatAvatar">Ш</div>
+          <div class="chatInfo">
+            <div class="chatName">Шныри</div>
+            <div class="chatStatus" id="chatStatus">Копатыч, Арсенчик, ты</div>
+          </div>
+        </div>
+        <div class="chatBody" id="chatBody"></div>
+        <div class="chatInput">
+          <div class="chatInputBox" id="chatInputBox">Сообщение</div>
+          <button class="chatMicBtn" id="chatMicBtn" title="Записать голосовое">🎤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ПАУЗА -->
   <div id="pauseOverlay" class="overlay">
     <div class="panel">
@@ -274,7 +426,6 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <button class="btn primary" id="btnResume">Продолжить</button>
       <button class="btn" id="btnRestartCh">Перезапустить главу</button>
       <button class="btn" id="btnHistory">Журнал диалогов</button>
-      <button class="btn" id="btnSettingsFromPause">Настройки</button>
       <button class="btn" id="btnToMenu">В главное меню</button>
     </div>
   </div>
@@ -283,40 +434,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
   <div id="settingsOverlay" class="overlay">
     <div class="panel">
       <h2>Настройки</h2>
-      <div class="row"><label>Озвучка персонажей</label><div class="toggle on" id="tgVoice"></div></div>
+      <div class="row"><label>Озвучка</label><div class="toggle on" id="tgVoice"></div></div>
       <div class="row"><label>Громкость голоса</label><input type="range" id="rngVoiceVol" min="0" max="100" value="100"></div>
-      <div class="row"><label>Фоновая музыка</label><div class="toggle on" id="tgMusic"></div></div>
+      <div class="row"><label>Музыка</label><div class="toggle on" id="tgMusic"></div></div>
       <div class="row"><label>Громкость музыки</label><input type="range" id="rngMusicVol" min="0" max="100" value="45"></div>
-      <div class="row"><label>Звуковые эффекты</label><div class="toggle on" id="tgSfx"></div></div>
+      <div class="row"><label>Звуки</label><div class="toggle on" id="tgSfx"></div></div>
       <button class="btn" id="btnTestVoice">Проверить голос</button>
       <button class="btn primary" id="btnCloseSettings">Назад</button>
-    </div>
-  </div>
-
-  <!-- ГЛАВЫ -->
-  <div id="chaptersOverlay" class="overlay">
-    <div class="panel">
-      <h2>Главы</h2>
-      <div id="chaptersList"></div>
-      <button class="btn primary" id="btnCloseChapters" style="margin-top:10px">Назад</button>
-    </div>
-  </div>
-
-  <!-- ОБ АВТОРАХ -->
-  <div id="aboutOverlay" class="overlay">
-    <div class="panel">
-      <h2>Об авторах</h2>
-      <p style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px">
-        «МАФИЯ: ИСТОРИЯ ДРУЗЕЙ» — интерактивная криминальная новелла
-        о трёх друзьях, одном деле и одном предательстве.
-      </p>
-      <p style="font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:18px">
-        Идея и сценарий — автор проекта.<br>
-        Движок, дизайн, код — чистый HTML/CSS/JS.<br>
-        Озвучка — Web Speech API браузера.<br>
-        Музыка — процедурный атмосферный генератор.
-      </p>
-      <button class="btn primary" id="btnCloseAbout">Назад</button>
     </div>
   </div>
 
@@ -324,7 +448,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
   <div id="historyOverlay" class="overlay">
     <div class="panel" style="width:min(560px,94vw)">
       <h2>Журнал диалогов</h2>
-      <div id="historyList"></div>
+      <div id="historyList" style="max-height:66vh;overflow-y:auto;padding-right:6px"></div>
       <button class="btn primary" id="btnCloseHistory" style="margin-top:10px">Назад</button>
     </div>
   </div>
@@ -335,6 +459,22 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <h2>Концовки</h2>
       <div id="endingsList"></div>
       <button class="btn primary" id="btnCloseEndings" style="margin-top:10px">Назад</button>
+    </div>
+  </div>
+
+  <!-- ОБ АВТОРАХ -->
+  <div id="aboutOverlay" class="overlay">
+    <div class="panel">
+      <h2>Об авторах</h2>
+      <p style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px">
+        «МАФИЯ: ИСТОРИЯ ДРУЗЕЙ» — интерактивная криминальная новелла
+        о трёх друзьях, одном деле, предательстве и групповом чате, который всё меняет.
+      </p>
+      <p style="font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:18px">
+        Выбор персонажа меняет взгляд на историю. Мишулик Пупулик — единственный,
+        у кого в руках iPhone 16 Pro Max с чатом «Шныри».
+      </p>
+      <button class="btn primary" id="btnCloseAbout">Назад</button>
     </div>
   </div>
 
@@ -360,752 +500,623 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 
 <script>
 /* ============================================================
-   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ
-   Архитектура: данные сценария + движок + UI
+   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v2
    ============================================================ */
 
-/* ---------- ПЕРСОНАЖИ ---------- */
 const CHARS = {
-  n:   { name: '',                img: null,        color: '#c9b27a',
-         voice: { rate: 0.9, pitch: 0.75, vol: 1 } },
-  sem: { name: 'Уебок',           img: 'sem.jpg',   color: '#e07a5f',
-         voice: { rate: 1.06, pitch: 0.88, vol: 1 } },
-  rus: { name: 'Секс парень',     img: 'rus%20.jpg',color: '#81b29a',
-         voice: { rate: 1.0,  pitch: 1.12, vol: 1 } },
-  mih: { name: 'Мишулик Пупулик', img: 'mih%20.jpg',color: '#f2cc8f',
-         voice: { rate: 0.88, pitch: 0.72, vol: 1 } }
+  sem: { name:'Уебок', img:'sem.jpg', color:'#e07a5f',
+         voice:{rate:1.08,pitch:0.85,vol:1},
+         desc:'Дерзкий, самоуверенный, лезет в драку первым. Постоянно пытается казаться главным.' },
+  rus: { name:'Секс парень', img:'rus%20.jpg', color:'#81b29a',
+         voice:{rate:1.0,pitch:1.15,vol:1},
+         desc:'Трикстер и провокатор. Шутит даже когда не надо. Умеет договариваться со всеми — но только за себя.' },
+  mih: { name:'Мишулик Пупулик', img:'mih%20.jpg', color:'#f2cc8f',
+         voice:{rate:0.84,pitch:0.68,vol:1},
+         desc:'Старший. Немногословный, принципиальный. Не терпит фамильярности. У него свой iPhone и свои шныри.' }
+};
+const CHAT_PEERS = {
+  kop: { name:'Копатыч', color:'#7ab8e0', initial:'К' },
+  ars: { name:'Арсенчик', color:'#c78fd9', initial:'А' }
 };
 
-/* ---------- СЦЕНАРИЙ ----------
-   step: { t: 'sem'|'rus'|'mih'|'n', text: '...', req?: s=>bool }
-   choice: { choice: [ { text, trust?, conflict?, reputation?, flag?, say? } ] }
-*/
+/* ---------- ГЛАВЫ ---------- */
 const CHAPTERS = [
-/* ============================ ГЛАВА 1 ============================ */
 {
-  id: 'ch1',
-  title: 'Глава 1. Необычный вечер',
-  steps: [
-    { t:'n', text:'Пятница. Старый гараж на окраине города. Здесь пахнет бензином, ржавчиной и чужими тайнами.' },
-    { t:'n', text:'Семён позвал своих — тех, с кем прошёл огонь, воду и пару мутных историй.' },
-    { t:'sem', text:'Ну наконец-то! Я уж думал, вы двое опять заняты своей «важной жизнью».' },
-    { t:'rus', text:'Я и был занят. Уговаривал бармена налить бесплатно. Проиграл. Бармен оказался принципиальным.' },
-    { t:'mih', text:'Я пришёл. Считай, уже праздник.' },
-    { t:'sem', text:'Мишулик, ты как всегда — коротко и по делу.' },
-    { t:'mih', text:'Старший младших знай.' },
-    { t:'sem', text:'Ты старше меня на два месяца! Два! Месяца!' },
-    { t:'mih', text:'Два месяца — это два месяца. Не спорь со старшим.' },
-    { t:'rus', text:'Так, бойцы, не начинайте. Я даже пиво ещё не открыл, а вы уже делите трон.' },
-    { t:'n', text:'Семён достал три бутылки из ящика на верстаке. Движения — быстрые, нервные. Слишком нервные для обычной пятницы.' },
-    { t:'sem', text:'Слушайте. У меня разговор. Серьёзный.' },
-    { t:'rus', text:'О, началось. Сейчас будет «займи до зарплаты, я отдам в четверг».' },
-    { t:'sem', text:'Не в этот раз.' },
-    { t:'mih', text:'Тогда говори прямо. Терпеть не могу, когда мнут слова, как тесто.' },
-    { choice: [
-      { text:'Давай, выкладывай. Мы слушаем.', trust:{sem:1} },
-      { text:'Может, сначала выпьем? Разговор пойдёт легче.', trust:{rus:1} },
-      { text:'С чего вдруг такая серьёзность? Ты сам не свой.', trust:{mih:1}, flag:{noticed_worry:true} }
+  id:'ch1', title:'Глава 1. Стрелка в гараже',
+  steps:[
+    {t:'n', text:'Пятница. Заброшенный гараж на окраине. Пахнет бензином, ржавчиной и дешёвым пивом.'},
+    {t:'n', text:'Трое собрались, как обычно. Только в этот раз что-то висело в воздухе. Что-то тяжёлое.'},
+    {t:'sem', text:'Ну чё, бойцы. Собрались. Я уж думал, вы зассали.'},
+    {t:'rus', text:'Зассали? Я, блять, через весь город на двух автобусах ехал. Ты бы хоть пива нормального взял.'},
+    {t:'sem', text:'Не нравится — не пей. Мне пох.'},
+    {t:'mih', text:'Хватит орать. Говори, зачем позвал.'},
+    {t:'sem', text:'О, Мишулик включил старшего. Как всегда.'},
+    {t:'mih', text:'Ты как общаешься.'},
+    {t:'sem', text:'Да нормально я общаюсь! Как с равным!'},
+    {t:'mih', text:'Мы не равные. Я старше.'},
+    {t:'rus', text:'О боже, опять эта тема. Ты старше нас на два месяца, Мишулик. Два. Месяца.'},
+    {t:'mih', text:'Два месяца — это два месяца. Старший младших знай.'},
+    {t:'sem', text:'Слышь, а чё это у тебя в руках? Новый айфон что ли?'},
+    {t:'mih', text:'iPhone 16 Pro Max.'},
+    {t:'rus', text:'Ох ты ж, бля. С какого перепугу?'},
+    {t:'mih', text:'Заработал. У меня мозги есть. В отличие от некоторых.'},
+    {t:'sem', text:'Ты чё, намекаешь?'},
+    {t:'mih', text:'Я не намекаю. Я говорю прямо.'},
+    {t:'n', text:'Семён напрягся. Руслан сделал вид, что ему похуй. Но все поняли: вечер будет длинным.'},
+    {choice:[
+      {text:'Спросить Мишулика, как он заработал на iPhone.', trust:{mih:1}, flag:{asked_iphone:true}},
+      {text:'Осадить Мишулика, чтоб не выёбывался.', trust:{mih:-1}, conflict:1, flag:{pressed_mih_ch1:true}},
+      {text:'Промолчать и наблюдать.', reputation:1, flag:{watcher_ch1:true}}
     ]},
-    { t:'sem', text:'Дело в деньгах. Больших. И в одном человеке, которого вы оба знаете.' },
-    { t:'rus', text:'О-о-о. Только не говори, что это Гриша.' },
-    { t:'sem', text:'Гриша.' },
-    { t:'mih', text:'Ты как общаешься. Мы же договаривались — с Гришей дел не имеем. Совсем.' },
-    { t:'sem', text:'Договаривались. А потом он предложил такое, что я не смог отказаться.' },
-    { t:'rus', text:'И ты, конечно, согласился. Не посоветовавшись. Классика.' },
-    { t:'sem', text:'Я советуюсь сейчас. Вот. Прямо сейчас.' },
-    { t:'n', text:'Повисла пауза. Такая, в которой слышно, как капает масло с верстака и тикают чьи-то наручные часы.' },
-    { choice: [
-      { text:'Что именно он предложил?', flag:{asked_offer:true} },
-      { text:'Ты нас втягиваешь в дерьмо, Семён.', trust:{sem:-1}, conflict:1 },
-      { text:'Гриша — мутный тип. Я бы с ним даже не разговаривал.', trust:{mih:1} }
+    {t:'sem', text:'Короче, слушайте сюда. У меня тема есть. Серьёзная.'},
+    {t:'rus', text:'О, началось. Опять «тема». Прошлая «тема» закончилась тем, что ты три месяца отдавал мне долг.'},
+    {t:'sem', text:'Это была не тема. Это была хуйня. А сейчас — тема.'},
+    {t:'mih', text:'Ну говори.'},
+    {t:'sem', text:'Есть один человек. Гриша. Вы его знаете.'},
+    {t:'mih', text:'Знаем. Мутный тип.'},
+    {t:'rus', text:'Мутный — это мягко сказано. Он мне однажды предлагал «работу» в каком-то подвале.'},
+    {t:'sem', text:'Так вот. У него есть предложение. За нехуй делать — поднять нормальные бабки.'},
+    {t:'mih', text:'Опиши «нехуй делать».'},
+    {t:'sem', text:'Ночью на один склад зайти. Взять что плохо лежит. Уйти.'},
+    {t:'rus', text:'А если «плохо лежит» — это чьи-то документы, и за них потом спросят?'},
+    {t:'sem', text:'Ты чё, пророк? За базар отвечаю — всё чисто.'},
+    {t:'mih', text:'Ты за базар уже отвечал. В прошлый раз. Закончилось плохо.'},
+    {t:'n', text:'Семён зло сплюнул. Руслан хмыкнул. Мишулик спрятал айфон в карман.'},
+    {choice:[
+      {text:'Я в деле, если Мишулик тоже.', flag:{need_mih_agree:true}},
+      {text:'Отказываюсь. И вам не советую.', trust:{mih:1}, flag:{refused_ch1:true}},
+      {text:'А что нам за это будет?', flag:{asked_pay:true}}
     ]},
-    { t:'sem', text:'Короче. Есть один склад. Ночью там никого нет. Он предложил взять то, что «всё равно пропадёт».' },
-    { t:'rus', text:'«Всё равно пропадёт» — это как «я не виноват, оно само ко мне пришло».' },
-    { t:'mih', text:'Это называется не «взять». Это называется по-другому, и ты знаешь, как.' },
-    { t:'sem', text:'Знаю. Но там сумма такая, что мы втроём закроем все долги разом. Все. Понимаете?' },
-    { t:'n', text:'Он посмотрел на них. Впервые за вечер — не дерзко, а почти просяще.' },
-    { t:'rus', text:'И ты хочешь, чтобы мы пошли с тобой.' },
-    { t:'sem', text:'Я хочу, чтобы вы хотя бы подумали. Не больше.' },
-    { t:'mih', text:'Я подумаю. Но обещать не буду. Старший младших знай — но и старший ошибаться может. Запомни это.' },
-    { t:'n', text:'Так закончился обычный вечер. Только он уже не был обычным. И все это чувствовали.' }
+    {t:'n', text:'Разговор прервался. Где-то вдалеке завыла собака. Как будто предупреждала.'},
   ]
 },
-/* ============================ ГЛАВА 2 ============================ */
 {
-  id: 'ch2',
-  title: 'Глава 2. Кто здесь главный?',
-  steps: [
-    { t:'n', text:'Утро. Кухня у Руслана. Три чашки, один разговор и слишком много самолюбия на квадратный метр.' },
-    { t:'rus', text:'Итак. Вчера мы ничего не решили. Совсем.' },
-    { t:'sem', text:'Мы решили подумать. Я подумал. Я — за.' },
-    { t:'mih', text:'Я тоже подумал. Я — против.' },
-    { t:'sem', text:'Кто бы сомневался.' },
-    { t:'mih', text:'Ты как общаешься.' },
-    { t:'sem', text:'Нормально я общаюсь! Как с равным!' },
-    { t:'mih', text:'Старший младших знай. Вот так и общайся. Учись.' },
-    { t:'rus', text:'Ребят, вы вообще слышите друг друга? Или вам просто нравится орать по утрам?' },
-    { choice: [
-      { text:'Мишулик прав. Это слишком опасно.', trust:{mih:1}, conflict:-1 },
-      { text:'Уебок дело говорит. Риск того стоит.', trust:{sem:1}, conflict:1 },
-      { text:'Может, решим вместе, без криков?', reputation:1, conflict:-1 }
+  id:'ch2', title:'Глава 2. Кто здесь главный',
+  steps:[
+    {t:'n', text:'Кухня Руслана. Утро. Три чашки, один разговор и слишком много самолюбия.'},
+    {t:'rus', text:'Итак. Вчера мы ничё не решили. Совсем ничё.'},
+    {t:'sem', text:'Мы решили подумать. Я подумал. Я — за.'},
+    {t:'mih', text:'Я тоже подумал. Я — против.'},
+    {t:'sem', text:'Кто бы сомневался. Ты всегда против. Ты вообще против всего.'},
+    {t:'mih', text:'Не против всего. Против хуйни.'},
+    {t:'sem', text:'А это, по-твоему, хуйня?'},
+    {t:'mih', text:'Это, по-моему, пиздец. Разные вещи.'},
+    {t:'rus', text:'Ребят, вы вообще слышите друг друга? Или вам просто нравится орать по утрам?'},
+    {t:'sem', text:'Слышь, Руслан, а ты вообще за кого?'},
+    {t:'rus', text:'Я за себя.'},
+    {t:'sem', text:'Вот и я о том же. Ты всегда за себя.'},
+    {t:'rus', text:'А ты всегда за всех, да? Прям благодетель хуев.'},
+    {t:'mih', text:'Хватит.'},
+    {t:'n', text:'Оба замолчали. Мишулик говорил редко. Но если говорил — все затыкались.'},
+    {t:'mih', text:'Мы не будем решать это так. Не втроём. Не сейчас.'},
+    {t:'sem', text:'А как будем? На собрании? С повесткой дня?'},
+    {t:'mih', text:'Ты как общаешься.'},
+    {t:'sem', text:'Да бля, опять ты со своим «как общаешься». Заебал!'},
+    {t:'mih', text:'Старший младших знай. Привыкай.'},
+    {t:'rus', text:'Слышите? Вот из-за этого мы и срёмся. Все время одно и то же.'},
+    {choice:[
+      {text:'Поддержать Мишулика: он прав, надо остыть.', trust:{mih:2}, trust2:{sem:-1}, flag:{sided_mih_ch2:true}},
+      {text:'Поддержать Уебка: хватит строить из себя батю.', trust:{sem:2}, trust2:{mih:-1}, conflict:1, flag:{sided_sem_ch2:true}},
+      {text:'Встать на сторону Секс парня: он единственный тут думает.', trust:{rus:2}, flag:{sided_rus_ch2:true}}
     ]},
-    { t:'sem', text:'Слушайте, я не собираюсь вас уговаривать. Хотите — идите. Не хотите — я один пойду.' },
-    { t:'mih', text:'Один ты пойдёшь только до первого угла. Потом сядешь на бордюр и заплачешь.' },
-    { t:'sem', text:'Ты меня плохо знаешь.' },
-    { t:'mih', text:'Я тебя знаю с семи лет. Ты в семь лет плакал, когда тебе мороженое не купили.' },
-    { t:'rus', text:'О, я помню эту историю! Ты там ещё продавщице что-то кричал про справедливость!' },
-    { t:'sem', text:'Заткнись, Руслан.' },
-    { t:'rus', text:'Не заткнусь. Это мой дом. Я тут главный.' },
-    { t:'mih', text:'Ты? Главный?' },
-    { t:'rus', text:'А кто? Ты, что ли?' },
-    { t:'mih', text:'Я. Старший младших знай.' },
-    { t:'n', text:'Руслан засмеялся. Мишулик не засмеялся. Тишина стала тяжёлой, как мокрое пальто.' },
-    { choice: [
-      { text:'Хватит. Мишулик, он не хотел тебя задеть.', trust:{mih:1} },
-      { text:'Руслан, ты реально перегнул.', trust:{rus:-1}, trust2:{mih:1} },
-      { text:'Промолчать и посмотреть, что будет.', conflict:1, flag:{stayed_silent_ch2:true} }
+    {t:'sem', text:'Знаете что? Идите вы оба. Я сам всё сделаю.'},
+    {t:'mih', text:'Ты сам только до первого угла дойдёшь. Потом сядешь и заплачешь.'},
+    {t:'sem', text:'Ты меня плохо знаешь.'},
+    {t:'mih', text:'Я тебя с семи лет знаю. Ты в семь лет плакал, когда мороженое не купили.'},
+    {t:'rus', text:'О, помню! Ты там ещё продавщице что-то орал про справедливость!'},
+    {t:'sem', text:'Заткнись, Руслан.'},
+    {t:'rus', text:'Не заткнусь. Это мой дом. Я тут главный.'},
+    {t:'mih', text:'Ты? Главный?'},
+    {t:'rus', text:'А кто? Ты, что ли?'},
+    {t:'mih', text:'Я. Старший младших знай.'},
+    {t:'n', text:'Руслан заржал. Мишулик не заржал. Тишина стала тяжёлой, как мокрое пальто.'},
+    {t:'n', text:'И тут у Мишулика в кармане завибрировал телефон. Он достал iPhone, глянул на экран и помрачнел.'},
+    {t:'sem', text:'Чё там у тебя?'},
+    {t:'mih', text:'Не твоё дело.'},
+    {t:'rus', text:'О-о-о, у нашего старшего секреты.'},
+    {t:'mih', text:'Сказал — не твоё дело.'},
+    {t:'n', text:'Он убрал телефон. Но было видно: что-то его зацепило.'},
+    {choice:[
+      {text:'Спросить прямо: кто написал?', trust:{mih:-1}, flag:{pressed_about_chat:true}},
+      {text:'Оставить в покое. У каждого свои дела.', trust:{mih:1}, flag:{respect_chat_private:true}},
+      {text:'Подколоть: «Наверное, баба пишет».', trust:{mih:-2}, conflict:1, flag:{mocked_chat:true}}
     ]},
-    { t:'rus', text:'Ладно, ладно. Извини. Просто ты иногда ведёшь себя так, будто тебе все что-то должны.' },
-    { t:'mih', text:'Мне никто ничего не должен. Мне нужно уважение. Это разные вещи. Совсем разные.' },
-    { t:'sem', text:'Так, всё. Мы не о том спорим.' },
-    { t:'rus', text:'А о чём мы спорим, Семён? О том, идти ли на дело, которое может нас посадить?' },
-    { t:'sem', text:'Мы спорим о том, кто здесь решает. И ты это прекрасно понимаешь.' },
-    { t:'n', text:'И это была правда. Куда более правда, чем им всем хотелось бы.' }
   ]
 },
-/* ============================ ГЛАВА 3 ============================ */
 {
-  id: 'ch3',
-  title: 'Глава 3. Странное предложение',
-  steps: [
-    { t:'n', text:'Вечер. Они встретились втроём у старого кинотеатра. На улице моросит, вывеска мигает и половина букв не горит.' },
-    { t:'sem', text:'Я встретился с Гришей.' },
-    { t:'rus', text:'Один?! Ты совсем, что ли?' },
-    { t:'sem', text:'Я хотел услышать детали. И услышал.' },
-    { t:'mih', text:'Ну. Говори.' },
-    { t:'sem', text:'Он предложил не склад. Он предложил кое-что другое.' },
-    { t:'rus', text:'Что именно?' },
-    { t:'sem', text:'У него есть «документы». И за них дадут больше, чем за любой склад. В разы.' },
-    { t:'mih', text:'Документы. Ты как общаешься. Ты вообще понимаешь, во что лезешь?' },
-    { t:'sem', text:'Понимаю. Понимаю, что это опасно. Понимаю, что это глупо. Но я также понимаю, что мы третий месяц сидим без работы.' },
-    { t:'rus', text:'Ты преувеличиваешь.' },
-    { t:'sem', text:'Я не преувеличиваю. Я просто устал. Устал считать копейки и слушать, как вы двое спорите о том, кто из вас главный.' },
-    { t:'n', text:'Он сказал это тихо. Так, что никто не стал спорить.' },
-    { choice: [
-      { text:'Расскажи всё. Мы решим вместе.', trust:{sem:1}, flag:{full_trust_path:true} },
-      { text:'Мы не будем в этом участвовать. Точка.', trust:{mih:1}, flag:{refuse_path:true} },
-      { text:'А что именно за документы?', flag:{curious_path:true} }
+  id:'ch3', title:'Глава 3. Странное предложение',
+  steps:[
+    {t:'n', text:'Вечер. Кинотеатр, у которого горит только половина букв. Моросит.'},
+    {t:'sem', text:'Я встретился с Гришей.'},
+    {t:'rus', text:'Один?! Ты совсем ебанулся?'},
+    {t:'sem', text:'Я хотел детали. И услышал.'},
+    {t:'mih', text:'Ну.'},
+    {t:'sem', text:'Он предложил не склад. Он предложил кое-что другое.'},
+    {t:'rus', text:'Что именно?'},
+    {t:'sem', text:'У него есть «документы». За них дадут больше, чем за любой склад. В разы.'},
+    {t:'mih', text:'Документы. Ты как общаешься. Ты понимаешь, во что лезешь?'},
+    {t:'sem', text:'Понимаю. Понимаю, что опасно. Понимаю, что глупо. Но я устал считать копейки.'},
+    {t:'rus', text:'Ты преувеличиваешь.'},
+    {t:'sem', text:'Я не преувеличиваю. Я просто устал слушать, как вы двое спорите, кто из вас главный.'},
+    {t:'n', text:'Сказал тихо. Так, что никто не стал спорить.'},
+    {choice:[
+      {text:'Расскажи всё. Решим вместе.', trust:{sem:1}, flag:{full_trust_ch3:true}},
+      {text:'Мы не будем в этом участвовать. Точка.', trust:{mih:1}, flag:{refuse_ch3:true}},
+      {text:'А что за документы? Кто хозяин?', flag:{curious_ch3:true}}
     ]},
-    { t:'sem', text:'Это бумаги одного человека. Большого человека. Если они всплывут — у него будут проблемы. Очень большие проблемы.' },
-    { t:'mih', text:'А если они не всплывут — проблемы будут у нас.' },
-    { t:'rus', text:'Или у нас будут деньги.' },
-    { t:'mih', text:'Или у нас будут деньги. Как повезёт. Ты вообще не думаешь о последствиях, да?' },
-    { t:'rus', text:'Я думаю о том, что мы живём один раз.' },
-    { t:'n', text:'Руслан улыбнулся. Ему нравилось, когда всё звучало как игра. Мишулику — нет. Он смотрел на вывеску кинотеатра, и лицо у него было каменное.' },
-    { choice: [
-      { text:'Я — за. Идём вместе.', trust:{sem:1}, flag:{in_deal:true} },
-      { text:'Я — против. И вам не советую.', trust:{mih:1}, flag:{against_deal:true} },
-      { text:'Давайте сначала проверим самого Гришу.', reputation:1, flag:{check_gref:true} }
+    {t:'sem', text:'Это бумаги одного человека. Большого. Если они всплывут — у него будут проблемы. Очень большие.'},
+    {t:'mih', text:'А если не всплывут — проблемы будут у нас.'},
+    {t:'rus', text:'Или у нас будут деньги.'},
+    {t:'mih', text:'Или у нас будут деньги. Как повезёт. Ты вообще не думаешь о последствиях?'},
+    {t:'rus', text:'Я думаю о том, что живём один раз.'},
+    {t:'n', text:'Руслан улыбнулся. Ему нравилось, когда всё звучало как игра. Мишулику — нет.'},
+    {choice:[
+      {text:'Я — за. Идём вместе.', trust:{sem:1}, flag:{in_deal:true}},
+      {text:'Я — против. И вам не советую.', trust:{mih:1}, flag:{against_deal:true}},
+      {text:'Давайте сначала проверим самого Гришу.', reputation:1, flag:{check_gref:true}}
     ]},
-    { t:'rus', text:'Ну наконец-то хоть кто-то что-то решил. А то мы как три бабы на базаре.' },
-    { t:'mih', text:'Ты как общаешься. Мы не бабы. Мы — идиоты, которые связываются с Гришей. Это другое.' },
-    { t:'sem', text:'Значит, идём. Завтра вечером он ждёт.' },
-    { t:'n', text:'Никто не сказал «нет». И это было самое страшное.' }
+    {t:'rus', text:'Ну наконец хоть кто-то что-то решил.'},
+    {t:'mih', text:'Ты как общаешься. Мы не бабы на базаре. Мы идиоты, которые связываются с Гришей. Это другое.'},
+    {t:'sem', text:'Значит, идём. Завтра вечером он ждёт.'},
+    {t:'n', text:'Никто не сказал «нет». И это было самое страшное.'},
   ]
 },
-/* ============================ ГЛАВА 4 ============================ */
 {
-  id: 'ch4',
-  title: 'Глава 4. Подозрения',
-  steps: [
-    { t:'n', text:'Прошло три дня. Документы должны были быть у Семёна ещё вчера. Их не было.' },
-    { t:'rus', text:'Он не отвечает на звонки. Три дня. Три. Дня.' },
-    { t:'mih', text:'Может, он просто занят. Может, у него дела.' },
-    { t:'rus', text:'Какие дела, Мишулик? Какие дела у человека, который сидит без работы? Ну кроме наших.' },
-    { t:'mih', text:'Не ёрничай.' },
-    { t:'rus', text:'Я не ёрничаю. Я просто замечаю. Ты тоже заметил, я знаю. Ты просто молчишь.' },
-    { t:'n', text:'Мишулик отвернулся. Он действительно заметил. И это его бесило больше всего.' },
-    { t:'mih', text:'Слушай. А ты сам где был позавчера вечером?' },
-    { t:'rus', text:'В смысле?' },
-    { t:'mih', text:'В прямом. Позавчера. Вечером. Ты сказал, что дома. Я звонил — никто не взял.' },
-    { t:'rus', text:'Я в душе был. Или спал. Какая разница?' },
-    { t:'mih', text:'Разница есть. Всегда есть разница.' },
-    { choice: [
-      { text:'Руслан, ответь честно. Где ты был?', trust:{rus:-1}, flag:{pressed_rus:true} },
-      { text:'Мишулик, не дави. У всех бывают дела.', trust:{rus:1}, trust2:{mih:-1} },
-      { text:'Хватит. Мы все на взводе. Давайте спокойно.', reputation:1, conflict:-1 }
+  id:'ch4', title:'Глава 4. Шныри',
+  steps:[
+    {t:'n', text:'Ночь. Мишулик один в своей квартире. В руках — iPhone 16 Pro Max.'},
+    {t:'n', text:'Он открыл мессенджер. Группа «Шныри». Копатыч и Арсенчик.'},
+    {t:'mih', text:'Так. Двое. Опять молчат.'},
+    {t:'n', text:'Он нажал и удерживал кнопку записи. Голосовое полетело в чат.'},
+    {t:'n', text:'[Открой iPhone в левом нижнем углу — прочитай чат]'},
+    {t:'n', text:'Он отложил телефон. Через минуту — вибрация. Ещё одна. Ещё.'},
+    {t:'mih', text:'Ага. Зашевелились, суки.'},
+    {t:'n', text:'Он открыл чат и начал читать. Читал долго. Молча.'},
+    {t:'n', text:'Чем дальше читал — тем темнее становилось лицо.'},
+    {t:'n', text:'Когда дочитал — закрыл чат. Отложил телефон экраном вниз.'},
+    {t:'n', text:'И не написал больше ни слова.'},
+    {t:'n', text:'Не в этот вечер. Ни на следующий. Ни через неделю.'},
+    {t:'n', text:'Его шныри впервые в жизни ответили ему так, что старший промолчал.'},
+    {t:'n', text:'(Открой iPhone и пройди чат до конца, чтобы продолжить историю.)'},
+  ],
+  needChat:true
+},
+{
+  id:'ch5', title:'Глава 5. Три дня молчания',
+  steps:[
+    {t:'n', text:'Прошло три дня. Документы должны были быть у Семёна ещё вчера. Их не было.'},
+    {t:'rus', text:'Он не отвечает. Три дня. Три. Дня.'},
+    {t:'mih', text:'Может, занят.'},
+    {t:'rus', text:'Чем, Мишулик? Чем он занят? Тем, что нас сдаёт?'},
+    {t:'mih', text:'Не ёрничай.'},
+    {t:'rus', text:'Я не ёрничаю. Я замечаю. Ты тоже заметил. Просто молчишь.'},
+    {t:'n', text:'Мишулик отвернулся. Он действительно заметил. И это его бесило.'},
+    {t:'mih', text:'А ты сам где был позавчера вечером?'},
+    {t:'rus', text:'В смысле?'},
+    {t:'mih', text:'В прямом. Я звонил — никто не взял.'},
+    {t:'rus', text:'Я в душе был. Или спал.'},
+    {t:'mih', text:'Разница есть. Всегда есть.'},
+    {choice:[
+      {text:'Руслан, ответь честно. Где ты был?', trust:{rus:-1}, flag:{pressed_rus_ch5:true}},
+      {text:'Мишулик, не дави. У всех бывают дела.', trust:{rus:1}, trust2:{mih:-1}},
+      {text:'Хватит. Мы все на взводе. Спокойно.', reputation:1, conflict:-1}
     ]},
-    { t:'n', text:'И тут в дверях появился Семён. Мокрый, злой и с пакетом в руках.' },
-    { t:'sem', text:'Что вы тут устроили? Я слышал ваши крики через дверь.' },
-    { t:'rus', text:'Мы думали, ты нас кинул.' },
-    { t:'sem', text:'Кинул? Я?!' },
-    { t:'mih', text:'Три дня молчания, Семён. Три дня. Ты как общаешься.' },
-    { t:'sem', text:'Я не мог писать. Телефон разбился. Вот, новый взял, еле деньги нашёл.' },
-    { t:'rus', text:'Очень удобно.' },
-    { t:'sem', text:'Что — удобно?' },
-    { t:'rus', text:'То, что у тебя всегда есть объяснение. Всегда. Ни одной дырки.' },
-    { t:'n', text:'Семён поставил пакет на стол. Внутри что-то тяжело звякнуло.' },
-    { t:'sem', text:'Вот. Документы. Не те, которые вы думаете. Другие. Я прочитал их, пока ехал.' },
-    { t:'mih', text:'И что там?' },
-    { t:'sem', text:'Там про Гришу. Про его дела. И про нас тоже есть строчка. Одна. Но она мне не понравилась.' },
-    { choice: [
-      { text:'Прочитай вслух.', flag:{read_docs:true} },
-      { text:'Не читай. Сожги. И забудем.', trust:{mih:1}, flag:{burn_docs:true} },
-      { text:'Спрячь. Пока не решим, что делать.', trust:{rus:1}, flag:{hide_docs:true} }
+    {t:'n', text:'И тут в дверях появился Семён. Мокрый, злой, с пакетом в руках.'},
+    {t:'sem', text:'Что вы тут устроили? Я слышал ваши крики через дверь.'},
+    {t:'rus', text:'Мы думали, ты нас кинул.'},
+    {t:'sem', text:'Кинул? Я?!'},
+    {t:'mih', text:'Три дня молчания, Семён. Три дня. Ты как общаешься.'},
+    {t:'sem', text:'Телефон разбился. Вот, новый взял, еле деньги нашёл.'},
+    {t:'rus', text:'Очень удобно.'},
+    {t:'sem', text:'Что — удобно?'},
+    {t:'rus', text:'То, что у тебя всегда есть объяснение. Ни одной дырки.'},
+    {t:'n', text:'Семён поставил пакет на стол. Внутри что-то тяжело звякнуло.'},
+    {t:'sem', text:'Вот. Документы. Не те, которые вы думаете. Другие. Я прочитал, пока ехал.'},
+    {t:'mih', text:'И что там?'},
+    {t:'sem', text:'Там про Гришу. И про нас есть строчка. Одна. Но она мне не понравилась.'},
+    {choice:[
+      {text:'Читай вслух.', flag:{read_docs:true}},
+      {text:'Не читай. Сожги. И забудем.', trust:{mih:1}, flag:{burn_docs:true}},
+      {text:'Спрячь. Пока не решим.', trust:{rus:1}, flag:{hide_docs:true}}
     ]},
-    { t:'n', text:'И в этот момент они впервые поняли: никто из них не был до конца честен. И, возможно, никогда не был.' }
+    {t:'n', text:'И в этот момент они впервые поняли: никто из них не был до конца честен.'},
   ]
 },
-/* ============================ ГЛАВА 5 ============================ */
 {
-  id: 'ch5',
-  title: 'Глава 5. Предательство',
-  steps: [
-    { t:'n', text:'Ночь. Семён позвал всех в гараж. В руках у него был телефон, и лицо у него было серое.' },
-    { t:'sem', text:'Я узнал кое-что. И я не знаю, как это сказать.' },
-    { t:'mih', text:'Скажи как есть. Мы тут все взрослые. Ну, почти.' },
-    { t:'sem', text:'Один из вас звонил Грише. Вчера. В 23:14.' },
-    { t:'n', text:'Повисла тишина. Такая, что стало слышно, как капает вода из крана в углу.' },
-    { t:'rus', text:'Это не я.' },
-    { t:'mih', text:'И не я.' },
-    { t:'sem', text:'У меня распечатка. Номер — ваш. Один из двух.' },
-    { t:'rus', text:'Покажи.' },
-    { t:'sem', text:'Не покажу. Не хочу смотреть, как вы будете врать друг другу в лицо. Я хочу, чтобы вы сами сказали.' },
-    { choice: [
-      { text:'Руслан, это был ты?', trust:{rus:-2}, flag:{blame_rus:true} },
-      { text:'Мишулик, это был ты?', trust:{mih:-2}, flag:{blame_mih:true} },
-      { text:'Я никого не обвиняю. Но кто-то должен сказать правду.', reputation:1, flag:{neutral_ch5:true} }
+  id:'ch6', title:'Глава 6. Предательство',
+  steps:[
+    {t:'n', text:'Ночь. Гараж. Семён с телефоном, лицо серое.'},
+    {t:'sem', text:'Я узнал кое-что. Не знаю, как сказать.'},
+    {t:'mih', text:'Говори как есть.'},
+    {t:'sem', text:'Один из вас звонил Грише. Вчера. В 23:14.'},
+    {t:'n', text:'Тишина. Слышно, как капает вода из крана.'},
+    {t:'rus', text:'Это не я.'},
+    {t:'mih', text:'И не я.'},
+    {t:'sem', text:'У меня распечатка. Номер — ваш. Один из двух.'},
+    {t:'rus', text:'Покажи.'},
+    {t:'sem', text:'Не покажу. Не хочу смотреть, как вы будете врать друг другу в лицо. Скажите сами.'},
+    {choice:[
+      {text:'Руслан, это был ты?', trust:{rus:-2}, flag:{blame_rus_ch6:true}},
+      {text:'Мишулик, это был ты?', trust:{mih:-2}, flag:{blame_mih_ch6:true}},
+      {text:'Никого не обвиняю. Но кто-то должен сказать правду.', reputation:1, flag:{neutral_ch6:true}}
     ]},
-    { t:'rus', text:'Я не звонил. Мне вообще Гриша противен. С детства.' },
-    { t:'mih', text:'А я звонил. Я позвоню и скажу это прямо.' },
-    { t:'n', text:'Все замерли.' },
-    { t:'mih', text:'Я звонил Грише. Но не для того, чтобы предать вас. Я звонил, чтобы отказаться. Сказать, что мы не в деле. Что мы не будем.' },
-    { t:'rus', text:'А почему нам не сказал?' },
-    { t:'mih', text:'Потому что вы бы начали спорить. А я не хотел спорить. Я хотел решить. Один. За всех.' },
-    { t:'sem', text:'Ты не имел права решать за нас.' },
-    { t:'mih', text:'Ты как общаешься. Я старший. Старший младших знай. Я и решаю.' },
-    { t:'rus', text:'Ты не старший. Ты просто старше. Это разные вещи.' },
-    { t:'n', text:'Мишулик посмотрел на него. Долго. Так, что Руслан отвёл взгляд.' },
-    { choice: [
-      { text:'Мишулик, ты должен был сказать. Это было не твоё решение.', trust:{mih:-1}, flag:{mih_guilty:true} },
-      { text:'Он хотел как лучше. Я его понимаю.', trust:{mih:1}, trust2:{rus:-1} },
-      { text:'Значит, звонок был не предательством. Предательство — в другом.', flag:{saw_truth:true}, reputation:1 }
+    {t:'rus', text:'Я не звонил. Мне Гриша противен с детства.'},
+    {t:'mih', text:'А я звонил. Скажу прямо.'},
+    {t:'n', text:'Все замерли.'},
+    {t:'mih', text:'Я звонил Грише. Но не чтобы предать. Я звонил отказаться. Сказать, что мы не в деле.'},
+    {t:'rus', text:'А почему нам не сказал?'},
+    {t:'mih', text:'Потому что вы бы начали спорить. А я не хотел спорить. Я хотел решить. Один. За всех.'},
+    {t:'sem', text:'Ты не имел права решать за нас.'},
+    {t:'mih', text:'Ты как общаешься. Я старший. Старший младших знай. Я и решаю.'},
+    {t:'rus', text:'Ты не старший. Ты просто старше. Это разные вещи.'},
+    {t:'n', text:'Мишулик посмотрел на него. Долго. Так, что Руслан отвёл взгляд.'},
+    {choice:[
+      {text:'Мишулик, ты должен был сказать. Это было не твоё решение.', trust:{mih:-1}, flag:{mih_guilty:true}},
+      {text:'Он хотел как лучше. Я его понимаю.', trust:{mih:1}, trust2:{rus:-1}},
+      {text:'Значит, звонок — не предательство. Предательство в другом.', flag:{saw_truth:true}, reputation:1}
     ]},
-    { t:'sem', text:'Ты прав. Предательство не в звонке. Предательство в том, что кто-то из вас уже отдал Грише копию документов.' },
-    { t:'n', text:'Все трое переглянулись. И в этот момент дружба дала первую настоящую трещину.' }
+    {t:'sem', text:'Ты прав. Предательство не в звонке. Предательство в том, что кто-то уже отдал Грише копию документов.'},
+    {t:'n', text:'Все трое переглянулись. Дружба дала первую настоящую трещину.'},
   ]
 },
-/* ============================ ГЛАВА 6 ============================ */
 {
-  id: 'ch6',
-  title: 'Глава 6. Последний разговор',
-  steps: [
-    { t:'n', text:'Они встретились втроём. Без Гриши. Без денег. Без документов. Только трое друзей и стол между ними.' },
-    { t:'mih', text:'Я предлагаю разойтись. Каждый своей дорогой.' },
-    { t:'rus', text:'Вот так просто?' },
-    { t:'mih', text:'Не просто. Тяжело. Но честно.' },
-    { t:'sem', text:'Я не хочу расходиться. Мы слишком долго вместе.' },
-    { t:'rus', text:'А я не хочу притворяться, что ничего не было.' },
-    { t:'n', text:'Они смотрели друг на друга. И каждый ждал, что скажет четвёртый. Но четвёртого не было.' },
-    { choice: [
-      { text:'Я хочу, чтобы мы остались друзьями. Что бы ни было.', reputation:1, flag:{choose_friendship:true} },
-      { text:'Семён, расскажи всё про Гришу. До конца.', flag:{demand_truth:true} },
-      { text:'Давайте решим: идём до конца или сдаём назад.', flag:{decide_final:true} }
+  id:'ch7', title:'Глава 7. Ночь в промзоне',
+  steps:[
+    {t:'n', text:'Ночь. Промзона. Три фигуры у старого ангара.'},
+    {t:'sem', text:'Гриша внутри. Ждёт документы. У нас их нет. Но у нас есть план.'},
+    {t:'rus', text:'План — это громко. У нас есть идея. Плохая.'},
+    {t:'mih', text:'Плохая идея лучше, чем никакой. Иногда.'},
+    {t:'sem', text:'Скажем, что документы у нас. Но не отдадим без гарантий. Пусть оставит нас в покое.'},
+    {t:'rus', text:'А если не согласится?'},
+    {t:'sem', text:'Уйдём. Просто уйдём.'},
+    {t:'mih', text:'А если пойдёт за нами?'},
+    {t:'n', text:'Никто не ответил. Ответа не было.'},
+    {choice:[
+      {text:'Идём все вместе.', trust:{sem:1}, trust2:{rus:1}},
+      {text:'Пусть идёт один Семён. Он знает Гришу лучше.', trust:{sem:-1}, conflict:1},
+      {text:'Пусть идёт Мишулик. Он умеет говорить.', trust:{mih:1}, flag:{mih_envoy:true}}
     ]},
-    { t:'sem', text:'Хорошо. Скажу всё. Гриша — не просто посредник. Он работает на людей, которых лучше не знать.' },
-    { t:'rus', text:'Насколько «лучше не знать»?' },
-    { t:'sem', text:'Настолько, что если мы откажемся — они придут. Не за документами. За нами.' },
-    { t:'mih', text:'И ты молчал всё это время?' },
-    { t:'sem', text:'Я не хотел вас пугать. Думал, справлюсь сам.' },
-    { t:'mih', text:'Ты как общаешься. Мы тебе не дети. Мы твои друзья. Друзьям говорят правду.' },
-    { t:'n', text:'Семён опустил голову. Впервые за всю историю. И это было честнее любых слов.' },
-    { choice: [
-      { text:'Прощаю. Все ошибаются.', trust:{sem:2}, flag:{forgave_sem:true} },
-      { text:'Не прощаю. Но и не бросаю.', trust:{sem:1}, flag:{half_forgave:true} },
-      { text:'Это было слишком. Я не знаю, смогу ли дальше.', trust:{sem:-1}, conflict:2, flag:{not_forgave:true} }
+    {t:'n', text:'Дверь ангара открылась. Гриша. Худой, в дорогом пальто, с улыбкой человека, который никогда не проигрывает.'},
+    {t:'n', text:'Разговор был коротким. И очень тяжёлым.'},
+    {t:'sem', text:'Гриша сказал: документы уже не важны. Важно то, что мы теперь «в системе». И просто так из неё не выходят.'},
+    {t:'rus', text:'И что теперь?'},
+    {t:'sem', text:'Либо работаем на него. Либо исчезаем.'},
+    {t:'mih', text:'Третьего варианта нет?'},
+    {t:'sem', text:'Есть. Но он плохой для всех.'},
+    {choice:[
+      {text:'Работаем. Хотя бы временно.', flag:{work_for_gref:true}, conflict:1},
+      {text:'Исчезаем. Все трое. Сегодня же.', flag:{run_away:true}, trust:{mih:1}},
+      {text:'Идём к третьему варианту. Только вместе.', flag:{third_option:true}, reputation:2}
     ]},
-    { t:'rus', text:'Ладно. Мы тут все хороши. Давайте решать, что делать сейчас.' },
-    { t:'mih', text:'Есть только два пути. Уйти тихо — или идти до конца. Середины нет.' },
-    { t:'sem', text:'И я не могу решить за вас. В этот раз — не могу.' },
-    { t:'n', text:'И все посмотрели на тебя. На того, кто всё это время молчал и слушал. На того, кто был четвёртым.' },
-    { choice: [
-      { text:'Идём до конца. Вместе.', flag:{final_forward:true}, trust:{sem:1}, conflict:1 },
-      { text:'Уходим тихо. Все трое.', flag:{final_retreat:true}, trust:{mih:1}, conflict:-1 },
-      { text:'Я предлагаю свой путь. Третий.', flag:{final_third:true}, reputation:2 }
-    ]},
-    { t:'n', text:'Так решилась судьба их дружбы. И судьба каждого из них.' }
+    {t:'n', text:'Стало ясно: пути назад нет. Есть только вперёд. Или в никуда.'},
+    {t:'mih', text:'Что бы вы ни решили — я с вами. До конца. Но и вы будьте со мной. По-честному.'},
+    {t:'rus', text:'Ты как общаешься. Как будто мы когда-то были не с тобой.'},
+    {t:'mih', text:'Были. И будем. Если захотим.'},
+    {t:'sem', text:'Захотим.'},
   ]
 },
-/* ============================ ГЛАВА 7 ============================ */
 {
-  id: 'ch7',
-  title: 'Глава 7. Всё решается',
-  steps: [
-    { t:'n', text:'Ночь. Промзона. Три фигуры у старого ангара. За спиной — город, впереди — неизвестность.' },
-    { t:'sem', text:'Гриша внутри. Он ждёт документы. У нас их нет. Но у нас есть план.' },
-    { t:'rus', text:'План — это громко сказано. У нас есть идея. Плохая идея.' },
-    { t:'mih', text:'Плохая идея лучше, чем никакой. Иногда.' },
-    { t:'sem', text:'Мы скажем ему, что документы у нас, но мы не отдадим их без гарантий. Потребуем, чтобы он оставил нас в покое.' },
-    { t:'rus', text:'А если он не согласится?' },
-    { t:'sem', text:'Тогда мы уйдём. Просто уйдём. И будем жить дальше.' },
-    { t:'mih', text:'А если он пойдёт за нами?' },
-    { t:'n', text:'Никто не ответил. Ответа не было.' },
-    { choice: [
-      { text:'Идём все вместе. Так надёжнее.', trust:{sem:1}, trust2:{rus:1} },
-      { text:'Пусть идёт один Семён. Он знает Гришу лучше.', trust:{sem:-1}, conflict:1 },
-      { text:'Пусть идёт Мишулик. Он умеет говорить.', trust:{mih:1}, flag:{mih_envoy:true} }
-    ]},
-    { t:'n', text:'Дверь ангара открылась. На пороге стоял Гриша. Худой, в дорогом пальто, с улыбкой человека, который никогда не проигрывает.' },
-    { t:'n', text:'Разговор был коротким. И очень тяжёлым.' },
-    { t:'sem', text:'Гриша сказал, что документы уже не важны. Важно то, что мы теперь «в системе». И просто так из неё не выходят.' },
-    { t:'rus', text:'И что теперь?' },
-    { t:'sem', text:'Теперь мы либо работаем на него. Либо исчезаем.' },
-    { t:'mih', text:'Третьего варианта нет?' },
-    { t:'sem', text:'Есть. Но он плохой для всех.' },
-    { choice: [
-      { text:'Работаем. Хотя бы временно.', flag:{work_for_gref:true}, conflict:1 },
-      { text:'Исчезаем. Все трое. Сегодня же.', flag:{run_away:true}, trust:{mih:1} },
-      { text:'Идём к третьему варианту. Только вместе.', flag:{third_option:true}, reputation:2 } 
-    ]},
-    { t:'n', text:'И в этот момент стало ясно: пути назад нет. Есть только путь вперёд. Или в никуда.' },
-    { t:'mih', text:'Что бы вы ни решили — я с вами. До конца. Но и вы будьте со мной. По-честному.' },
-    { t:'rus', text:'Ты как общаешься. Как будто мы когда-то были не с тобой.' },
-    { t:'mih', text:'Были. И будем. Если захотим.' },
-    { t:'sem', text:'Захотим.' },
-    { t:'n', text:'Слово прозвучало в холодном воздухе и растаяло. Но что-то в них всё-таки изменилось.' }
-  ]
-},
-/* ============================ ГЛАВА 8 ============================ */
-{
-  id: 'ch8',
-  title: 'Глава 8. Финал',
-  steps: [
-    { t:'n', text:'Прошло два месяца. Многое изменилось. Но кое-что осталось прежним.' },
-    { t:'n', text:'Трое друзей снова собрались вместе. В том же гараже. За тем же столом.' },
-    { t:'sem', text:'Ну что, бойцы. Мы прошли через многое. И знаете что? Я ни о чём не жалею.' },
-    { t:'rus', text:'Даже о Грише?' },
-    { t:'sem', text:'Даже о нём. Он, конечно, мразь. Но он показал мне, кто вы на самом деле.' },
-    { t:'mih', text:'И кто мы?' },
-    { t:'sem', text:'Друзья. Настоящие. Которые ругаются, спорят, но остаются.' },
-    { t:'n', text:'Мишулик впервые за долгое время улыбнулся. По-настоящему.' },
-    { t:'mih', text:'Старший младших знай. Но иногда и старший должен сказать спасибо. Спасибо, парни.' },
-    { t:'rus', text:'О, Мишулик расчувствовался! Это надо записать!' },
-    { t:'mih', text:'Ты как общаешься. Я тут душу открываю, а ты записываешь.' },
-    { t:'rus', text:'Я шучу. Я всегда шучу, когда мне страшно. Это моя защита.' },
-    { t:'n', text:'И они засмеялись. Все трое. Тепло, по-настоящему. И в этом смехе было больше правды, чем во всех их разговорах за последние месяцы.' },
-    { t:'sem', text:'Слушайте. У меня снова есть предложение.' },
-    { t:'rus', text:'Только не говори «дело».' },
-    { t:'sem', text:'Не дело. Шашлыки. Завтра. У меня на даче.' },
-    { t:'mih', text:'Вот это дело. Хорошее. Я — за.' },
-    { t:'rus', text:'Я тоже. А кто мясо режет?' },
-    { t:'mih', text:'Тот, кто старший. То есть — я.' },
-    { t:'sem', text:'Начинается...' },
-    { t:'n', text:'Так заканчивается эта история. Или начинается новая. Это уж решать вам.' },
-    { ending: true }
+  id:'ch8', title:'Глава 8. Финал',
+  steps:[
+    {t:'n', text:'Прошло два месяца. Многое изменилось. Кое-что — нет.'},
+    {t:'n', text:'Трое снова в гараже. Тот же стол. Другое пиво. Другие люди.'},
+    {t:'sem', text:'Ну что, бойцы. Мы прошли через многое. И знаете что? Я ни о чём не жалею.'},
+    {t:'rus', text:'Даже о Грише?'},
+    {t:'sem', text:'Даже о нём. Он мразь. Но он показал, кто вы на самом деле.'},
+    {t:'mih', text:'И кто мы?'},
+    {t:'sem', text:'Друзья. Настоящие. Которые ругаются, спорят, но остаются.'},
+    {t:'n', text:'Мишулик впервые за долгое время улыбнулся. По-настоящему.'},
+    {t:'mih', text:'Старший младших знай. Но иногда и старший должен сказать спасибо. Спасибо, парни.'},
+    {t:'rus', text:'О, Мишулик расчувствовался! Это надо записать!'},
+    {t:'mih', text:'Ты как общаешься. Я тут душу открываю, а ты записываешь.'},
+    {t:'rus', text:'Я шучу. Я всегда шучу, когда мне страшно.'},
+    {t:'n', text:'Они засмеялись. Все трое. И в этом смехе было больше правды, чем во всех их разговорах.'},
+    {t:'sem', text:'Слушайте. У меня снова есть предложение.'},
+    {t:'rus', text:'Только не говори «дело».'},
+    {t:'sem', text:'Не дело. Шашлыки. Завтра. У меня на даче.'},
+    {t:'mih', text:'Вот это дело. Хорошее. Я — за.'},
+    {t:'rus', text:'Я тоже. А кто мясо режет?'},
+    {t:'mih', text:'Тот, кто старший. То есть — я.'},
+    {t:'sem', text:'Начинается...'},
+    {t:'n', text:'Так заканчивается эта история. Или начинается новая.'},
+    {ending:true}
   ]
 }
 ];
 
+/* ---------- ЧАТ С КОПАТЫЧЕМ И АРСЕНЧИКОМ ---------- */
+/* Плейлист чата. step:
+   { from:'mih'|'kop'|'ars'|'sys', voice?:true, text, choices?:[...] } */
+const CHAT_SCRIPT = [
+  { from:'sys', text:'Сегодня' },
+  { from:'mih', voice:true, text:'Слышь, шныри. Вы где шляетесь?' },
+  { from:'mih', voice:true, text:'Я вас, блять, второй час жду. Ни один не отвечает.' },
+  { from:'mih', voice:true, text:'Старший младших знай. Забыли, да?' },
+  { from:'kop', text:'Слышь, Мишулик. Ты вообще кто такой?' },
+  { from:'ars', text:'Серьёзно. Мы тебе никто. Шныри какие-то, блять. Ты вообще охуел?' },
+  { from:'kop', text:'Голосовые он шлёт. Как будто мы его секретарши.' },
+  { from:'mih', voice:true, text:'Ты как общаешься.' },
+  { from:'ars', text:'Как хочу, так и общаюсь. Понял?' },
+  { from:'kop', text:'Ты нам не старший. Ты просто старый долбоёб с айфоном.' },
+  { from:'ars', text:'Иди нахуй со своими голосовыми.' },
+  { from:'kop', text:'Он молчит. Слышь, Мишулик. Молчишь?' },
+  { from:'ars', text:'Обиделся наш старший. Плачет в подушку, наверное.' },
+  { from:'kop', text:'Или строчит нам ответ. Мишулик, ну ты чё?' },
+  { from:'sys', text:'Мишулик прочитал. Мишулик молчит.' },
+  { from:'mih', voice:true, text:'...' },
+  { from:'sys', text:'Мишулик удалил одно сообщение' },
+  { choices:[
+    { text:'Отправить голосовое с угрозой', flag:'chat_threat', chatResult:'threat' },
+    { text:'Написать спокойно: «Ладно, забыли. Всё»', flag:'chat_calm', chatResult:'calm' },
+    { text:'Молчать и закрыть чат', flag:'chat_silent', chatResult:'silent' },
+    { text:'Удалить чат и заблокировать обоих', flag:'chat_block', chatResult:'block' }
+  ]},
+  { from:'sys', text:'Конец переписки' }
+];
+const CHAT_RESULTS = {
+  threat: [
+    { from:'mih', voice:true, text:'Вы пожалеете. Оба. Я вас, блять, найду.' },
+    { from:'kop', text:'Ой, напугал.' },
+    { from:'ars', text:'Мишулик, ты чё, реально думаешь, что мы тебя боимся?' },
+    { from:'sys', text:'Копатыч покинул чат' },
+    { from:'sys', text:'Арсенчик покинул чат' },
+    { from:'sys', text:'Чат пуст. Остался только ты.' }
+  ],
+  calm: [
+    { from:'mih', voice:true, text:'Ладно, шныри. Забыли. Всё.' },
+    { from:'kop', text:'...' },
+    { from:'ars', text:'Ты чё, реально так просто?' },
+    { from:'mih', voice:true, text:'Я старший. Старший умеет признавать, когда перегнул.' },
+    { from:'kop', text:'Ну... ладно. Бывает.' },
+    { from:'ars', text:'Без обид, Мишулик. Просто ты реально иногда перегибаешь.' },
+    { from:'mih', voice:true, text:'Знаю. Работаю над собой.' },
+    { from:'sys', text:'Копатыч отправил 👍' },
+    { from:'sys', text:'Арсенчик отправил 👍' }
+  ],
+  silent: [
+    { from:'sys', text:'Ты закрыл чат. Ничего не ответил.' },
+    { from:'sys', text:'Через час: 4 новых сообщения.' },
+    { from:'sys', text:'Через день: 12.' },
+    { from:'sys', text:'Через неделю: тишина. Чат мёртв.' }
+  ],
+  block: [
+    { from:'sys', text:'Ты удалил чат.' },
+    { from:'sys', text:'Ты заблокировал Копатыча и Арсенчика.' },
+    { from:'sys', text:'Они больше не напишут. Никогда.' },
+    { from:'sys', text:'Ты остался один. Как и хотел.' }
+  ]
+};
+
 /* ---------- СОСТОЯНИЕ ---------- */
-const SAVE_KEY = 'mafia_friends_save_v1';
-const ENDINGS_KEY = 'mafia_friends_endings_v1';
-const SETTINGS_KEY = 'mafia_friends_settings_v1';
+const SAVE_KEY = 'mafia_friends_v2_save';
+const ENDINGS_KEY = 'mafia_friends_v2_endings';
+const SETTINGS_KEY = 'mafia_friends_v2_settings';
 
 let state = {
+  playerChar: null,
   chapter: 0,
   step: 0,
-  trust: { sem: 0, rus: 0, mih: 0 },
+  trust: { sem:0, rus:0, mih:0 },
   conflict: 0,
   reputation: 0,
   flags: {},
   history: [],
-  currentChoice: null
+  currentChoice: null,
+  chatStep: 0,
+  chatDone: false,
+  chatResult: null,
+  chatHistory: []
 };
 
-let unlockedChapters = { ch1: true };
 let unlockedEndings = [];
-let settings = {
-  voice: true,
-  music: true,
-  sfx: true,
-  voiceVol: 1,
-  musicVol: 0.45
-};
+let settings = { voice:true, music:true, sfx:true, voiceVol:1, musicVol:0.45 };
 
 /* ---------- DOM ---------- */
 const $ = id => document.getElementById(id);
 
 /* ---------- АУДИО ---------- */
-let audioCtx = null;
-let ambientNodes = [];
-let ambientGain = null;
-let currentAmbientMood = null;
+let audioCtx = null, ambientNodes = [], ambientGain = null, ambientMood = null;
 
-function initAudio() {
-  if (audioCtx) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch(e) { audioCtx = null; }
-}
-
-function ensureAudioResume() {
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-}
-
-function stopAmbient() {
-  if (!audioCtx) return;
+function initAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+function ensureAudio(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{}); }
+function stopAmbient(){
+  if(!audioCtx) return;
   const now = audioCtx.currentTime;
-  if (ambientGain) {
-    try { ambientGain.gain.cancelScheduledValues(now); } catch(e){}
-    try { ambientGain.gain.linearRampToValueAtTime(0, now + 1.2); } catch(e){}
-  }
-  const nodes = ambientNodes.slice();
-  ambientNodes = [];
-  setTimeout(() => {
-    nodes.forEach(n => { try { n.stop(); } catch(e){} try { n.disconnect(); } catch(e){} });
-    if (ambientGain) { try { ambientGain.disconnect(); } catch(e){} ambientGain = null; }
-  }, 1400);
+  if(ambientGain){ try{ ambientGain.gain.cancelScheduledValues(now); ambientGain.gain.linearRampToValueAtTime(0, now+1.1); }catch(e){} }
+  const old = ambientNodes.slice(); ambientNodes = [];
+  setTimeout(()=>{ old.forEach(n=>{ try{n.stop()}catch(e){} try{n.disconnect()}catch(e){} });
+    if(ambientGain){ try{ambientGain.disconnect()}catch(e){} ambientGain=null; } }, 1300);
 }
-
-function startAmbient(mood) {
-  if (!audioCtx) return;
-  if (currentAmbientMood === mood && ambientNodes.length) return;
-  currentAmbientMood = mood;
-  stopAmbient();
-  setTimeout(() => {
-    if (!audioCtx) return;
-    ambientGain = audioCtx.createGain();
-    ambientGain.gain.value = 0;
-    const lp = audioCtx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = mood === 'menu' ? 900 : 620;
-    lp.Q.value = 0.7;
-    lp.connect(ambientGain);
-    ambientGain.connect(audioCtx.destination);
-
-    const freqs = mood === 'menu'
-      ? [55, 82.5, 110, 164.8, 220]
-      : [65.4, 98, 130.8, 155.6, 196];
-
-    freqs.forEach((f, i) => {
-      const o = audioCtx.createOscillator();
-      o.type = i % 2 ? 'sine' : 'triangle';
-      o.frequency.value = f;
-      const g = audioCtx.createGain();
-      g.gain.value = 0.09 / (i + 1);
-      const lfo = audioCtx.createOscillator();
-      lfo.frequency.value = 0.04 + i * 0.026;
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 0.028 / (i + 1);
-      lfo.connect(lfoGain).connect(g.gain);
-      o.connect(g).connect(lp);
-      lfo.start();
-      o.start();
-      ambientNodes.push(o, lfo);
+function startAmbient(mood){
+  if(!audioCtx) return;
+  if(ambientMood===mood && ambientNodes.length) return;
+  ambientMood = mood; stopAmbient();
+  setTimeout(()=>{
+    if(!audioCtx) return;
+    ambientGain = audioCtx.createGain(); ambientGain.gain.value = 0;
+    const lp = audioCtx.createBiquadFilter(); lp.type='lowpass';
+    lp.frequency.value = mood==='menu'?900:600; lp.Q.value=0.7;
+    lp.connect(ambientGain); ambientGain.connect(audioCtx.destination);
+    const freqs = mood==='menu' ? [55,82.5,110,164.8,220] : [65.4,98,130.8,155.6,196];
+    freqs.forEach((f,i)=>{
+      const o=audioCtx.createOscillator(); o.type=i%2?'sine':'triangle'; o.frequency.value=f;
+      const g=audioCtx.createGain(); g.gain.value=0.09/(i+1);
+      const lfo=audioCtx.createOscillator(); lfo.frequency.value=0.04+i*0.026;
+      const lg=audioCtx.createGain(); lg.gain.value=0.028/(i+1);
+      lfo.connect(lg).connect(g.gain);
+      o.connect(g).connect(lp); lfo.start(); o.start(); ambientNodes.push(o,lfo);
     });
-
-    const target = settings.music ? 0.32 * settings.musicVol : 0;
-    ambientGain.gain.cancelScheduledValues(audioCtx.currentTime);
-    ambientGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 3);
-  }, 80);
+    const target = settings.music ? 0.32*settings.musicVol : 0;
+    ambientGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime+2.5);
+  }, 60);
 }
-
-function updateAmbientVolume() {
-  if (!audioCtx || !ambientGain) return;
-  const t = audioCtx.currentTime;
-  const target = settings.music ? 0.32 * settings.musicVol : 0;
-  try { ambientGain.gain.cancelScheduledValues(t); ambientGain.gain.linearRampToValueAtTime(target, t + 0.5); } catch(e){}
+function updateAmbientVol(){
+  if(!audioCtx||!ambientGain) return;
+  const target = settings.music ? 0.32*settings.musicVol : 0;
+  try{ ambientGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    ambientGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime+0.5); }catch(e){}
 }
-
-function sfx(type) {
-  if (!settings.sfx) return;
-  initAudio(); ensureAudioResume();
-  if (!audioCtx) return;
-  const t = audioCtx.currentTime;
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
+function sfx(type){
+  if(!settings.sfx) return;
+  initAudio(); ensureAudio(); if(!audioCtx) return;
+  const t=audioCtx.currentTime;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
   o.connect(g).connect(audioCtx.destination);
-  if (type === 'click') {
-    o.type = 'square';
-    o.frequency.setValueAtTime(760, t);
-    o.frequency.exponentialRampToValueAtTime(300, t + 0.07);
-    g.gain.setValueAtTime(0.05, t);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.1);
-    o.start(t); o.stop(t + 0.11);
-  } else if (type === 'transition') {
-    o.type = 'sine';
-    o.frequency.setValueAtTime(180, t);
-    o.frequency.exponentialRampToValueAtTime(920, t + 0.32);
-    g.gain.setValueAtTime(0.07, t);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.36);
-    o.start(t); o.stop(t + 0.38);
-  } else if (type === 'scene') {
-    const o2 = audioCtx.createOscillator();
-    const g2 = audioCtx.createGain();
-    o.type = 'triangle'; o2.type = 'sine';
-    o.frequency.value = 320; o2.frequency.value = 480;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(0.07, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.9);
-    g2.gain.setValueAtTime(0.0001, t);
-    g2.gain.linearRampToValueAtTime(0.04, t + 0.02);
-    g2.gain.exponentialRampToValueAtTime(0.0008, t + 0.9);
-    o.connect(g).connect(audioCtx.destination);
-    o2.connect(g2).connect(audioCtx.destination);
-    o.start(t); o.stop(t + 1); o2.start(t); o2.stop(t + 1);
-  } else if (type === 'choice') {
-    o.type = 'sine';
-    o.frequency.setValueAtTime(500, t);
-    o.frequency.exponentialRampToValueAtTime(880, t + 0.12);
-    g.gain.setValueAtTime(0.05, t);
-    g.gain.exponentialRampToValueAtTime(0.0008, t + 0.18);
-    o.start(t); o.stop(t + 0.2);
+  if(type==='click'){
+    o.type='square'; o.frequency.setValueAtTime(760,t);
+    o.frequency.exponentialRampToValueAtTime(300,t+0.07);
+    g.gain.setValueAtTime(0.05,t); g.gain.exponentialRampToValueAtTime(0.0008,t+0.1);
+    o.start(t); o.stop(t+0.11);
+  } else if(type==='transition'){
+    o.type='sine'; o.frequency.setValueAtTime(180,t);
+    o.frequency.exponentialRampToValueAtTime(920,t+0.32);
+    g.gain.setValueAtTime(0.07,t); g.gain.exponentialRampToValueAtTime(0.0008,t+0.36);
+    o.start(t); o.stop(t+0.38);
+  } else if(type==='choice'){
+    o.type='sine'; o.frequency.setValueAtTime(500,t);
+    o.frequency.exponentialRampToValueAtTime(880,t+0.12);
+    g.gain.setValueAtTime(0.05,t); g.gain.exponentialRampToValueAtTime(0.0008,t+0.18);
+    o.start(t); o.stop(t+0.2);
+  } else if(type==='notify'){
+    const o2=audioCtx.createOscillator(), g2=audioCtx.createGain();
+    o.type='sine'; o2.type='sine'; o.frequency.value=880; o2.frequency.value=1320;
+    g.gain.setValueAtTime(0.04,t); g.gain.exponentialRampToValueAtTime(0.0005,t+0.3);
+    g2.gain.setValueAtTime(0.03,t); g2.gain.exponentialRampToValueAtTime(0.0005,t+0.4);
+    o.connect(g).connect(audioCtx.destination); o2.connect(g2).connect(audioCtx.destination);
+    o.start(t); o.stop(t+0.32); o2.start(t+0.05); o2.stop(t+0.42);
   }
 }
 
 /* ---------- ОЗВУЧКА ---------- */
-let voices = [];
-let currentUtterance = null;
-let voiceSpeakLock = 0;
-
-function loadVoices() {
-  if (!('speechSynthesis' in window)) return;
-  try { voices = window.speechSynthesis.getVoices() || []; } catch(e) { voices = []; }
-}
-if ('speechSynthesis' in window) {
+let voices = [], currentUtt = null, speakLock = 0;
+function loadVoices(){ if(!('speechSynthesis' in window)) return; try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
+if('speechSynthesis' in window){
   loadVoices();
   window.speechSynthesis.onvoiceschanged = loadVoices;
-  setTimeout(loadVoices, 500);
-  setTimeout(loadVoices, 1500);
+  setTimeout(loadVoices,500); setTimeout(loadVoices,1500);
 }
-
-function pickVoiceFor(charId) {
-  if (!voices.length) loadVoices();
-  const ruVoices = voices.filter(v => v && v.lang && v.lang.toLowerCase().indexOf('ru') === 0);
-  const pool = ruVoices.length ? ruVoices : voices;
-  if (!pool.length) return null;
-  const map = { sem: 0, rus: 1, mih: 2, n: 3 };
-  const idx = map[charId] != null ? map[charId] : 0;
-  return pool[idx % pool.length];
+function pickVoice(charId){
+  if(!voices.length) loadVoices();
+  const ru = voices.filter(v=>v&&v.lang&&v.lang.toLowerCase().indexOf('ru')===0);
+  const pool = ru.length?ru:voices;
+  if(!pool.length) return null;
+  const map = { sem:0, rus:1, mih:2, n:3 };
+  const idx = map[charId]!=null?map[charId]:0;
+  return pool[idx%pool.length];
 }
-
-function stopVoice() {
-  if ('speechSynthesis' in window) {
-    try { window.speechSynthesis.cancel(); } catch(e) {}
-  }
-  currentUtterance = null;
-}
-
-function speak(text, charId) {
-  if (!settings.voice) return;
-  if (!('speechSynthesis' in window)) return;
-  if (!text || !text.trim()) return;
-
-  const now = Date.now();
-  if (now - voiceSpeakLock < 120) return;
-  voiceSpeakLock = now;
-
+function stopVoice(){ if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} } currentUtt=null; }
+function speak(text, charId, opts){
+  if(!settings.voice && !(opts && opts.force)) return;
+  if(!('speechSynthesis' in window)) return;
+  if(!text||!text.trim()) return;
+  const now = Date.now(); if(now-speakLock<80) return; speakLock = now;
   stopVoice();
-
   const u = new SpeechSynthesisUtterance(text);
-  const cfg = (CHARS[charId] && CHARS[charId].voice) || { rate: 1, pitch: 1, vol: 1 };
-  const v = pickVoiceFor(charId);
-  if (v) { u.voice = v; u.lang = v.lang || 'ru-RU'; }
-  else { u.lang = 'ru-RU'; }
-  u.rate = cfg.rate;
-  u.pitch = cfg.pitch;
-  u.volume = Math.max(0, Math.min(1, settings.voiceVol * cfg.vol));
-
-  u.onend = () => { if (currentUtterance === u) currentUtterance = null; };
-  u.onerror = () => { if (currentUtterance === u) currentUtterance = null; };
-
-  currentUtterance = u;
-  setTimeout(() => {
-    try { window.speechSynthesis.speak(u); } catch(e) {}
-  }, 40);
+  const cfg = (CHARS[charId] && CHARS[charId].voice) || (opts && opts.voice) || { rate:1, pitch:1, vol:1 };
+  const v = pickVoice(charId);
+  if(v){ u.voice=v; u.lang=v.lang||'ru-RU'; } else { u.lang='ru-RU'; }
+  u.rate = cfg.rate; u.pitch = cfg.pitch;
+  u.volume = Math.max(0, Math.min(1, settings.voiceVol * (cfg.vol||1)));
+  u.onend = ()=>{ if(currentUtt===u) currentUtt=null; };
+  u.onerror = ()=>{ if(currentUtt===u) currentUtt=null; };
+  currentUtt = u;
+  setTimeout(()=>{ try{ window.speechSynthesis.speak(u); }catch(e){} }, 40);
 }
 
 /* ---------- УТИЛИТЫ ---------- */
-function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const el = $(id);
-  if (el) el.classList.add('active');
-}
-
-function showOverlay(id) {
-  const el = $(id);
-  if (el) el.classList.add('active');
-}
-function hideOverlay(id) {
-  const el = $(id);
-  if (el) el.classList.remove('active');
-}
-function hideAllOverlays() {
-  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
-}
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); const el=$(id); if(el) el.classList.add('active'); }
+function showOverlay(id){ const el=$(id); if(el) el.classList.add('active'); }
+function hideOverlay(id){ const el=$(id); if(el) el.classList.remove('active'); }
+function hideAllOverlays(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('active')); }
 
 /* ---------- СОХРАНЕНИЕ ---------- */
-function saveGame() {
-  try {
-    const data = {
-      state, unlockedChapters, unlockedEndings,
-      ts: Date.now()
-    };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-  } catch(e) {}
+function saveGame(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ts:Date.now() })); }catch(e){}
 }
-function loadGame() {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (!data || !data.state) return false;
+function loadGame(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY); if(!raw) return false;
+    const data = JSON.parse(raw); if(!data||!data.state) return false;
     state = Object.assign({
-      chapter: 0, step: 0,
-      trust: { sem: 0, rus: 0, mih: 0 },
-      conflict: 0, reputation: 0, flags: {}, history: [], currentChoice: null
+      playerChar:null, chapter:0, step:0,
+      trust:{sem:0,rus:0,mih:0}, conflict:0, reputation:0,
+      flags:{}, history:[], currentChoice:null,
+      chatStep:0, chatDone:false, chatResult:null, chatHistory:[]
     }, data.state);
-    state.trust = Object.assign({ sem: 0, rus: 0, mih: 0 }, state.trust || {});
-    state.flags = state.flags || {};
-    state.history = state.history || [];
-    if (data.unlockedChapters) unlockedChapters = data.unlockedChapters;
-    if (data.unlockedEndings) unlockedEndings = data.unlockedEndings;
+    state.trust = Object.assign({sem:0,rus:0,mih:0}, state.trust||{});
+    state.flags = state.flags||{};
+    state.history = state.history||[];
+    state.chatHistory = state.chatHistory||[];
     return true;
-  } catch(e) { return false; }
+  }catch(e){ return false; }
 }
-function clearSave() {
-  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
-}
-function saveSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch(e) {}
-}
-function loadSettings() {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return;
-    const s = JSON.parse(raw);
-    if (s && typeof s === 'object') {
-      settings = Object.assign(settings, s);
-    }
-  } catch(e) {}
-}
-function saveEndings() {
-  try { localStorage.setItem(ENDINGS_KEY, JSON.stringify(unlockedEndings)); } catch(e) {}
-}
-function loadEndings() {
-  try {
-    const raw = localStorage.getItem(ENDINGS_KEY);
-    if (!raw) return;
-    const a = JSON.parse(raw);
-    if (Array.isArray(a)) unlockedEndings = a;
-  } catch(e) {}
-}
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
+function loadSettings(){ try{ const r=localStorage.getItem(SETTINGS_KEY); if(!r) return;
+  const s=JSON.parse(r); if(s&&typeof s==='object') settings=Object.assign(settings,s); }catch(e){} }
+function saveEndings(){ try{ localStorage.setItem(ENDINGS_KEY, JSON.stringify(unlockedEndings)); }catch(e){} }
+function loadEndings(){ try{ const r=localStorage.getItem(ENDINGS_KEY); if(!r) return;
+  const a=JSON.parse(r); if(Array.isArray(a)) unlockedEndings=a; }catch(e){} }
 
-/* ---------- ДВИЖОК ДИАЛОГА ---------- */
-let typing = false;
-let typeTimer = null;
-let currentFullText = '';
-let currentStepData = null;
-let currentPhotoChar = null;
-let lastSpeaker = null;
-let endingTriggered = false;
+/* ---------- ДИАЛОГ ---------- */
+let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null;
 
-function getChapter() { return CHAPTERS[state.chapter]; }
-function getSteps() { return getChapter() ? getChapter().steps : []; }
-function getStep(idx) { const s = getSteps(); return (idx >= 0 && idx < s.length) ? s[idx] : null; }
+function getChapter(){ return CHAPTERS[state.chapter]; }
+function getSteps(){ const c=getChapter(); return c?c.steps:[]; }
+function shouldSkip(step){ if(!step||!step.req) return false; try{ return !step.req(state); }catch(e){ return false; } }
 
-function updateChapterIndicator() {
-  const ch = getChapter();
-  if (!ch) return;
+function updateChapterInd(){
+  const ch = getChapter(); if(!ch) return;
   $('chapterInd').textContent = ch.title;
   const total = CHAPTERS.length;
-  const pct = ((state.chapter + Math.min(1, state.step / Math.max(1, getSteps().length))) / total) * 100;
-  $('progressBar').style.width = pct.toFixed(1) + '%';
+  const pct = ((state.chapter + Math.min(1, state.step/Math.max(1,getSteps().length))) / total)*100;
+  $('progressBar').style.width = pct.toFixed(1)+'%';
 }
-
-function pushHistory(speakerId, text) {
-  const name = speakerId === 'n' ? 'Сцена' : (CHARS[speakerId] ? CHARS[speakerId].name : '');
-  state.history.push({ who: name, text });
-  if (state.history.length > 400) state.history.shift();
+function pushHistory(id, text){
+  const name = id==='n' ? 'Сцена' : (CHARS[id]?CHARS[id].name:'');
+  state.history.push({ who:name, text });
+  if(state.history.length>400) state.history.shift();
 }
-
-function setPhoto(charId) {
-  const wrap = $('photoWrap');
-  if (!wrap) return;
-  if (charId === 'n') {
-    wrap.classList.add('dim');
-    return;
-  }
+function setPhoto(charId){
+  const wrap = $('photoWrap'); if(!wrap) return;
+  if(charId==='n'){ wrap.classList.add('dim'); return; }
   wrap.classList.remove('dim');
-  if (currentPhotoChar === charId) return;
+  if(currentPhotoChar===charId) return;
   currentPhotoChar = charId;
-
-  const img = $('charPhoto');
-  const ph = $('photoPlaceholder');
-  const pname = $('placeholderName');
-
-  if (!img || !ph) return;
+  const img = $('charPhoto'), ph = $('photoPlaceholder'), pname = $('placeholderName');
+  if(!img||!ph) return;
   img.style.opacity = '0';
-  setTimeout(() => {
+  setTimeout(()=>{
     const ch = CHARS[charId];
-    if (!ch || !ch.img) { img.style.display = 'none'; ph.style.display = 'flex'; return; }
-    img.onload = () => { img.style.display = 'block'; ph.style.display = 'none'; img.style.opacity = '1'; };
-    img.onerror = () => {
-      img.style.display = 'none';
-      ph.style.display = 'flex';
-      pname.textContent = ch.name;
-    };
+    if(!ch||!ch.img){ img.style.display='none'; ph.style.display='flex'; return; }
+    img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; img.style.opacity='1'; };
+    img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; pname.textContent = ch.name; };
     img.src = ch.img;
-  }, 220);
+  }, 200);
 }
-
-function renderSpeaker(charId) {
-  const nameEl = $('speakerName');
-  if (!nameEl) return;
-  if (charId === 'n') {
-    nameEl.textContent = '· Сцена ·';
-    nameEl.style.color = '#9a917f';
-  } else {
-    const ch = CHARS[charId];
-    nameEl.textContent = ch ? ch.name : '';
-    nameEl.style.color = ch ? ch.color : 'var(--gold)';
-  }
+function renderSpeaker(charId){
+  const el = $('speakerName'); if(!el) return;
+  if(charId==='n'){ el.textContent='· Сцена ·'; el.style.color='#9a917f'; }
+  else { const ch = CHARS[charId]; el.textContent = ch?ch.name:''; el.style.color = ch?ch.color:'var(--gold)'; }
 }
-
-function typeText(text) {
-  const el = $('dialogText');
-  if (!el) return;
-  el.textContent = '';
-  currentFullText = text;
-  typing = true;
-  let i = 0;
-  clearInterval(typeTimer);
-  typeTimer = setInterval(() => {
+function typeText(text){
+  const el = $('dialogText'); if(!el) return;
+  el.textContent=''; currentFullText = text; typing = true;
+  let i=0; clearInterval(typeTimer);
+  typeTimer = setInterval(()=>{
     el.textContent += text[i++];
-    if (i >= text.length) {
-      clearInterval(typeTimer);
-      typing = false;
-      el.textContent = text;
-    }
-  }, 20);
+    if(i>=text.length){ clearInterval(typeTimer); typing=false; el.textContent = text; }
+  }, 18);
 }
-
-function skipTyping() {
-  if (!typing) return false;
-  clearInterval(typeTimer);
-  typing = false;
-  const el = $('dialogText');
-  if (el) el.textContent = currentFullText;
+function skipTyping(){
+  if(!typing) return false;
+  clearInterval(typeTimer); typing=false;
+  const el = $('dialogText'); if(el) el.textContent = currentFullText;
   return true;
 }
-
-function renderChoices(choices) {
-  const box = $('choices');
-  if (!box) return;
-  box.innerHTML = '';
-  if (!choices || !choices.length) {
+function renderChoices(choices){
+  const box = $('choices'); if(!box) return; box.innerHTML = '';
+  if(!choices||!choices.length){
     state.currentChoice = null;
     $('continueBtn').disabled = false;
     $('continueRow').style.display = 'flex';
@@ -1114,498 +1125,513 @@ function renderChoices(choices) {
   }
   state.currentChoice = choices;
   $('continueRow').style.display = 'none';
-  choices.forEach((c, i) => {
+  choices.forEach((c,i)=>{
     const b = document.createElement('button');
     b.className = 'choice-btn';
-    b.setAttribute('data-num', String(i + 1));
+    b.setAttribute('data-num', String(i+1));
     b.textContent = c.text;
-    b.onclick = () => applyChoice(i);
+    b.onclick = ()=>applyChoice(i);
     box.appendChild(b);
   });
 }
-
-function applyChoice(idx) {
-  const choices = state.currentChoice;
-  if (!choices || !choices[idx]) return;
-  const c = choices[idx];
-  sfx('choice');
-
-  if (c.trust) {
-    for (const k in c.trust) {
-      if (state.trust[k] == null) state.trust[k] = 0;
-      state.trust[k] += c.trust[k];
-    }
-  }
-  if (c.trust2) {
-    for (const k in c.trust2) {
-      if (state.trust[k] == null) state.trust[k] = 0;
-      state.trust[k] += c.trust2[k];
-    }
-  }
-  if (typeof c.conflict === 'number') state.conflict += c.conflict;
-  if (typeof c.reputation === 'number') state.reputation += c.reputation;
-  if (c.flag) {
-    for (const k in c.flag) state.flags[k] = c.flag[k];
-  }
-
-  state.currentChoice = null;
-  $('choices').innerHTML = '';
-  $('continueRow').style.display = 'flex';
-  $('hint').textContent = 'Enter / Пробел';
+function applyChoice(idx){
+  const choices = state.currentChoice; if(!choices||!choices[idx]) return;
+  const c = choices[idx]; sfx('choice');
+  if(c.trust){ for(const k in c.trust){ if(state.trust[k]==null) state.trust[k]=0; state.trust[k]+=c.trust[k]; } }
+  if(c.trust2){ for(const k in c.trust2){ if(state.trust[k]==null) state.trust[k]=0; state.trust[k]+=c.trust2[k]; } }
+  if(typeof c.conflict==='number') state.conflict += c.conflict;
+  if(typeof c.reputation==='number') state.reputation += c.reputation;
+  if(c.flag){ for(const k in c.flag) state.flags[k]=c.flag[k]; }
+  state.currentChoice = null; $('choices').innerHTML = '';
+  $('continueRow').style.display='flex'; $('hint').textContent='Enter / Пробел';
   $('continueBtn').disabled = false;
-
-  saveGame();
-  state.step++;
-  renderStep();
+  saveGame(); state.step++; renderStep();
 }
-
-function shouldSkipStep(step) {
-  if (!step || !step.req) return false;
-  try { return !step.req(state); } catch(e) { return false; }
-}
-
-function findNextVisibleStep(from) {
+function renderStep(){
   const steps = getSteps();
-  let i = from;
-  while (i < steps.length) {
-    const s = steps[i];
-    if (!shouldSkipStep(s)) return i;
-    i++;
-  }
-  return i;
-}
-
-function renderStep() {
-  const steps = getSteps();
-  if (state.step >= steps.length) {
-    goToNextChapter();
-    return;
-  }
+  if(state.step >= steps.length){ goToNextChapter(); return; }
   const step = steps[state.step];
-  if (!step) { goToNextChapter(); return; }
-  if (shouldSkipStep(step)) { state.step++; return renderStep(); }
+  if(!step){ goToNextChapter(); return; }
+  if(shouldSkip(step)){ state.step++; return renderStep(); }
+  updateChapterInd();
+  $('choices').innerHTML=''; state.currentChoice=null; $('continueRow').style.display='flex';
 
-  updateChapterIndicator();
-  $('choices').innerHTML = '';
-  state.currentChoice = null;
-  $('continueRow').style.display = 'flex';
-
-  if (step.choice) {
-    renderSpeaker(lastSpeaker || 'n');
-    currentFullText = '';
-    const dEl = $('dialogText');
-    if (dEl) dEl.textContent = '';
-    typing = false;
-    clearInterval(typeTimer);
-    stopVoice();
-    renderChoices(step.choice);
-    return;
+  if(step.choice){
+    renderSpeaker(lastSpeaker||'n');
+    currentFullText=''; const dEl = $('dialogText'); if(dEl) dEl.textContent='';
+    typing = false; clearInterval(typeTimer); stopVoice();
+    renderChoices(step.choice); return;
   }
+  if(step.ending){ triggerEnding(); return; }
 
   const speaker = step.t || 'n';
   const text = step.text || '';
   lastSpeaker = speaker;
-  setPhoto(speaker);
-  renderSpeaker(speaker);
-
-  if (step.say) {} // placeholder for audio file override
-
-  stopVoice();
-  typeText(text);
-  if (settings.voice && text) {
-    setTimeout(() => speak(text, speaker), 80);
-  }
-
+  setPhoto(speaker); renderSpeaker(speaker);
+  stopVoice(); typeText(text);
+  if(settings.voice && text) setTimeout(()=>speak(text, speaker), 80);
   pushHistory(speaker, text);
-
   $('continueBtn').disabled = false;
 }
-
-function onContinue() {
-  if (state.currentChoice) return;
-  if (skipTyping()) return;
-  sfx('click');
-  state.step = state.step + 1;
-  saveGame();
-  renderStep();
+function onContinue(){
+  if(state.currentChoice) return;
+  if(skipTyping()) return;
+  sfx('click'); state.step++; saveGame(); renderStep();
 }
-
-function onPrevLine() {
-  const steps = getSteps();
-  if (state.step > 0) {
-    state.step = state.step - 1;
-    // skip backward over hidden steps
-    while (state.step > 0 && shouldSkipStep(steps[state.step])) state.step--;
-    renderStep();
-  } else {
-    // restart current line
-    renderStep();
-  }
+function onPrevLine(){
+  if(state.step>0){ state.step--; const s=getSteps(); while(state.step>0 && shouldSkip(s[state.step])) state.step--; renderStep(); }
+  else renderStep();
 }
-
-/* ---------- ПЕРЕХОД МЕЖДУ ГЛАВАМИ ---------- */
-function goToNextChapter() {
+function goToNextChapter(){
   stopVoice();
-  if (state.chapter + 1 < CHAPTERS.length) {
-    state.chapter++;
-    state.step = 0;
-    const ch = getChapter();
-    if (ch) {
-      unlockedChapters[ch.id] = true;
-    }
+  if(state.chapter+1 < CHAPTERS.length){
+    state.chapter++; state.step = 0;
     sfx('transition');
     showChapterTransition();
     saveGame();
-  } else {
-    triggerEnding();
-  }
+  } else triggerEnding();
 }
-
-function showChapterTransition() {
-  const ch = getChapter();
-  if (!ch) return;
-  const stage = $('stage');
+function showChapterTransition(){
+  const ch = getChapter(); if(!ch) return;
+  const stage = $('stage'); if(!stage) return;
   const div = document.createElement('div');
   div.style.cssText = `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    z-index:30;background:rgba(4,3,6,.94);backdrop-filter:blur(10px);text-align:center;padding:24px;`;
+    z-index:30;background:rgba(4,3,6,.94);backdrop-filter:blur(10px);text-align:center;padding:24px;
+    opacity:0;transition:opacity .6s`;
   div.innerHTML = `<div>
     <div style="font-size:12px;letter-spacing:.5em;color:#9a917f;margin-bottom:16px;text-transform:uppercase">Глава ${state.chapter+1} из ${CHAPTERS.length}</div>
     <div style="font-size:clamp(22px,5vw,36px);letter-spacing:.14em;color:var(--gold);text-shadow:0 0 30px rgba(212,175,55,.5);text-transform:uppercase">${ch.title.replace(/^Глава \d+\. /,'')}</div>
   </div>`;
-  div.style.opacity = '0';
-  div.style.transition = 'opacity .6s';
-  if (stage) stage.appendChild(div);
-  requestAnimationFrame(() => { div.style.opacity = '1'; });
-  setTimeout(() => {
-    div.style.opacity = '0';
-    setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); renderStep(); }, 650);
-  }, 1900);
+  stage.appendChild(div);
+  requestAnimationFrame(()=>{ div.style.opacity='1'; });
+  setTimeout(()=>{ div.style.opacity='0';
+    setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); renderStep(); }, 650); }, 1900);
+}
+
+/* ---------- ЧАТ МИШУЛИКА ---------- */
+function openChat(){
+  if(state.playerChar!=='mih') return;
+  sfx('click');
+  $('chatView').classList.add('active');
+  renderChat();
+  if(!state.chatDone && state.chatStep < CHAT_SCRIPT.length){
+    setTimeout(()=>{ playChatStep(); }, 350);
+  }
+}
+function closeChat(){
+  $('chatView').classList.remove('active');
+  sfx('click');
+  // если чат завершён и игрок в главе 4 без чата — двигаем
+  if(state.chatDone && getChapter() && getChapter().id==='ch4'){
+    // проверим, ждём ли мы чат
+    const steps = getSteps();
+    // если мы на шаге «ожидание чата» — прокрутим
+    const cur = steps[state.step];
+    if(cur && cur.text && cur.text.indexOf('Открой iPhone')>=0){
+      // остаёмся, игрок сам нажмёт «Продолжить»
+    }
+  }
+}
+function chatBubbleRow(from, text, isVoice, opts){
+  opts = opts||{};
+  const row = document.createElement('div');
+  if(from==='sys'){
+    row.className = 'msgRow sys';
+    const b = document.createElement('div');
+    b.className = 'msgSys';
+    b.textContent = text;
+    row.appendChild(b);
+    return row;
+  }
+  row.className = 'msgRow ' + (from==='mih'?'mine':(from==='kop'?'them kop':'them ars'));
+  const b = document.createElement('div');
+  b.className = 'msgBubble';
+  if(from!=='mih'){
+    const n = document.createElement('div');
+    n.className = 'msgName';
+    n.textContent = CHAT_PEERS[from].name;
+    b.appendChild(n);
+  }
+  if(isVoice){
+    const v = document.createElement('div');
+    v.className = 'voiceMsg';
+    const dur = Math.max(2, Math.round((text.length/14)));
+    const bars = '<span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>';
+    v.innerHTML = `<div class="voicePlay">▶</div><div class="voiceWave">${bars}</div><div class="voiceDur">0:${String(dur).padStart(2,'0')}</div>`;
+    v.onclick = ()=>{
+      v.classList.add('playing');
+      const id = CHARS.mih.voice;
+      // говорим голосом Мишулика
+      if(!('speechSynthesis' in window)) return;
+      stopVoice();
+      const u = new SpeechSynthesisUtterance(text);
+      const vv = pickVoice('mih');
+      if(vv){ u.voice=vv; u.lang=vv.lang||'ru-RU'; } else { u.lang='ru-RU'; }
+      u.rate = id.rate; u.pitch = id.pitch;
+      u.volume = Math.max(0, Math.min(1, settings.voiceVol));
+      u.onend = ()=>v.classList.remove('playing');
+      u.onerror = ()=>v.classList.remove('playing');
+      try{ window.speechSynthesis.speak(u); }catch(e){}
+    };
+    b.appendChild(v);
+  } else {
+    const t = document.createElement('span');
+    t.textContent = text;
+    b.appendChild(t);
+  }
+  row.appendChild(b);
+  return row;
+}
+function renderChat(){
+  const body = $('chatBody'); if(!body) return;
+  body.innerHTML = '';
+  state.chatHistory.forEach(item=>{
+    if(item.type==='msg'){
+      body.appendChild(chatBubbleRow(item.from, item.text, !!item.voice));
+    } else if(item.type==='sys'){
+      body.appendChild(chatBubbleRow('sys', item.text));
+    }
+  });
+  // Активные выборы чата
+  const last = state.chatHistory[state.chatHistory.length-1];
+  if(last && last.type==='choices'){
+    const row = document.createElement('div');
+    row.className = 'msgRow sys';
+    row.style.flexDirection = 'column';
+    row.style.gap = '8px';
+    row.style.maxWidth = '100%';
+    row.style.width = '100%';
+    last.choices.forEach((c,i)=>{
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.setAttribute('data-num', String(i+1));
+      b.style.width = '100%';
+      b.textContent = c.text;
+      b.onclick = ()=>applyChatChoice(c);
+      row.appendChild(b);
+    });
+    body.appendChild(row);
+  }
+  setTimeout(()=>{ body.scrollTop = body.scrollHeight; }, 30);
+}
+function playChatStep(){
+  if(state.chatStep >= CHAT_SCRIPT.length) return;
+  const step = CHAT_SCRIPT[state.chatStep];
+
+  // Персонаж в чате — только Мишулик, там всегда голос Мишулика
+  if(step.from==='sys'){
+    state.chatHistory.push({ type:'sys', text: step.text });
+    state.chatStep++;
+    renderChat();
+    setTimeout(()=>{ playChatStep(); }, 800);
+    return;
+  }
+  if(step.choices){
+    state.chatHistory.push({ type:'choices', choices: step.choices });
+    renderChat();
+    // не двигаем chatStep — ждём выбора
+    return;
+  }
+  // обычное сообщение
+  state.chatHistory.push({ type:'msg', from: step.from, text: step.text, voice: !!step.voice });
+  state.chatStep++;
+  renderChat();
+  if(step.voice){
+    sfx('notify');
+    setTimeout(()=>{ playChatStep(); }, 900);
+  } else {
+    setTimeout(()=>{ playChatStep(); }, 1100);
+  }
+}
+function applyChatChoice(choice){
+  sfx('choice');
+  // убираем блок выборов
+  state.chatHistory = state.chatHistory.filter(h=>h.type!=='choices');
+  state.flags[choice.flag] = true;
+  state.chatResult = choice.chatResult;
+  state.chatDone = true;
+  renderChat();
+  // доигрываем результат
+  const result = CHAT_RESULTS[choice.chatResult] || [];
+  let i = 0;
+  function next(){
+    if(i>=result.length){ saveGame(); updateIphoneBadge(); return; }
+    const r = result[i];
+    state.chatHistory.push({ type: r.from==='sys'?'sys':'msg', from: r.from, text: r.text, voice: !!r.voice });
+    i++;
+    renderChat();
+    if(r.voice) sfx('notify');
+    setTimeout(next, r.from==='sys'?800:1000);
+  }
+  setTimeout(next, 300);
+  // финализируем шаг скрипта
+  state.chatStep = CHAT_SCRIPT.length;
+  saveGame();
+}
+function updateIphoneBadge(){
+  const n = $('iphoneNotif'); if(!n) return;
+  if(state.chatDone) n.style.display = 'none';
+  else n.style.display = 'flex';
+}
+function resetChatState(){
+  state.chatStep = 0;
+  state.chatHistory = [];
+  state.chatDone = false;
+  state.chatResult = null;
+  renderChat();
+}
+
+/* ---------- СТАРТ ГЛАВЫ / ИГРЫ ---------- */
+function startChapter(idx){
+  if(idx<0||idx>=CHAPTERS.length) idx=0;
+  state.chapter = idx; state.step = 0; state.currentChoice = null; endingTriggered=false;
+  hideAllOverlays();
+  showScreen('game');
+  currentPhotoChar = null; lastSpeaker = null;
+  initAudio(); ensureAudio();
+  startAmbient('story');
+  // виджет iPhone
+  if(state.playerChar==='mih'){
+    $('iphoneWidget').classList.add('show');
+    updateIphoneBadge();
+  } else {
+    $('iphoneWidget').classList.remove('show');
+  }
+  renderStep();
+  saveGame();
+}
+function startNewGame(charId){
+  state = {
+    playerChar: charId, chapter:0, step:0,
+    trust:{sem:0,rus:0,mih:0}, conflict:0, reputation:0,
+    flags:{}, history:[], currentChoice:null,
+    chatStep:0, chatDone:false, chatResult:null, chatHistory:[]
+  };
+  // счётчик доверия самому себе не нужен
+  clearSave();
+  startChapter(0);
+}
+function goToMenu(){
+  stopVoice();
+  hideAllOverlays();
+  $('chatView').classList.remove('active');
+  showScreen('menu');
+  $('iphoneWidget').classList.remove('show');
+  startAmbient('menu');
+  refreshMenuButtons();
+}
+function refreshMenuButtons(){
+  $('btnContinue').disabled = !localStorage.getItem(SAVE_KEY);
+}
+
+/* ---------- ВЫБОР ПЕРСОНАЖА ---------- */
+let csSelected = null;
+function buildCharSelect(){
+  const grid = $('csGrid'); if(!grid) return;
+  grid.innerHTML = '';
+  csSelected = null;
+  $('btnCsStart').disabled = true;
+  ['sem','rus','mih'].forEach(id=>{
+    const ch = CHARS[id];
+    const card = document.createElement('div');
+    card.className = 'cs-card';
+    card.dataset.id = id;
+    const ph = document.createElement('div');
+    ph.className = 'cs-photo';
+    const img = document.createElement('img');
+    img.src = ch.img;
+    img.alt = ch.name;
+    img.onerror = ()=>{ img.style.display='none';
+      const p = ph.querySelector('.ph'); if(p) p.style.display='flex'; };
+    ph.appendChild(img);
+    const pl = document.createElement('div');
+    pl.className = 'ph';
+    pl.innerHTML = `<div style="font-size:34px;color:var(--crimson-light);opacity:.7">?</div><div>${ch.name}</div>`;
+    ph.appendChild(pl);
+    card.appendChild(ph);
+    const nm = document.createElement('div'); nm.className='cs-name'; nm.textContent = ch.name;
+    card.appendChild(nm);
+    const d = document.createElement('div'); d.className='cs-desc'; d.textContent = ch.desc;
+    card.appendChild(d);
+    card.onclick = ()=>{
+      sfx('click');
+      document.querySelectorAll('.cs-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      csSelected = id;
+      $('btnCsStart').disabled = false;
+    };
+    grid.appendChild(card);
+  });
 }
 
 /* ---------- ФИНАЛ ---------- */
-function computeEnding() {
-  const t = state.trust;
-  const avg = (t.sem + t.rus + t.mih) / 3;
-  const conf = state.conflict;
-
-  // секретная концовка
-  if (state.flags.saw_truth && state.flags.forgave_sem && state.flags.third_option &&
-      avg >= 2 && conf <= 3) {
-    return 'secret';
-  }
-  if (state.flags.choose_friendship && state.flags.final_third && avg >= 3 && conf <= 2) {
-    return 'secret';
-  }
-
-  if (avg >= 1.5 && conf <= 4 && state.flags.forgave_sem) return 'good';
-  if (avg >= 2 && conf <= 3) return 'good';
-  if (conf >= 6 || avg <= -1) return 'bad';
+function computeEnding(){
+  const t = state.trust; const avg = (t.sem+t.rus+t.mih)/3; const conf = state.conflict;
+  // секретная
+  if(state.flags.saw_truth && state.flags.forgave_sem && state.flags.third_option && avg>=2 && conf<=3) return 'secret';
+  if(state.flags.choose_friendship && state.flags.final_third && avg>=3 && conf<=2) return 'secret';
+  if(state.playerChar==='mih' && state.chatResult==='calm' && avg>=2 && conf<=3) return 'secret';
+  if(avg>=1.5 && conf<=4) return 'good';
+  if(avg>=2 && conf<=3) return 'good';
+  if(conf>=6 || avg<=-1) return 'bad';
   return 'bad';
 }
-
 const ENDINGS_DATA = {
-  good: {
-    title: 'Друзья',
-    text: `Дружба пережила всё. Споры, подозрения, предательство, бессонные ночи и чужие тайны.\n\nОни остались вместе — не потому что им было легко, а потому что они выбрали друг друга. И в этом был весь смысл.\n\nГриша остался в прошлом. А они — в настоящем. И, может быть, в будущем.`,
-    key: 'good'
-  },
-  bad: {
-    title: 'Осколки',
-    text: `Они разошлись. Молча, без прощания, каждый своей дорогой.\n\nИногда кто-то из них вспоминал старый гараж, дешёвое пиво и тот вечер, когда всё началось. Но вспоминал — и шёл дальше.\n\nТак заканчиваются истории, в которых никто не захотел услышать другого.`,
-    key: 'bad'
-  },
-  secret: {
-    title: 'Тайна',
-    text: `Они не просто выжили. Они узнали то, что не должен был знать никто.\n\nДокументы оказались не тем, чем казались. За ними стояли люди, о которых лучше не думать. Но трое друзей, знающих правду, стали опаснее этих людей.\n\nИх история только началась. И она ещё напишет свои главы.`,
-    key: 'secret'
-  }
+  good:{ title:'Друзья', text:'Дружба пережила всё. Споры, подозрения, предательство, бессонные ночи и чужие тайны.\n\nОни остались вместе — не потому что им было легко, а потому что они выбрали друг друга.' },
+  bad:{ title:'Осколки', text:'Они разошлись. Молча, без прощания, каждый своей дорогой.\n\nИногда кто-то из них вспоминал старый гараж, дешёвое пиво и тот вечер, когда всё началось. Но вспоминал — и шёл дальше.' },
+  secret:{ title:'Тайна', text:'Они не просто выжили. Они узнали то, что не должен был знать никто.\n\nДокументы оказались не тем, чем казались. Но трое, знающих правду, стали опаснее всех.\n\nИх история только началась.' }
 };
-
-function triggerEnding() {
-  if (endingTriggered) return;
-  endingTriggered = true;
-  const key = computeEnding();
-  const e = ENDINGS_DATA[key];
-  if (!unlockedEndings.includes(key)) {
-    unlockedEndings.push(key);
-    saveEndings();
-  }
-  sfx('transition');
-  stopVoice();
-
+function triggerEnding(){
+  if(endingTriggered) return; endingTriggered=true;
+  const key = computeEnding(); const e = ENDINGS_DATA[key];
+  if(!unlockedEndings.includes(key)){ unlockedEndings.push(key); saveEndings(); }
+  sfx('transition'); stopVoice();
   $('endingTitle').textContent = e.title;
   $('endingText').textContent = e.text;
   showOverlay('endingOverlay');
 }
 
-/* ---------- ЗАПУСК ГЛАВЫ ---------- */
-function startChapter(idx) {
-  if (idx < 0 || idx >= CHAPTERS.length) idx = 0;
-  state.chapter = idx;
-  state.step = 0;
-  state.currentChoice = null;
-  endingTriggered = false;
-  hideAllOverlays();
-  showScreen('game');
-  currentPhotoChar = null;
-  lastSpeaker = null;
-  initAudio(); ensureAudioResume();
-  startAmbient('story');
-  renderStep();
-  saveGame();
-}
-
-function startNewGame() {
-  state = {
-    chapter: 0, step: 0,
-    trust: { sem: 0, rus: 0, mih: 0 },
-    conflict: 0, reputation: 0,
-    flags: {}, history: [], currentChoice: null
-  };
-  unlockedChapters = { ch1: true };
-  endingTriggered = false;
-  clearSave();
-  startChapter(0);
-}
-
-/* ---------- МЕНЮ ---------- */
-function goToMenu() {
-  stopVoice();
-  hideAllOverlays();
-  showScreen('menu');
-  startAmbient('menu');
-  refreshMenuButtons();
-}
-
-function refreshMenuButtons() {
-  const has = !!localStorage.getItem(SAVE_KEY);
-  $('btnContinue').disabled = !has;
-}
-
-/* ---------- СПИСКИ ГЛАВ / КОНЦОВОК / ЖУРНАЛА ---------- */
-function buildChaptersList() {
-  const box = $('chaptersList');
-  if (!box) return;
-  box.innerHTML = '';
-  CHAPTERS.forEach((ch, i) => {
-    const unlocked = !!unlockedChapters[ch.id];
-    const b = document.createElement('button');
-    b.className = 'list-item' + (unlocked ? '' : ' locked');
-    b.innerHTML = `${ch.title}<span class="meta">${unlocked ? 'Доступно' : 'Закрыто'}</span>`;
-    if (unlocked) {
-      b.onclick = () => { sfx('click'); hideOverlay('chaptersOverlay'); startChapter(i); };
-    } else {
-      b.disabled = true;
-    }
-    box.appendChild(b);
-  });
-}
-
-function buildEndingsList() {
-  const box = $('endingsList');
-  if (!box) return;
-  box.innerHTML = '';
-  const keys = ['good','bad','secret'];
-  const names = { good: 'Друзья', bad: 'Осколки', secret: 'Тайна' };
-  keys.forEach(k => {
+/* ---------- СПИСКИ ---------- */
+function buildEndingsList(){
+  const box = $('endingsList'); if(!box) return; box.innerHTML='';
+  const names = { good:'Друзья', bad:'Осколки', secret:'Тайна' };
+  ['good','bad','secret'].forEach(k=>{
     const opened = unlockedEndings.includes(k);
     const d = document.createElement('div');
-    d.className = 'list-item' + (opened ? '' : ' locked');
-    d.innerHTML = `${opened ? names[k] : '???'}<span class="meta">${opened ? 'Открыто' : 'Не найдено'}</span>`;
+    d.className = 'list-item'+(opened?'':' locked');
+    d.innerHTML = `${opened?names[k]:'???'}<span class="meta">${opened?'Открыто':'Не найдено'}</span>`;
     box.appendChild(d);
   });
 }
-
-function buildHistoryList() {
-  const box = $('historyList');
-  if (!box) return;
-  box.innerHTML = '';
-  if (!state.history.length) {
-    box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px">Журнал пуст</div>';
-    return;
-  }
-  state.history.slice().reverse().forEach(h => {
-    const d = document.createElement('div');
-    d.className = 'hist-entry';
-    d.innerHTML = `<span class="who">${h.who || ''}</span>${h.text}`;
+function buildHistoryList(){
+  const box = $('historyList'); if(!box) return; box.innerHTML='';
+  if(!state.history.length){ box.innerHTML='<div style="color:var(--text-dim);text-align:center;padding:20px">Журнал пуст</div>'; return; }
+  state.history.slice().reverse().forEach(h=>{
+    const d = document.createElement('div'); d.className='hist-entry';
+    d.innerHTML = `<span class="who">${h.who||''}</span>${h.text}`;
     box.appendChild(d);
   });
 }
 
 /* ---------- НАСТРОЙКИ UI ---------- */
-function syncSettingsUI() {
+function syncSettingsUI(){
   $('tgVoice').classList.toggle('on', settings.voice);
   $('tgMusic').classList.toggle('on', settings.music);
   $('tgSfx').classList.toggle('on', settings.sfx);
-  $('rngVoiceVol').value = Math.round(settings.voiceVol * 100);
-  $('rngMusicVol').value = Math.round(settings.musicVol * 100);
+  $('rngVoiceVol').value = Math.round(settings.voiceVol*100);
+  $('rngMusicVol').value = Math.round(settings.musicVol*100);
   $('btnVoiceQuick').classList.toggle('off', !settings.voice);
 }
 
 /* ---------- СОБЫТИЯ ---------- */
-function bindEvents() {
+function bindEvents(){
   // Меню
-  $('btnNew').onclick = () => {
+  $('btnNew').onclick = ()=>{
     sfx('click');
-    if (localStorage.getItem(SAVE_KEY)) {
+    if(localStorage.getItem(SAVE_KEY)){
       $('confirmTitle').textContent = 'Новая игра';
-      $('confirmText').textContent = 'У вас есть сохранение. Начать новую игру? Прогресс будет сброшен.';
+      $('confirmText').textContent = 'Есть сохранение. Начать заново? Прогресс сбросится.';
       showOverlay('confirmOverlay');
-      $('btnConfirmYes').onclick = () => {
-        hideOverlay('confirmOverlay');
-        initAudio(); ensureAudioResume();
-        startNewGame();
-      };
-      $('btnConfirmNo').onclick = () => hideOverlay('confirmOverlay');
+      $('btnConfirmYes').onclick = ()=>{ hideOverlay('confirmOverlay'); initAudio(); ensureAudio(); buildCharSelect(); showScreen('charSelect'); };
+      $('btnConfirmNo').onclick = ()=>hideOverlay('confirmOverlay');
     } else {
-      initAudio(); ensureAudioResume();
-      startNewGame();
+      initAudio(); ensureAudio(); buildCharSelect(); showScreen('charSelect');
     }
   };
-  $('btnContinue').onclick = () => {
+  $('btnContinue').onclick = ()=>{
     sfx('click');
-    if (loadGame()) {
-      initAudio(); ensureAudioResume();
+    if(loadGame() && state.playerChar){
+      initAudio(); ensureAudio();
+      const loadedStep = Math.min(state.step, Math.max(0,getSteps().length-1));
+      state.step = loadedStep;
       startChapter(state.chapter);
-      // восстановим step
-      const loadedStep = Math.min(state.step, getSteps().length - 1);
-      state.step = Math.max(0, loadedStep);
-      renderStep();
     }
   };
-  $('btnChapters').onclick = () => { sfx('click'); buildChaptersList(); showOverlay('chaptersOverlay'); };
-  $('btnSettings').onclick = () => { sfx('click'); syncSettingsUI(); showOverlay('settingsOverlay'); };
-  $('btnEndings').onclick = () => { sfx('click'); buildEndingsList(); showOverlay('endingsOverlay'); };
-  $('btnAbout').onclick = () => { sfx('click'); showOverlay('aboutOverlay'); };
+  $('btnEndings').onclick = ()=>{ sfx('click'); buildEndingsList(); showOverlay('endingsOverlay'); };
+  $('btnSettings').onclick = ()=>{ sfx('click'); syncSettingsUI(); showOverlay('settingsOverlay'); };
+  $('btnAbout').onclick = ()=>{ sfx('click'); showOverlay('aboutOverlay'); };
+  $('btnCloseSettings').onclick = ()=>hideOverlay('settingsOverlay');
+  $('btnCloseHistory').onclick = ()=>hideOverlay('historyOverlay');
+  $('btnCloseEndings').onclick = ()=>hideOverlay('endingsOverlay');
+  $('btnCloseAbout').onclick = ()=>hideOverlay('aboutOverlay');
 
-  $('btnCloseSettings').onclick = () => hideOverlay('settingsOverlay');
-  $('btnCloseChapters').onclick = () => hideOverlay('chaptersOverlay');
-  $('btnCloseAbout').onclick = () => hideOverlay('aboutOverlay');
-  $('btnCloseHistory').onclick = () => hideOverlay('historyOverlay');
-  $('btnCloseEndings').onclick = () => hideOverlay('endingsOverlay');
-
-  $('btnEndingMenu').onclick = () => {
-    hideOverlay('endingOverlay');
-    goToMenu();
+  // Выбор персонажа
+  $('btnCsBack').onclick = ()=>{ sfx('click'); goToMenu(); };
+  $('btnCsStart').onclick = ()=>{
+    if(!csSelected) return;
+    sfx('click'); initAudio(); ensureAudio(); startNewGame(csSelected);
   };
 
   // Игра
   $('continueBtn').onclick = onContinue;
-  $('btnPause').onclick = () => { sfx('click'); showOverlay('pauseOverlay'); stopVoice(); };
-  $('btnResume').onclick = () => hideOverlay('pauseOverlay');
-  $('btnRestartCh').onclick = () => {
-    hideOverlay('pauseOverlay');
-    startChapter(state.chapter);
-  };
-  $('btnHistory').onclick = () => { buildHistoryList(); showOverlay('historyOverlay'); };
-  $('btnHistoryQuick').onclick = () => { sfx('click'); buildHistoryList(); showOverlay('historyOverlay'); };
-  $('btnReplayLine').onclick = () => { sfx('click'); onPrevLine(); };
-  $('btnVoiceQuick').onclick = () => {
-    settings.voice = !settings.voice;
-    saveSettings();
-    syncSettingsUI();
-    sfx('click');
-    if (settings.voice && currentFullText) speak(currentFullText, lastSpeaker || 'n');
+  $('btnPause').onclick = ()=>{ sfx('click'); showOverlay('pauseOverlay'); stopVoice(); };
+  $('btnResume').onclick = ()=>hideOverlay('pauseOverlay');
+  $('btnRestartCh').onclick = ()=>{ hideOverlay('pauseOverlay'); startChapter(state.chapter); };
+  $('btnHistory').onclick = ()=>{ buildHistoryList(); showOverlay('historyOverlay'); };
+  $('btnHistoryQuick').onclick = ()=>{ sfx('click'); buildHistoryList(); showOverlay('historyOverlay'); };
+  $('btnReplayLine').onclick = ()=>{ sfx('click'); onPrevLine(); };
+  $('btnVoiceQuick').onclick = ()=>{
+    settings.voice = !settings.voice; saveSettings(); syncSettingsUI(); sfx('click');
+    if(settings.voice && currentFullText) speak(currentFullText, lastSpeaker||'n');
     else stopVoice();
   };
-  $('btnSettingsFromPause').onclick = () => { hideOverlay('pauseOverlay'); syncSettingsUI(); showOverlay('settingsOverlay'); };
-  $('btnToMenu').onclick = () => { saveGame(); hideOverlay('pauseOverlay'); goToMenu(); };
+  $('btnToMenu').onclick = ()=>{ saveGame(); hideOverlay('pauseOverlay'); goToMenu(); };
 
   // Настройки
-  $('tgVoice').onclick = () => {
-    settings.voice = !settings.voice;
-    syncSettingsUI(); saveSettings();
-    if (!settings.voice) stopVoice();
-  };
-  $('tgMusic').onclick = () => {
-    settings.music = !settings.music;
-    syncSettingsUI(); saveSettings();
-    updateAmbientVolume();
-  };
-  $('tgSfx').onclick = () => {
-    settings.sfx = !settings.sfx;
-    syncSettingsUI(); saveSettings();
-  };
-  $('rngVoiceVol').oninput = (e) => {
-    settings.voiceVol = (parseInt(e.target.value, 10) || 0) / 100;
-    saveSettings();
-  };
-  $('rngMusicVol').oninput = (e) => {
-    settings.musicVol = (parseInt(e.target.value, 10) || 0) / 100;
-    saveSettings();
-    updateAmbientVolume();
-  };
-  $('btnTestVoice').onclick = () => {
-    initAudio(); ensureAudioResume();
-    speak('Старший младших знай. Ты как общаешься.', 'mih');
-  };
+  $('tgVoice').onclick = ()=>{ settings.voice=!settings.voice; syncSettingsUI(); saveSettings(); if(!settings.voice) stopVoice(); };
+  $('tgMusic').onclick = ()=>{ settings.music=!settings.music; syncSettingsUI(); saveSettings(); updateAmbientVol(); };
+  $('tgSfx').onclick = ()=>{ settings.sfx=!settings.sfx; syncSettingsUI(); saveSettings(); };
+  $('rngVoiceVol').oninput = (e)=>{ settings.voiceVol=(parseInt(e.target.value,10)||0)/100; saveSettings(); };
+  $('rngMusicVol').oninput = (e)=>{ settings.musicVol=(parseInt(e.target.value,10)||0)/100; saveSettings(); updateAmbientVol(); };
+  $('btnTestVoice').onclick = ()=>{ initAudio(); ensureAudio(); speak('Старший младших знай. Ты как общаешься.', 'mih'); };
+
+  // iPhone widget
+  $('iphoneWidget').onclick = openChat;
+  $('chatBackBtn').onclick = closeChat;
+
+  // Финал
+  $('btnEndingMenu').onclick = ()=>{ hideOverlay('endingOverlay'); goToMenu(); };
 
   // Клавиатура
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', (e)=>{
     const menuActive = $('menu').classList.contains('active');
     const gameActive = $('game').classList.contains('active');
+    const chatActive = $('chatView').classList.contains('active');
     const anyOverlay = document.querySelector('.overlay.active');
-    if (menuActive && !anyOverlay) return;
-
-    if (e.key === 'Escape') {
-      if (anyOverlay) { hideAllOverlays(); return; }
-      if (gameActive) { showOverlay('pauseOverlay'); stopVoice(); }
-      return;
-    }
-
-    if (anyOverlay) return;
-
-    if (gameActive) {
-      if (state.currentChoice) {
-        const n = parseInt(e.key, 10);
-        if (n >= 1 && n <= state.currentChoice.length) {
-          applyChoice(n - 1);
-          e.preventDefault();
-          return;
-        }
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onContinue();
-      } else if (e.key === 'Backspace') {
-        e.preventDefault();
-        onPrevLine();
-      }
+    if(anyOverlay){ if(e.key==='Escape'){ hideAllOverlays(); } return; }
+    if(chatActive){ if(e.key==='Escape'){ closeChat(); } return; }
+    if(menuActive) return;
+    if(gameActive){
+      if(state.currentChoice){
+        const n = parseInt(e.key,10);
+        if(n>=1 && n<=state.currentChoice.length){ applyChoice(n-1); e.preventDefault(); }
+      } else if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onContinue(); }
+      else if(e.key==='Backspace'){ e.preventDefault(); onPrevLine(); }
+      else if(e.key==='Escape'){ showOverlay('pauseOverlay'); stopVoice(); }
     }
   });
 
-  // Разблокировка звука при первом касании
-  const unlockAudioOnce = () => {
-    initAudio(); ensureAudioResume();
-    document.removeEventListener('pointerdown', unlockAudioOnce);
-    document.removeEventListener('keydown', unlockAudioOnce);
-    document.removeEventListener('touchstart', unlockAudioOnce);
-  };
-  document.addEventListener('pointerdown', unlockAudioOnce);
-  document.addEventListener('keydown', unlockAudioOnce);
-  document.addEventListener('touchstart', unlockAudioOnce);
+  // Активация звука
+  const unlock = ()=>{ initAudio(); ensureAudio();
+    document.removeEventListener('pointerdown', unlock);
+    document.removeEventListener('keydown', unlock);
+    document.removeEventListener('touchstart', unlock); };
+  document.addEventListener('pointerdown', unlock);
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('touchstart', unlock);
 
-  // При уходе со страницы — остановить озвучку
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stopVoice();
-  });
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopVoice(); });
 }
 
 /* ---------- ИНИЦИАЛИЗАЦИЯ ---------- */
-function init() {
-  loadSettings();
-  loadEndings();
-  bindEvents();
-  syncSettingsUI();
-  refreshMenuButtons();
-  showScreen('menu');
-  startAmbient('menu');
+function init(){
+  loadSettings(); loadEndings();
+  bindEvents(); syncSettingsUI(); refreshMenuButtons();
+  showScreen('menu'); startAmbient('menu');
 }
-
-window.addEventListener('load', () => {
+window.addEventListener('load', ()=>{
   init();
-  // повторная подгрузка голосов
-  setTimeout(loadVoices, 800);
-  setTimeout(loadVoices, 2200);
+  setTimeout(loadVoices, 800); setTimeout(loadVoices, 2200);
 });
 </script>
 </body>
