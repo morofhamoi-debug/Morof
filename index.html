@@ -104,8 +104,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 #photoPlaceholder{display:none;position:absolute;inset:0;border-radius:3px;
   background:linear-gradient(150deg,#241820,#0e0a12);color:var(--gold-soft);
   align-items:center;justify-content:center;text-align:center;font-size:14px;
-  letter-spacing:.15em;padding:12px;flex-direction:column;gap:8px}
-#photoPlaceholder .big{font-size:38px;color:var(--crimson-light);opacity:.7}
+  letter-spacing:.15em;padding:12px;flex-direction:filtercolumn;gap:8px}
+#photoPlace .holder .big3{font-size:38px;color:vars(--crimson-light);opacity ease:.;7}
 #dialogPanel{width:min(760px,96vw);background:var(--panel);border:1px solid rgba(212,175,55,.25);
   border-radius:10px;padding:16px 18px 14px;backdrop-filter:blur(10px);
   box-shadow:0 14px 44px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);position:relative;z-index:5;flex-shrink:0}
@@ -130,7 +130,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 #continueBtn{padding:10px 22px;font-size:13px}
 #iphoneWidget{position:fixed;left:14px;bottom:14px;width:70px;height:140px;z-index:40;
   cursor:pointer;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8));
-  transition:transform .3s ease,filter .3s ease;display:none}
+  transition:transform .3s ease,display:none}
 #iphoneWidget.show{display:block}
 #iphoneWidget:hover{transform:translateY(-3px) scale(1.04);filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
 #iphoneWidget .notif{position:absolute;top:6px;right:6px;min-width:18px;height:18px;
@@ -469,6 +469,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 /* ============================================================
    МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3
    Ветвление через label/goto. Кавказский стиль речи.
+   Поддержка своей озвучки через поле audio:'...'
    ============================================================ */
 
 const CHARS = {
@@ -487,23 +488,19 @@ const CHAT_PEERS = {
   ars:{ name:'Арсенчик', color:'#c78fd9' }
 };
 
-/* ---------- ГЛАВЫ ----------
-   label:'x' — метка для goto. goto:'x' — прыжок.
-   Ветка после choice идёт: label → шаги → {goto:'common'} → label:'common'.
-*/
 const CHAPTERS = [
 {
   id:'ch1', title:'Глава 1. Стрелка',
   steps:[
     {t:'n', text:'Пятница. Заброшенный гараж. Пахнет бензином и старым пивом.'},
     {t:'n', text:'Трое снова вместе. Только воздух сегодня густой. Как будто что-то висит.'},
-    {t:'sem', text:'Э, слышь. Ну чё, собрались наконец. Я уж думал, вы зассали.'},
+    {t:'sem', text:'Э, слышь. Ну чё, собрались наконец. Я уж думал, вы зассали.', audio:'voice/sem/sem_001.mp3'},
     {t:'rus', text:'Зассали? Я, бля, через весь город на двух автобусах ехал. Ты бы хоть пива нормального взял, а не это пойло.'},
-    {t:'sem', text:'Не нравится — не пей. Мне пох, я не барыга.'},
+    {t:'sem', text:'Не нравится — не пей. Мне пох, я не барыга.', audio:'voice/sem/sem_002.mp3'},
     {t:'mih', text:'Хорош орать. Говори, зачем позвал.'},
-    {t:'sem', text:'О, Мишулик включил старшего. Как всегда, бля.'},
+    {t:'sem', text:'О, Мишулик включил старшего. Как всегда, бля.', audio:'voice/sem/sem_003.mp3'},
     {t:'mih', text:'Ты как общаешься.'},
-    {t:'sem', text:'Нормально я общаюсь! Как с равным!'},
+    {t:'sem', text:'Нормально я общаюсь! Как с равным!', audio:'voice/sem/sem_004.mp3'},
     {t:'mih', text:'Мы не равные. Я старше.'},
     {t:'rus', text:'О боже, опять эта тема. Ты старше нас на два месяца, Мишулик. Два. Месяца.'},
     {t:'mih', text:'Старший младших знай. Всё.'},
@@ -985,8 +982,6 @@ const CHAPTERS = [
 }
 ];
 
-/* ---------- ЧАТ: сценарные сообщения ---------- */
-/* step: {from:'sys'|'kop'|'ars'|'mih', text, voice?:true, choices?:[], result?:key} */
 const CHAT_SCRIPT = [
   { from:'sys', text:'Сегодня' },
   { from:'mih', voice:true, text:'Э, шныри. Вы где шляетесь?' },
@@ -1045,7 +1040,6 @@ const CHAT_RESULTS = {
   ]
 };
 
-/* ---------- СОСТОЯНИЕ ---------- */
 const SAVE_KEY = 'mafia_friends_v3_save';
 const ENDINGS_KEY = 'mafia_friends_v3_endings';
 const SETTINGS_KEY = 'mafia_friends_v3_settings';
@@ -1062,7 +1056,6 @@ let settings = { voice:true, music:true, sfx:true, voiceVol:1, musicVol:0.45 };
 
 const $ = id => document.getElementById(id);
 
-/* ---------- АУДИО ---------- */
 let audioCtx=null, ambientNodes=[], ambientGain=null, ambientMood=null;
 function initAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function ensureAudio(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{}); }
@@ -1134,7 +1127,6 @@ function sfx(type){
   }
 }
 
-/* ---------- ОЗВУЧКА ---------- */
 let voices=[], currentUtt=null, speakLock=0;
 function loadVoices(){ if(!('speechSynthesis' in window)) return; try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
 if('speechSynthesis' in window){
@@ -1151,13 +1143,18 @@ function pickVoice(charId){
   const idx = map[charId]!=null?map[charId]:0;
   return pool[idx%pool.length];
 }
-function stopVoice(){ if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} } currentUtt=null; }
+function stopVoice(){
+  if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  currentUtt=null;
+  if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime=0; }catch(e){} currentAudio=null; }
+}
 function speak(text, charId, force){
   if(!settings.voice && !force) return;
   if(!('speechSynthesis' in window)) return;
   if(!text||!text.trim()) return;
   const now = Date.now(); if(now-speakLock<80) return; speakLock = now;
-  stopVoice();
+  if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  currentUtt = null;
   const u = new SpeechSynthesisUtterance(text);
   const cfg = (CHARS[charId] && CHARS[charId].voice) || { rate:1, pitch:1, vol:1 };
   const v = pickVoice(charId);
@@ -1169,14 +1166,41 @@ function speak(text, charId, force){
   currentUtt = u;
   setTimeout(()=>{ try{ window.speechSynthesis.speak(u); }catch(e){} }, 40);
 }
+function tryAudio(path){
+  return new Promise((resolve)=>{
+    let done = false;
+    const a = new Audio();
+    a.preload = 'auto';
+    a.volume = Math.max(0, Math.min(1, settings.voiceVol));
+    a.oncanplaythrough = ()=>{ if(!done){ done=true; resolve(a); } };
+    a.onerror = ()=>{ if(!done){ done=true; resolve(null); } };
+    setTimeout(()=>{ if(!done){ done=true; resolve(a.error ? null : a); } }, 1800);
+    try{ a.src = path; a.load(); }catch(e){ if(!done){ done=true; resolve(null); } }
+  });
+}
+async function playVoice(audioPath, fallbackText, charId){
+  if(!settings.voice) return;
+  if(audioPath){
+    stopVoice();
+    const base = audioPath.replace(/\.(mp3|m4a|ogg|wav)$/i,'');
+    const candidates = [audioPath, base+'.mp3', base+'.m4a'];
+    for(const url of candidates){
+      const a = await tryAudio(url);
+      if(a){
+        currentAudio = a;
+        a.onended = ()=>{ if(currentAudio===a) currentAudio=null; };
+        try{ await a.play(); return; }catch(e){ currentAudio=null; }
+      }
+    }
+  }
+  speak(fallbackText, charId);
+}
 
-/* ---------- УТИЛИТЫ ---------- */
 function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); const el=$(id); if(el) el.classList.add('active'); }
 function showOverlay(id){ const el=$(id); if(el) el.classList.add('active'); }
 function hideOverlay(id){ const el=$(id); if(el) el.classList.remove('active'); }
 function hideAllOverlays(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('active')); }
 
-/* ---------- СОХРАНЕНИЕ ---------- */
 function saveGame(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ts:Date.now() })); }catch(e){} }
 function loadGame(){
   try{
@@ -1203,8 +1227,7 @@ function saveEndings(){ try{ localStorage.setItem(ENDINGS_KEY, JSON.stringify(un
 function loadEndings(){ try{ const r=localStorage.getItem(ENDINGS_KEY); if(!r) return;
   const a=JSON.parse(r); if(Array.isArray(a)) unlockedEndings=a; }catch(e){} }
 
-/* ---------- ДВИЖОК ---------- */
-let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null;
+let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null, currentAudio=null;
 
 function getChapter(){ return CHAPTERS[state.chapter]; }
 function getSteps(){ const c=getChapter(); return c?c.steps:[]; }
@@ -1309,7 +1332,6 @@ function renderStep(){
   const step = steps[state.step];
   if(!step){ goToNextChapter(); return; }
 
-  // переход без выбора
   if(step.goto){
     const idx = findLabel(step.goto, state.step+1);
     if(idx>=0){ state.step = idx; return renderStep(); }
@@ -1332,7 +1354,7 @@ function renderStep(){
   lastSpeaker = speaker;
   setPhoto(speaker); renderSpeaker(speaker);
   stopVoice(); typeText(text);
-  if(settings.voice && text) setTimeout(()=>speak(text, speaker), 80);
+  if(settings.voice && text) setTimeout(()=>playVoice(step.audio, text, speaker), 80);
   pushHistory(speaker, text);
   $('continueBtn').disabled = false;
 }
@@ -1345,7 +1367,6 @@ function onPrevLine(){
   if(state.step>0){
     state.step--;
     const s = getSteps();
-    // пропустим goto-шаги назад, чтобы не зациклиться
     let guard = 0;
     while(state.step>0 && s[state.step] && s[state.step].goto && guard++<50) state.step--;
     renderStep();
@@ -1375,7 +1396,6 @@ function showChapterTransition(){
     setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); renderStep(); }, 650); }, 1900);
 }
 
-/* ---------- ЧАТ ---------- */
 function updateIphoneBadge(){
   const n = $('iphoneNotif'); if(!n) return;
   n.style.display = state.chatDone ? 'none' : 'flex';
@@ -1453,8 +1473,6 @@ function updateChatNextBtn(){
   const btn = $('chatNextBtn');
   const wrap = $('chatChoiceWrap');
   if(!btn||!wrap) return;
-
-  // Если есть ожидающие выборы
   if(state.chatChoicePending && !state.chatDone){
     wrap.style.display = 'flex';
     wrap.innerHTML = '';
@@ -1515,8 +1533,7 @@ function applyChatChoice(choice){
   state.flags[choice.flag] = true;
   state.chatResult = choice.chatResult;
   state.chatChoicePending = null;
-  state.chatCursor = CHAT_SCRIPT.length; // скрипт закончен, дальше только результат
-  // доигрываем результат
+  state.chatCursor = CHAT_SCRIPT.length;
   const result = CHAT_RESULTS[choice.chatResult] || [];
   let i=0;
   function next(){
@@ -1533,7 +1550,6 @@ function applyChatChoice(choice){
   saveGame();
 }
 
-/* ---------- СТАРТ ГЛАВЫ ---------- */
 function startChapter(idx){
   if(idx<0||idx>=CHAPTERS.length) idx=0;
   state.chapter = idx; state.step = 0; state.currentChoice = null; endingTriggered=false;
@@ -1572,7 +1588,6 @@ function goToMenu(){
 }
 function refreshMenuButtons(){ $('btnContinue').disabled = !localStorage.getItem(SAVE_KEY); }
 
-/* ---------- ВЫБОР ПЕРСОНАЖА ---------- */
 let csSelected=null;
 function buildCharSelect(){
   const grid = $('csGrid'); if(!grid) return;
@@ -1603,7 +1618,6 @@ function buildCharSelect(){
   });
 }
 
-/* ---------- ФИНАЛ ---------- */
 function computeEnding(){
   const t = state.trust; const avg = (t.sem+t.rus+t.mih)/3; const conf = state.conflict;
   if(state.flags.saw_truth && state.flags.forgave_sem && state.flags.third_option && avg>=2 && conf<=3) return 'secret';
@@ -1629,7 +1643,6 @@ function triggerEnding(){
   showOverlay('endingOverlay');
 }
 
-/* ---------- СПИСКИ ---------- */
 function buildEndingsList(){
   const box = $('endingsList'); if(!box) return; box.innerHTML='';
   const names = { good:'Друзья', bad:'Осколки', secret:'Тайна' };
@@ -1651,7 +1664,6 @@ function buildHistoryList(){
   });
 }
 
-/* ---------- НАСТРОЙКИ UI ---------- */
 function syncSettingsUI(){
   $('tgVoice').classList.toggle('on', settings.voice);
   $('tgMusic').classList.toggle('on', settings.music);
@@ -1661,7 +1673,6 @@ function syncSettingsUI(){
   $('btnVoiceQuick').classList.toggle('off', !settings.voice);
 }
 
-/* ---------- СОБЫТИЯ ---------- */
 function bindEvents(){
   $('btnNew').onclick = ()=>{
     sfx('click');
@@ -1707,8 +1718,15 @@ function bindEvents(){
   $('btnReplayLine').onclick = ()=>{ sfx('click'); onPrevLine(); };
   $('btnVoiceQuick').onclick = ()=>{
     settings.voice = !settings.voice; saveSettings(); syncSettingsUI(); sfx('click');
-    if(settings.voice && currentFullText) speak(currentFullText, lastSpeaker||'n');
-    else stopVoice();
+    if(settings.voice){
+      const step = getSteps()[state.step];
+      if(step && !step.choice){
+        const spk = step.t || 'n';
+        playVoice(step.audio, step.text, spk);
+      }
+    } else {
+      stopVoice();
+    }
   };
   $('btnToMenu').onclick = ()=>{ saveGame(); hideOverlay('pauseOverlay'); goToMenu(); };
 
@@ -1763,7 +1781,6 @@ function bindEvents(){
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopVoice(); });
 }
 
-/* ---------- ИНИЦИАЛИЗАЦИЯ ---------- */
 function init(){
   loadSettings(); loadEndings();
   bindEvents(); syncSettingsUI(); refreshMenuButtons();
