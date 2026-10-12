@@ -130,7 +130,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 #continueBtn{padding:10px 22px;font-size:13px}
 #iphoneWidget{position:fixed;left:14px;bottom:14px;width:70px;height:140px;z-index:40;
   cursor:pointer;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8));
-  transition:transform .3s ease;display:none}
+  transition:transform .3s ease,filter .3s ease;display:none}
 #iphoneWidget.show{display:block}
 #iphoneWidget:hover{transform:translateY(-3px) scale(1.04);filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
 #iphoneWidget .notif{position:absolute;top:6px;right:6px;min-width:18px;height:18px;
@@ -274,7 +274,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <button class="btn" id="btnSettings">Настройки</button>
       <button class="btn" id="btnAbout">Об авторах</button>
     </div>
-    <div class="menu-footer">18+ · Жёсткая драма · v3.1</div>
+    <div class="menu-footer">18+ · Жёсткая драма · v3.2</div>
   </div>
 
   <div id="charSelect" class="screen">
@@ -291,7 +291,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     <div id="topbar">
       <div class="chapter-ind" id="chapterInd">Глава 1</div>
       <div class="top-actions">
-        <button class="icon-btn" id="btnReplayLine" title="Повторить">↺</button>
+        <button class="icon-btn" id="btnReplayLine" title="Предыдущая реплика">↺</button>
         <button class="icon-btn" id="btnVoiceQuick" title="Озвучка">🔊</button>
         <button class="icon-btn" id="btnHistoryQuick" title="Журнал">≡</button>
         <button class="icon-btn" id="btnPause" title="Пауза">❚❚</button>
@@ -467,9 +467,13 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 
 <script>
 /* ============================================================
-   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3.1
-   - Авто-нумерация озвучки: voice/<char>/<char>_NNN.mp3
-   - Чередование фото Ростика: rus .jpg ↔ rust.jpg
+   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3.2
+   Исправления:
+   - Восстановлен отсутствовавший CHAT_SCRIPT
+   - Устранена TDZ-ошибка: assignAudioIds вызывается после объявления CHAT_SCRIPT и CHAT_RESULTS
+   - «Продолжить» больше не сбрасывает прогресс внутри главы
+   - speak() корректно останавливает MP3
+   - Убран мёртвый CHAT_SCRIPT_ORIG
    ============================================================ */
 
 const CHARS = {
@@ -982,40 +986,31 @@ const CHAPTERS = [
 }
 ];
 
-/* Автоматическая нумерация аудио: voice/<char>/<char>_NNN.mp3
-   Порядок = порядок появления реплик в главах. */
-function assignAudioIds(){
-  const counters = { sem:0, rus:0, mih:0 };
-  CHAPTERS.forEach(ch=>{
-    ch.steps.forEach(step=>{
-      if(!step || !step.t) return;
-      const c = step.t;
-      if(counters[c] == null) return;
-      counters[c]++;
-      const num = String(counters[c]).padStart(3,'0');
-      step.audio = 'voice/' + c + '/' + c + '_' + num + '.mp3';
-    });
-  });
-  // Чат-голосовые Мишулика: voice/chat/mih_NNN.mp3
-  let chatNum = 0;
-  CHAT_SCRIPT.forEach(step=>{
-    if(step.from === 'mih' && step.voice){
-      chatNum++;
-      step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
-    }
-  });
-  Object.keys(CHAT_RESULTS).forEach(key=>{
-    CHAT_RESULTS[key].forEach(step=>{
-      if(step.from === 'mih' && step.voice){
-        chatNum++;
-        step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
-      }
-    });
-  });
-}
-assignAudioIds();
-
-const CHAT_SCRIPT_ORIG = null; // сохранён исходный порядок — не используется
+/* ---------- ЧАТ: сценарные сообщения ---------- */
+const CHAT_SCRIPT = [
+  { from:'sys', text:'Сегодня' },
+  { from:'mih', voice:true, text:'Э, шныри. Вы где шляетесь?' },
+  { from:'mih', voice:true, text:'Я вас, бля, второй час жду. Ни один не отвечает.' },
+  { from:'mih', voice:true, text:'Старший младших знай. Забыли, да?' },
+  { from:'kop', text:'Слышь, Мишулик. Ты вообще кто такой?' },
+  { from:'ars', text:'Серьёзно. Мы тебе никто. Шныри какие-то, бля. Ты вообще аухел?' },
+  { from:'kop', text:'Голосовые он шлёт. Как будто мы его секретарши, бля.' },
+  { from:'mih', voice:true, text:'Ты как общаешься.' },
+  { from:'ars', text:'Как хочу, так и общаюсь. Понял, да?' },
+  { from:'kop', text:'Ты нам не старший. Ты просто старый долбоёб с айфоном.' },
+  { from:'ars', text:'Иди нахуй со своими голосовыми.' },
+  { from:'kop', text:'Он молчит. Слышь, Мишулик. Молчишь?' },
+  { from:'ars', text:'Обиделся наш старший. Плачет в подушку, наверное.' },
+  { from:'kop', text:'Или строчит ответ. Ну ты чё, Мишулик?' },
+  { from:'sys', text:'Мишулик прочитал. Мишулик молчит.' },
+  { from:'mih', voice:true, text:'...' },
+  { choices:[
+    { text:'Отправить голосовое с угрозой', flag:'chat_threat', chatResult:'threat' },
+    { text:'Написать спокойно: «Ладно, забыли. Всё»', flag:'chat_calm', chatResult:'calm' },
+    { text:'Молчать и закрыть чат', flag:'chat_silent', chatResult:'silent' },
+    { text:'Удалить чат и заблокировать обоих', flag:'chat_block', chatResult:'block' }
+  ]}
+];
 
 const CHAT_RESULTS = {
   threat:[
@@ -1050,6 +1045,40 @@ const CHAT_RESULTS = {
     { from:'sys', text:'Ты остался один. Как и хотел.' }
   ]
 };
+
+/* Автоматическая нумерация аудио: voice/<char>/<char>_NNN.mp3
+   Порядок = порядок появления реплик в главах.
+   ВАЖНО: вызывается ПОСЛЕ объявления CHAT_SCRIPT и CHAT_RESULTS. */
+function assignAudioIds(){
+  const counters = { sem:0, rus:0, mih:0 };
+  CHAPTERS.forEach(ch=>{
+    ch.steps.forEach(step=>{
+      if(!step || !step.t) return;
+      const c = step.t;
+      if(counters[c] == null) return;
+      counters[c]++;
+      const num = String(counters[c]).padStart(3,'0');
+      step.audio = 'voice/' + c + '/' + c + '_' + num + '.mp3';
+    });
+  });
+  // Чат-голосовые Мишулика: voice/chat/mih_NNN.mp3
+  let chatNum = 0;
+  CHAT_SCRIPT.forEach(step=>{
+    if(step.from === 'mih' && step.voice){
+      chatNum++;
+      step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
+    }
+  });
+  Object.keys(CHAT_RESULTS).forEach(key=>{
+    CHAT_RESULTS[key].forEach(step=>{
+      if(step.from === 'mih' && step.voice){
+        chatNum++;
+        step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
+      }
+    });
+  });
+}
+assignAudioIds();
 
 const SAVE_KEY = 'mafia_friends_v3_save';
 const ENDINGS_KEY = 'mafia_friends_v3_endings';
@@ -1138,7 +1167,7 @@ function sfx(type){
   }
 }
 
-let voices=[], currentUtt=null, speakLock=0;
+let voices=[], currentUtt=null, speakLock=0, currentAudio=null;
 function loadVoices(){ if(!('speechSynthesis' in window)) return; try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
 if('speechSynthesis' in window){
   loadVoices();
@@ -1164,8 +1193,10 @@ function speak(text, charId, force){
   if(!('speechSynthesis' in window)) return;
   if(!text||!text.trim()) return;
   const now = Date.now(); if(now-speakLock<80) return; speakLock = now;
+  // Останавливаем и синтез, и текущий аудиофайл
   if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
   currentUtt = null;
+  if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime=0; }catch(e){} currentAudio = null; }
   const u = new SpeechSynthesisUtterance(text);
   const cfg = (CHARS[charId] && CHARS[charId].voice) || { rate:1, pitch:1, vol:1 };
   const v = pickVoice(charId);
@@ -1194,7 +1225,14 @@ async function playVoice(audioPath, fallbackText, charId){
   if(audioPath){
     stopVoice();
     const base = audioPath.replace(/\.(mp3|m4a|ogg|wav)$/i,'');
-    const candidates = [audioPath, base+'.mp3', base+'.m4a'];
+    // Собираем уникальные кандидаты, чтобы не грузить один и тот же URL дважды
+    const candidates = [];
+    const push = (u)=>{ if(u && candidates.indexOf(u) === -1) candidates.push(u); };
+    push(audioPath);
+    push(base + '.mp3');
+    push(base + '.m4a');
+    push(base + '.ogg');
+    push(base + '.wav');
     for(const url of candidates){
       const a = await tryAudio(url);
       if(a){
@@ -1238,7 +1276,7 @@ function saveEndings(){ try{ localStorage.setItem(ENDINGS_KEY, JSON.stringify(un
 function loadEndings(){ try{ const r=localStorage.getItem(ENDINGS_KEY); if(!r) return;
   const a=JSON.parse(r); if(Array.isArray(a)) unlockedEndings=a; }catch(e){} }
 
-let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null, currentAudio=null;
+let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null;
 let rusPhotoToggle = false;
 
 function getChapter(){ return CHAPTERS[state.chapter]; }
@@ -1273,15 +1311,13 @@ function setPhoto(charId){
     const ch = CHARS[charId];
     if(!ch||!ch.img){ img.style.display='none'; ph.style.display='flex'; return; }
     let src = ch.img;
-    // Чередование фото Ростика
     if(charId === 'rus' && ch.imgAlt){
       rusPhotoToggle = !rusPhotoToggle;
       src = rusPhotoToggle ? ch.img : ch.imgAlt;
     }
     img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; img.style.opacity='1'; };
     img.onerror = ()=>{
-      // если не загрузилась основная, пробуем альтернативную у Ростика
-      if(charId === 'rus' && ch.imgAlt && !img.dataset.fallbackTried){
+      if(charId === 'rus' && ch.imgAlt && img.dataset.fallbackTried !== '1'){
         img.dataset.fallbackTried = '1';
         const altSrc = (src === ch.img) ? ch.imgAlt : ch.img;
         img.src = altSrc;
@@ -1478,7 +1514,6 @@ function makeBubble(from, text, isVoice, audioPath){
     v.onclick = ()=>{
       v.classList.add('playing');
       const onDone = ()=>v.classList.remove('playing');
-      // Сначала пробуем аудиофайл, если есть — иначе синтез
       if(audioPath){
         playVoice(audioPath, text, 'mih').finally(onDone);
         return;
@@ -1584,9 +1619,13 @@ function applyChatChoice(choice){
   saveGame();
 }
 
-function startChapter(idx){
+/* startChapter(idx, opts) — opts.keepStep=true сохраняет текущий state.step */
+function startChapter(idx, opts){
+  opts = opts || {};
   if(idx<0||idx>=CHAPTERS.length) idx=0;
-  state.chapter = idx; state.step = 0; state.currentChoice = null; endingTriggered=false;
+  state.chapter = idx;
+  if(!opts.keepStep) state.step = 0;
+  state.currentChoice = null; endingTriggered=false;
   hideAllOverlays();
   showScreen('game');
   currentPhotoChar = null; lastSpeaker = null;
@@ -1693,7 +1732,9 @@ function buildHistoryList(){
   if(!state.history.length){ box.innerHTML='<div style="color:var(--text-dim);text-align:center;padding:20px">Журнал пуст</div>'; return; }
   state.history.slice().reverse().forEach(h=>{
     const d = document.createElement('div'); d.className='hist-entry';
-    d.innerHTML = `<span class="who">${h.who||''}</span>${h.text}`;
+    const who = document.createElement('span'); who.className='who'; who.textContent = h.who || '';
+    d.appendChild(who);
+    d.appendChild(document.createTextNode(h.text || ''));
     box.appendChild(d);
   });
 }
@@ -1724,9 +1765,11 @@ function bindEvents(){
     sfx('click');
     if(loadGame() && state.playerChar){
       initAudio(); ensureAudio();
-      const loadedStep = Math.min(state.step, Math.max(0,getSteps().length-1));
+      const steps = getSteps();
+      const loadedStep = Math.min(Math.max(0, state.step), Math.max(0, steps.length-1));
       state.step = loadedStep;
-      startChapter(state.chapter);
+      // keepStep=true — не сбрасываем прогресс внутри главы
+      startChapter(state.chapter, { keepStep:true });
     }
   };
   $('btnEndings').onclick = ()=>{ sfx('click'); buildEndingsList(); showOverlay('endingsOverlay'); };
