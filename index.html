@@ -104,8 +104,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 #photoPlaceholder{display:none;position:absolute;inset:0;border-radius:3px;
   background:linear-gradient(150deg,#241820,#0e0a12);color:var(--gold-soft);
   align-items:center;justify-content:center;text-align:center;font-size:14px;
-  letter-spacing:.15em;padding:12px;flex-direction:filtercolumn;gap:8px}
-#photoPlace .holder .big3{font-size:38px;color:vars(--crimson-light);opacity ease:.;7}
+  letter-spacing:.15em;padding:12px;flex-direction:column;gap:8px}
+#photoPlaceholder .big{font-size:38px;color:var(--crimson-light);opacity:.7}
 #dialogPanel{width:min(760px,96vw);background:var(--panel);border:1px solid rgba(212,175,55,.25);
   border-radius:10px;padding:16px 18px 14px;backdrop-filter:blur(10px);
   box-shadow:0 14px 44px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);position:relative;z-index:5;flex-shrink:0}
@@ -130,7 +130,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:#06060a;color:#e8e2d
 #continueBtn{padding:10px 22px;font-size:13px}
 #iphoneWidget{position:fixed;left:14px;bottom:14px;width:70px;height:140px;z-index:40;
   cursor:pointer;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8));
-  transition:transform .3s ease,display:none}
+  transition:transform .3s ease;display:none}
 #iphoneWidget.show{display:block}
 #iphoneWidget:hover{transform:translateY(-3px) scale(1.04);filter:drop-shadow(0 8px 24px rgba(212,175,55,.4))}
 #iphoneWidget .notif{position:absolute;top:6px;right:6px;min-width:18px;height:18px;
@@ -274,7 +274,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
       <button class="btn" id="btnSettings">Настройки</button>
       <button class="btn" id="btnAbout">Об авторах</button>
     </div>
-    <div class="menu-footer">18+ · Жёсткая драма · v3.0</div>
+    <div class="menu-footer">18+ · Жёсткая драма · v3.1</div>
   </div>
 
   <div id="charSelect" class="screen">
@@ -467,16 +467,16 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
 
 <script>
 /* ============================================================
-   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3
-   Ветвление через label/goto. Кавказский стиль речи.
-   Поддержка своей озвучки через поле audio:'...'
+   МАФИЯ: ИСТОРИЯ ДРУЗЕЙ v3.1
+   - Авто-нумерация озвучки: voice/<char>/<char>_NNN.mp3
+   - Чередование фото Ростика: rus .jpg ↔ rust.jpg
    ============================================================ */
 
 const CHARS = {
   sem: { name:'Семь', img:'sem.jpg', color:'#e07a5f',
          voice:{rate:1.10,pitch:0.85,vol:1},
          desc:'Дерзкий, самоуверенный, лезет в драку первым. Каждый раз доказывает, что он главный. Хотя не он.' },
-  rus: { name:'Ростик', img:'rus%20.jpg', color:'#81b29a',
+  rus: { name:'Ростик', img:'rus%20.jpg', imgAlt:'rust.jpg', color:'#81b29a',
          voice:{rate:1.02,pitch:1.18,vol:1},
          desc:'Трикстер. Ржёт даже когда не надо. Договаривается со всеми — но только за себя. Скрывает больше, чем говорит.' },
   mih: { name:'Мишулик Пупулик', img:'mih%20.jpg', color:'#f2cc8f',
@@ -494,13 +494,13 @@ const CHAPTERS = [
   steps:[
     {t:'n', text:'Пятница. Заброшенный гараж. Пахнет бензином и старым пивом.'},
     {t:'n', text:'Трое снова вместе. Только воздух сегодня густой. Как будто что-то висит.'},
-    {t:'sem', text:'Э, слышь. Ну чё, собрались наконец. Я уж думал, вы зассали.', audio:'voice/sem/sem_001.mp3'},
+    {t:'sem', text:'Э, слышь. Ну чё, собрались наконец. Я уж думал, вы зассали.'},
     {t:'rus', text:'Зассали? Я, бля, через весь город на двух автобусах ехал. Ты бы хоть пива нормального взял, а не это пойло.'},
-    {t:'sem', text:'Не нравится — не пей. Мне пох, я не барыга.', audio:'voice/sem/sem_002.mp3'},
+    {t:'sem', text:'Не нравится — не пей. Мне пох, я не барыга.'},
     {t:'mih', text:'Хорош орать. Говори, зачем позвал.'},
-    {t:'sem', text:'О, Мишулик включил старшего. Как всегда, бля.', audio:'voice/sem/sem_003.mp3'},
+    {t:'sem', text:'О, Мишулик включил старшего. Как всегда, бля.'},
     {t:'mih', text:'Ты как общаешься.'},
-    {t:'sem', text:'Нормально я общаюсь! Как с равным!', audio:'voice/sem/sem_004.mp3'},
+    {t:'sem', text:'Нормально я общаюсь! Как с равным!'},
     {t:'mih', text:'Мы не равные. Я старше.'},
     {t:'rus', text:'О боже, опять эта тема. Ты старше нас на два месяца, Мишулик. Два. Месяца.'},
     {t:'mih', text:'Старший младших знай. Всё.'},
@@ -982,30 +982,41 @@ const CHAPTERS = [
 }
 ];
 
-const CHAT_SCRIPT = [
-  { from:'sys', text:'Сегодня' },
-  { from:'mih', voice:true, text:'Э, шныри. Вы где шляетесь?' },
-  { from:'mih', voice:true, text:'Я вас, бля, второй час жду. Ни один не отвечает.' },
-  { from:'mih', voice:true, text:'Старший младших знай. Забыли, да?' },
-  { from:'kop', text:'Слышь, Мишулик. Ты вообще кто такой?' },
-  { from:'ars', text:'Серьёзно. Мы тебе никто. Шныри какие-то, бля. Ты вообще аухел?' },
-  { from:'kop', text:'Голосовые он шлёт. Как будто мы его секретарши, бля.' },
-  { from:'mih', voice:true, text:'Ты как общаешься.' },
-  { from:'ars', text:'Как хочу, так и общаюсь. Понял, да?' },
-  { from:'kop', text:'Ты нам не старший. Ты просто старый долбоёб с айфоном.' },
-  { from:'ars', text:'Иди нахуй со своими голосовыми.' },
-  { from:'kop', text:'Он молчит. Слышь, Мишулик. Молчишь?' },
-  { from:'ars', text:'Обиделся наш старший. Плачет в подушку, наверное.' },
-  { from:'kop', text:'Или строчит ответ. Ну ты чё, Мишулик?' },
-  { from:'sys', text:'Мишулик прочитал. Мишулик молчит.' },
-  { from:'mih', voice:true, text:'...' },
-  { choices:[
-    { text:'Отправить голосовое с угрозой', flag:'chat_threat', chatResult:'threat' },
-    { text:'Написать спокойно: «Ладно, забыли. Всё»', flag:'chat_calm', chatResult:'calm' },
-    { text:'Молчать и закрыть чат', flag:'chat_silent', chatResult:'silent' },
-    { text:'Удалить чат и заблокировать обоих', flag:'chat_block', chatResult:'block' }
-  ]}
-];
+/* Автоматическая нумерация аудио: voice/<char>/<char>_NNN.mp3
+   Порядок = порядок появления реплик в главах. */
+function assignAudioIds(){
+  const counters = { sem:0, rus:0, mih:0 };
+  CHAPTERS.forEach(ch=>{
+    ch.steps.forEach(step=>{
+      if(!step || !step.t) return;
+      const c = step.t;
+      if(counters[c] == null) return;
+      counters[c]++;
+      const num = String(counters[c]).padStart(3,'0');
+      step.audio = 'voice/' + c + '/' + c + '_' + num + '.mp3';
+    });
+  });
+  // Чат-голосовые Мишулика: voice/chat/mih_NNN.mp3
+  let chatNum = 0;
+  CHAT_SCRIPT.forEach(step=>{
+    if(step.from === 'mih' && step.voice){
+      chatNum++;
+      step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
+    }
+  });
+  Object.keys(CHAT_RESULTS).forEach(key=>{
+    CHAT_RESULTS[key].forEach(step=>{
+      if(step.from === 'mih' && step.voice){
+        chatNum++;
+        step.audio = 'voice/chat/mih_' + String(chatNum).padStart(3,'0') + '.mp3';
+      }
+    });
+  });
+}
+assignAudioIds();
+
+const CHAT_SCRIPT_ORIG = null; // сохранён исходный порядок — не используется
+
 const CHAT_RESULTS = {
   threat:[
     { from:'mih', voice:true, text:'Вы пожалеете. Оба. Я вас, бля, найду.' },
@@ -1228,6 +1239,7 @@ function loadEndings(){ try{ const r=localStorage.getItem(ENDINGS_KEY); if(!r) r
   const a=JSON.parse(r); if(Array.isArray(a)) unlockedEndings=a; }catch(e){} }
 
 let typing=false, typeTimer=null, currentFullText='', lastSpeaker=null, endingTriggered=false, currentPhotoChar=null, currentAudio=null;
+let rusPhotoToggle = false;
 
 function getChapter(){ return CHAPTERS[state.chapter]; }
 function getSteps(){ const c=getChapter(); return c?c.steps:[]; }
@@ -1252,7 +1264,7 @@ function setPhoto(charId){
   const wrap = $('photoWrap'); if(!wrap) return;
   if(charId==='n'){ wrap.classList.add('dim'); return; }
   wrap.classList.remove('dim');
-  if(currentPhotoChar===charId) return;
+  if(currentPhotoChar===charId && charId!=='rus') return;
   currentPhotoChar = charId;
   const img = $('charPhoto'), ph = $('photoPlaceholder'), pname = $('placeholderName');
   if(!img||!ph) return;
@@ -1260,9 +1272,25 @@ function setPhoto(charId){
   setTimeout(()=>{
     const ch = CHARS[charId];
     if(!ch||!ch.img){ img.style.display='none'; ph.style.display='flex'; return; }
+    let src = ch.img;
+    // Чередование фото Ростика
+    if(charId === 'rus' && ch.imgAlt){
+      rusPhotoToggle = !rusPhotoToggle;
+      src = rusPhotoToggle ? ch.img : ch.imgAlt;
+    }
     img.onload = ()=>{ img.style.display='block'; ph.style.display='none'; img.style.opacity='1'; };
-    img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; pname.textContent = ch.name; };
-    img.src = ch.img;
+    img.onerror = ()=>{
+      // если не загрузилась основная, пробуем альтернативную у Ростика
+      if(charId === 'rus' && ch.imgAlt && !img.dataset.fallbackTried){
+        img.dataset.fallbackTried = '1';
+        const altSrc = (src === ch.img) ? ch.imgAlt : ch.img;
+        img.src = altSrc;
+        return;
+      }
+      img.style.display='none'; ph.style.display='flex'; pname.textContent = ch.name;
+    };
+    img.dataset.fallbackTried = '';
+    img.src = src;
   }, 180);
 }
 function renderSpeaker(charId){
@@ -1416,14 +1444,14 @@ function renderChatAll(){
   body.innerHTML = '';
   state.chatHistory.forEach(item=>{
     if(item.type==='msg'){
-      body.appendChild(makeBubble(item.from, item.text, !!item.voice));
+      body.appendChild(makeBubble(item.from, item.text, !!item.voice, item.audio));
     } else if(item.type==='sys'){
       body.appendChild(makeBubble('sys', item.text));
     }
   });
   setTimeout(()=>{ body.scrollTop = body.scrollHeight; }, 20);
 }
-function makeBubble(from, text, isVoice){
+function makeBubble(from, text, isVoice, audioPath){
   const row = document.createElement('div');
   if(from==='sys'){
     row.className = 'msgRow sys';
@@ -1449,7 +1477,13 @@ function makeBubble(from, text, isVoice){
     v.innerHTML = `<div class="voicePlay">▶</div><div class="voiceWave">${bars}</div><div class="voiceDur">0:${String(dur).padStart(2,'0')}</div>`;
     v.onclick = ()=>{
       v.classList.add('playing');
-      if(!('speechSynthesis' in window)) return;
+      const onDone = ()=>v.classList.remove('playing');
+      // Сначала пробуем аудиофайл, если есть — иначе синтез
+      if(audioPath){
+        playVoice(audioPath, text, 'mih').finally(onDone);
+        return;
+      }
+      if(!('speechSynthesis' in window)){ onDone(); return; }
       stopVoice();
       const u = new SpeechSynthesisUtterance(text);
       const cfg = CHARS.mih.voice;
@@ -1457,9 +1491,9 @@ function makeBubble(from, text, isVoice){
       if(vv){ u.voice=vv; u.lang=vv.lang||'ru-RU'; } else { u.lang='ru-RU'; }
       u.rate = cfg.rate; u.pitch = cfg.pitch;
       u.volume = Math.max(0, Math.min(1, settings.voiceVol));
-      u.onend = ()=>v.classList.remove('playing');
-      u.onerror = ()=>v.classList.remove('playing');
-      try{ window.speechSynthesis.speak(u); }catch(e){}
+      u.onend = onDone;
+      u.onerror = onDone;
+      try{ window.speechSynthesis.speak(u); }catch(e){ onDone(); }
     };
     b.appendChild(v);
   } else {
@@ -1521,7 +1555,7 @@ function chatNext(){
     saveGame();
     return;
   }
-  state.chatHistory.push({ type:'msg', from:step.from, text:step.text, voice:!!step.voice });
+  state.chatHistory.push({ type:'msg', from:step.from, text:step.text, voice:!!step.voice, audio:step.audio });
   state.chatCursor++;
   renderChatAll();
   if(step.voice) sfx('notify');
@@ -1539,7 +1573,7 @@ function applyChatChoice(choice){
   function next(){
     if(i>=result.length){ state.chatDone = true; updateChatNextBtn(); updateIphoneBadge(); saveGame(); return; }
     const r = result[i];
-    state.chatHistory.push({ type: r.from==='sys'?'sys':'msg', from:r.from, text:r.text, voice:!!r.voice });
+    state.chatHistory.push({ type: r.from==='sys'?'sys':'msg', from:r.from, text:r.text, voice:!!r.voice, audio:r.audio });
     i++;
     renderChatAll();
     if(r.voice) sfx('notify');
